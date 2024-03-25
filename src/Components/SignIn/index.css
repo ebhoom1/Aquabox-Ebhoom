@@ -1,0 +1,96 @@
+.blue-box {
+  background-image: linear-gradient(to bottom, #236a8098, #259cc07e),
+    url("/public/assets/images/water-plant.png");
+  background-size: cover;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.blue-box-text {
+  color: #ffffff;
+  font-size: 45px;
+  font-weight: 600;
+  padding-left: 20px;
+}
+
+@media screen and (max-width: 567px) {
+  .blue-box-text {
+    font-size: 35px;
+  }
+  .blue-box {
+    height: 40vh;
+  }
+}
+
+.signin-text {
+  font-size: 17px;
+  color: #1d1d1d;
+}
+
+.input-field {
+  width: 100%;
+  height: 50px;
+  border: 1px solid #236a80;
+  padding-left: 10px;
+}
+
+.signin-button {
+  width: 100%;
+  height: 50px;
+  border: 1px solid #236a80;
+  background-color: #236a80;
+  color: #ffffff;
+  font-size: 18px;
+}
+
+.home-button {
+  padding: 5px 40px;
+  border: 1px solid #236a80;
+  background-color: transparent;
+  color: #153842;
+  font-size: 14px;
+}
+.home-button:hover {
+  background-color: #153842;
+  color: #ffffff;
+}
+
+.signin-button:hover {
+  background-color: #153842;
+}
+
+.padd {
+  padding-left: 40px;
+}
+
+@media screen and (max-width: 567px) {
+  .padd {
+    padding-left: 16px;
+  }
+}
+
+.forgot {
+  color: #646464;
+  font-size: 14px;
+  text-align: end;
+}
+.forgot:hover {
+  color: #000000;
+  cursor: pointer;
+}
+
+.signup-button {
+  padding: 8px 40px;
+  background-color: #236a80;
+  border: none;
+  color: #ffffff;
+  font-size: 14px;
+}
+
+.signup-button:hover {
+  background-color: #153842;
+}
+.error{
+  color: red;
+}

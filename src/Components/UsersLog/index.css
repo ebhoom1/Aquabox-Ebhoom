@@ -1,0 +1,9 @@
+.FloatRight{
+    float: right;
+}
+.FloatRight a {
+    padding-left: 5px;
+    cursor: pointer;
+    text-decoration: underline !important;
+    color: blue !important;
+}

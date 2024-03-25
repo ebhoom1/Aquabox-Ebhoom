@@ -1,24 +1,50 @@
-import logo from './logo.svg';
+
 import './App.css';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import Header from './Components/Header/Header'
+import Footer from './Components/Footer/Footer'
+import PrivateLayout from './Components/PrivateLayout/PrivateLayout'
+import Dashboard from './Components/Dashboard/Dashboard';
+import Attendence from './Components/Attendance/Attendence';
+import ManageUsers from './Components/ManageUsers/ManageUsers';
+import UsersLog from './Components/UsersLog/UsersLog';
+import Account from './Components/Account/Account'
+import PublicLayout from './Components/PublicLayout/PublicLayout'
+import ResetPassword from './Components/ResetPassword/ResetPassword';
+import ResetPasswordEmail from './Components/ResetPassword/ResetPasswordEmail';
+import ResetPasswordOtp from './Components/ResetPassword/ResetPasswordOtp';
+import Faq from './Components/Faq/Faq';
+import Terms from './Components/Terms/Terms'
+import SignIn from './Components/SignIn/SignIn';
+import SignUp from './Components/SignUp/SignUp';
+import SignUpConfirmation from './Components/SignUp/SignUpConfirmation';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+ <Routes>
+        <Route path="/" element={<PublicLayout />} >
+          <Route exact path="" element={<SignIn />} />
+          <Route exact path="signup" element={<SignUp />} />
+          <Route exact path="signup-confirmation" element={<SignUpConfirmation />} />
+          <Route exact path="reset-password-otp" element={<ResetPasswordOtp />} />
+          <Route exact path="reset-password" element={<ResetPassword />} />
+          <Route exact path="reset-password-email" element={<ResetPasswordEmail />} />
+          <Route exact path="faq" element={<Faq />} />
+          <Route exact path="terms" element={<Terms />} />
+        </Route>
+
+        <Route exact path="/" element={<PrivateLayout />} >
+          <Route exact path="/dashboard" element={<Dashboard />} />
+          <Route exact path="/account" element={<Account />} />
+          <Route exact path="/attendance-report" element={<Attendence />} />
+          <Route exact path="/manage-users" element={<ManageUsers />} />
+          <Route exact path="/users-log" element={<UsersLog />} />
+        </Route>
+
+
+      </Routes>
+    </>
   );
 }
 

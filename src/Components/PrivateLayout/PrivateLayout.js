@@ -1,0 +1,204 @@
+import React, { useState, useEffect } from 'react';
+import { Navigate, useLocation, Outlet, Link } from "react-router-dom"
+import LeftSideBar from "../LeftSideBar/LeftSideBar";
+
+import './index.css'
+
+
+const PrivateLayout = () => {
+
+ 
+  return (
+    <div className="container-scroller">
+      {/* <!-- partial:partials/_navbar.html --> */}
+      <nav className="navbar default-layout col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+        <div className="text-center navbar-brand-wrapper d-flex align-items-top justify-content-center">
+          <a className="navbar-brand brand-logo" href="#">
+            <h1 className="aqualogo">EBHOOM</h1>
+            <span className="navbar-brand brand-logo-mini">
+              <h1 className="aqualogo">AB</h1>
+            </span>{" "}
+          </a>
+        </div>
+        <div className="navbar-menu-wrapper d-flex align-items-center">
+          <ul className="navbar-nav">
+          
+              <li className="nav-item font-weight-semibold d-none d-lg-block">Product ID :0009</li>
+            
+
+            <li className="nav-item font-weight-semibold d-none d-lg-block">
+              
+                  <div>
+                    <span className='online'>Online</span> : <span className='offline'>Offline</span>
+                    
+                  </div>
+               
+            </li>
+          </ul>
+          {/* <!-- <form className="ml-auto search-form d-none d-md-block" action="#">
+              <div className="form-group">
+                <input type="search" className="form-control" placeholder="Search Here" />
+              </div>
+            </form> --> */}
+          <ul className="navbar-nav ml-auto">
+            <li className="nav-item dropdown">
+              <a
+                className="nav-link count-indicator"
+                id="messageDropdown"
+                href="#"
+                data-toggle="dropdown"
+                aria-expanded="false"
+              >
+                <i className="mdi mdi-bell-outline"></i>
+                <span className="count">7</span>
+              </a>
+              <div
+                className="dropdown-menu dropdown-menu-right navbar-dropdown preview-list pb-0"
+                aria-labelledby="messageDropdown"
+              >
+                <a className="dropdown-item py-3">
+                  <p className="mb-0 font-weight-medium float-left">
+                    You have 7 unread mails{" "}
+                  </p>
+                  <span className="badge badge-pill badge-primary float-right">
+                    View all
+                  </span>
+                </a>
+                <div className="dropdown-divider"></div>
+                <a className="dropdown-item preview-item">
+                  <div className="preview-thumbnail">
+                    <img
+                      src="assets/images/faces/face10.jpg"
+                      alt="image"
+                      className="img-sm profile-pic"
+                    />
+                  </div>
+                  <div className="preview-item-content flex-grow py-2">
+                    <p className="preview-subject ellipsis font-weight-medium text-dark">
+                      Marian Garner{" "}
+                    </p>
+                    <p className="font-weight-light small-text">
+                      {" "}
+                      The meeting is cancelled{" "}
+                    </p>
+                  </div>
+                </a>
+                <a className="dropdown-item preview-item">
+                  <div className="preview-thumbnail">
+                    <img
+                      src="assets/images/faces/face12.jpg"
+                      alt="image"
+                      className="img-sm profile-pic"
+                    />
+                  </div>
+                  <div className="preview-item-content flex-grow py-2">
+                    <p className="preview-subject ellipsis font-weight-medium text-dark">
+                      David Grey{" "}
+                    </p>
+                    <p className="font-weight-light small-text">
+                      {" "}
+                      The meeting is cancelled{" "}
+                    </p>
+                  </div>
+                </a>
+                <a className="dropdown-item preview-item">
+                  <div className="preview-thumbnail">
+                    <img
+                      src="assets/images/faces/face1.jpg"
+                      alt="image"
+                      className="img-sm profile-pic"
+                    />
+                  </div>
+                  <div className="preview-item-content flex-grow py-2">
+                    <p className="preview-subject ellipsis font-weight-medium text-dark">
+                      Travis Jenkins{" "}
+                    </p>
+                    <p className="font-weight-light small-text">
+                      {" "}
+                      The meeting is cancelled{" "}
+                    </p>
+                  </div>
+                </a>
+              </div>
+            </li>
+
+            <li className="nav-item dropdown d-xl-inline-block user-dropdown">
+              <a
+                className="nav-link dropdown-toggle"
+                id="UserDropdown"
+                href="#"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                <img
+                  className="img-xs rounded-circle"
+                  src="assets/images/admin.png"
+                  alt="Profile image"
+                />{" "}
+              </a>
+              <div
+                className="dropdown-menu dropdown-menu-right navbar-dropdown"
+                aria-labelledby="UserDropdown"
+              >
+                <div className="dropdown-header text-center">
+                  <img
+                    className="img-md rounded-circle"
+                    src="assets/images/admin.png"
+                    alt="Profile image"
+                  />
+                  
+                    <p className="mb-1 mt-3 font-weight-semibold"></p>
+                  
+                  
+                    <p className="font-weight-light text-muted mb-0">
+                      Product ID:
+                    </p>
+                  
+
+                </div>
+                {/* <a className="dropdown-item">
+                  My Profile <i className="dropdown-item-icon ti-dashboard"></i>
+                </a>
+                <a className="dropdown-item">
+                  Messages<span className="badge badge-pill badge-danger">1</span>
+                  <i className="dropdown-item-icon ti-comment-alt"></i>
+                </a>
+                <a className="dropdown-item">
+                  Activity<i className="dropdown-item-icon ti-location-arrow"></i>
+                </a>
+                <a className="dropdown-item">
+                  FAQ<i className="dropdown-item-icon ti-help-alt"></i>
+                </a> */}
+               <Link to='/'><a  className="dropdown-item" >
+                  Sign Out<i className="dropdown-item-icon ti-power-off"></i> 
+                </a>
+                </Link>
+              </div>
+            </li>
+          </ul>
+          <button
+            className="navbar-toggler navbar-toggler-right d-lg-none align-self-center"
+            type="button"
+            
+            // onClick={toggleMenu}
+          >
+            <span className="mdi mdi-menu"></span>
+          </button>
+        </div>
+      </nav>
+      {/* <!-- partial --> */}
+      <div className="container-fluid page-body-wrapper">
+        {/* <!-- partial:partials/_sidebar.html --> */}
+        <LeftSideBar />
+        {/* <!-- partial --> */}
+
+        <Outlet  />
+
+
+      </div>
+    </div>
+  )
+
+};
+
+export default PrivateLayout;
