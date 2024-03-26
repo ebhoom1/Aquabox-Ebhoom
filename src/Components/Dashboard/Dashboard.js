@@ -59,7 +59,7 @@ const Dashboard = () => {
                     <h3 className="mb-3">pH level</h3>
                   </div>
                   <div className="col-12 mb-3">
-                    <h1></h1>
+                    <h1>pH</h1>
                     {/* <h4>Alkaline Water</h4> */}
                   </div>
 

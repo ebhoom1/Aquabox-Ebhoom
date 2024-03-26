@@ -18,6 +18,8 @@ import Terms from './Components/Terms/Terms'
 import SignIn from './Components/SignIn/SignIn';
 import SignUp from './Components/SignUp/SignUp';
 import SignUpConfirmation from './Components/SignUp/SignUpConfirmation';
+import AmbientAir from './Components/AmbientAir/AmbientAir';
+import Noise from './Components/Noise/Noise';
 
 function App() {
   return (
@@ -36,6 +38,8 @@ function App() {
 
         <Route exact path="/" element={<PrivateLayout />} >
           <Route exact path="/dashboard" element={<Dashboard />} />
+          <Route exact path="/ambient-air" element={<AmbientAir />} />
+          <Route exact path="/noise" element={<Noise />} />
           <Route exact path="/account" element={<Account />} />
           <Route exact path="/attendance-report" element={<Attendence />} />
           <Route exact path="/manage-users" element={<ManageUsers />} />
