@@ -9,6 +9,8 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  Line,
+  LineChart,
 } from "recharts";
 
 const Noise = () => {
@@ -18,8 +20,8 @@ const Noise = () => {
   const [heading, setHeading] = useState("Week");
 
   // Mock data for demonstration
-  const weekData = [{ name: "Mon", value: 30 }, { name: "Tue", value: 40 },{ name: "wed", value: 20 }];
-  const monthData = [{ name: "Week 1", value: 150 }, { name: "Week 2", value: 180 }];
+  const weekData = [{ name: "Mon", value: 30 }, { name: "Tue", value: 40 },{ name: "wed", value: 20 },{ name: "Thu", value: 60 }];
+  const monthData = [{ name: "Week 1", value: 150 }, { name: "Week 2", value: 180 },{ name: "Week 3", value: 250 },{ name: "Week 4", value: 150 }];
 
   const handleCardClick = (timeFrame) => {
     setShowPopup(true);
@@ -85,7 +87,7 @@ const Noise = () => {
 
         {/* Popup */}
         {/* Popup */}
-{showPopup && (
+        {showPopup && (
   <div className="popup-container">
     <div className="popup">
       <button className="close-btn" onClick={() => setShowPopup(false)}>Close</button>
@@ -93,14 +95,14 @@ const Noise = () => {
       <button className="indicator" onClick={() => handleCardClick("week")}>Week</button>
       <button className="indicator" onClick={() => handleCardClick("month")}>Month</button>
       <ResponsiveContainer width="100%" height={400}>
-        <BarChart data={popupData}>
+        <LineChart data={popupData}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" />
           <YAxis />
           <Tooltip />
           <Legend />
-          <Bar dataKey="value" fill="#8884d8" />
-        </BarChart>
+          <Line type="monotone" dataKey="value" stroke="#8884d8" />
+        </LineChart>
       </ResponsiveContainer>
     </div>
   </div>
