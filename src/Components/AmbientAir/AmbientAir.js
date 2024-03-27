@@ -13,11 +13,26 @@ import {
 } from "recharts";
 
 import { Link } from 'react-router-dom';
+import Popup from "./popup";
 
 const AmbientAir = () => {
 
- 
+ const [showPopup,setShowPopup]=useState(false);
+ const [selectedCard, setSelectedCard]=useState(null);
 
+ // Sample data for demonstration, replace with your actual data
+ const weekData = [{ name: "Mon", value: 30 }, { name: "Tue", value: 40 }, { name: "Wed", value: 50 }];
+ const monthData = [{ name: "Week 1", value: 100 }, { name: "Week 2", value: 200 }, { name: "Week 3", value: 150 }];
+
+ const handleCardClick = (card) => {
+    setSelectedCard(card);
+    setShowPopup(true);
+  };
+
+  const handleClosePopup = () => {
+    setShowPopup(false);
+    setSelectedCard(null);
+  };
   return (
     <div className="main-panel">
       <div className="content-wrapper">
@@ -52,7 +67,7 @@ const AmbientAir = () => {
 
         <div className="row">
           <div className="col-12 col-md-4 grid-margin">
-            <div className="card">
+            <div className="card" onClick={() =>handleCardClick({ title: "PM 10" })}>
               <div className="card-body">
                 <div className="row">
                   <div className="col-12">
@@ -73,7 +88,7 @@ const AmbientAir = () => {
             </div>
           </div>
           <div className="col-12 col-md-4 grid-margin">
-            <div className="card">
+            <div className="card" onClick={() =>handleCardClick({ title: "PM 2.5" })}>
               <div className="card-body">
                 <div className="row">
                   <div className="col-12">
@@ -256,7 +271,15 @@ const AmbientAir = () => {
 
 
       </div>
-
+        {/* Render Popup if showPopup is true */}
+        {showPopup && selectedCard && (
+        <Popup
+          title={selectedCard.title}
+          weekData={weekData} // Pass actual week data here
+          monthData={monthData} // Pass actual month data here
+          onClose={handleClosePopup}
+        />
+      )}
       <footer className="footer">
         <div className="container-fluid clearfix">
           <span className="text-muted d-block text-center text-sm-left d-sm-inline-block">
@@ -272,6 +295,7 @@ const AmbientAir = () => {
           </span>
         </div>
       </footer>
+      
     </div>
   );
 }

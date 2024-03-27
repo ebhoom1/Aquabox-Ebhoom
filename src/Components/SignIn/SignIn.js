@@ -17,7 +17,7 @@ const SignIn = () => {
         <div className="row">
           <div className="col-12 col-lg-6 blue-box">
             <h1 className="blue-box-text">
-              Monitor and Control <br /> your  <br /> Water Treatment Plant
+            All pollution monitoring application
             </h1>
           </div>
           <div className="col-12 col-lg-6 padd pt-4">
@@ -38,8 +38,11 @@ const SignIn = () => {
               </div>
               <Link className="link" to="/reset-password-email"> <p className="forgot">Forgot password?</p></Link>
               <select className="input-field mb-4">
-                <option value="company">Company</option>
-                <option value="staff">Staff</option>
+                <option value="superAdmin">Super-Admin</option>
+                <option value="admin">Admin</option>
+                <option value="ambientAir">Ambient Air</option>
+                <option value="effluent-water">Effluent/Water</option>
+                <option value="noise">Noise</option>
               </select>
               <Link className="link" to="/dashboard"> <button type="submit" className="signin-button" >Sign In</button></Link>
             </form>

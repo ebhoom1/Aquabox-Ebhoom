@@ -90,9 +90,9 @@ const UsersLog = () => {
 
                   <div className="col-12  mb-3">
                     <ul className="list-group">
-                      <li className="list-group-item">1.Product ID</li>
-                      <li className="list-group-item">2.Product ID</li>
-                      <li className="list-group-item">3.Product ID</li>
+                      <li className="list-group-item">1.User ID</li>
+                      <li className="list-group-item">2.User ID</li>
+                      <li className="list-group-item">3.User ID</li>
                       <li className="list-group-item">4.1233242</li>
                       <li className="list-group-item">5.1321312</li>
                     </ul> </div>
