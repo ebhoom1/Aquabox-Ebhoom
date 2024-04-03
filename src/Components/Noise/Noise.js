@@ -12,24 +12,38 @@ import {
   Line,
   LineChart,
 } from "recharts";
+import NoisePopup from './NoisePopup';
+import CalibrationPopup from '../Calibration/CalibrationPopup';
 
 const Noise = () => {
   const [showPopup, setShowPopup] = useState(false);
-  const [popupData, setPopupData] = useState([]);
-  const [timeFrame, setTimeFrame] = useState("week"); // Default to week
-  const [heading, setHeading] = useState("Week");
+  const [selectedCard, setSelectedCard]=useState(null);
+  const[showCalibrationPopup,setShowCalibrationPopup]=useState(false);
+ 
 
   // Mock data for demonstration
   const weekData = [{ name: "Mon", value: 30 }, { name: "Tue", value: 40 },{ name: "wed", value: 20 },{ name: "Thu", value: 60 }];
   const monthData = [{ name: "Week 1", value: 150 }, { name: "Week 2", value: 180 },{ name: "Week 3", value: 250 },{ name: "Week 4", value: 150 }];
-
-  const handleCardClick = (timeFrame) => {
+  const dayData=[{ name: "9:00 am", value: 30 }, { name: "10:00am", value: 33 }, { name: "11:00am", value: 40 }, { name: "12:00pm", value: 41 }, { name: "1:00pm", value: 70 },{ name: "2:00pm", value: 54 },{ name: "3:00pm", value: 31 },{ name: "4:00pm", value: 31.2 }];
+  const sixMonthData=[{ name: "Jan-June", value: 30 }, { name: "July-December", value: 40 }];
+  const yearData=[{ name: "2021", value: 20 }, { name: "2022", value: 90 }, { name: "2023", value: 30 }, { name: "2024", value: 50 }];
+  
+  const handleCardClick = (card) => {
+    setSelectedCard(card);
     setShowPopup(true);
-    setTimeFrame(timeFrame);
-    setPopupData(timeFrame === "week" ? weekData : monthData);
-    setHeading(timeFrame === "week" ? "Week" : "Month");
   };
 
+  const handleClosePopup = () => {
+    setShowPopup(false);
+    setSelectedCard(null);
+  };
+  const handleOpenCalibrationPopup=()=>{
+    setShowCalibrationPopup(true)
+   
+  }
+  const handleCloseCalibrationPopup=()=>{
+    setShowCalibrationPopup(false)
+  }
   return (
     <div className="main-panel">
       <div className="content-wrapper">
@@ -40,23 +54,17 @@ const Noise = () => {
               <h4 className="page-title">Noise DASHBOARD</h4>
               <p></p>
               <div className="quick-link-wrapper w-100 d-md-flex flex-md-wrap">
-                {/* <!-- <ul className="quick-links">
-                  <li><a href="#">option 1</a></li>
-                  <li><a href="#">Own analysis</a></li>
-                  <li><a href="#"> data</a></li>
-                </ul> --> */}
-                <ul className="quick-links ml-auto">
-                  <li>
-                    <a href="#">Settings</a>
-                  </li>
-                  <li>
-                    <a href="#">Option 1</a>
-                  </li>
-                  <li>
-                    <a href="#">option 2</a>
-                  </li>
-                </ul>
-              </div>
+               
+               <ul className="quick-links ml-auto">
+                <h5>Data Interval:</h5>
+
+               </ul>
+               <ul className="quick-links ml-auto">
+               
+                <button type="submit" onClick={handleOpenCalibrationPopup} className="btn btn-primary mb-2 mt-2"> Calibration </button>
+
+               </ul>
+             </div>
             </div>
           </div>
         </div>
@@ -64,7 +72,7 @@ const Noise = () => {
 
         <div className="row">
           <div className="col-12 col-md-4 grid-margin">
-            <div className="card" onClick={() => handleCardClick("week")}>
+            <div className="card" onClick={() =>handleCardClick({ title: "Limits in DB" })}>
               <div className="card-body">
                 <div className="row">
                   <div className="col-12">
@@ -78,37 +86,72 @@ const Noise = () => {
                     <h5 className="text-dark">Average</h5>
                     <p className="mb-0">Last Week: </p>
                     <p>Last Month: </p>
+
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-
+       
         {/* Popup */}
         {/* Popup */}
-        {showPopup && (
-  <div className="popup-container">
-    <div className="popup">
-      <button className="close-btn" onClick={() => setShowPopup(false)}>Close</button>
-      <h3>{heading}</h3>
-      <button className="indicator" onClick={() => handleCardClick("week")}>Week</button>
-      <button className="indicator" onClick={() => handleCardClick("month")}>Month</button>
-      <ResponsiveContainer width="100%" height={400}>
-        <LineChart data={popupData}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip />
-          <Legend />
-          <Line type="monotone" dataKey="value" stroke="#8884d8" />
-        </LineChart>
-      </ResponsiveContainer>
-    </div>
-  </div>
-)}
+      {/* Render Popup if showPopup is true */}
+      {showPopup && selectedCard && (
+        <NoisePopup
+          title={selectedCard.title}
+          weekData={weekData} // Pass actual week data here
+          monthData={monthData} // Pass actual month data here
+          dayData={dayData}
+          sixMonthData={sixMonthData}
+          yearData={yearData}
+          onClose={handleClosePopup}
+        />
+      )}
+        {/* Render Calibration Popup if showCalibrationPopup is true */}
+        {showCalibrationPopup &&  (
+        <CalibrationPopup 
+        onClose={handleCloseCalibrationPopup}
+        
+        />
+      )}
       </div>
-
+      <div className="col-md-12 grid-margin">
+              <div className="card">
+                <div className="card-body">
+                <div className="row mt-5">
+      <div className="col-md-12">
+        <h2>Calibration Exceeded</h2>
+        <div className="table-responsive">
+          <table className="table table-bordered">
+            <thead>
+              <tr>
+                <th>SI.No</th>
+                <th>Exceeded Parameter</th>
+                <th>Date</th>
+                <th>Time</th>
+                
+                
+                
+              </tr>
+            </thead>
+            <tbody>
+              <td>1</td>
+              <td>ph 2.1</td>
+              <td>31/03/2024</td>
+              <td>07:17</td>
+             
+                
+                
+              
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+                </div>
+                </div>
+                </div>
       <footer className="footer">
         <div className="container-fluid clearfix">
           <span className="text-muted d-block text-center text-sm-left d-sm-inline-block">

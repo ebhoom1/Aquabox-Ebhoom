@@ -20,6 +20,8 @@ import SignUp from './Components/SignUp/SignUp';
 import SignUpConfirmation from './Components/SignUp/SignUpConfirmation';
 import AmbientAir from './Components/AmbientAir/AmbientAir';
 import Noise from './Components/Noise/Noise';
+import DownloadData from './Components/Download-Data/DownloadData';
+import Calibration from './Components/Calibration/Calibration';
 
 function App() {
   return (
@@ -33,6 +35,7 @@ function App() {
           <Route exact path="reset-password" element={<ResetPassword />} />
           <Route exact path="reset-password-email" element={<ResetPasswordEmail />} />
           <Route exact path="faq" element={<Faq />} />
+          <Route exact path="/download-data" element={<DownloadData />} />
           <Route exact path="terms" element={<Terms />} />
         </Route>
 
@@ -44,7 +47,9 @@ function App() {
           <Route exact path="/attendance-report" element={<Attendence />} />
           <Route exact path="/manage-users" element={<ManageUsers />} />
           <Route exact path="/users-log" element={<UsersLog />} />
+          <Route exact path="/calibration" element={<Calibration />} />
         </Route>
+        
 
 
       </Routes>

@@ -19,11 +19,44 @@ import { Link } from 'react-router-dom';
 import LeftSideBar from "../LeftSideBar/LeftSideBar";
 import { DateRangePicker } from 'rsuite';
 import { useForm, Controller } from "react-hook-form";
+import LocationDisplay from './LocationDisplay';
+import DownloadData from "../Download-Data/DownloadData";
 
 const UsersLog = () => {
 
-  
+  const [showLocationModal,setShowLocationModal]=useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
+  
+    const users=[
+      {
+        id: 1, 
+        name: "User ID 1",
+        latitude:10.02717,
+        longitude:76.33512,
+        address:'EBHOOM, Ernakulam,Kerala, India'
+      },
+      {
+        id: 1, 
+        name: "User ID 1",
+        latitude:10.02303,
+        longitude:76.33912,
+        address:'KERALA Water Authority, Ernakulam,Kerala, India'
+      }
+    ]
+   const handleLocationClick=(userId)=>{
+    const user=users.find(user=>user.id ===  userId)
+    if(user){
+      setShowLocationModal(true);
+      setSelectedUser(user);
+
+    }
+   }
+   const handleCloseLocationModal = () => {
+    setShowLocationModal(false);
+    setSelectedUser(null);
+  };
+ 
   return (
     <div className="main-panel">
       <div className="content-wrapper">
@@ -60,19 +93,26 @@ const UsersLog = () => {
               <div className="card-body">
                 <div className="row">
                   <div className="col-12">
-                    <h1>Active Users List</h1>
+                    <h1>Currently Active Users List</h1>
                   </div>
                   <div className="col-12  mb-3">
                     <ul className="list-group">
-                      
-                        <li>
+                    {users.map(user => (  
+                    <li className="list-group-item">1.User ID 1
                           <div className="FloatRight">
-                            <a >View</a>
-                            <a >Login</a>
+                           <Link to='/manage-users'><button className="btn btn-primary m-3">View</button></Link>
+                            <button className="btn btn-primary m-3">Login</button>
+                            <button className="btn btn-primary m-3 " onClick={() => handleLocationClick(user.id)}>Location</button>
+
                           </div>
 
+                        
+                       
+
+                        
+
                         </li>
-                     
+                         ))}
                     </ul>
                   </div>
 
@@ -85,7 +125,7 @@ const UsersLog = () => {
               <div className="card-body">
                 <div className="row">
                   <div className="col-12">
-                    <h1>Non Active Users List</h1>
+                    <h1>Currently  Inactive Users List</h1>
                   </div>
 
                   <div className="col-12  mb-3">
@@ -103,30 +143,23 @@ const UsersLog = () => {
             </div>
           </div>
         </div>
-        <div className="row">
-          <div className="col-12 col-md-12 grid-margin">
-            <div className="card">
-              <div className="card-body">
-                <form  target="_blank" method="post">
-                  <label htmlFor="exampleFormControlInput5">User</label>
-                  <select id="pdid" className="input-field" >
-                    
-                      <option>oo</option>
-                   
-                  </select>
-                  
-                  <input type="hidden" name="auth" />
-                  <input type="hidden" name="from"  />
-                  <input type="hidden" name="to"  />
-                  <button type="submit" className="btn btn-primary mb-2"> Download </button>
-                </form>
+       
 
-              </div>
-            </div>
-          </div>
-        </div>
+       
+<DownloadData/>
       </div>
 
+{/* Modal to display Location */}
+{showLocationModal && (
+        
+      <LocationDisplay 
+      latitude={selectedUser.latitude}
+          longitude={selectedUser.longitude}
+          address={selectedUser.address}
+          onClose={handleCloseLocationModal}
+      />
+           
+      )}
       <footer className="footer">
         <div className="container-fluid clearfix">
           <span className="text-muted d-block text-center text-sm-left d-sm-inline-block">

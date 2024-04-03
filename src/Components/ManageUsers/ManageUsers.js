@@ -10,6 +10,75 @@ import { useEffect } from 'react';
 
 const AddUsers = () => { 
 
+  const industryType=[
+    {
+      category:"Sugar"
+    },
+    {
+      category:"Cement"
+    },
+    {
+      category:"Distillery"
+    },
+    {
+      category:"Petrochemical"
+    },
+    {
+      category:"Plup & Paper"
+    },
+    {
+      category:"Fertilizer"
+    },
+    {
+      category:"Tannery"
+    },
+    {
+      category:"Pecticides"
+    },
+    {
+      category:"Thermal Power Station"
+    },
+    {
+      category:"Caustic Soda"
+    },
+    {
+      category:"Pharmaceuticals"
+    },
+    {
+      category:"Dye and Dye Stuff"
+    },
+    {
+      category:"Refinery"
+    },
+    {
+      category:"Copper Smelter"
+    },
+    {
+      category:"Iron and Steel"
+    },
+    {
+      category:"Zinc Smelter"
+    },
+    {
+      category:"Aluminium"
+    },
+    {
+      category:"STP/ETP"
+    },
+    {
+      category:"NWMS/SWMS"
+    },
+    {
+      category:"Noise"
+    },
+    {
+      category:"Zinc Smelter"
+    },
+    {
+      category:"Other"
+    },
+  
+  ]
  
    
     return (
@@ -55,13 +124,7 @@ const AddUsers = () => {
                             <span className="error">Invalid First Name</span>
                           </div>
 
-                          <div className="col-12 col-lg-6 col-md-6 mb-3">
-                            <label htmlFor="exampleFormControlInput3">Last Name</label>
-                            <input type="text" className="form-control" id="exampleFormControlInput3" placeholder="Enter Last Name"
-                           />
-                            <span className="error">Customer Name required</span>
-                            <span className="error">Invalid Last Name</span>
-                          </div>
+                        
 
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
                             <label htmlFor="exampleFormControlInput3">Email</label>
@@ -96,6 +159,27 @@ const AddUsers = () => {
 
                               </select>
                           </div>
+                          <div className="col-12 col-lg-6 col-md-6 mb-3">
+                              <label htmlFor="exampleFormControlInput5">Industry Type</label>
+                              
+                                <select className="input-field" >
+                                {industryType.map((item)=>(
+                                <option value={item.category}>{item.category}</option>
+                                ))}
+                              </select>
+                             
+                          </div>
+                          <div className="col-12 col-lg-6 col-md-6 mb-3">
+                              <label htmlFor="exampleFormControlInput5">Data Interval </label>
+                              <select className="input-field" >
+                               
+                                <option value="sec">15 sec</option>
+                                <option value="Min">Less than 1 min</option>
+                                <option value="fifteenMin">Less than 15 min</option>
+                                <option value="thirtyMin">Less than 30 min</option>
+
+                              </select>
+                          </div>
 
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
                             <label htmlFor="exampleFormControlInput5">District</label>
@@ -114,12 +198,36 @@ const AddUsers = () => {
                             <span className="error">Invalid State name</span>
                             <span className="error">Minimum 3 Characters required</span>
                           </div>
+                          <div className="col-12 col-lg-6 col-md-6 mb-3">
+                            <label htmlFor="exampleFormControlInput6">Address</label>
+                            <textarea type="text" className="form-control" id="exampleFormControlInput6" placeholder="Enter Address" 
+                            />
+                            <span className="error">State required</span>
+                            <span className="error">Invalid State name</span>
+                            <span className="error">Minimum 3 Characters required</span>
+                          </div>
+                          <div className="col-12 col-lg-6 col-md-6 mb-3">
+                            <label htmlFor="exampleFormControlInput6">Longtitude</label>
+                            <input type="text" className="form-control" id="exampleFormControlInput6" placeholder="Enter Longtitude" 
+                            />
+                            <span className="error">State required</span>
+                            <span className="error">Invalid State name</span>
+                            <span className="error">Minimum 3 Characters required</span>
+                          </div>
+                          <div className="col-12 col-lg-6 col-md-6 mb-3">
+                            <label htmlFor="exampleFormControlInput6">Latitude</label>
+                            <input type="text" className="form-control" id="exampleFormControlInput6" placeholder="Enter Latitude" 
+                            />
+                            <span className="error">State required</span>
+                            <span className="error">Invalid State name</span>
+                            <span className="error">Minimum 3 Characters required</span>
+                          </div>
 
-                          <div className="mb-3 p-2">
+                          <div className="mt-4 mb-5 p-2">
                             <button type="submit" className="btn btn-primary mb-2"> Add User </button>
                           </div>
                           
-                            <div className="mb-3 p-2">
+                            <div className="mt-4 mb-5 p-2">
                             <button type="button"  className="btn btn-danger mb-2"> Cancel </button>
                             </div>
                             

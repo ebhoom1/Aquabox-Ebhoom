@@ -1,0 +1,482 @@
+ {/* <!-- automtic mode   --> */}
+
+        {/* <div className="row">
+          <div className="col-12 col-md-6 grid-margin">
+            <div className="card">
+              <div className="card-body">
+                <div className="row">
+                  <div className="col-12">
+                    <h3 className="mb-3">
+                      Automatic Mode{" "}
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        fill="currentColor"
+                        className="bi bi-clock-history"
+                        viewBox="0 0 16 16"
+                      >
+                        <path d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022l-.074.997zm2.004.45a7.003 7.003 0 0 0-.985-.299l.219-.976c.383.086.76.2 1.126.342l-.36.933zm1.37.71a7.01 7.01 0 0 0-.439-.27l.493-.87a8.025 8.025 0 0 1 .979.654l-.615.789a6.996 6.996 0 0 0-.418-.302zm1.834 1.79a6.99 6.99 0 0 0-.653-.796l.724-.69c.27.285.52.59.747.91l-.818.576zm.744 1.352a7.08 7.08 0 0 0-.214-.468l.893-.45a7.976 7.976 0 0 1 .45 1.088l-.95.313a7.023 7.023 0 0 0-.179-.483zm.53 2.507a6.991 6.991 0 0 0-.1-1.025l.985-.17c.067.386.106.778.116 1.17l-1 .025zm-.131 1.538c.033-.17.06-.339.081-.51l.993.123a7.957 7.957 0 0 1-.23 1.155l-.964-.267c.046-.165.086-.332.12-.501zm-.952 2.379c.184-.29.346-.594.486-.908l.914.405c-.16.36-.345.706-.555 1.038l-.845-.535zm-.964 1.205c.122-.122.239-.248.35-.378l.758.653a8.073 8.073 0 0 1-.401.432l-.707-.707z" />
+                        <path d="M8 1a7 7 0 1 0 4.95 11.95l.707.707A8.001 8.001 0 1 1 8 0v1z" />
+                        <path d="M7.5 3a.5.5 0 0 1 .5.5v5.21l3.248 1.856a.5.5 0 0 1-.496.868l-3.5-2A.5.5 0 0 1 7 9V3.5a.5.5 0 0 1 .5-.5z" />
+                      </svg>
+                    </h3>
+                  </div>
+                  <div className="col-12">  
+                    <div className="onoffswitch">  
+                      <input
+                        type="checkbox"
+                        name="automatic_mode"
+                        className="onoffswitch-checkbox"
+                        id="myonoffswitch"
+                        tabIndex="0"
+                       
+                      /> 
+                      <label 
+                        className="onoffswitch-label"
+                        htmlFor="myonoffswitch"
+                      >
+                        <span className="onoffswitch-inner"></span>
+                        <span className="onoffswitch-switch"></span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="col-12 col-md-6 grid-margin">
+            <div className="card">
+              <div className="card-body">
+                <div className="row">
+                  <div className="col-12">
+                    <h3 className="mb-3">Water Consumption</h3>
+                  </div>
+
+                  <div className="col-12">
+                    <h3>Inlet :</h3>
+                    <h3>Outlet :</h3>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div> */}
+
+        {/* <!-- automtic mode ends  -->
+
+        <!-- water level  --> */}
+
+        {/* <div className="row">
+          <div className="col-md-12 grid-margin">
+            <div className="card">
+              <div className="card-body">
+                <div className="row">
+                  <div className="col-12">
+                    <h1 className="mb-3">Tank Water Level</h1>
+                  </div>
+                  <ResponsiveContainer width="95%" height={300}>
+                    <BarChart>
+                      <Tooltip
+                        wrapperStyle={{
+                          width: 100,
+                          backgroundColor: "#ccc",
+                        }}
+                        formatter={function (level) {
+                          return `${level}%`;
+                        }}
+                      />
+                      <Bar dataKey="level" fill="#236A80" />
+                      <CartesianGrid stroke="#ffffff" />
+                      <XAxis dataKey="tank" />
+                      <YAxis />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div> */}
+
+        {/* <!-- water level ends  -->
+
+
+        <!-- pump  --> */}
+{/* 
+        <div className="row">
+          <div className="col-md-12 grid-margin">
+            <div className="card">
+              <div className="card-body">
+                <div className="row">
+                  <div className="col-12">
+                    <h1 className="mb-3">Pump controls</h1>
+                  </div>
+                  <div className="col-lg-2 col-md-4 mt-md-0 mt-4 mb-3">
+                    <div className="d-flex">
+                      <div className="wrapper">
+                        <div className="onoffswitch">
+                          <input
+                            type="checkbox"
+                            name="Pump1"
+                            className="onoffswitch-checkbox"
+                            id="myonoffswitch1"
+                            tabIndex="0"
+                            
+                          />
+                          <label
+                            className="onoffswitch-label"
+                            htmlFor="myonoffswitch1"
+                          >
+                            <span className="onoffswitch-inner"></span>
+                            <span className="onoffswitch-switch"></span>
+                          </label>
+                        </div>
+
+                        <h5 className="mb-0 font-weight-medium text-primary text-center">
+                          Pump 1
+                        </h5>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-lg-2 col-md-4 mt-md-0 mt-4 mb-3">
+                    <div className="d-flex">
+                      <div className="wrapper">
+                        <div className="onoffswitch">
+                        <input
+                            type="checkbox"
+                            name="Pump2"
+                            className="onoffswitch-checkbox"
+                            id="myonoffswitch2"
+                            tabIndex="0"
+                           
+                          />
+                          <label
+                            className="onoffswitch-label"
+                            htmlFor="myonoffswitch2"
+                          >
+                            <span className="onoffswitch-inner"></span>
+                            <span className="onoffswitch-switch"></span>
+                          </label>
+                        </div>
+
+                        <h5 className="mb-0 font-weight-medium text-primary text-center">
+                          Pump 2
+                        </h5>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-lg-2 col-md-4 mt-md-0 mt-4 mb-3">
+                    <div className="d-flex">
+                      <div className="wrapper">
+                        <div className="onoffswitch">
+                        <input
+                            type="checkbox"
+                            name="Pump3"
+                            className="onoffswitch-checkbox"
+                            id="myonoffswitch3"
+                            tabIndex="0"
+                            
+                          />
+                          <label
+                            className="onoffswitch-label"
+                            htmlFor="myonoffswitch3"
+                          >
+                            <span className="onoffswitch-inner"></span>
+                            <span className="onoffswitch-switch"></span>
+                          </label>
+                        </div>
+
+                        <h5 className="mb-0 font-weight-medium text-primary text-center">
+                          Pump 3
+                        </h5>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-lg-2 col-md-4 mt-md-0 mt-4 mb-3">
+                    <div className="d-flex">
+                      <div className="wrapper">
+                        <div className="onoffswitch">
+                        <input
+                            type="checkbox"
+                            name="Pump4"
+                            className="onoffswitch-checkbox"
+                            id="myonoffswitch4"
+                            tabIndex="0"
+                          
+                          />
+                          <label
+                            className="onoffswitch-label"
+                            htmlFor="myonoffswitch4"
+                          >
+                            <span className="onoffswitch-inner"></span>
+                            <span className="onoffswitch-switch"></span>
+                          </label>
+                        </div>
+
+                        <h5 className="mb-0 font-weight-medium text-primary text-center">
+                          Pump 4
+                        </h5>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="col-lg-2 col-md-4 mt-md-0 mt-4 mb-3">
+                    <div className="d-flex">
+                      <div className="wrapper">
+                        <div className="onoffswitch">
+                        <input
+                            type="checkbox"
+                            name="Pump5"
+                            className="onoffswitch-checkbox"
+                            id="myonoffswitch5"
+                            tabIndex="0"
+                            
+                          />
+                          <label
+                            className="onoffswitch-label"
+                            htmlFor="myonoffswitch5"
+                          >
+                            <span className="onoffswitch-inner"></span>
+                            <span className="onoffswitch-switch"></span>
+                          </label>
+                        </div>
+
+                        <h5 className="mb-0 font-weight-medium text-primary text-center">
+                          Pump 5
+                        </h5>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-lg-2 col-md-4 mt-md-0 mt-4 mb-3">
+                    <div className="d-flex">
+                      <div className="wrapper">
+                        <div className="onoffswitch">
+                        <input
+                            type="checkbox"
+                            name="Pump6"
+                            className="onoffswitch-checkbox"
+                            id="myonoffswitch6"
+                            tabIndex="0"
+                           
+                          />
+                          <label
+                            className="onoffswitch-label"
+                            htmlFor="myonoffswitch6"
+                          >
+                            <span className="onoffswitch-inner"></span>
+                            <span className="onoffswitch-switch"></span>
+                          </label>
+                        </div>
+
+                        <h5 className="mb-0 font-weight-medium text-primary text-center">
+                          Pump 6
+                        </h5>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="col-lg-2 col-md-4 mt-md-0 mt-4 mb-3">
+                    <div className="d-flex">
+                      <div className="wrapper">
+                        <div className="onoffswitch">
+                        <input
+                            type="checkbox"
+                            name="Pump7"
+                            className="onoffswitch-checkbox"
+                            id="myonoffswitch7"
+                            tabIndex="0"
+                           
+                          />
+                          <label
+                            className="onoffswitch-label"
+                            htmlFor="myonoffswitch7"
+                          >
+                            <span className="onoffswitch-inner"></span>
+                            <span className="onoffswitch-switch"></span>
+                          </label>
+                        </div>
+
+                        <h5 className="mb-0 font-weight-medium text-primary text-center">
+                          Pump 7
+                        </h5>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-lg-2 col-md-4 mt-md-0 mt-4 mb-3">
+                    <div className="d-flex">
+                      <div className="wrapper">
+                        <div className="onoffswitch">
+                        <input
+                            type="checkbox"
+                            name="Pump8"
+                            className="onoffswitch-checkbox"
+                            id="myonoffswitch8"
+                            tabIndex="0"
+                            
+                          />
+                          <label
+                            className="onoffswitch-label"
+                            htmlFor="myonoffswitch8"
+                          >
+                            <span className="onoffswitch-inner"></span>
+                            <span className="onoffswitch-switch"></span>
+                          </label>
+                        </div>
+
+                        <h5 className="mb-0 font-weight-medium text-primary text-center">
+                          Pump 8
+                        </h5>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div> */}
+
+        {/* <!-- pumb ends  -->
+
+        <!-- tab mode   --> */}
+
+
+
+
+
+import CalibrationData from "./Calibration-Data";
+import LeftSideBar from "../LeftSideBar/LeftSideBar";
+import React, { useState } from 'react'
+import { Link } from 'react-router-dom';
+
+
+import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { useEffect } from 'react';
+const Calibration=()=>{
+    return(
+       
+        
+        <div className="row">
+            <div className="col-md-12 grid-margin">
+              <div className="card">
+                <div className="card-body ">
+                      
+                     
+                <form >
+                      <div className="row">
+                          <div className="col-12">
+                            <h1>Add Calibration Details</h1>
+                             {/* <h1>Update User</h1> */}
+                          </div>
+
+                          
+
+                          <div className="col-12 col-lg-6 col-md-6 mb-3">
+                            <label htmlFor="exampleFormControlInput4">Date of Calibration</label>
+                            <input type="date" className="form-control" id="exampleFormControlInput4" placeholder="Date of Calibration" 
+                           />
+                            {/* <span className="error">Subscription Date required</span> */}
+                          </div>
+
+                          <div className="col-12 col-lg-6 col-md-6 mb-3">
+                              <label htmlFor="exampleFormControlInput5">User Type</label>
+                              <select className="input-field" >
+                               
+                                <option value="ambientAir">Ambient Air</option>
+                                <option value="effluent-water">Effluent/Water</option>
+                                <option value="noise">Noise</option>
+
+                              </select>
+                          </div>
+                          <div className="col-12 col-lg-6 col-md-6 mb-3">
+                              <label htmlFor="exampleFormControlInput5">User Number</label>
+                              
+                                <select className="input-field" >
+                               <option>User 1</option>
+                               <option>User 2</option>
+                               <option>User 3</option>
+                              </select>
+                             
+                          </div>
+                          
+
+                          <div className="col-12 col-lg-6 col-md-6 mb-3">
+                            <label htmlFor="exampleFormControlInput5">Equipment Name</label>
+                            <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Equipment Name"
+                            />
+                            {/* <span className="error">District required</span>
+                            <span className="error">Invalid District name</span>
+                            <span className="error">Minimum 3 Characters required</span>  */}
+                          </div>
+                          <div className="col-12">
+                            <h1>Results</h1>
+                             {/* <h1>Update User</h1> */}
+                          </div>
+                          <div className="col-12 col-lg-6 col-md-6 mb-3">
+                            <label htmlFor="exampleFormControlInput6">Before</label>
+                            <textarea type="text" className="form-control" id="exampleFormControlInput6" placeholder="Before" 
+                            />
+                            {/* <span className="error">State required</span>
+                            <span className="error">Invalid State name</span>
+                            <span className="error">Minimum 3 Characters required</span> */}
+                          </div>
+                          <div className="col-12 col-lg-6 col-md-6 mb-3">
+                            <label htmlFor="exampleFormControlInput6">After</label>
+                            <textarea type="text" className="form-control" id="exampleFormControlInput6" placeholder="After" 
+                            />
+                            {/* <span className="error">State required</span>
+                            <span className="error">Invalid State name</span>
+                            <span className="error">Minimum 3 Characters required</span> */}
+                          </div>
+                          <div className="col-12 col-lg-6 col-md-6 mb-3">
+                            <label htmlFor="exampleFormControlInput6">Technician</label>
+                            <input type="text" className="form-control" id="exampleFormControlInput6" placeholder="Technician Name" 
+                            />
+                            {/* <span className="error">State required</span>
+                            <span className="error">Invalid State name</span>
+                            <span className="error">Minimum 3 Characters required</span> */}
+                          </div>
+                          <div className="col-12 col-lg-6 col-md-6 mb-3">
+                            <label htmlFor="exampleFormControlInput6">Notes</label>
+                            <textarea type="text" className="form-control" id="exampleFormControlInput6" placeholder="Notes" 
+                            />
+                            {/* <span className="error">State required</span>
+                            <span className="error">Invalid State name</span>
+                            <span className="error">Minimum 3 Characters required</span> */}
+                          </div>
+                         
+                          <div className="mt-4 mb-5 p-2">
+                            <button type="submit" className="btn btn-primary mb-2"> Add Calibration </button>
+                          </div>
+                          
+                            <div className="mt-4 mb-5 p-2">
+                            <button type="button"  className="btn btn-danger mb-2"> Cancel </button>
+                            </div>
+                            
+                          
+                      </div>
+                  </form>
+                 
+                </div>
+              </div>
+            </div>
+            <div className="col-md-12 grid-margin">
+              <div className="card">
+                <div className="card-body">
+                <CalibrationData/>
+                </div>
+                </div>
+                </div>
+          </div>
+          
+           
+    )
+}
+
+export default Calibration;
+
+
+
+
+
+

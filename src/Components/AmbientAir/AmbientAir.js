@@ -1,6 +1,5 @@
 import React, { createContext, useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
-
 import {
   BarChart,
   Bar,
@@ -13,17 +12,22 @@ import {
 } from "recharts";
 
 import { Link } from 'react-router-dom';
-import Popup from "./popup";
+import AirPopup from "./AirPopup";
+import './index.css'
+import CalibrationPopup from "../Calibration/CalibrationPopup";
 
 const AmbientAir = () => {
 
  const [showPopup,setShowPopup]=useState(false);
  const [selectedCard, setSelectedCard]=useState(null);
+ const [showCalibrationPopup, setShowCalibrationPopup] = useState(false);
 
  // Sample data for demonstration, replace with your actual data
- const weekData = [{ name: "Mon", value: 30 }, { name: "Tue", value: 40 }, { name: "Wed", value: 50 }];
- const monthData = [{ name: "Week 1", value: 100 }, { name: "Week 2", value: 200 }, { name: "Week 3", value: 150 }];
-
+ const weekData = [{ name: "Mon", value: 30 }, { name: "Tue", value: 27 }, { name: "Wed", value: 34 },{ name: "Thu", value: 44 },{name:"Fri",value:67}];
+ const monthData = [{ name: "Jan", value: 100 }, { name: "Feb", value: 200 }, { name: "March", value: 150 },{ name: "April", value: 240 },{ name: "May", value: 140 },{ name: "June", value: 150 },{ name: "jul", value: 155}]
+ const dayData=[{ name: "9:00 am", value: 30 }, { name: "10:00am", value: 33 }, { name: "11:00am", value: 40 }, { name: "12:00pm", value: 41 }, { name: "1:00pm", value: 70 },{ name: "2:00pm", value: 54 },{ name: "3:00pm", value: 31 },{ name: "4:00pm", value: 31.2 }];
+ const sixMonthData=[{ name: "Jan-June", value: 30 }, { name: "July-December", value: 40 }];
+ const yearData=[{ name: "2021", value: 20 }, { name: "2022", value: 90 }, { name: "2023", value: 30 }, { name: "2024", value: 50 }];
  const handleCardClick = (card) => {
     setSelectedCard(card);
     setShowPopup(true);
@@ -33,6 +37,73 @@ const AmbientAir = () => {
     setShowPopup(false);
     setSelectedCard(null);
   };
+
+  const handleOpenCalibrationPopup = () => {
+    setShowCalibrationPopup(true);
+  };
+
+  const handleCloseCalibrationPopup = () => {
+    setShowCalibrationPopup(false);
+  };
+  const air=[
+    {
+      parameter:"PM 10",
+      value:'µg/m³',
+      week:":",
+      month:":",
+      
+    },
+    {
+      parameter:"PM 2.5",
+      value:'µg/m³',
+      week:"",
+      month:"",
+    },
+    {
+      parameter:"NOH",
+      value:'µg/m³',
+      week:"",
+      month:"",
+      
+    },
+    {
+      parameter:"NH3",
+      value:'µg/m³',
+      week:"",
+      month:"",  
+    },
+    {
+      parameter:"Windspeed",
+      value:'m/s',
+      week:"",
+      month:"",  
+    },
+    {
+      parameter:"Wind Dir",
+      value:'deg',
+      week:"",
+      month:"",  
+    },
+    {
+      parameter:"Temperature",
+      value:'℃',
+      week:"",
+      month:"",  
+    },
+    {
+      parameter:"Humidity",
+      value:'%',
+      week:"",
+      month:"",  
+    },
+    {
+      parameter:"Solar Radiation",
+      value:'w/m²',
+      week:"",
+      month:"",  
+    },
+    
+  ]
   return (
     <div className="main-panel">
       <div className="content-wrapper">
@@ -43,224 +114,51 @@ const AmbientAir = () => {
               <h4 className="page-title">Ambient Air DASHBOARD</h4>
               <p></p>
               <div className="quick-link-wrapper w-100 d-md-flex flex-md-wrap">
-                {/* <!-- <ul className="quick-links">
-                  <li><a href="#">option 1</a></li>
-                  <li><a href="#">Own analysis</a></li>
-                  <li><a href="#"> data</a></li>
-                </ul> --> */}
-                <ul className="quick-links ml-auto">
-                  <li>
-                    <a href="#">Settings</a>
-                  </li>
-                  <li>
-                    <a href="#">Option 1</a>
-                  </li>
-                  <li>
-                    <a href="#">option 2</a>
-                  </li>
-                </ul>
-              </div>
+               
+               <ul className="quick-links ml-auto">
+                <h5>Data Interval:</h5>
+
+               </ul>
+               <ul className="quick-links ml-auto">
+               
+                <button type="submit" onClick={handleOpenCalibrationPopup} className="btn btn-primary mb-2 mt-2"> Calibration </button>
+
+               </ul>
+             </div>
             </div>
           </div>
         </div>
         {/* <!-- Page Title Header Ends--> */}
 
         <div className="row">
-          <div className="col-12 col-md-4 grid-margin">
-            <div className="card" onClick={() =>handleCardClick({ title: "PM 10" })}>
-              <div className="card-body">
-                <div className="row">
-                  <div className="col-12">
-                    <h3 className="mb-3">PM 10</h3>
-                  </div>
-                  <div className="col-12 mb-3">
-                  <h1> pg/m³ </h1>
-                    {/* <h4>Alkaline Water</h4> */}
-                  </div>
+          
+          
+          {air.map((item,index) => (
+            <div className="col-12 col-md-4 grid-margin" key={index}>
+              <div className="card" >
+                <div className="card-body">
+                  <div className="row">
+                    <div className="col-12"onClick={() => handleCardClick({ title: item.parameter })}>
+                      <h3 className="mb-3">{item.parameter}</h3>
+                    </div>
 
-                  <div className="col-12">
-                    <h5 className="text-dark">Average</h5>
-                    <p className="mb-0">Last Week:  </p>
-                    <p>Last Month: </p>
+                    <div className="col-12 mb-3">
+                      <h1>{item.value}</h1>
+                      {/* <h4>Ideal Water</h4> */}
+                    </div>
+
+                    <div className="col-12">
+                      <h5 className="text-dark">Average</h5>
+                      <p className="mb-0">Last Week: {item.week}</p>
+                      <p>Last Month: {item.month}</p>
+
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div className="col-12 col-md-4 grid-margin">
-            <div className="card" onClick={() =>handleCardClick({ title: "PM 2.5" })}>
-              <div className="card-body">
-                <div className="row">
-                  <div className="col-12">
-                    <h3 className="mb-3">PM 2.5</h3>
-                  </div>
-
-                  <div className="col-12 mb-3">
-                    <h1> pg/m³ </h1>
-                    {/* <h4>Ideal Water</h4> */}
-                  </div>
-
-                  <div className="col-12">
-                    <h5 className="text-dark">Average</h5>
-                    <p className="mb-0">Last Week: </p>
-                    <p>Last Month: </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="col-12 col-md-4 grid-margin">
-            <div className="card">
-              <div className="card-body">
-                <div className="row">
-                  <div className="col-12">
-                    <h3 className="mb-3">NOH</h3>
-                  </div>
-
-                  <div className="col-12 mb-3">
-                    <h1>pg/m³ </h1>
-                  </div>
-
-                  <div className="col-12">
-                    <h5 className="text-dark">Average</h5>
-                    <p className="mb-0">Last Week: </p>
-                    <p>Last Month: </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="col-12 col-md-4 grid-margin">
-            <div className="card">
-              <div className="card-body">
-                <div className="row">
-                  <div className="col-12">
-                    <h3 className="mb-3">NH3</h3>
-                  </div>
-
-                  <div className="col-12 mb-3">
-                    <h1>pg/m³ </h1>
-                  </div>
-
-                  <div className="col-12">
-                    <h5 className="text-dark">Average</h5>
-                    <p className="mb-0">Last Week: </p>
-                    <p>Last Month: </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="col-12 col-md-4 grid-margin">
-            <div className="card">
-              <div className="card-body">
-                <div className="row">
-                  <div className="col-12">
-                    <h3 className="mb-3">Windspeed</h3>
-                  </div>
-
-                  <div className="col-12 mb-3">
-                    <h1>m/s</h1>
-                  </div>
-
-                  <div className="col-12">
-                    <h5 className="text-dark">Average</h5>
-                    <p className="mb-0">Last Week: </p>
-                    <p>Last Month:</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="col-12 col-md-4 grid-margin">
-            <div className="card">
-              <div className="card-body">
-                <div className="row">
-                  <div className="col-12">
-                    <h3 className="mb-3">Wind Dir</h3>
-                  </div>
-
-                  <div className="col-12 mb-3">
-                    <h1>deg</h1>
-                  </div>
-
-                  <div className="col-12">
-                    <h5 className="text-dark">Average</h5>
-                    <p className="mb-0">Last Week:</p>
-                    <p>Last Month:</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-
-          <div className="col-12 col-md-4 grid-margin">
-            <div className="card">
-              <div className="card-body">
-                <div className="row">
-                  <div className="col-12">
-                    <h3 className="mb-3">Temperature</h3>
-                  </div>
-                  <div className="col-12 mb-3">
-                    <h1>℃</h1>
-                    {/* <h4>Alkaline Water</h4> */}
-                  </div>
-
-                  <div className="col-12">
-                    <h5 className="text-dark">Average</h5>
-                    <p className="mb-0">Last Week:</p>
-                    <p>Last Month:</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="col-12 col-md-4 grid-margin">
-            <div className="card">
-              <div className="card-body">
-                <div className="row">
-                  <div className="col-12">
-                    <h3 className="mb-3">Humidity</h3>
-                  </div>
-
-                  <div className="col-12 mb-3">
-                    <h1>%</h1>
-                    {/* <h4>Ideal Water</h4> */}
-                  </div>
-
-                  <div className="col-12">
-                    <h5 className="text-dark">Average</h5>
-                    <p className="mb-0">Last Week:</p>
-                    <p>Last Month: </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="col-12 col-md-4 grid-margin">
-            <div className="card">
-              <div className="card-body">
-                <div className="row">
-                  <div className="col-12">
-                    <h3 className="mb-3">Solar Radiation</h3>
-                  </div>
-
-                  <div className="col-12 mb-3">
-                    <h1>w/m²</h1>
-                    {/* <h4>Ideal Water</h4> */}
-                  </div>
-
-                  <div className="col-12">
-                    <h5 className="text-dark">Average</h5>
-                    <p className="mb-0">Last Week:</p>
-                    <p>Last Month:</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          ))}
+          
        
          
         </div>
@@ -271,15 +169,59 @@ const AmbientAir = () => {
 
 
       </div>
+
+      {/* Render Calibration Popup if showCalibrationPopup is true */}
+      {showCalibrationPopup && (
+        <CalibrationPopup onClose={handleCloseCalibrationPopup} />
+      )}
         {/* Render Popup if showPopup is true */}
         {showPopup && selectedCard && (
-        <Popup
+        <AirPopup
           title={selectedCard.title}
           weekData={weekData} // Pass actual week data here
           monthData={monthData} // Pass actual month data here
+          dayData={dayData}
+          sixMonthData={sixMonthData}
+          yearData={yearData}
           onClose={handleClosePopup}
         />
       )}
+        <div className="col-md-12 grid-margin">
+              <div className="card">
+                <div className="card-body">
+                <div className="row mt-5">
+      <div className="col-md-12">
+        <h2>Calibration Exceeded</h2>
+        <div className="table-responsive">
+          <table className="table table-bordered">
+            <thead>
+              <tr>
+                <th>SI.No</th>
+                <th>Exceeded Parameter</th>
+                <th>Date</th>
+                <th>Time</th>
+                
+                
+                
+              </tr>
+            </thead>
+            <tbody>
+              <td>1</td>
+              <td>ph 2.1</td>
+              <td>31/03/2024</td>
+              <td>07:17</td>
+             
+                
+                
+              
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+                </div>
+                </div>
+                </div>
       <footer className="footer">
         <div className="container-fluid clearfix">
           <span className="text-muted d-block text-center text-sm-left d-sm-inline-block">
