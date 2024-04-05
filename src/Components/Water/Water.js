@@ -1,3 +1,4 @@
+
 import React, { createContext, useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 
@@ -16,7 +17,7 @@ import { Link } from 'react-router-dom';
 import WaterPopup from "./WaterPopup";
 import CalibrationPopup from "../Calibration/CalibrationPopup";
 
-const Dashboard = () => {
+const Water = () => {
 
   const [showPopup,setShowPopup]=useState(false);
   const [selectedCard, setSelectedCard]=useState(null);
@@ -261,4 +262,4 @@ const Dashboard = () => {
   );
 }
 
-export default Dashboard;
+export default Water;

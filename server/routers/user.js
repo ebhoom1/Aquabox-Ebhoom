@@ -26,6 +26,6 @@ router.post('/:id/:token',changePassword);
 router.get('/getallusers',getAllUsers);
 router.patch('/edituser/:userId',editUser);
 router.delete('/deleteuser/:userId',deleteUser);
-router.get('/getauser/:userId',getAUser);
+router.get('/getauser/:userId',)
 
 module.exports=router;

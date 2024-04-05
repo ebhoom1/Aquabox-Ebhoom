@@ -4,7 +4,7 @@ import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-
 import Header from './Components/Header/Header'
 import Footer from './Components/Footer/Footer'
 import PrivateLayout from './Components/PrivateLayout/PrivateLayout'
-import Dashboard from './Components/Dashboard/Dashboard';
+import Dashboard from './Components/Water/Water';
 import Attendence from './Components/Attendance/Attendence';
 import ManageUsers from './Components/ManageUsers/ManageUsers';
 import UsersLog from './Components/UsersLog/UsersLog';

@@ -1,8 +1,6 @@
 import './index.css';
 import React, { useState } from "react";
 import {
-  BarChart,
-  Bar,
   CartesianGrid,
   XAxis,
   YAxis,
