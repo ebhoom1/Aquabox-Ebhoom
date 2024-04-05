@@ -1,13 +1,97 @@
-import React, { useState, useEffect } from 'react';
-import { Navigate, useLocation, Outlet, Link } from "react-router-dom"
+import React, { useState, useEffect, useContext } from 'react';
+import { Navigate, useLocation, Outlet, Link, useNavigate } from "react-router-dom"
 import LeftSideBar from "../LeftSideBar/LeftSideBar";
 
 import './index.css'
+import { LoginContext } from '../ContextProvider/Context';
+import axios from 'axios';
 
 
 const PrivateLayout = () => {
 
+  const {loginData,setLoginData} = useContext(LoginContext);
+
+  const history = useNavigate();
+
+  const[anchorE1, setAnchorE1]=useState(null);
+  const open = Boolean(anchorE1);
+  const [validUserData, setValidUserData] = useState(null);
+
+  useEffect(()=>{
+    //Fetch product iD and user status when the component mounts
+    
+    const fetchData=async()=>{
+      try{
+          let token = localStorage.getItem("userdatatoken")
+          const response =await axios.get('http://localhost:4444/api/validuser',{
+            headers:{
+              'Content-Type':"application/json",
+              'Authorization':token,
+              Accept:'application/json'
+            },
+            withCredentials: true
+          })
+          const data = response.data;
+        console.log(data);
+
+        if (data.status === 201) {
+          // Update product ID and user status
+          setValidUserData(data.validUserOne);
+          console.log(data.validUserOne);
+        } else {
+          console.log("Error fetching user data");
+        }
+      }catch(error){
+        console.error("Error fetching user data :", error);
+      }
+    }
+    fetchData();
+  },[])
+
+  const handleClick = (event) =>{
+        setAnchorE1(event.currentTarget);
+  };
+  const handleClose = () =>{
+    setAnchorE1(null)
+  }
  
+  
+  const logoutUser = async () =>{
+    try {
+      let token = localStorage.getItem("userdatatoken");
+
+    const response = await axios.get('http://localhost:4444/api/logout',{
+      headers:{
+        'Content-type':"application/json",
+        'Authorization':token,
+        Accept:'application/json'
+      },
+      withCredentials:true
+    });
+
+    const data = response.data
+    console.log(data);
+
+    if(data.status === 201){
+
+        console.log('User logged out');
+        localStorage.removeItem("userdatatoken")
+        setLoginData(false);
+        history("/")
+    }else{
+      console.log("Enter Logging out");
+    }
+    } catch (error) {
+      console.error("Error logging out :", error);
+    }
+    
+  }
+ const goDash = () =>{
+      history('/')
+ }
+ const goError = () =>{
+  history('*')
+ }
   return (
     <div className="container-scroller">
       {/* <!-- partial:partials/_navbar.html --> */}
@@ -23,14 +107,17 @@ const PrivateLayout = () => {
         <div className="navbar-menu-wrapper d-flex align-items-center">
           <ul className="navbar-nav">
           
-              <li className="nav-item font-weight-semibold d-none d-lg-block">Product ID :0009</li>
+           <li className="nav-item font-weight-semibold d-none d-lg-block">Product ID : {validUserData && validUserData.productID} </li>
             
 
             <li className="nav-item font-weight-semibold d-none d-lg-block">
               
                   <div>
-                    <span className='online'>Online</span> : <span className='offline'>Offline</span>
-                    
+                  {/* {validUserData && validUserData.Status === "201" ? (
+                  <span className='online'>Online</span>
+                ) : (
+                  <span className='offline'>Offline</span>
+                )} */}
                   </div>
                
             </li>
@@ -151,7 +238,7 @@ const PrivateLayout = () => {
                   
                   
                     <p className="font-weight-light text-muted mb-0">
-                      Product ID:
+                      Product ID:{validUserData && validUserData.productID}
                     </p>
                   
 
@@ -169,10 +256,13 @@ const PrivateLayout = () => {
                 <a className="dropdown-item">
                   FAQ<i className="dropdown-item-icon ti-help-alt"></i>
                 </a> */}
-               <Link to='/'><a  className="dropdown-item" >
+               <a  className="dropdown-item" onClick={() => {
+                                        logoutUser()
+                                        handleClose()
+                                    }}>
                   Sign Out<i className="dropdown-item-icon ti-power-off"></i> 
                 </a>
-                </Link>
+                
               </div>
             </li>
           </ul>

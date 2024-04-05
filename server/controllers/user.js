@@ -92,6 +92,7 @@ const login = async (req, res) => {
 };
 
 
+
  // user Valid 
  
  const validuser = async(req,res)=>{
@@ -280,4 +281,4 @@ const getAUser=async (req,res)=>{
     }
 }
 
-module.exports={register,login,validuser,logout,sendPasswordLink,forgotPassword,changePassword, getAllUsers, editUser, deleteUser,getAUser}
+module.exports={register,login,validuser,logout,sendPasswordLink,forgotPassword,changePassword, getAllUsers, editUser, deleteUser,getAUser,}

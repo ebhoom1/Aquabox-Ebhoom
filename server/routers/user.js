@@ -11,6 +11,7 @@ const {
     editUser,
     deleteUser,
     getAUser,
+    
 }=require('../controllers/user');
 const authenticate = require('../middleware/authenticate');
 
@@ -26,6 +27,6 @@ router.post('/:id/:token',changePassword);
 router.get('/getallusers',getAllUsers);
 router.patch('/edituser/:userId',editUser);
 router.delete('/deleteuser/:userId',deleteUser);
-router.get('/getauser/:userId',)
+router.get('/getauser/:userId', getAUser)
 
 module.exports=router;

@@ -16,7 +16,10 @@ app.use(express.json())
 
 DB();
 
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true  // Allow cookies to be sent with the request
+  }));
 app.use(cookieParser());
 app.use((req,res,next)=>{
     console.log(req.path,req.method);
