@@ -161,7 +161,7 @@ const Water = () => {
          
           {water.map((item,index)=>(
           <div className="col-12 col-md-4 grid-margin"key={index}>
-          <div className="card">
+          <div className="card" onClick={() =>handleCardClick({ title: `${item.parameter}` })}>
             <div className="card-body">
               <div className="row">
                 <div className="col-12">
@@ -206,7 +206,12 @@ const Water = () => {
         onClose={handleClosePopup}
         />
       )}
-      <div className="col-md-12 grid-margin">
+        {/* divider */}
+        <div className="p-5"></div>
+      <div className="p-5"></div>
+      {/* divider */}
+
+      <div className="col-md-12 grid-margin mt-5">
               <div className="card">
                 <div className="card-body">
                 <div className="row mt-5">

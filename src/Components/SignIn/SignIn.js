@@ -1,15 +1,84 @@
-import { Component, useState } from "react";
-import { Link } from 'react-router-dom'
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./index.css";
-import { useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
-
-import { useEffect } from 'react';
-
 
 const SignIn = () => {
+  const [passShow, setPassShow] = useState(false);
+  const [inpval, setInpval] = useState({
+    email: "",
+    password: "",
+    userType: "",
+  });
+  const history = useNavigate();
 
-  
+  const setVal = (e) => {
+    const { name, value } = e.target;
+    setInpval((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+  const handleSelectChange = (e) => {
+    const { value } = e.target;
+    setInpval((prevState) => ({
+      ...prevState,
+      userType: value,
+    }));
+  };
+  const loginuser = async (e) => {
+    e.preventDefault();
+    const { email, password, userType } = inpval;
+
+    if (email === "") {
+      toast.error("email is required!", {
+        position: "top-center",
+      });
+    } else if (!email.includes("@")) {
+      toast.warning("includes @ in your email!", {
+        position: "top-center",
+      });
+    } else if (userType === "select") {
+      toast.error("Please select the user Type", {
+        position: "top-center",
+      });
+    } else if (password === "") {
+      toast.error("password is required!", {
+        position: "top-center",
+      });
+    } else if (password.length < 6) {
+      toast.error("password must be 6 char!", {
+        position: "top-center",
+      });
+    } else {
+      try {
+        const response = await axios.post(
+          "http://localhost:4444/api/login",
+          { email, password, userType }
+        );
+        const { status, result } = response.data;
+
+        if (status === 200) {
+          localStorage.setItem("userdatatoken", result.token);
+          history("/water");
+          setInpval({ ...inpval, email: "", password: "", userType: "" });
+        } else {
+          toast.error("Invalid Credentials", {
+            position: "top-center",
+          });
+        }
+      } catch (error) {
+        console.error("Error Logging In :", error);
+
+        toast.error("An error Occured. Please try again later.", {
+          position: "top-center",
+        });
+      }
+    }
+  };
+
   return (
     <>
       <div className="pt-4 pb-4"></div>
@@ -17,40 +86,72 @@ const SignIn = () => {
         <div className="row">
           <div className="col-12 col-lg-6 blue-box">
             <h1 className="blue-box-text">
-            All pollution monitoring application
+               Pollution Monitoring Application
             </h1>
           </div>
           <div className="col-12 col-lg-6 padd pt-4">
-
-          
-              <div className="alert alert-danger mt-3 mb-0"></div>
-            
-            <form >
+            {/* <div className="alert alert-danger mt-3 mb-0"></div> */}
+            <form>
               <p className="signin-text mb-5">Sign In</p>
               <span className="error"></span>
               <div className="mb-4">
-                <input className="input-field" type="text" placeholder="Email"  />
-                 <span className="error">This field is required</span>
+                <input
+                  type="email"
+                  value={inpval.email}
+                  onChange={setVal}
+                  name="email"
+                  id="email"
+                  className="input-field"
+                  placeholder="Email"
+                />
               </div>
               <div className="mb-4">
-                <input className="input-field" type="password" placeholder="Password"  />
-                 <span className="error">This field is required</span>
+                <input
+                  type={!passShow ? "password" : "text"}
+                  onChange={setVal}
+                  value={inpval.password}
+                  name="password"
+                  id="password"
+                  placeholder="Enter Your password"
+                  className="input-field"
+                />
+                <div
+                  className="showpass"
+                  onClick={() => setPassShow(!passShow)}
+                >
+                  {!passShow ? "Show" : "Hide"}
+                </div>
               </div>
-              <Link className="link" to="/reset-password-email"> <p className="forgot">Forgot password?</p></Link>
-              <select className="input-field mb-4">
+              <Link className="link" to="/reset-password-email">
+                {" "}
+                <p className="forgot">Forgot password?</p>
+              </Link>
+              <select
+                className="input-field mb-4"
+                value={inpval.userType}
+                onChange={handleSelectChange}
+              >
+                <option value="select">Select</option>
                 <option value="superAdmin">Super-Admin</option>
                 <option value="admin">Admin</option>
                 <option value="ambientAir">Ambient Air</option>
-                <option value="effluent-water">Effluent/Water</option>
+                <option value="water">Effluent/Water</option>
                 <option value="noise">Noise</option>
               </select>
-              <Link className="link" to="/dashboard"> <button type="submit" className="signin-button" >Sign In</button></Link>
+              <button
+                type="submit"
+                className="signin-button"
+                onClick={loginuser}
+              >
+                Sign In
+              </button>
             </form>
+            <ToastContainer />
           </div>
         </div>
       </div>
     </>
   );
-}
+};
 
 export default SignIn;

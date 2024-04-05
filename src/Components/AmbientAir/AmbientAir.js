@@ -135,10 +135,10 @@ const AmbientAir = () => {
           
           {air.map((item,index) => (
             <div className="col-12 col-md-4 grid-margin" key={index}>
-              <div className="card" >
+              <div className="card" onClick={() => handleCardClick({ title: item.parameter })}>
                 <div className="card-body">
                   <div className="row">
-                    <div className="col-12"onClick={() => handleCardClick({ title: item.parameter })}>
+                    <div className="col-12">
                       <h3 className="mb-3">{item.parameter}</h3>
                     </div>
 
@@ -186,11 +186,18 @@ const AmbientAir = () => {
           onClose={handleClosePopup}
         />
       )}
-        <div className="col-md-12 grid-margin">
+          {/* divider */}
+          <div className="p-5"></div>
+      <div className="p-5"></div>
+      {/* divider */}
+
+      
+     
+      <div className="col-md-12 grid-margin mt-5">
               <div className="card">
                 <div className="card-body">
                 <div className="row mt-5">
-      <div className="col-md-12">
+         <div className="col-md-12">
         <h2>Calibration Exceeded</h2>
         <div className="table-responsive">
           <table className="table table-bordered">

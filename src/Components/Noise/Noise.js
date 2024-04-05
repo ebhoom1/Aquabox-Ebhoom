@@ -116,7 +116,14 @@ const Noise = () => {
         />
       )}
       </div>
-      <div className="col-md-12 grid-margin">
+       {/* divider */}
+       <div className="p-5"></div>
+      <div className="p-5"></div>
+      {/* divider */}
+
+      
+     
+      <div className="col-md-12 grid-margin mt-5">
               <div className="card">
                 <div className="card-body">
                 <div className="row mt-5">
@@ -152,7 +159,7 @@ const Noise = () => {
                 </div>
                 </div>
                 </div>
-      <footer className="footer">
+                <footer className="footer">
         <div className="container-fluid clearfix">
           <span className="text-muted d-block text-center text-sm-left d-sm-inline-block">
             Ebhoom Control and Monitor System
@@ -168,6 +175,7 @@ const Noise = () => {
         </div>
       </footer>
     </div>
+    
   );
 };
 

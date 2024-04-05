@@ -63,6 +63,10 @@ const login = async (req, res) => {
         const userValid = await userdb.findOne({ email });
 
         if (userValid) {
+                if(userValid.userType !== userType){
+                    return res.status(401).json({error:"Invalid UserType"})
+                }
+
             const isMatch = await bcrypt.compare(password, userValid.password);
             if (!isMatch) {
                 return res.status(422).json({ error: "Invalid User" });
