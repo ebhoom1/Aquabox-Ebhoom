@@ -1,10 +1,6 @@
-import React from 'react'
-
-const LocationDisplay=({latitude,longitude,address,onClose})=>{
-   
-    
-    return(
-        <div className="popup-container">
+const LocationDisplay = ({ latitude, longitude, address, onClose }) => {
+  return (
+    <div className="popup-container">
       <div className="popup">
         <button className="close-btn" onClick={onClose}>
           <span className="icon-cross"></span>
@@ -24,11 +20,12 @@ const LocationDisplay=({latitude,longitude,address,onClose})=>{
         </div>
         <div className="address-details">
           <p>{address}</p>
+          <p>{latitude}</p>
+          <p>{longitude}</p>
         </div>
       </div>
     </div>
-      
-        
-    )
-}
+  );
+};
+
 export default LocationDisplay;

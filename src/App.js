@@ -24,6 +24,7 @@ import AmbientAir from './Components/AmbientAir/AmbientAir';
 import Noise from './Components/Noise/Noise';
 import DownloadData from './Components/Download-Data/DownloadData';
 import Calibration from './Components/Calibration/Calibration';
+import EditUsers from './Components/ManageUsers/EditUser';
 
 function App() {
   const [dataLoaded, setDataLoaded] = useState(false);
@@ -45,6 +46,7 @@ function App() {
 
       if (responseData.status === 401 || !responseData) {
         console.log("user not valid");
+        navigate('/');
       } else {
         console.log("User Verify");
         setLoginData(responseData);
@@ -52,6 +54,7 @@ function App() {
       }
     } catch (error) {
       console.error("Error Validating user:", error);
+      navigate('/');
     }
   };
 
@@ -72,7 +75,7 @@ function App() {
           <Route exact path="signup" element={<SignUp />} />
           <Route exact path="signup-confirmation" element={<SignUpConfirmation />} />
           <Route exact path="reset-password-otp" element={<ResetPasswordOtp />} />
-          <Route exact path="reset-password" element={<ResetPassword />} />
+          <Route exact path="reset-password/:id/:token" element={<ResetPassword />} />
           <Route exact path="reset-password-email" element={<ResetPasswordEmail />} />
           <Route exact path="faq" element={<Faq />} />
           <Route exact path="/download-data" element={<DownloadData />} />
@@ -87,6 +90,7 @@ function App() {
             <Route exact path="/account" element={<Account />} />
             <Route exact path="/attendance-report" element={<Attendence />} />
             <Route exact path="/manage-users" element={<ManageUsers />} />
+            <Route exact path='/edit-user/:userId' element={<EditUsers/>}/>
             <Route exact path="/users-log" element={<UsersLog />} />
             <Route exact path="/calibration" element={<Calibration />} />
           </Route>

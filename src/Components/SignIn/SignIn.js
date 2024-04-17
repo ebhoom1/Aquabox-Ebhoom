@@ -132,11 +132,9 @@ const SignIn = () => {
                 onChange={handleSelectChange}
               >
                 <option value="select">Select</option>
-                <option value="superAdmin">Super-Admin</option>
                 <option value="admin">Admin</option>
-                <option value="ambientAir">Ambient Air</option>
-                <option value="water">Effluent/Water</option>
-                <option value="noise">Noise</option>
+                <option value="user">User</option>
+                
               </select>
               <button
                 type="submit"

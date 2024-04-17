@@ -107,7 +107,7 @@ const PrivateLayout = () => {
         <div className="navbar-menu-wrapper d-flex align-items-center">
           <ul className="navbar-nav">
           
-           <li className="nav-item font-weight-semibold d-none d-lg-block">Product ID : {validUserData && validUserData.productID} </li>
+           <li className="nav-item font-weight-semibold d-none d-lg-block">User ID : {validUserData && validUserData.userName} </li>
             
 
             <li className="nav-item font-weight-semibold d-none d-lg-block">
@@ -238,7 +238,7 @@ const PrivateLayout = () => {
                   
                   
                     <p className="font-weight-light text-muted mb-0">
-                      Product ID:{validUserData && validUserData.productID}
+                     {validUserData && validUserData.userName}
                     </p>
                   
 

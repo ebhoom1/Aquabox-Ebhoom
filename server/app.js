@@ -7,6 +7,7 @@ const bodyParser=require('body-parser');
 const DB=require('./config/DB');
 const userRoutes=require('./routers/user')
 const authRoutes=require('./routers/auth');
+const calibrationRoutes = require('./routers/calibration');
 const cookieParser = require('cookie-parser');
 
 const app= express();
@@ -27,6 +28,7 @@ app.use((req,res,next)=>{
 })
 
 app.use('/api',userRoutes)
+app.use('/api',calibrationRoutes)
 
 app.listen(port,()=>{
     console.log(`Server Connected  - ${port}`);

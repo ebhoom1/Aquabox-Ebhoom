@@ -4,6 +4,7 @@ const bcrypt=require('bcrypt');
 const nodemailer=require('nodemailer');
 const jwt=require('jsonwebtoken');
 const authenticate = require('../middleware/authenticate');
+const { default: mongoose } = require('mongoose');
 const router=express.Router()
 
 const keysecret=process.env.SECRET_KEY
@@ -24,7 +25,7 @@ const transporter=nodemailer.createTransport({
 //For User Registration
 
 const register=async(req,res)=>{
-    const {productID , companyName, fname,email,password,cpassword,subscriptionDate,userType,industryType, dataInteval,district,state,address,longtitude,latitude}=req.body
+    const {userName , companyName, fname,email,password,cpassword,subscriptionDate,userType,industryType, dataInteval,district,state,address,longtitude,latitude}=req.body
 
 
     try{
@@ -36,10 +37,9 @@ const register=async(req,res)=>{
 
         }else {
             const finalUser=new userdb({
-                productID , companyName, fname,email,password,cpassword,subscriptionDate,userType,industryType, dataInteval,district,state,address,longtitude,latitude
+               userName, companyName, fname,email,password,cpassword,subscriptionDate,userType,industryType, dataInteval,district,state,address,longtitude,latitude
             });
             const storeData=await finalUser.save();
-
             return res.status(201).json({ status:201, storeData})
             
         }
@@ -147,7 +147,7 @@ const sendPasswordLink= async (req,res)=>{
                 from:process.env.EMAIl,
                 to:email,
                 subject:"Sending Email for Password Reset",
-                text:`This Link Valid for 2 Minutes http://localhost:3000/reset-password-email/${userfind._id}/${setusertoken.verifytoken}`
+                text:`This Link Valid for 2 Minutes http://localhost:3000/reset-password/${userfind._id}/${setusertoken.verifytoken}`
 
             }
             transporter.sendMail(mailOptions,(error,info)=>{
@@ -188,13 +188,15 @@ const forgotPassword=async (req,res)=>{
 
 const changePassword= async (req,res)=>{
     const {id, token}=req.params;
-    const {password}=req.body;
+    const {password, cpassword}=req.body;
 
     try {
         const validuser =await userdb.findOne({_id: id, verifytoken:token});
 
         const verifytoken=jwt.verify(token,keysecret);
-
+         if(password !==cpassword){
+            return res.status(422).json({ status: 422, message: "New password and confirmation password do not match" });
+         }
         if(validuser && verifytoken._id){
             const newpassword =await bcrypt.hash(password,12);
 
@@ -248,22 +250,24 @@ const editUser= async(req,res)=>{
 }
 
 // Delete User
-const deleteUser=async(req,res)=>{
+const deleteUser = async (req, res) => {
     try {
-        const userId=req.params.userId;
+        const userName = req.params.userName;
 
-        const deletedUser=await userdb.findByIdAndDelete(userId);
+       
+        const deletedUser = await userdb.findOneAndDelete({ userName });
 
-        if(!deletedUser){
-            return res.status(404).json({status:404, message:"User Not found"});
-        }else{
-            return res.status(200).json({status:200, message:" User Deleted Successfully"})
+        if (!deletedUser) {
+            return res.status(404).json({ status: 404, message: "User Not found" });
+        } else {
+            return res.status(200).json({ status: 200, message: "User Deleted Successfully" });
         }
     } catch (error) {
-        return res.status(500).json({status:500, error: "Internal Server Error"})
+        return res.status(500).json({ status: 500, error: error.message || "Internal Server Error" });
     }
 }
 
+// Get A User
 const getAUser=async (req,res)=>{
 
     try {
@@ -281,4 +285,49 @@ const getAUser=async (req,res)=>{
     }
 }
 
-module.exports={register,login,validuser,logout,sendPasswordLink,forgotPassword,changePassword, getAllUsers, editUser, deleteUser,getAUser,}
+//Change Current Password 
+    const changeCurrentPassword = async (req, res) => {
+        const { id, token } = req.params;
+        const { password, newPassword, reEnterPassword } = req.body;
+
+        try {
+            // Find the user by Id and token
+            const user = await userdb.findOne({ _id: id, verifytoken: token });
+
+            // Check if the user exists and the token is valid
+            if (!user) {
+                return res.status(401).json({ status: 401, message: "User not found or invalid token" });
+            }
+            
+            // Verify if the current password matches the user's stored password
+            const isMatch = await bcrypt.compare(password, user.password);
+            if (!isMatch) {
+                return res.status(401).json({ status: 401, message: "Current password is incorrect" });
+            }
+
+            // Validate the new password
+            if (newPassword !== reEnterPassword) {
+                return res.status(422).json({ status: 422, message: "New password and re-enter password do not match" });
+            }
+
+            // Hash the new password
+            const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+            // Update the user's password with the new hashed password
+            user.password = hashedPassword;
+
+            // Save the updated user object
+            await user.save();
+
+            // Return success response
+            return res.status(200).json({ status: 200, message: "Password changed successfully" });
+
+        } catch (error) {
+            // Handle Errors
+            console.error(`Error changing password: ${error}`);
+            return res.status(500).json({ status: 500, error: "Internal Server Error" });
+        }
+    }
+
+
+module.exports={register,login,validuser,logout,sendPasswordLink,forgotPassword,changePassword, getAllUsers, editUser, deleteUser,getAUser,changeCurrentPassword}

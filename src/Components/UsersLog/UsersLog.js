@@ -1,51 +1,37 @@
 import React, { useState } from "react";
-
-import { useNavigate } from "react-router-dom";
+import { useNavigate,Link } from "react-router-dom";
 import { useEffect } from 'react';
 import './index.css'
 import { useOutletContext } from "react-router-dom";
-import {
-  BarChart,
-  Bar,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
-
-import { Link } from 'react-router-dom';
 import LeftSideBar from "../LeftSideBar/LeftSideBar";
-import { DateRangePicker } from 'rsuite';
 import { useForm, Controller } from "react-hook-form";
 import LocationDisplay from './LocationDisplay';
 import DownloadData from "../Download-Data/DownloadData";
-
+import axios from "axios";
 const UsersLog = () => {
 
   const [showLocationModal,setShowLocationModal]=useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [users,setUsers]=useState([]);
+  const [editData,setEditData]=useState(null);
 
-  
-    const users=[
-      {
-        id: 1, 
-        name: "User ID 1",
-        latitude:10.02717,
-        longitude:76.33512,
-        address:'EBHOOM, Ernakulam,Kerala, India'
-      },
-      {
-        id: 1, 
-        name: "User ID 1",
-        latitude:10.02303,
-        longitude:76.33912,
-        address:'KERALA Water Authority, Ernakulam,Kerala, India'
-      }
-    ]
+ 
+  useEffect(()=>{
+    const fetchUsers = async () => {
+        try {
+          const response = await axios.get('http://localhost:4444/api/getallusers');
+          const userData = response.data.users;
+          console.log(userData);
+          setUsers(userData)
+        } catch (error) {
+          console.error(`Error in fetching users`, error);
+        }
+    };
+    fetchUsers()
+  },[])
+    
    const handleLocationClick=(userId)=>{
-    const user=users.find(user=>user.id ===  userId)
+    const user=users.find(user=>user._id ===  userId)
     if(user){
       setShowLocationModal(true);
       setSelectedUser(user);
@@ -56,7 +42,9 @@ const UsersLog = () => {
     setShowLocationModal(false);
     setSelectedUser(null);
   };
- 
+const navigate=useNavigate();
+
+
   return (
     <div className="main-panel">
       <div className="content-wrapper">
@@ -98,19 +86,12 @@ const UsersLog = () => {
                   <div className="col-12  mb-3">
                     <ul className="list-group">
                     {users.map(user => (  
-                    <li className="list-group-item">1.User ID 1
+                    <li key={user._id} className="list-group-item">{user.fname}
                           <div className="FloatRight">
-                           <Link to='/manage-users'><button className="btn btn-primary m-3">View</button></Link>
+                          <Link to={`/edit-user/${user._id}`}><button className="btn btn-primary m-3">View</button></Link>
                             <button className="btn btn-primary m-3">Login</button>
-                            <button className="btn btn-primary m-3 " onClick={() => handleLocationClick(user.id)}>Location</button>
-
+                            <button className="btn btn-primary m-3 " onClick={() => handleLocationClick(user._id)}>Location</button>
                           </div>
-
-                        
-                       
-
-                        
-
                         </li>
                          ))}
                     </ul>
@@ -137,7 +118,8 @@ const UsersLog = () => {
                       <li className="list-group-item">5.1321312</li>
                     </ul> </div>
 
-
+                  
+               
                 </div>
               </div>
             </div>
@@ -145,21 +127,24 @@ const UsersLog = () => {
         </div>
        
 
-       
+        
 <DownloadData/>
       </div>
 
 {/* Modal to display Location */}
 {showLocationModal && (
         
-      <LocationDisplay 
-      latitude={selectedUser.latitude}
-          longitude={selectedUser.longitude}
-          address={selectedUser.address}
-          onClose={handleCloseLocationModal}
-      />
-           
+        <LocationDisplay 
+        latitude={selectedUser.latitude}
+        longitude={selectedUser.longtitude}
+        address={selectedUser.address}
+        onClose={handleCloseLocationModal}
+    />
+    
+         
       )}
+       
+       
       <footer className="footer">
         <div className="container-fluid clearfix">
           <span className="text-muted d-block text-center text-sm-left d-sm-inline-block">

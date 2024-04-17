@@ -5,12 +5,17 @@ import LeftSideBar from "../LeftSideBar/LeftSideBar";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useEffect } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import axios from 'axios';
+import { DatePicker } from 'rsuite';
 
 
 
 const AddUsers = () => { 
-
   const industryType=[
+    {
+      category:"Select"
+    },
     {
       category:"Sugar"
     },
@@ -77,8 +82,154 @@ const AddUsers = () => {
     {
       category:"Other"
     },
+    {
+      category:"Admin"
+    },
   
   ]
+const [formData, setFormData]=useState({
+  userName:"",
+  companyName:"",
+  fname:"",
+  email:"",
+  password:"",
+  cpassword:"",
+  subscriptionDate:"",
+  userType:"",
+  industryType:"",
+  dataInteval:"",
+  district:"",
+  state:"",
+  address:"",
+  longtitude:"",
+  latitude:""
+})
+
+
+const handleInputChange = event =>{
+  const{name,value}=event.target;
+  setFormData({
+    ...formData,
+    [name]:value,
+  });
+}
+  const handleSubmit =async (event)=>{
+
+        try {
+          event.preventDefault();
+          
+          //validation Check
+
+          if(formData.userName === ''){
+            toast.warning('Please add the User ID',{
+              position:'top-center'
+            })
+          }else if(formData.companyName === ''){
+            toast.warning('Please add the Company Name',{
+              position:'top-center'
+            })
+          }else if(formData.fname === ''){
+            toast.warning("Please add your Name",{
+              position:'top-center'
+            })
+          }else if(formData.email ===''){
+            toast.warning("please add your Email",{
+              position:'top-center'
+            })
+          }else if (formData.pasword === ''){
+            toast.warning('Please add your password',{
+              position:'top-center'
+            })
+          }else if (formData.cpassword === ''){
+            toast.warning('please confirm your password',{
+              position:'top-center'
+            })
+
+          }else if(formData.password !== formData.cpassword){
+            toast.error('Password and Confirm Password Mismatch',{
+              position:'top-center'
+            })
+          }
+          else if(formData.subscriptionDate===''){
+            toast.warning('Please add Subcription Date',{
+              position:'top-center'
+            })
+          }else if(formData.userType === 'select'){
+            toast.warning('Please select the user type',{
+              position:'top-center'
+            })
+          }else if(formData.industryType === 'select'){
+            toast.warning('Please select the Industty Type',{
+              position:'top-center'
+            })
+          }else if(formData.dataInterval === 'select'){
+            toast.warning('Please select the Data Interval',{
+              position:'top-center'
+            })
+          }else if(formData.district === ''){
+            toast.warning('Please type your district',{
+              position:'top-center'
+            })
+          }else if(formData.state === ''){
+            toast.warning('Please type your State',{
+              position:'top-center'
+            })
+          }else if(formData.address === ''){
+            toast.warning('Please type your address',{
+              position:'top-center'
+            })
+          }else if(formData.longtitude === ''){
+            toast.warning('Please type your longtitude',{
+              position:'top-center'
+            })
+          }else if(formData.latitude === ''){
+            toast.warning('Please type your latitude',{
+              position:'top-center'
+            })
+          }
+          else{
+            let formDataToSend = formData;
+
+            const response =await axios.post('http://localhost:4444/api/register',formDataToSend)
+            console.log('formDataToSend:',formDataToSend);
+            if(response.status === '201'){
+              const shouldSave = window.confirm("Are you Sure to Save the user")
+
+              if(shouldSave){
+                console.log(`Data submitted successfully`);
+
+                setFormData({
+                  date: new Date().toLocaleDateString(),
+                  userName:"",
+                  companyName:"",
+                  fname:"",
+                  email:"",
+                  password:"",
+                  cpassword:"",
+                  subscriptionDate:"",
+                  userType:"",
+                  industryType:"",
+                  dataInteval:"",
+                  district:"",
+                  state:"",
+                  address:"",
+                  longtitude:"",
+                  latitude:""
+                })
+
+              }
+            }
+            toast.success('The User is added Successfully',{
+              position:'top-center'
+            })
+          }
+        } catch (error) {
+          console.log(error);
+          toast.error('Error In Occured Please try again',{
+            position:'top-center'
+          })
+        }
+  }
  
    
     return (
@@ -87,82 +238,143 @@ const AddUsers = () => {
               <div className="card">
                 <div className="card-body">
                       
-                        <div className="alert alert-danger mt-3 mb-0"></div>
-                        
-                        {/* {updateError &&
-                        <div className="alert alert-danger mt-3 mb-0">{updateError.message}</div>
-                        } */}
+                      
                 <form >
                       <div className="row">
                           <div className="col-12">
-                            <h1>Add New User</h1>
-                             {/* <h1>Update User</h1> */}
+                            <h1>Add User</h1>
+                            
                           </div>
+                          
 
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
-                            <label htmlFor="exampleFormControlInput1">Product ID</label>
-                            <input type="number" className="form-control" id="exampleFormControlInput1" placeholder="Enter Product Id"
+                            <label htmlFor="exampleFormControlInput1">user ID</label>
+                            <input 
+                             type="text"
+                             className="form-control" 
+                             id="userName" 
+                             name='userName'
+                             value={formData.userName}
+                             onChange={handleInputChange}
+                             placeholder="Enter User Id"
+
                             />
-                             <span className="error">Product ID required</span>
                           </div>
 
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
                             <label htmlFor="exampleFormControlInput2">Company Name</label>
-                            <input type="text" className="form-control" id="exampleFormControlInput2" placeholder="Enter Company Name"
+                            <input 
+                            type="text" 
+                            className="form-control" 
+                            id="companyName" 
+                            name='companyName'
+                            value={formData.companyName}
+                            onChange={handleInputChange}
+                            placeholder="Enter Company Name"
+                            
                             />
-                            <span className="error">Invalid Company Name</span>
-                            <span className="error">Company Name required</span>
-                            <span className="error">Minimum 2 Characters required</span>
+                           
                           </div>
 
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
                             <label htmlFor="exampleFormControlInput3">First Name</label>
-                            <input type="text" className="form-control" id="exampleFormControlInput3" placeholder="Enter First Name"
+                            <input 
+                            type="text" 
+                            className="form-control" 
+                            id="fname"
+                            name='fname'
+                            value={formData.fname}
+                            onChange={handleInputChange} 
+                            placeholder="Enter First Name"
                            />
-                            <span className="error">First Name required</span>
-                            <span className="error">Minimum 2 Characters required</span>
-                            <span className="error">Invalid First Name</span>
+                           
                           </div>
 
                         
 
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
                             <label htmlFor="exampleFormControlInput3">Email</label>
-                            <input type="email" className="form-control" id="exampleFormControlInput3" placeholder="Enter Email"
+                            <input 
+                            type="email" 
+                            className="form-control" 
+                            id="email" 
+                            name='email'
+                            value={formData.email}
+                            onChange={handleInputChange}
+                            placeholder="Enter Email"
                             />
-                             <span className="error"></span>
-                            <span className="error">Email is required</span>
+                            
                           </div>
 
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
                             <label htmlFor="exampleFormControlInput3">Password</label>
-                            <input type="text" className="form-control" id="exampleFormControlInput3" placeholder="Enter Password"
+                            <input 
+                            type="password" 
+                            className="form-control" 
+                            id="password"
+                            name='password'
+                            value={formData.pasword}
+                            onChange={handleInputChange}
+                            placeholder="Enter Password"
                            />
-                            <span className="error">Password is required</span>
-                            <span className="error">Minimum 8 Characters required</span>
+                           
                           </div>
-
+                          <div className="col-12 col-lg-6 col-md-6 mb-3">
+                            <label htmlFor="exampleFormControlInput3">Confirm Password</label>
+                            <input 
+                            type="password" 
+                            className="form-control" 
+                            id="cpassword"
+                            name='cpassword'
+                            value={formData.cpassword}
+                            onChange={handleInputChange}
+                            placeholder="Enter Password"
+                           />
+                           
+                          </div>
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
                             <label htmlFor="exampleFormControlInput4">Date of Subscription</label>
-                            <input type="date" className="form-control" id="exampleFormControlInput4" placeholder="Enter Subscription date" 
+                            <input 
+                            type="date" 
+                            className="form-control" 
+                            id="subscriptionDate"
+                            name='subscriptionDate'
+                            value={formData.subscriptionDate}
+                            onChange={handleInputChange} 
+                            placeholder="Enter Subscription date" 
                            />
-                            <span className="error">Subscription Date required</span>
+                            
                           </div>
 
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
                               <label htmlFor="exampleFormControlInput5">User Type</label>
-                              <select className="input-field" >
-                               
-                                <option value="ambientAir">Ambient Air</option>
-                                <option value="effluent-water">Effluent/Water</option>
-                                <option value="noise">Noise</option>
+                              <select 
+                              className="input-field" 
+                              id='userType'
+                              name='userType'
+                              value={formData.userType}
+                              onChange={handleInputChange}
+
+                              >
+                              
+                              <option value="select">Select</option>
+                              <option value="admin">Admin</option>
+                              <option value="user">User</option>
+
 
                               </select>
                           </div>
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
                               <label htmlFor="exampleFormControlInput5">Industry Type</label>
                               
-                                <select className="input-field" >
+                                <select 
+                                className="input-field" 
+                                id='industryType'
+                                name='industryType'
+                                value={formData.industryType}
+                                onChange={handleInputChange}
+                                >
+
                                 {industryType.map((item)=>(
                                 <option value={item.category}>{item.category}</option>
                                 ))}
@@ -171,60 +383,97 @@ const AddUsers = () => {
                           </div>
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
                               <label htmlFor="exampleFormControlInput5">Data Interval </label>
-                              <select className="input-field" >
+                              <select 
+                              className="input-field"
+                              id='dataInteval'
+                              name='dataInteval'
+                              value={formData.dataInteval}
+                              onChange={handleInputChange} >
                                
-                                <option value="sec">15 sec</option>
+                              <option value="select">Select</option>
+                              <option value="sec">15 sec</option>
                                 <option value="Min">Less than 1 min</option>
                                 <option value="fifteenMin">Less than 15 min</option>
                                 <option value="thirtyMin">Less than 30 min</option>
+
 
                               </select>
                           </div>
 
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
                             <label htmlFor="exampleFormControlInput5">District</label>
-                            <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Enter District"
+                            <input 
+                            type="text" 
+                            className="form-control" 
+                            id="district" 
+                            name='district'
+                            value={formData.district}
+                            onChange={handleInputChange}
+                            placeholder="Enter District"
                             />
-                            <span className="error">District required</span>
-                            <span className="error">Invalid District name</span>
-                            <span className="error">Minimum 3 Characters required</span> 
+                            
                           </div>
 
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
                             <label htmlFor="exampleFormControlInput6">State</label>
-                            <input type="text" className="form-control" id="exampleFormControlInput6" placeholder="Enter State" 
+                            <input 
+                            type="text" 
+                            className="form-control" 
+                            id="state"
+                            name='state'
+                            value={formData.state}
+                            onChange={handleInputChange}
+                            placeholder="Enter State" 
                             />
-                            <span className="error">State required</span>
-                            <span className="error">Invalid State name</span>
-                            <span className="error">Minimum 3 Characters required</span>
+                           
                           </div>
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
                             <label htmlFor="exampleFormControlInput6">Address</label>
-                            <textarea type="text" className="form-control" id="exampleFormControlInput6" placeholder="Enter Address" 
+                            <textarea 
+                            type="text" 
+                            className="form-control" 
+                            id="address"
+                            name='address'
+                            value={formData.address}
+                            onChange={handleInputChange}
+                            placeholder="Enter Address" 
                             />
-                            <span className="error">State required</span>
-                            <span className="error">Invalid State name</span>
-                            <span className="error">Minimum 3 Characters required</span>
+                           
                           </div>
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
-                            <label htmlFor="exampleFormControlInput6">Longtitude</label>
-                            <input type="text" className="form-control" id="exampleFormControlInput6" placeholder="Enter Longtitude" 
+                            <label htmlFor="exampleFormControlInput6">Longitude</label>
+                            <input 
+                            type="text" 
+                            className="form-control" 
+                            id="longtitude" 
+                            name='longtitude'
+                            value={formData.longtitude}
+                            onChange={handleInputChange}
+                            placeholder="Enter Longtitude" 
                             />
-                            <span className="error">State required</span>
-                            <span className="error">Invalid State name</span>
-                            <span className="error">Minimum 3 Characters required</span>
+                          
                           </div>
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
                             <label htmlFor="exampleFormControlInput6">Latitude</label>
-                            <input type="text" className="form-control" id="exampleFormControlInput6" placeholder="Enter Latitude" 
+                            <input 
+                            type="text" 
+                            className="form-control" 
+                            id="latitude"
+                            name='latitude'
+                            value={formData.latitude}
+                            onChange={handleInputChange} 
+                            placeholder="Enter Latitude" 
                             />
-                            <span className="error">State required</span>
-                            <span className="error">Invalid State name</span>
-                            <span className="error">Minimum 3 Characters required</span>
+                            
                           </div>
 
                           <div className="mt-4 mb-5 p-2">
-                            <button type="submit" className="btn btn-primary mb-2"> Add User </button>
+                            <button 
+                            type="submit" 
+                            onClick={handleSubmit}      
+                            className="btn btn-primary mb-2">
+                               Add User 
+                            </button>
                           </div>
                           
                             <div className="mt-4 mb-5 p-2">
@@ -234,7 +483,7 @@ const AddUsers = () => {
                           
                       </div>
                   </form>
-
+        <ToastContainer/>
                 </div>
               </div>
             </div>
@@ -244,31 +493,52 @@ const AddUsers = () => {
 }
 const DeleteUsers = () => { 
 
+const [userName,setUserName]=useState('');
 
+const handleSubmit =async(e)=>{
+  e.preventDefault();
+
+  if(!userName){
+    return toast.warning('Please Enter the user ID',{
+      position:'top-center'
+    })
+  }
+  try {
+    const response = await axios.delete(`http://localhost:4444/api/deleteuser/${userName}`)
+    console.log(response.data);
+    toast.success('user deleted Successfully',{
+      position:'top-center'
+    })
+  } catch (error) {
+    console.error(`Error deleting user:`,error);
+    toast.error('Error in Deleting User /  User ID not found',{
+      position:'top-center'
+    })
+  }
+}
 
     return (
       <div className="row">
             <div className="col-md-12 grid-margin">
               <div className="card">
                 <div className="card-body">
-
-                       
-                        <div className="alert alert-danger mt-3 mb-0">m</div>
-                        
-
                 <form >
                     <div className="row">
                         <div className="col-12">
                           <h1>Delete User</h1>
                         </div>
                         <div className="col-12 col-lg-6 col-md-6 mb-3">
-                          <label htmlFor="exampleFormControlInput7">Product Id</label>
-                          <input type="number" className="form-control" id="exampleFormControlInput7" placeholder="Enter Product Id" 
+                          <label htmlFor="exampleFormControlInput7">user ID</label>
+                          <input type="text" 
+                          className="form-control"
+                          id="exampleFormControlInput7"
+                          placeholder="Enter user ID" 
+                          value={userName}
+                          onChange={(e)=>setUserName(e.target.value)}
                           />
-                          <span className="error">Product ID required</span>
                         </div>
                         <div className="col-12  mb-3">
-                          <button type="submit" className="btn btn-danger mb-2">Delete User</button>
+                          <button type="submit" className="btn btn-danger mb-2"onClick={handleSubmit}>Delete User</button>
                         </div>
                       </div>
                   </form>
@@ -276,9 +546,11 @@ const DeleteUsers = () => {
                 </div>
               </div>
             </div>
+            <ToastContainer />
           </div>
     )
 }
+
 
 
 
@@ -293,11 +565,7 @@ const ManageUsers = () => {
               <div className="page-header">
                 <h4 className="page-title">Control and Monitor Dashboard</h4>
                 <div className="quick-link-wrapper w-100 d-md-flex flex-md-wrap">
-                  {/* <!-- <ul className="quick-links">
-                <li><a href="#">option 1</a></li>
-                <li><a href="#">Own analysis</a></li>
-                <li><a href="#"> data</a></li>
-              </ul> --> */}
+                 
                   <ul className="quick-links ml-auto">
                     <li>
                       <a href="#">Settings</a>
@@ -317,6 +585,7 @@ const ManageUsers = () => {
 
           <AddUsers/>
           <DeleteUsers/>
+          
 
         </div>
 

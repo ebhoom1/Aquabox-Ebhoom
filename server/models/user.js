@@ -6,9 +6,12 @@ const jwt=require('jsonwebtoken');
 const keysecret=process.env.SECRET_KEY
 
 const userSchema=new mongoose.Schema({
-
-    productID:{
+    date:{
         type:String,
+    },
+    userName:{
+        type:String,
+        required:true
         
     },
     companyName:{
