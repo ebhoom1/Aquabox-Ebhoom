@@ -60,7 +60,7 @@ const CalibrationData = () => {
               <tr>
                 <th>Date of Calibration</th>
                 <th>User Type</th>
-                <th>User Name</th>
+                <th>User ID</th>
                 <th>Equipment Name</th>
                 <th>Before</th>
                 <th>After</th>
