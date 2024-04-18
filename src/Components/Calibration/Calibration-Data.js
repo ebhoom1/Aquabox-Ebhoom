@@ -3,12 +3,7 @@ import { Link } from "react-router-dom";
 import axios from 'axios';
 
 const CalibrationData = () => {
-  // Sample previous calibration data, replace with your actual data
-  const previousCalibrations = [
-    { date: "2022-01-01", userType: "Ambient Air", userNumber: "User 1", equipmentName: "Equipment 1", before: "Data before calibration", after: "Data after calibration", technician: "Technician 1", notes: "Notes 1" },
-    { date: "2022-02-01", userType: "Effluent/Water", userNumber: "User 2", equipmentName: "Equipment 2", before: "Data before calibration", after: "Data after calibration", technician: "Technician 2", notes: "Notes 2" },
-    // Add more previous calibration data as needed
-  ];
+ 
   const [userCalibrations,setUserCalibrations]=useState(null)
   useEffect(()=>{
     const fetchUsers = async () => {

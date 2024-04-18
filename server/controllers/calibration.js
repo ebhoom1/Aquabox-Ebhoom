@@ -70,20 +70,19 @@ const viewAllCalibrations = async (req, res) => {
 // Controller function to find calibration by UserId
 const findCalibrationByUserId = async (req, res) => {
     try {
-        const { userId } = req.params;
-        // Find calibration by userId in the database
-        const calibration = await Calibration.findOne({ userId });
-        if (!calibration) {
-            return res.status(404).json({
-                success: false,
-                message: 'Calibration not found for the specified userId'
+        const userId=req.params.userId
+
+        const calibration=await Calibration.findById(userId);
+
+        if(!calibration){
+            return res.status(404).json({status:404, message:"User Not Fount"})
+        }else{
+            return res.status(200).json({
+                success: true,
+                message: 'found the calibration data using the Id',
+                calibration: calibration
             });
         }
-        res.status(200).json({
-            success: true,
-            message: 'Calibration found successfully',
-            calibration
-        });
     } catch (error) {
         res.status(500).json({
             success: false,
@@ -91,6 +90,8 @@ const findCalibrationByUserId = async (req, res) => {
             error: error.message
         });
     }
+   
+    
 };
 // Controller function to edit a calibration
 const editCalibration = async (req, res) => {

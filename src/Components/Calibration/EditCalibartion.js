@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom';
+import { Link,useParams } from 'react-router-dom';
 import LeftSideBar from "../LeftSideBar/LeftSideBar";
 import { ToastContainer, toast } from 'react-toastify';
 import { useNavigate } from "react-router-dom";
@@ -11,112 +11,26 @@ import axios from 'axios';
 
 
 const EditCalibration = () => { 
-  const [validUserData, setValidUserData] = useState(null);
-  const [calibrationData,setCalibrationData]=useState({
-    userId:"",
-    date:"",
-    userName:"",
-    equipmentName:"",
-    before:"",
-    after:"",
-    technician:"",
-    notes:"",
-  })
-  const handleInputChange = event =>{
-    const { name, value } = event.target;   
-     setCalibrationData({
-      ...calibrationData,
-      [name]:value,
-    });
-  }
-  const handleSubmit = async (event) => {
-    try {
-      event.preventDefault();
-  
-      if (calibrationData.date === '') {
-        toast.warning('Please add the date', {
-          position: 'top-center'
-        });
-      } else if (calibrationData.equipmentName === '') {
-        toast.warning('Please add the equipment Name', {
-          position: 'top-center'
-        });
-      } else if (calibrationData.before === '') {
-        toast.warning('Please add the before', {
-          position: 'top-center'
-        });
-      } else if (calibrationData.after === '') {
-        toast.warning('Please add the after', {
-          position: 'top-center'
-        });
-      } else if (calibrationData.technician === '') {
-        toast.warning('Please add the technician', {
-          position: 'top-center'
-        });
-      } else {
-        let calibrationDataToSend = calibrationData;
-  
-        const res = await axios.post('http://localhost:4444/api/add-calibration', calibrationDataToSend);
-        
-        if (res.status === 201) {
-          const shouldSaveIt = window.confirm("Are you Sure to Save the User?");
-          if (shouldSaveIt) {
-            setCalibrationData({
-              userId: "",
-              date: "",
-              userName: "",
-              equipmentName: "",
-              before: "",
-              after: "",
-              technician: "",
-              notes: "",
-            });
-          }
+ const {calibrationId} = useParams();
+ 
+ const [calibrationData, setCalibrationData] = useState({
+    date:null,
+    userName:null,
+    equipmentName:null,
+    before:null,
+    after:null,
+    technician:null,
+    notes:null,
+ })
+ useEffect(()=>{
+    const fetchCalibrationData = async () =>{
+        try {
+            const response = await axios.get(``)
+        } catch (error) {
+            
         }
-        toast.success('The Calibration is added Successfully', {
-          position: 'top-center'
-        });
-      }
-    } catch (error) {
-      console.log(error);
-      toast.error('An error occurred. Please try again.', {
-        position: 'top-center'
-      });
     }
-  };
-  
-  useEffect(()=>{
-    //Fetch product iD and user status when the component mounts
-    
-    const fetchData=async()=>{
-      try{
-          let token = localStorage.getItem("userdatatoken")
-          const response =await axios.get('http://localhost:4444/api/validuser',{
-            headers:{
-              'Content-Type':"application/json",
-              'Authorization':token,
-              Accept:'application/json'
-            },
-            withCredentials: true
-          })
-          const data = response.data;
-        console.log(data);
-
-        if (data.status === 201) {
-          // Update product ID and user status
-          setValidUserData(data.validUserOne);
-          console.log(data.validUserOne);
-        } else {
-          console.log("Error fetching user data");
-        }
-      }catch(error){
-        console.error("Error fetching user data :", error);
-      }
-    }
-    fetchData();
-  },[])
-
-
+ },[])
     return (
       <div className="main-panel">
         <div className="content-wrapper">
@@ -163,7 +77,7 @@ const EditCalibration = () => {
 
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
                             <label htmlFor="exampleFormControlInput5">User ID</label>
-                            <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Equipment Name" value= { validUserData && validUserData._id}
+                            <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Equipment Name"
                             />
                             
                           </div>
@@ -174,15 +88,14 @@ const EditCalibration = () => {
                             className="form-control" 
                             id="date" 
                             name='date'
-                            value={calibrationData.date}
-                            onChange={handleInputChange}
+                           
                             placeholder="Date of Calibration" 
                            />
                             {/* <span className="error">Subscription Date required</span> */}
                           </div>
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
                             <label htmlFor="exampleFormControlInput5">User Type</label>
-                            <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Equipment Name" value= { validUserData && validUserData.userType}  onChange={handleInputChange}
+                            <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Equipment Name" 
                             />
                             
                           </div>
@@ -190,7 +103,7 @@ const EditCalibration = () => {
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
                               <label htmlFor="exampleFormControlInput5">User Name</label>
                               
-                              <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Equipment Name" value= { validUserData && validUserData.userName}  onChange={handleInputChange}
+                              <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Equipment Name" 
                             />
                              
                           </div>
@@ -203,8 +116,7 @@ const EditCalibration = () => {
                             className="form-control" 
                             id="equipmentName"
                             name='equipmentName'
-                            value={calibrationData.equipmentName}
-                            onChange={handleInputChange} 
+                            
                             placeholder="Equipment Name"
                             />
                          
@@ -220,8 +132,7 @@ const EditCalibration = () => {
                             className="form-control" 
                             id="before"
                             name='before' 
-                            value={calibrationData.before}
-                            onChange={handleInputChange}
+                           
                             placeholder="Before" 
                             />
                             
@@ -233,8 +144,7 @@ const EditCalibration = () => {
                             className="form-control" 
                             id="after"
                             name='after'
-                            value={calibrationData.after}
-                            onChange={handleInputChange} 
+                           
                             placeholder="After" 
                             />
                             {/* <span className="error">State required</span>
@@ -248,8 +158,7 @@ const EditCalibration = () => {
                             className="form-control" 
                             id="technician"
                             name='technician' 
-                            value={calibrationData.technician}
-                            onChange={handleInputChange}
+                           
                             placeholder="Technician Name" 
                             />
                            
@@ -261,8 +170,7 @@ const EditCalibration = () => {
                             className="form-control" 
                             id="notes"
                             name='notes'
-                            value={calibrationData.notes}
-                            onChange={handleInputChange} 
+                          
                             placeholder="Notes" 
                             />
                             {/* <span className="error">State required</span>
@@ -271,7 +179,7 @@ const EditCalibration = () => {
                           </div>
                          
                           <div className="mt-4 mb-5 p-2">
-                            <button type="submit" className="btn btn-primary mb-2"  onClick={handleSubmit}  > Add Calibration </button>
+                            <button type="submit" className="btn btn-primary mb-2"    > Add Calibration </button>
                           </div>
                           
                             <div className="mt-4 mb-5 p-2">

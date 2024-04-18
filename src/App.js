@@ -96,7 +96,7 @@ function App() {
             <Route exact path="/users-log" element={<UsersLog />} />
             <Route exact path="/calibration-new" element={<Calibration />} />
             <Route exact path="/calibration" element={<CalibrationData />} />
-            <Route exact path="/edit-calibration/:userId" element={<EditCalibration />} />
+            <Route exact path="/edit-calibration/:calibrationId" element={<EditCalibration />} />
           </Route>
         )}
       </Routes>
