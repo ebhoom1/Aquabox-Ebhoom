@@ -5,10 +5,10 @@ const Calibration = require('../models/calibration'); // Import the Calibration 
 const addCalibration = async (req, res) => {
     try {
         const {
-            userId,
             date,
             userType,
             userName,
+            fname,
             equipmentName,
             before,
             after,
@@ -18,16 +18,26 @@ const addCalibration = async (req, res) => {
 
         // Create a new calibration object
         const newCalibration = new Calibration({
-            userId,
             date,
             userType,
             userName,
+            fname,
             equipmentName,
             before,
             after,
             technician,
             notes
         });
+
+        // Check if a Calibration with the same userName already exists
+        const existingCalibration= await Calibration.findOne({userName})
+
+        if(existingCalibration){
+            return res.status(400).json({
+                success:false,
+                message:'Calibration with this userName already exists'
+            })
+        }
 
         // Save the new calibration to the database
         await newCalibration.save();
@@ -68,14 +78,14 @@ const viewAllCalibrations = async (req, res) => {
 };
 
 // Controller function to find calibration by UserId
-const findCalibrationByUserId = async (req, res) => {
+const findCalibrationById = async (req, res) => {
     try {
-        const userId=req.params.userId
+        const userId=req.params.id
 
         const calibration=await Calibration.findById(userId);
 
         if(!calibration){
-            return res.status(404).json({status:404, message:"User Not Fount"})
+            return res.status(404).json({status:404, message:"User Not Found"})
         }else{
             return res.status(200).json({
                 success: true,
@@ -152,4 +162,4 @@ const deleteCalibration = async (req, res) => {
 };
 
 
-module.exports = { addCalibration,viewAllCalibrations,findCalibrationByUserId,editCalibration,deleteCalibration};
+module.exports = { addCalibration,viewAllCalibrations,findCalibrationById,editCalibration,deleteCalibration};

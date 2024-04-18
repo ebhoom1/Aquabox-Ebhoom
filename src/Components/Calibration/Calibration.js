@@ -13,8 +13,10 @@ import axios from 'axios';
 const Calibration = () => { 
   const [validUserData, setValidUserData] = useState(null);
   const [calibrationData,setCalibrationData]=useState({
+    userId:"",
     date:"",
     userName:"",
+    fname:"",
     equipmentName:"",
     before:"",
     after:"",
@@ -40,16 +42,11 @@ const Calibration = () => {
         toast.warning('Please add the equipment Name', {
           position: 'top-center'
         });
-      }else if(calibrationData.userName === ''){
-        toast.warning('Please add the User Name', {
-          position: 'top-center'
-        });
       } else if (calibrationData.before === '') {
         toast.warning('Please add the before', {
           position: 'top-center'
         });
-      } 
-      else if (calibrationData.after === '') {
+      } else if (calibrationData.after === '') {
         toast.warning('Please add the after', {
           position: 'top-center'
         });
@@ -57,13 +54,13 @@ const Calibration = () => {
         toast.warning('Please add the technician', {
           position: 'top-center'
         });
-      } else {
+      } else  {
          // Include userId, userType, and userName in the calibrationDataToSend object
       let calibrationDataToSend = {
         ...calibrationData,
-        userId: validUserData._id,
+        userName: validUserData.userName,
         userType: validUserData.userType,
-        userName: validUserData.userName
+        fname: validUserData.fname
       };
         const res = await axios.post('http://localhost:4444/api/add-calibration', calibrationDataToSend);
         
@@ -74,6 +71,7 @@ const Calibration = () => {
               userId: "",
               date: "",
               userName: "",
+              fname:"",
               equipmentName: "",
               before: "",
               after: "",
@@ -171,15 +169,8 @@ const Calibration = () => {
                           </div>
 
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
-                            <label htmlFor="exampleFormControlInput5">User Name</label>
-                            <input 
-                            type="text" 
-                            className="form-control" 
-                            id="exampleFormControlInput5" 
-                            placeholder="User Name" 
-                            name='userName' 
-                            value= { calibrationData.userName}
-                            onChange={handleInputChange}
+                            <label htmlFor="exampleFormControlInput5">User ID</label>
+                            <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Equipment Name" name='userName' value= { validUserData && validUserData.userName}
                             />
                             
                           </div>
@@ -195,6 +186,19 @@ const Calibration = () => {
                             placeholder="Date of Calibration" 
                            />
                             {/* <span className="error">Subscription Date required</span> */}
+                          </div>
+                          <div className="col-12 col-lg-6 col-md-6 mb-3">
+                            <label htmlFor="exampleFormControlInput5">User Type</label>
+                            <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Equipment Name" name='userType' value= { validUserData && validUserData.userType}  
+                            />
+                            
+                          </div>
+                         
+                          <div className="col-12 col-lg-6 col-md-6 mb-3">
+                              <label htmlFor="exampleFormControlInput5">User Name</label>
+                              <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="User Name" name='fname' value= { validUserData && validUserData.fname}  
+                            />
+                             
                           </div>
                           
 
@@ -287,12 +291,7 @@ const Calibration = () => {
                 </div>
               </div>
             </div>
-            <div className="col-md-12 grid-margin">
-              <div className="card">
-                <div className="card-body">
-                </div>
-                </div>
-                </div>
+            
           </div>
 
         </div>

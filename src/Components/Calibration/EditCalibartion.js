@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link,useParams } from 'react-router-dom';
 import LeftSideBar from "../LeftSideBar/LeftSideBar";
-import { ToastContainer, toast } from 'react-toastify';
+import { toast,ToastContainer } from 'react-toastify';
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useEffect } from 'react';
@@ -25,12 +25,38 @@ const EditCalibration = () => {
  useEffect(()=>{
     const fetchCalibrationData = async () =>{
         try {
-            const response = await axios.get(``)
+            const response = await axios.get(`http://localhost:4444/api/find-calibration-by-userId/${calibrationId}`)
+            const calibrationData = response.data.calibration
+            console.log(calibrationData);
+            setCalibrationData(calibrationData)
         } catch (error) {
-            
+            console.error(`Error in fetching calibration data`,error);
         }
+    };
+    fetchCalibrationData();
+ },[calibrationId])
+ const handleChange = (event)=>{
+    const {name, value} =event.target;
+    setCalibrationData(prevCalibrationData =>({
+        ...prevCalibrationData,
+        [name]:value
+    }))
+ }
+ const handleSaveCalibration =async (event) =>{
+    try {
+        event.preventDefault();
+        const res = await axios.put(`http://localhost:4444/api/edit-calibration/${calibrationId}`,calibrationData)
+        const updateCalibration = res.data.calibration;
+        setCalibrationData(updateCalibration)
+        console.log("Calibration updated successfully:",updateCalibration);
+        toast.success("Calibration Updated Successfully",{
+            position:"top-center"
+        })
+    } catch (error) {
+        console.error(`Error in Updating Calibration`,error);
+        toast.error("Error in Updating Calibration")
     }
- },[])
+ }
     return (
       <div className="main-panel">
         <div className="content-wrapper">
@@ -77,8 +103,15 @@ const EditCalibration = () => {
 
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
                             <label htmlFor="exampleFormControlInput5">User ID</label>
-                            <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Equipment Name"
-                            />
+                            <input 
+                              type="text"
+                               className="form-control" 
+                               id="userName"
+                               placeholder="Enter User " 
+                               name='userName'
+                               onChange={handleChange}
+                               value={calibrationData.userName}
+                              />
                             
                           </div>
 
@@ -88,14 +121,22 @@ const EditCalibration = () => {
                             className="form-control" 
                             id="date" 
                             name='date'
-                           
+                            onChange={handleChange}
+                            value={calibrationData.date}
                             placeholder="Date of Calibration" 
                            />
                             {/* <span className="error">Subscription Date required</span> */}
                           </div>
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
                             <label htmlFor="exampleFormControlInput5">User Type</label>
-                            <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Equipment Name" 
+                            <input 
+                            type="text" 
+                            className="form-control" 
+                            id="exampleFormControlInput5" 
+                            placeholder="Equipment Name"
+                            name='userType'
+                            onChange={handleChange}
+                            value={calibrationData.userType} 
                             />
                             
                           </div>
@@ -103,7 +144,13 @@ const EditCalibration = () => {
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
                               <label htmlFor="exampleFormControlInput5">User Name</label>
                               
-                              <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Equipment Name" 
+                              <input 
+                              type="text" 
+                              className="form-control" 
+                              id="exampleFormControlInput5" 
+                              placeholder="Equipment Name"
+                              onChange={handleChange}
+                              value={calibrationData.fname} 
                             />
                              
                           </div>
@@ -116,7 +163,8 @@ const EditCalibration = () => {
                             className="form-control" 
                             id="equipmentName"
                             name='equipmentName'
-                            
+                            onChange={handleChange}
+                            value={calibrationData.equipmentName} 
                             placeholder="Equipment Name"
                             />
                          
@@ -132,7 +180,7 @@ const EditCalibration = () => {
                             className="form-control" 
                             id="before"
                             name='before' 
-                           
+                            value={calibrationData.before} 
                             placeholder="Before" 
                             />
                             
@@ -144,7 +192,8 @@ const EditCalibration = () => {
                             className="form-control" 
                             id="after"
                             name='after'
-                           
+                            onChange={handleChange}
+                            value={calibrationData.after} 
                             placeholder="After" 
                             />
                             {/* <span className="error">State required</span>
@@ -158,7 +207,8 @@ const EditCalibration = () => {
                             className="form-control" 
                             id="technician"
                             name='technician' 
-                           
+                            onChange={handleChange}
+                            value={calibrationData.technician} 
                             placeholder="Technician Name" 
                             />
                            
@@ -170,7 +220,8 @@ const EditCalibration = () => {
                             className="form-control" 
                             id="notes"
                             name='notes'
-                          
+                            onChange={handleChange}
+                            value={calibrationData.notes} 
                             placeholder="Notes" 
                             />
                             {/* <span className="error">State required</span>
@@ -179,7 +230,7 @@ const EditCalibration = () => {
                           </div>
                          
                           <div className="mt-4 mb-5 p-2">
-                            <button type="submit" className="btn btn-primary mb-2"    > Add Calibration </button>
+                            <button type="submit" className="btn btn-primary mb-2"  onClick={handleSaveCalibration}  > Update Calibration </button>
                           </div>
                           
                             <div className="mt-4 mb-5 p-2">
@@ -193,13 +244,7 @@ const EditCalibration = () => {
                 </div>
               </div>
             </div>
-            <div className="col-md-12 grid-margin">
-              <div className="card">
-                <div className="card-body">
-                <CalibrationData/>
-                </div>
-                </div>
-                </div>
+            
           </div>
 
         </div>

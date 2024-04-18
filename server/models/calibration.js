@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const calibrationSchema = new mongoose.Schema({
-    userId: {
+    userName: {
         type: String,
     },
     date: {
@@ -10,8 +10,9 @@ const calibrationSchema = new mongoose.Schema({
     userType:{
         type:String,
     },
-    userName: {
-        type: String,
+    
+    fname:{
+        type:String,
     },
     equipmentName: {
         type: String

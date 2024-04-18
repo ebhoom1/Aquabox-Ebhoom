@@ -1,7 +1,7 @@
 const express = require('express')
 const {addCalibration,
        viewAllCalibrations,
-       findCalibrationByUserId,
+       findCalibrationById,
        editCalibration,
        deleteCalibration} = require('../controllers/calibration')
 
@@ -20,6 +20,6 @@ router.get('/view-all-calibrations', viewAllCalibrations);
 router.delete('/delete-calibration/:id', deleteCalibration);
 
 // Find calibration by userId
-router.get('/find-calibration-by-userId/:userId', findCalibrationByUserId);
+router.get('/find-calibration-by-userId/:id', findCalibrationById);
 
 module.exports=router;

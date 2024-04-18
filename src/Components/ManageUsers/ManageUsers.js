@@ -491,6 +491,7 @@ const handleInputChange = event =>{
     )
   
 }
+
 const DeleteUsers = () => { 
 
 const [userName,setUserName]=useState('');
@@ -550,9 +551,6 @@ const handleSubmit =async(e)=>{
           </div>
     )
 }
-
-
-
 
 const ManageUsers = () => { 
 

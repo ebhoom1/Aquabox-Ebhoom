@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from 'axios';
+import { toast,ToastContainer } from 'react-toastify';
+
 
 const CalibrationData = () => {
  
@@ -18,6 +20,25 @@ const CalibrationData = () => {
     };
     fetchUsers()
   },[])
+  const handleDelete = async (calibrationId)=>{
+    try {
+      const shouldDelete = window.confirm('Are you sure you want to delete this calibration?');
+      if(shouldDelete){
+      const res = await axios.delete(`http://localhost:4444/api/delete-calibration/${calibrationId}`)
+      if(res.status === 200){
+        setUserCalibrations(prevCalibrations => prevCalibrations.filter(calibration =>calibration._id !== calibrationId))
+        toast.success('Calibration deleted Successfully',{
+          position:'top-center'
+        })
+      }
+    }
+    } catch (error) {
+      console.error('Error deleting calibration:', error);
+      toast.error('Failed to delete calibration', {
+        position: 'top-center'
+      });
+    }
+  }
   return (
     <div className="main-panel">
       <div className="content-wrapper">
@@ -30,7 +51,7 @@ const CalibrationData = () => {
               <div className="quick-link-wrapper w-100 d-md-flex flex-md-wrap">
                
                <ul className="quick-links ml-auto">
-                <h5>Data Interval:</h5>
+                {/* <h5>Data Interval:</h5> */}
 
                </ul>
                
@@ -61,11 +82,13 @@ const CalibrationData = () => {
                 <th>Date of Calibration</th>
                 <th>User Type</th>
                 <th>User ID</th>
+                <th>User Name</th>
                 <th>Equipment Name</th>
                 <th>Before</th>
                 <th>After</th>
                 <th>Technician</th>
                 <th>Notes</th>
+                <th>Edit</th>
                 <th>Delete</th>
               </tr>
             </thead>
@@ -75,19 +98,21 @@ const CalibrationData = () => {
                   <td>{calibration.date}</td>
                   <td>{calibration.userType}</td>
                   <td>{calibration.userName}</td>
+                  <td>{calibration.fname}</td>
                   <td>{calibration.equipmentName}</td>
                   <td>{calibration.before}</td>
                   <td>{calibration.after}</td>
                   <td>{calibration.technician}</td>
                   <td>{calibration.notes}</td>
-                 <Link to={`/edit-calibration/${calibration._id}`}> <td> <button type="button"  className="btn btn-primary mb-2"> Edit </button></td></Link>
-                  <td> <button type="button"  className="btn btn-danger mb-2"> Delete </button></td>
+                 <td> <Link to={`/edit-calibration/${calibration._id}`}><button type="button"  className="btn btn-primary mb-2"> Edit </button></Link></td>
+                 <td><button type="button"  className="btn btn-danger mb-2" onClick={()=>handleDelete(calibration._id)}> Delete </button></td>
 
                 </tr>
                 
               ))}
             </tbody>
           </table>
+          <ToastContainer/>
         </div>
       </div>
     </div>
