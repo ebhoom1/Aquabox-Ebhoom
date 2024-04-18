@@ -85,7 +85,7 @@ const CalibrationData = () => {
                   <td>{calibration.after}</td>
                   <td>{calibration.technician}</td>
                   <td>{calibration.notes}</td>
-                  <td> <button type="button"  className="btn btn-primary mb-2"> Edit </button></td>
+                 <Link to={`/edit-calibration/${calibration._id}`}> <td> <button type="button"  className="btn btn-primary mb-2"> Edit </button></td></Link>
                   <td> <button type="button"  className="btn btn-danger mb-2"> Delete </button></td>
 
                 </tr>

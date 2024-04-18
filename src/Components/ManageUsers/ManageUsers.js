@@ -528,11 +528,11 @@ const handleSubmit =async(e)=>{
                           <h1>Delete User</h1>
                         </div>
                         <div className="col-12 col-lg-6 col-md-6 mb-3">
-                          <label htmlFor="exampleFormControlInput7">user ID</label>
+                          <label htmlFor="exampleFormControlInput7">user Name</label>
                           <input type="text" 
                           className="form-control"
                           id="exampleFormControlInput7"
-                          placeholder="Enter user ID" 
+                          placeholder="Enter user Name" 
                           value={userName}
                           onChange={(e)=>setUserName(e.target.value)}
                           />
