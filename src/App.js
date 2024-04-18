@@ -25,6 +25,8 @@ import Noise from './Components/Noise/Noise';
 import DownloadData from './Components/Download-Data/DownloadData';
 import Calibration from './Components/Calibration/Calibration';
 import EditUsers from './Components/ManageUsers/EditUser';
+import EditCalibration from './Components/Calibration/EditCalibartion';
+import CalibrationData from './Components/Calibration/Calibration-Data';
 
 function App() {
   const [dataLoaded, setDataLoaded] = useState(false);
@@ -92,7 +94,9 @@ function App() {
             <Route exact path="/manage-users" element={<ManageUsers />} />
             <Route exact path='/edit-user/:userId' element={<EditUsers/>}/>
             <Route exact path="/users-log" element={<UsersLog />} />
-            <Route exact path="/calibration" element={<Calibration />} />
+            <Route exact path="/calibration-new" element={<Calibration />} />
+            <Route exact path="/calibration" element={<CalibrationData />} />
+            <Route exact path="/edit-calibration" element={<EditCalibration />} />
           </Route>
         )}
       </Routes>

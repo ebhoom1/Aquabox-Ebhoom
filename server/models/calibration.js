@@ -7,6 +7,9 @@ const calibrationSchema = new mongoose.Schema({
     date: {
         type: String,
     },
+    userType:{
+        type:String,
+    },
     userName: {
         type: String,
     },

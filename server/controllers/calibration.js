@@ -7,6 +7,7 @@ const addCalibration = async (req, res) => {
         const {
             userId,
             date,
+            userType,
             userName,
             equipmentName,
             before,
@@ -19,6 +20,7 @@ const addCalibration = async (req, res) => {
         const newCalibration = new Calibration({
             userId,
             date,
+            userType,
             userName,
             equipmentName,
             before,
