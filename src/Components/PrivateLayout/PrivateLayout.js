@@ -82,7 +82,7 @@ const PrivateLayout = () => {
     if(data.status === 201){
 
         console.log('User logged out');
-        localStorage.removeItem("userdatatoken")
+        localStorage.removeItem("userdatatoken");
         setLoginData(false);
         history("/")
     }else{

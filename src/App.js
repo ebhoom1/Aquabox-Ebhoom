@@ -66,8 +66,8 @@ function App() {
   useEffect(() => {
     const timer = setTimeout(() => {
       DashboardValid();
-      setDataLoaded(true);
-    }, 2000);
+       setDataLoaded(true);
+    }, 500);
 
     return () => clearTimeout(timer);
   }, []);
@@ -87,34 +87,31 @@ function App() {
           <Route exact path="terms" element={<Terms />} />
         </Route>
 
-        {dataLoaded && data && (
+        {dataLoaded && (
           <Route path="/" element={<PrivateLayout />}>
             {userType === "admin" && (
               <>
-            
-          
-            <Route exact path="/water" element={<Water />} />
-            <Route exact path="/ambient-air" element={<AmbientAir />} />
-            <Route exact path="/noise" element={<Noise />} />
-            <Route exact path="/account" element={<Account />} />
-            <Route exact path="/attendance-report" element={<Attendence />} />
-            <Route exact path="/manage-users" element={<ManageUsers />} />
-            <Route exact path='/edit-user/:userId' element={<EditUsers/>}/>
-            <Route exact path="/users-log" element={<UsersLog />} />
-            <Route exact path="/calibration-new" element={<Calibration />} />
-            <Route exact path="/calibration" element={<CalibrationData />} />
-            <Route exact path="/edit-calibration/:calibrationId" element={<EditCalibration />} />
-            </>
-             )}
-
-             {userType !== "admin" && (
-              <>
-             <Route exact path="/water" element={<Water />} />
-            <Route exact path="/ambient-air" element={<AmbientAir />} />
-            <Route exact path="/noise" element={<Noise />} />
-            <Route exact path="/account" element={<Account />} />
+                <Route exact path="/water" element={<Water />} />
+                <Route exact path="/ambient-air" element={<AmbientAir />} />
+                <Route exact path="/noise" element={<Noise />} />
+                <Route exact path="/account" element={<Account />} />
+                <Route exact path="/attendance-report" element={<Attendence />} />
+                <Route exact path="/manage-users" element={<ManageUsers />} />
+                <Route exact path='/edit-user/:userId' element={<EditUsers/>}/>
+                <Route exact path="/users-log" element={<UsersLog />} />
+                <Route exact path="/calibration-new" element={<Calibration />} />
+                <Route exact path="/calibration" element={<CalibrationData />} />
+                <Route exact path="/edit-calibration/:calibrationId" element={<EditCalibration />} />
               </>
-             )}
+            )}
+            {userType === "user" && (
+              <>
+                <Route exact path="/water" element={<Water />} />
+                <Route exact path="/ambient-air" element={<AmbientAir />} />
+                <Route exact path="/noise" element={<Noise />} />
+                <Route exact path="/account" element={<Account />} />
+              </>
+            )}
           </Route>
         )}
       </Routes>
