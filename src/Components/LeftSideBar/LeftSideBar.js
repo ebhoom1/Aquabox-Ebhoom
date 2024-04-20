@@ -48,6 +48,12 @@ const LeftSideBar = () => {
                 <span className="menu-title">Users Log</span>
               </Link>
             </li>
+            <li className={`nav-item `}>
+              <Link className="nav-link" to="/calibration">
+                <i className="menu-icon typcn typcn-document-text"></i>
+                <span className="menu-title">Calibration</span>
+              </Link>
+            </li>
           </>
         
 
@@ -71,12 +77,7 @@ const LeftSideBar = () => {
                 <span className="menu-title">Noise Dashboard</span>
               </Link>
             </li>
-            <li className={`nav-item `}>
-              <Link className="nav-link" to="/calibration">
-                <i className="menu-icon typcn typcn-document-text"></i>
-                <span className="menu-title">Calibration</span>
-              </Link>
-            </li>
+            
             {/* <li className={`nav-item `}>
               <Link className="nav-link" to="/attendance-report">
                 <i className="menu-icon typcn typcn-document-text"></i>

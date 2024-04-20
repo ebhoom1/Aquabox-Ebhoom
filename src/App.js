@@ -31,6 +31,7 @@ import CalibrationData from './Components/Calibration/Calibration-Data';
 function App() {
   const [dataLoaded, setDataLoaded] = useState(false);
   const [data, setData] = useState(false);
+  const [userType, setUserType] = useState("");
   const { setLoginData } = useContext(LoginContext);
   const navigate  = useNavigate();
 
@@ -52,6 +53,7 @@ function App() {
       } else {
         console.log("User Verify");
         setLoginData(responseData);
+        setUserType(responseData.userType)
         setData(true);
       }
     } catch (error) {
@@ -86,6 +88,8 @@ function App() {
 
         {dataLoaded && data && (
           <Route path="/" element={<PrivateLayout />}>
+            {userType === "admin" && (
+              <>
             <Route exact path="/water" element={<Water />} />
             <Route exact path="/ambient-air" element={<AmbientAir />} />
             <Route exact path="/noise" element={<Noise />} />
@@ -97,6 +101,17 @@ function App() {
             <Route exact path="/calibration-new" element={<Calibration />} />
             <Route exact path="/calibration" element={<CalibrationData />} />
             <Route exact path="/edit-calibration/:calibrationId" element={<EditCalibration />} />
+            </>
+             )}
+
+             {userType !== "admin" && (
+              <>
+                <Route exact path="/water" element={<Water />} />
+                <Route exact path="/ambient-air" element={<AmbientAir />} />
+                <Route exact path="/noise" element={<Noise />} />
+                <Route exact path="/account" element={<Account />} />
+              </>
+             )}
           </Route>
         )}
       </Routes>

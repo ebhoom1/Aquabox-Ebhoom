@@ -8,7 +8,14 @@ import axios from 'axios';
 
 
 const PrivateLayout = () => {
+  const [isDropdownOpen,setIsDropdownOpen] = useState(false)
 
+  const toggleDropdown = () =>{
+    setIsDropdownOpen(!isDropdownOpen)
+  }
+  const closeDropdown = () =>{
+    setIsDropdownOpen(false)
+  }
   const {loginData,setLoginData} = useContext(LoginContext);
 
   const history = useNavigate();
@@ -269,11 +276,38 @@ const PrivateLayout = () => {
           <button
             className="navbar-toggler navbar-toggler-right d-lg-none align-self-center"
             type="button"
-            
-            // onClick={toggleMenu}
+            onClick={toggleDropdown}
+           
           >
             <span className="mdi mdi-menu"></span>
           </button>
+          {isDropdownOpen && (
+          <div className="dropdown-menu-right navbar-dropdown toggle-dropdown">
+            <ul className="dropdown-list">
+              <li>
+                <Link to="/manage-users" onClick={closeDropdown}>Manage Users</Link>
+              </li>
+              <li>
+                <Link to="/users-log" onClick={closeDropdown}>Users Log</Link>
+              </li>
+              <li>
+                <Link to="/water" onClick={closeDropdown}>Effluent/Water Dashboard</Link>
+              </li>
+              <li>
+                <Link to="/ambient-air" onClick={closeDropdown}>Ambient Air Dashboard</Link>
+              </li>
+              <li>
+                <Link to="/noise" onClick={closeDropdown}>Noise Dashboard</Link>
+              </li>
+              <li>
+                <Link to="/calibration" onClick={closeDropdown}>Calibration</Link>
+              </li>
+              <li>
+                <Link to="/account" onClick={closeDropdown}>Account</Link>
+              </li>
+            </ul>
+          </div>
+        )}
         </div>
       </nav>
       {/* <!-- partial --> */}
