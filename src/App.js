@@ -47,13 +47,14 @@ function App() {
       });
       const responseData = response.data;
 
-      if (responseData.status === 401 || !responseData) {
+      if (responseData.status === 401 || !responseData.validUserOne) {
         console.log("user not valid");
         navigate('/');
       } else {
         console.log("User Verify");
         setLoginData(responseData);
-        setUserType(responseData.userType)
+        setUserType(responseData.validUserOne.userType)
+        console.log("User Type :::::", responseData.validUserOne.userType);
         setData(true);
       }
     } catch (error) {
@@ -90,6 +91,8 @@ function App() {
           <Route path="/" element={<PrivateLayout />}>
             {userType === "admin" && (
               <>
+            
+          
             <Route exact path="/water" element={<Water />} />
             <Route exact path="/ambient-air" element={<AmbientAir />} />
             <Route exact path="/noise" element={<Noise />} />
@@ -106,10 +109,10 @@ function App() {
 
              {userType !== "admin" && (
               <>
-                <Route exact path="/water" element={<Water />} />
-                <Route exact path="/ambient-air" element={<AmbientAir />} />
-                <Route exact path="/noise" element={<Noise />} />
-                <Route exact path="/account" element={<Account />} />
+             <Route exact path="/water" element={<Water />} />
+            <Route exact path="/ambient-air" element={<AmbientAir />} />
+            <Route exact path="/noise" element={<Noise />} />
+            <Route exact path="/account" element={<Account />} />
               </>
              )}
           </Route>

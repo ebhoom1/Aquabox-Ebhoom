@@ -73,6 +73,8 @@ const  Account=()=>{
                       <p className="account-details">Model Name : AquaBox Model M</p>
                       <p className="account-details">Email ID :  { validUserData && validUserData.email}</p>
                       <p className="account-details">Password : ************</p>
+                      <p className="account-details">User Type : { validUserData && validUserData.userType}</p>
+
                      <Link to='/reset-password-email'> <button type="button" className="password-button">Change Password</button></Link>
 
                     </div>
