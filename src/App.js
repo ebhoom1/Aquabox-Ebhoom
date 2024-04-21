@@ -27,50 +27,44 @@ import Calibration from './Components/Calibration/Calibration';
 import EditUsers from './Components/ManageUsers/EditUser';
 import EditCalibration from './Components/Calibration/EditCalibartion';
 import CalibrationData from './Components/Calibration/Calibration-Data';
+import LeftSideBar from './Components/LeftSideBar/LeftSideBar';
 
 function App() {
   const [dataLoaded, setDataLoaded] = useState(false);
-  const [data, setData] = useState(false);
   const [userType, setUserType] = useState("");
   const { setLoginData } = useContext(LoginContext);
   const navigate  = useNavigate();
 
-  const DashboardValid = async () => {
-    let token = localStorage.getItem("userdatatoken");
-
-    try {
-      const response = await axios.get('http://localhost:4444/api/validuser', {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token,
-        }
-      });
-      const responseData = response.data;
-
-      if (responseData.status === 401 || !responseData.validUserOne) {
-        console.log("user not valid");
-        navigate('/');
-      } else {
-        console.log("User Verify");
-        setLoginData(responseData);
-        setUserType(responseData.validUserOne.userType)
-        console.log("User Type :::::", responseData.validUserOne.userType);
-        setData(true);
-      }
-    } catch (error) {
-      console.error("Error Validating user:", error);
-      navigate('/');
-    }
-  };
-
   useEffect(() => {
-    const timer = setTimeout(() => {
-      DashboardValid();
-       setDataLoaded(true);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, []);
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem("userdatatoken");
+        const response = await axios.get('http://localhost:4444/api/validuser', {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          }
+        });
+        const responseData = response.data;
+  
+        if (responseData.status === 401 || !responseData.validUserOne) {
+          console.log("User not valid");
+          navigate('/');
+        } else {
+          console.log("User Verify");
+          setLoginData(responseData);
+          setUserType(responseData.validUserOne.userType);
+          console.log("User Type :::::", responseData.validUserOne.userType);
+          setDataLoaded(true);
+        }
+      } catch (error) {
+        console.error("Error Validating user:", error);
+        navigate('/');
+      }
+    };
+  
+    fetchData();
+  }, [navigate, setLoginData]);
 
   return (
     <>
