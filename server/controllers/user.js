@@ -25,7 +25,7 @@ const transporter=nodemailer.createTransport({
 //For User Registration
 
 const register=async(req,res)=>{
-    const {userName , companyName, fname,email,password,cpassword,subscriptionDate,userType,industryType, dataInteval,district,state,address,longtitude,latitude}=req.body
+    const {userName , companyName,modelName, fname,email,password,cpassword,subscriptionDate,userType,industryType, dataInteval,district,state,address,longtitude,latitude}=req.body
 
 
     try{
@@ -37,7 +37,7 @@ const register=async(req,res)=>{
 
         }else {
             const finalUser=new userdb({
-               userName, companyName, fname,email,password,cpassword,subscriptionDate,userType,industryType, dataInteval,district,state,address,longtitude,latitude
+               userName, companyName,modelName, fname,email,password,cpassword,subscriptionDate,userType,industryType, dataInteval,district,state,address,longtitude,latitude
             });
             const storeData=await finalUser.save();
             return res.status(201).json({ status:201, storeData})

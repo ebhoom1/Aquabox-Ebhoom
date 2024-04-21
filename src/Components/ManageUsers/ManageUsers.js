@@ -90,6 +90,7 @@ const AddUsers = () => {
 const [formData, setFormData]=useState({
   userName:"",
   companyName:"",
+  modelName:"",
   fname:"",
   email:"",
   password:"",
@@ -136,7 +137,12 @@ const handleInputChange = event =>{
             toast.warning("please add your Email",{
               position:'top-center'
             })
-          }else if (formData.pasword === ''){
+          }else if(formData.modelName ===''){
+            toast.warning("please add your Model Name",{
+              position:'top-center'
+            })
+          }
+          else if (formData.pasword === ''){
             toast.warning('Please add your password',{
               position:'top-center'
             })
@@ -202,6 +208,7 @@ const handleInputChange = event =>{
                   date: new Date().toLocaleDateString(),
                   userName:"",
                   companyName:"",
+                  modelName:"",
                   fname:"",
                   email:"",
                   password:"",
@@ -302,6 +309,19 @@ const handleInputChange = event =>{
                             value={formData.email}
                             onChange={handleInputChange}
                             placeholder="Enter Email"
+                            />
+                            
+                          </div>
+                          <div className="col-12 col-lg-6 col-md-6 mb-3">
+                            <label htmlFor="exampleFormControlInput3">Model Name</label>
+                            <input 
+                            type="text" 
+                            className="form-control" 
+                            id="modelName" 
+                            name='modelName'
+                            value={formData.modelName}
+                            onChange={handleInputChange}
+                            placeholder="Enter Model Name"
                             />
                             
                           </div>

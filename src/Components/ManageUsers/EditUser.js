@@ -11,6 +11,7 @@ const EditUsers = ()=>{
     const [userData, setUserData]=useState({
         userName:null,
         companyName:null,
+        modelName:null,
         fname:null,
         email:null,
         password:null,
@@ -150,29 +151,19 @@ const EditUsers = ()=>{
                               />
                               
                             </div>
-  
                             <div className="col-12 col-lg-6 col-md-6 mb-3">
-                              <label htmlFor="exampleFormControlInput3">Password</label>
-                              <input type="text"
-                               className="form-control" 
-                               id="password" 
-                               placeholder="Enter Password"
-                               name='password'
-                               onChange={handleChange}
-                             />
-                             
+                              <label htmlFor="exampleFormControlInput3">Model Name</label>
+                              <input type="text" 
+                              className="form-control" 
+                              id="modelName" 
+                              placeholder="Enter ModelName" 
+                              name='modelName'
+                              onChange={handleChange}
+                              value={userData.modelName}
+                              />
+                              
                             </div>
-                            <div className="col-12 col-lg-6 col-md-6 mb-3">
-                              <label htmlFor="exampleFormControlInput3">Confirm Password</label>
-                              <input type="text"
-                               className="form-control"
-                               id="cpassword" 
-                               placeholder="Enter Password"
-                               name='cpassword'
-                               onChange={handleChange}
-                             />
-                             
-                            </div>
+                          
   
                             <div className="col-12 col-lg-6 col-md-6 mb-3">
                               <label htmlFor="exampleFormControlInput4">Date of Subscription</label>

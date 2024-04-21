@@ -54,7 +54,7 @@ const PrivateLayout = () => {
     }
     fetchData();
   },[])
-
+  
   const handleClick = (event) =>{
         setAnchorE1(event.currentTarget);
   };
@@ -282,32 +282,34 @@ const PrivateLayout = () => {
             <span className="mdi mdi-menu"></span>
           </button>
           {isDropdownOpen && (
-          <div className="dropdown-menu-right navbar-dropdown toggle-dropdown">
-            <ul className="dropdown-list">
-              <li>
-                <Link to="/manage-users" onClick={closeDropdown}>Manage Users</Link>
-              </li>
-              <li>
-                <Link to="/users-log" onClick={closeDropdown}>Users Log</Link>
-              </li>
-              <li>
-                <Link to="/water" onClick={closeDropdown}>Effluent/Water Dashboard</Link>
-              </li>
-              <li>
-                <Link to="/ambient-air" onClick={closeDropdown}>Ambient Air Dashboard</Link>
-              </li>
-              <li>
-                <Link to="/noise" onClick={closeDropdown}>Noise Dashboard</Link>
-              </li>
-              <li>
-                <Link to="/calibration" onClick={closeDropdown}>Calibration</Link>
-              </li>
-              <li>
-                <Link to="/account" onClick={closeDropdown}>Account</Link>
-              </li>
-            </ul>
-          </div>
-        )}
+  <div className="dropdown-menu-right navbar-dropdown toggle-dropdown">
+    <ul className="dropdown-list">
+      {validUserData && validUserData.userType === "admin" && (
+        <>
+          <li>
+            <Link to="/manage-users" onClick={closeDropdown}>Manage Users</Link>
+          </li>
+          <li>
+            <Link to="/users-log" onClick={closeDropdown}>Users Log</Link>
+          </li>
+        </>
+      )}
+      <li>
+        <Link to="/water" onClick={closeDropdown}>Effluent/Water Dashboard</Link>
+      </li>
+      <li>
+        <Link to="/ambient-air" onClick={closeDropdown}>Ambient Air Dashboard</Link>
+      </li>
+      <li>
+        <Link to="/noise" onClick={closeDropdown}>Noise Dashboard</Link>
+      </li>
+      <li>
+        <Link to="/account" onClick={closeDropdown}>Account</Link>
+      </li>
+    </ul>
+  </div>
+)}
+
         </div>
       </nav>
       {/* <!-- partial --> */}

@@ -14,6 +14,10 @@ const userSchema=new mongoose.Schema({
         required:true
         
     },
+    modelName:{
+        type:String,
+    
+    },
     companyName:{
         type:String,
     },
