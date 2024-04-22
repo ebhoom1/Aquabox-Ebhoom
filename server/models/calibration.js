@@ -1,6 +1,18 @@
 const mongoose = require('mongoose');
 
 const calibrationSchema = new mongoose.Schema({
+    adminID:{
+        type: String,
+    },
+    adminName:{
+        type: String,
+    },
+    dateOfCalibrationAdded:{
+        type: String,
+    },
+    timeOfCalibrationAdded:{
+        type: String,
+    },
     userName: {
         type: String,
     },

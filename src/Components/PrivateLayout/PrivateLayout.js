@@ -120,11 +120,11 @@ const PrivateLayout = () => {
             <li className="nav-item font-weight-semibold d-none d-lg-block">
               
                   <div>
-                  {/* {validUserData && validUserData.Status === "201" ? (
+                
                   <span className='online'>Online</span>
-                ) : (
+            
                   <span className='offline'>Offline</span>
-                )} */}
+               
                   </div>
                
             </li>

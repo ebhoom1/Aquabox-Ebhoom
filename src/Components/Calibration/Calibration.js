@@ -7,12 +7,19 @@ import { useForm } from "react-hook-form";
 import { useEffect } from 'react';
 import CalibrationData from './Calibration-Data';
 import axios from 'axios';
-
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css';
 
 
 const Calibration = () => { 
+  const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+  const [timeOfCalibrationAdded, setTimeOfCalibrationAdded] = useState(currentTime);
   const [validUserData, setValidUserData] = useState(null);
   const [calibrationData,setCalibrationData]=useState({
+    adminID:"",
+    adminName:"",
+    dateOfCalibrationAdded: new Date().toISOString().slice(0, 10), // Initialize with current date
+    timeOfCalibrationAdded: currentTime, 
     userId:"",
     date:"",
     userName:"",
@@ -25,25 +32,20 @@ const Calibration = () => {
   })
   const handleInputChange = event =>{
     const { name, value } = event.target;   
-     setCalibrationData({
-      ...calibrationData,
-      [name]:value,
-    });
-
-  }
-  const handleDateChanged = (date)=>{
-    try {
-      const todayDate = new Date(date);
-      todayDate.setHours(0,0,0,0)
-      console.log("Today Date", todayDate);
+    if(name === 'time'){
+      setTimeOfCalibrationAdded(value)
+    }else{
       setCalibrationData({
         ...calibrationData,
-        date:todayDate,
-    })
-    } catch (error) {
-      console.error("Error In HandleDateChanged: ", error);
+        [name]:value,
+      });
     }
+     
+
   }
+  
+ 
+  
   const handleSubmit = async (event) => {
     try {
       event.preventDefault();
@@ -72,16 +74,19 @@ const Calibration = () => {
          // Include userId, userType, and userName in the calibrationDataToSend object
       let calibrationDataToSend = {
         ...calibrationData,
-        userName: validUserData.userName,
-        userType: validUserData.userType,
-        fname: validUserData.fname
+        adminID: validUserData.userName,
+        adminName: validUserData.fname
       };
         const res = await axios.post('http://localhost:4444/api/add-calibration', calibrationDataToSend);
         
         if (res.status === 201) {
-          const shouldSaveIt = window.confirm("Are you Sure to Save the User?");
+          const shouldSaveIt = window.confirm("Are you Sure to add the Calibration?");
           if (shouldSaveIt) {
             setCalibrationData({
+              adminID:"",
+              adminName:"",
+              dateOfCalibrationAdded:"",
+              timeOfCalibrationAdded:"",
               userId: "",
               date: "",
               userName: "",
@@ -192,30 +197,29 @@ const Calibration = () => {
                           </div>
 
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
-                            <label htmlFor="exampleFormControlInput4">Date of Calibration</label>
+                            <label htmlFor="exampleFormControlInput4">Date of Calibration Added</label>
                             <input type="date" 
                             className="form-control" 
                             id="date" 
                             name='date'
-                            value={calibrationData.date}
+                            value={calibrationData.dateOfCalibrationAdded}
                             onChange={handleInputChange}
                             placeholder="Date of Calibration" 
                            />
-                          
-                            {/* <span className="error">Subscription Date required</span> */}
+                           
                           </div>
                           
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
-                            <label htmlFor="exampleFormControlInput4">Time of Calibration</label>
-                            <input type="time" 
+                            <label htmlFor="exampleFormControlInput4">Time of Calibration Added</label>
+                            <input type="text" 
                             className="form-control" 
-                            id="date" 
-                            name='date'
-                            value={calibrationData.date}
+                            id="time" 
+                            name='time'
+                            value={timeOfCalibrationAdded}
                             onChange={handleInputChange}
-                            placeholder="Date of Calibration" 
+                            placeholder="time of Calibration" 
                            />
-                            {/* <span className="error">Subscription Date required</span> */}
+                            
                           </div>
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
                               <label htmlFor="exampleFormControlInput5">User Name</label>

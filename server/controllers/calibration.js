@@ -5,6 +5,10 @@ const Calibration = require('../models/calibration'); // Import the Calibration 
 const addCalibration = async (req, res) => {
     try {
         const {
+            adminID,
+            adminName,
+            dateOfCalibrationAdded,
+            timeOfCalibrationAdded,
             date,
             userType,
             userName,
@@ -19,6 +23,10 @@ const addCalibration = async (req, res) => {
 
         // Create a new calibration object
         const newCalibration = new Calibration({
+            adminID,
+            adminName,
+            dateOfCalibrationAdded,
+            timeOfCalibrationAdded,
             date,
             userType,
             userName,

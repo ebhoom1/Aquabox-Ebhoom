@@ -79,11 +79,13 @@ const CalibrationData = () => {
           <table className="table table-bordered">
             <thead>
               <tr>
+                <th>Date Of Calibration Added</th>
+                <th>Time of Calibration Added</th>
+                <th>User ID of Admin</th>
+                <th>Admin Name</th>
                 <th>Date of Calibration</th>
-                <th>User Type</th>
                 <th>User ID</th>
-                <th>User Name</th>
-                <th>Equipment Name</th>
+                <th>Model Name</th>
                 <th>Before</th>
                 <th>After</th>
                 <th>Technician</th>
@@ -95,10 +97,12 @@ const CalibrationData = () => {
             <tbody>
               {userCalibrations && userCalibrations.map((calibration, index) => (
                 <tr key={index}>
+                  <td>{calibration.dateOfCalibrationAdded}</td>
+                  <td>{calibration.timeOfCalibrationAdded}</td>
+                  <td>{calibration.adminID}</td>
+                  <td>{calibration.adminName}</td>
                   <td>{calibration.date}</td>
-                  <td>{calibration.userType}</td>
                   <td>{calibration.userName}</td>
-                  <td>{calibration.fname}</td>
                   <td>{calibration.equipmentName}</td>
                   <td>{calibration.before}</td>
                   <td>{calibration.after}</td>

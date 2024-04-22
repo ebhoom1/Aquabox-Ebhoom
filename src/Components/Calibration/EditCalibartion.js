@@ -11,52 +11,66 @@ import axios from 'axios';
 
 
 const EditCalibration = () => { 
- const {calibrationId} = useParams();
- 
- const [calibrationData, setCalibrationData] = useState({
-    date:null,
-    userName:null,
-    equipmentName:null,
-    before:null,
-    after:null,
-    technician:null,
-    notes:null,
- })
- useEffect(()=>{
-    const fetchCalibrationData = async () =>{
-        try {
-            const response = await axios.get(`http://localhost:4444/api/find-calibration-by-userId/${calibrationId}`)
-            const calibrationData = response.data.calibration
-            console.log(calibrationData);
-            setCalibrationData(calibrationData)
-        } catch (error) {
-            console.error(`Error in fetching calibration data`,error);
-        }
+  const { calibrationId } = useParams();
+
+  const [calibrationData, setCalibrationData] = useState({
+    adminID: null,
+    adminName: null,
+    dateOfCalibrationAdded: new Date().toISOString().slice(0, 10), // Initialize with current date
+    timeOfCalibrationAdded: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }), // Initialize with current time
+    date: null,
+    userName: null,
+    equipmentName: null,
+    before: null,
+    after: null,
+    technician: null,
+    notes: null,
+  });
+
+  useEffect(() => {
+    const fetchCalibrationData = async () => {
+      try {
+        const response = await axios.get(`http://localhost:4444/api/find-calibration-by-userId/${calibrationId}`);
+        const calibrationData = response.data.calibration;
+        console.log(calibrationData);
+        setCalibrationData(calibrationData);
+      } catch (error) {
+        console.error(`Error in fetching calibration data`, error);
+      }
     };
     fetchCalibrationData();
- },[calibrationId])
- const handleChange = (event)=>{
-    const {name, value} =event.target;
-    setCalibrationData(prevCalibrationData =>({
-        ...prevCalibrationData,
-        [name]:value
-    }))
- }
- const handleSaveCalibration =async (event) =>{
+  }, [calibrationId]);
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setCalibrationData((prevCalibrationData) => ({
+      ...prevCalibrationData,
+      [name]: value,
+    }));
+  };
+  const handleSaveCalibration = async (event) => {
     try {
-        event.preventDefault();
-        const res = await axios.put(`http://localhost:4444/api/edit-calibration/${calibrationId}`,calibrationData)
-        const updateCalibration = res.data.calibration;
-        setCalibrationData(updateCalibration)
-        console.log("Calibration updated successfully:",updateCalibration);
-        toast.success("Calibration Updated Successfully",{
-            position:"top-center"
-        })
+      event.preventDefault();
+        // Update dateOfCalibrationAdded and timeOfCalibrationAdded with current date and time
+        const currentDate = new Date().toISOString().slice(0, 10);
+        const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+        setCalibrationData((prevCalibrationData) => ({
+          ...prevCalibrationData,
+          dateOfCalibrationAdded: currentDate,
+          timeOfCalibrationAdded: currentTime,
+        }));
+      const res = await axios.put(`http://localhost:4444/api/edit-calibration/${calibrationId}`, calibrationData);
+      const updateCalibration = res.data.calibration;
+      setCalibrationData(updateCalibration);
+      console.log("Calibration updated successfully:", updateCalibration);
+      toast.success("Calibration Updated Successfully", {
+        position: "top-center",
+      });
     } catch (error) {
-        console.error(`Error in Updating Calibration`,error);
-        toast.error("Error in Updating Calibration")
+      console.error(`Error in Updating Calibration`, error);
+      toast.error("Error in Updating Calibration");
     }
- }
+  };
     return (
       <div className="main-panel">
         <div className="content-wrapper">
@@ -96,6 +110,51 @@ const EditCalibration = () => {
                      
                 <form >
                       <div className="row">
+                      <div className="col-12">
+                            <h1>Calibration Edited by</h1>
+                             {/* <h1>Update User</h1> */}
+                          </div>
+
+                          <div className="col-12 col-lg-6 col-md-6 mb-3">
+                            <label htmlFor="exampleFormControlInput5">User ID</label>
+                            <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Equipment Name" name='userName' value= {calibrationData.adminID}
+                            />
+                            
+                          </div>
+
+                          <div className="col-12 col-lg-6 col-md-6 mb-3">
+                            <label htmlFor="exampleFormControlInput4">Date of Calibration Added</label>
+                            <input
+                              type="date"
+                              className="form-control"
+                              id="date"
+                              name="dateOfCalibrationAdded"
+                              value={calibrationData.dateOfCalibrationAdded}
+                              onChange={handleChange}
+                              placeholder="Date of Calibration"
+                            />
+                           
+                          </div>
+                          
+                          <div className="col-12 col-lg-6 col-md-6 mb-3">
+                            <label htmlFor="exampleFormControlInput4">Time of Calibration Added</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              id="time"
+                              name="timeOfCalibrationAdded"
+                              value={calibrationData.timeOfCalibrationAdded}
+                              onChange={handleChange}
+                              placeholder="Time of Calibration"
+                            />
+                            
+                          </div>
+                          <div className="col-12 col-lg-6 col-md-6 mb-3">
+                              <label htmlFor="exampleFormControlInput5">User Name</label>
+                              <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="User Name" name='fname' value= { calibrationData.adminName}  
+                            />
+                             
+                          </div>
                           <div className="col-12">
                             <h1>Edit Calibration Details</h1>
                              {/* <h1>Update User</h1> */}
@@ -127,33 +186,9 @@ const EditCalibration = () => {
                            />
                             {/* <span className="error">Subscription Date required</span> */}
                           </div>
-                          <div className="col-12 col-lg-6 col-md-6 mb-3">
-                            <label htmlFor="exampleFormControlInput5">User Type</label>
-                            <input 
-                            type="text" 
-                            className="form-control" 
-                            id="exampleFormControlInput5" 
-                            placeholder="Equipment Name"
-                            name='userType'
-                            onChange={handleChange}
-                            value={calibrationData.userType} 
-                            />
-                            
-                          </div>
+                          
                          
-                          <div className="col-12 col-lg-6 col-md-6 mb-3">
-                              <label htmlFor="exampleFormControlInput5">User Name</label>
-                              
-                              <input 
-                              type="text" 
-                              className="form-control" 
-                              id="exampleFormControlInput5" 
-                              placeholder="Equipment Name"
-                              onChange={handleChange}
-                              value={calibrationData.fname} 
-                            />
-                             
-                          </div>
+                          
                           
 
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
