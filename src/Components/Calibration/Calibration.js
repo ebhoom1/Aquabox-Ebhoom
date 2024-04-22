@@ -29,6 +29,20 @@ const Calibration = () => {
       ...calibrationData,
       [name]:value,
     });
+
+  }
+  const handleDateChanged = (date)=>{
+    try {
+      const todayDate = new Date(date);
+      todayDate.setHours(0,0,0,0)
+      console.log("Today Date", todayDate);
+      setCalibrationData({
+        ...calibrationData,
+        date:todayDate,
+    })
+    } catch (error) {
+      console.error("Error In HandleDateChanged: ", error);
+    }
   }
   const handleSubmit = async (event) => {
     try {
@@ -162,9 +176,11 @@ const Calibration = () => {
                       
                      
                 <form >
+                  
                       <div className="row">
+                       
                           <div className="col-12">
-                            <h1>Add Calibration Details</h1>
+                            <h1>Calibration Added by</h1>
                              {/* <h1>Update User</h1> */}
                           </div>
 
@@ -185,15 +201,22 @@ const Calibration = () => {
                             onChange={handleInputChange}
                             placeholder="Date of Calibration" 
                            />
+                          
                             {/* <span className="error">Subscription Date required</span> */}
                           </div>
+                          
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
-                            <label htmlFor="exampleFormControlInput5">User Type</label>
-                            <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Equipment Name" name='userType' value= { validUserData && validUserData.userType}  
-                            />
-                            
+                            <label htmlFor="exampleFormControlInput4">Time of Calibration</label>
+                            <input type="time" 
+                            className="form-control" 
+                            id="date" 
+                            name='date'
+                            value={calibrationData.date}
+                            onChange={handleInputChange}
+                            placeholder="Date of Calibration" 
+                           />
+                            {/* <span className="error">Subscription Date required</span> */}
                           </div>
-                         
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
                               <label htmlFor="exampleFormControlInput5">User Name</label>
                               <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="User Name" name='fname' value= { validUserData && validUserData.fname}  
@@ -201,13 +224,39 @@ const Calibration = () => {
                              
                           </div>
                           
+                          <div className="col-12">
+                            <h1>Add Calibration Details</h1>
+                             {/* <h1>Update User</h1> */}
+                          </div>
 
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
-                            <label htmlFor="exampleFormControlInput5">Equipment Name</label>
+                            <label htmlFor="exampleFormControlInput5">User ID</label>
+                            <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="User ID" name='userName' value= {CalibrationData.userName}  onChange={handleInputChange}
+                            />
+                            
+                          </div>
+
+                          <div className="col-12 col-lg-6 col-md-6 mb-3">
+                            <label htmlFor="exampleFormControlInput4">Date of Calibration</label>
+                            <input type="date" 
+                            className="form-control" 
+                            id="date" 
+                            name='date'
+                            value={calibrationData.date}
+                            onChange={handleInputChange}
+                            placeholder="Date of Calibration" 
+                           />
+                            {/* <span className="error">Subscription Date required</span> */}
+                          </div>
+                          
+                          
+
+                          <div className="col-12 col-lg-6 col-md-6 mb-3">
+                            <label htmlFor="exampleFormControlInput5">Model Name</label>
                             <input 
                             type="text" 
                             className="form-control" 
-                            id="equipmentName"
+                            id="ModelName"
                             name='equipmentName'
                             value={calibrationData.equipmentName}
                             onChange={handleInputChange} 
