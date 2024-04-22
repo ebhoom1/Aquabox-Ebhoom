@@ -12,7 +12,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-
+import axios from 'axios'
 import { Link } from 'react-router-dom';
 import WaterPopup from "./WaterPopup";
 import CalibrationPopup from "../Calibration/CalibrationPopup";
@@ -130,6 +130,38 @@ const Water = () => {
       month:"",  
     },
   ]
+  const [validUserData, setValidUserData] = useState(null);
+
+  useEffect(()=>{
+    //Fetch product iD and user status when the component mounts
+    
+    const fetchData=async()=>{
+      try{
+          let token = localStorage.getItem("userdatatoken")
+          const response =await axios.get('http://localhost:4444/api/validuser',{
+            headers:{
+              'Content-Type':"application/json",
+              'Authorization':token,
+              Accept:'application/json'
+            },
+            withCredentials: true
+          })
+          const data = response.data;
+        console.log(data);
+
+        if (data.status === 201) {
+          // Update product ID and user status
+          setValidUserData(data.validUserOne);
+          console.log(data.validUserOne);
+        } else {
+          console.log("Error fetching user data");
+        }
+      }catch(error){
+        console.error("Error fetching user data :", error);
+      }
+    }
+    fetchData();
+  },[])
   return (
     <div className="main-panel">
       <div className="content-wrapper">
@@ -142,7 +174,7 @@ const Water = () => {
               <div className="quick-link-wrapper w-100 d-md-flex flex-md-wrap">
                
                <ul className="quick-links ml-auto">
-                <h5>Data Interval:</h5>
+                <h5>Data Interval: <span className="span-class">{validUserData && validUserData.dataInteval}</span></h5>
 
                </ul>
                <ul className="quick-links ml-auto">
