@@ -84,11 +84,11 @@ const viewAllCalibrations = async (req, res) => {
 };
 
 // Controller function to find calibration by UserId
-const findCalibrationById = async (req, res) => {
+const findCalibrationByUserName = async (req, res) => {
     try {
-        const userId=req.params.id
+        const{ userName}=req.params;
 
-        const calibration=await Calibration.findById(userId);
+        const calibration=await Calibration.findOne({userName});
 
         if(!calibration){
             return res.status(404).json({status:404, message:"User Not Found"})
@@ -168,4 +168,4 @@ const deleteCalibration = async (req, res) => {
 };
 
 
-module.exports = { addCalibration,viewAllCalibrations,findCalibrationById,editCalibration,deleteCalibration};
+module.exports = { addCalibration,viewAllCalibrations,findCalibrationByUserName,editCalibration,deleteCalibration};
