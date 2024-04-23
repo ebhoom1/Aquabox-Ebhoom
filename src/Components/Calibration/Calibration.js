@@ -22,8 +22,6 @@ const Calibration = () => {
     timeOfCalibrationAdded: currentTime, 
     userId:"",
     date:"",
-    userName:"",
-    fname:"",
     equipmentName:"",
     before:"",
     after:"",
@@ -77,6 +75,7 @@ const Calibration = () => {
         adminID: validUserData.userName,
         adminName: validUserData.fname
       };
+      console.log('CalibrationDataToSend:', calibrationDataToSend);
         const res = await axios.post('http://localhost:4444/api/add-calibration', calibrationDataToSend);
         
         if (res.status === 201) {
@@ -86,16 +85,14 @@ const Calibration = () => {
               adminID:"",
               adminName:"",
               dateOfCalibrationAdded:"",
-              timeOfCalibrationAdded:"",
-              userId: "",
-              date: "",
-              userName: "",
-              fname:"",
-              equipmentName: "",
-              before: "",
-              after: "",
-              technician: "",
-              notes: "",
+              timeOfCalibrationAdded: "", 
+              userId:"",
+              date:"",
+              equipmentName:"",
+              before:"",
+              after:"",
+              technician:"",
+              notes:"",
             });
           }
         }

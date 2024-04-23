@@ -4,6 +4,7 @@
     font-weight: bold;
     padding: 3px 6px;
     border-radius: 5px;
+    animation: blinkingBackgroundOnline 1s infinite;
 }
 .offline{
     background-color: red;
@@ -19,7 +20,12 @@
     75%		{ background-color: #f2dede;}
     100%	{ background-color: #ffffff;}
 }
-
+@keyframes blinkingBackgroundOnline{
+  0%		{ background-color: green;}
+  25%		{ background-color: green;}
+  75%		{ background-color: rgb(226, 238, 226);}
+  100%	{ background-color: #ffffff;}
+}
 /* Add styles for the dropdown toggler button */
 .navbar-toggler {
     background-color: transparent; /* Set background color */

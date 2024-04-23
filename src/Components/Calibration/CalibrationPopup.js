@@ -1,6 +1,7 @@
 import React from "react";
 
 const CalibrationPopup=({onClose})=>{
+    
     return(
         <div className="popup-container">
             <div className="popup">

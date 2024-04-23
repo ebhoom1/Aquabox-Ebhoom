@@ -9,7 +9,7 @@ import axios from 'axios';
 
 const PrivateLayout = () => {
   const [isDropdownOpen,setIsDropdownOpen] = useState(false)
-
+  const [onlineStatus, setOnlineStatus] = useState(navigator.onLine ? 'Online' : 'Offline');
   const toggleDropdown = () =>{
     setIsDropdownOpen(!isDropdownOpen)
   }
@@ -99,6 +99,20 @@ const PrivateLayout = () => {
  const goError = () =>{
   history('*')
  }
+ useEffect(() => {
+  // Listen for online/offline status changes
+  const handleOnlineStatusChange = () => {
+    setOnlineStatus(navigator.onLine ? 'Online' : 'Offline');
+  };
+  window.addEventListener('online', handleOnlineStatusChange);
+  window.addEventListener('offline', handleOnlineStatusChange);
+
+  // Clean up event listeners
+  return () => {
+    window.removeEventListener('online', handleOnlineStatusChange);
+    window.removeEventListener('offline', handleOnlineStatusChange);
+  };
+}, []);
   return (
     <div className="container-scroller">
       {/* <!-- partial:partials/_navbar.html --> */}
@@ -119,13 +133,13 @@ const PrivateLayout = () => {
 
             <li className="nav-item font-weight-semibold d-none d-lg-block">
               
-                  <div>
-                
-                  <span className='online'>Online</span>
-            
-                  <span className='offline'>Offline</span>
-               
-                  </div>
+            <div>
+              {onlineStatus === 'Online' ? (
+                <span className='online'>Online</span>
+              ) : (
+                <span className='offline'>Offline</span>
+              )}
+            </div>
                
             </li>
           </ul>
