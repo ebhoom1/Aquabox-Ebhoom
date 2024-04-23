@@ -1,35 +1,46 @@
-const express=require('express')
-require ('dotenv').config();
-const cors=require('cors');
-const bodyParser=require('body-parser');
-
-
-const DB=require('./config/DB');
-const userRoutes=require('./routers/user')
-const authRoutes=require('./routers/auth');
-const calibrationRoutes = require('./routers/calibration');
+// app.js or server.js
+const express = require('express');
+require('dotenv').config();
+const cors = require('cors');
+const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const DB = require('./config/DB');
+const userRoutes = require('./routers/user');
+const calibrationRoutes = require('./routers/calibration');
+const notificationRoutes = require('./routers/notification');
 
-const app= express();
-const port=process.env.PORT || 5555
+const app = express();
+const port = process.env.PORT || 5555;
 
-app.use(express.json())
-
+// Database connection
 DB();
 
+// Middleware
 app.use(cors({
     origin: 'http://localhost:3000',
-    credentials: true  // Allow cookies to be sent with the request
-  }));
+    credentials: true
+}));
 app.use(cookieParser());
-app.use((req,res,next)=>{
-    console.log(req.path,req.method);
+app.use(express.json());
+
+// Request logging middleware
+app.use((req, res, next) => {
+    console.log(req.path, req.method);
     next();
-})
+});
 
-app.use('/api',userRoutes)
-app.use('/api',calibrationRoutes)
+// Routes
+app.use('/api', userRoutes);
+app.use('/api', calibrationRoutes);
+app.use('/api', notificationRoutes);
 
-app.listen(port,()=>{
-    console.log(`Server Connected  - ${port}`);
-})
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
+});
+
+// Server
+app.listen(port, () => {
+    console.log(`Server Connected - ${port}`);
+});
