@@ -179,7 +179,7 @@ const Water = () => {
                </ul>
                <ul className="quick-links ml-auto">
                
-                <button type="submit" onClick={handleOpenCalibrationPopup} className="btn btn-primary mb-2 mt-2"> Calibration </button>
+                <button type="submit" onClick={() => handleOpenCalibrationPopup(validUserData.userName)} className="btn btn-primary mb-2 mt-2"> Calibration </button>
 
                </ul>
              </div>
@@ -222,6 +222,7 @@ const Water = () => {
       {/* Render Calibration Popup if showCalibrationPopup is true */}
       {showCalibrationPopup &&  (
         <CalibrationPopup 
+        userName={validUserData.userName}
         onClose={handleCloseCalibrationPopup}
         
         />
