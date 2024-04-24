@@ -7,8 +7,7 @@ import { useForm } from "react-hook-form";
 import { useEffect } from 'react';
 import CalibrationData from './Calibration-Data';
 import axios from 'axios';
-import DatePicker from 'react-datepicker'
-import 'react-datepicker/dist/react-datepicker.css';
+
 
 
 const Calibration = () => { 

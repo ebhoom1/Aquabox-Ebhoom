@@ -306,6 +306,12 @@ const PrivateLayout = () => {
           <li>
             <Link to="/users-log" onClick={closeDropdown}>Users Log</Link>
           </li>
+          <li>
+            <Link to="/calibration" onClick={closeDropdown}>Calibration</Link>
+          </li>
+          <li>
+            <Link to="/notification" onClick={closeDropdown}>Notification</Link>
+          </li>
         </>
       )}
       <li>

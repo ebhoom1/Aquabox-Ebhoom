@@ -28,6 +28,8 @@ import EditUsers from './Components/ManageUsers/EditUser';
 import EditCalibration from './Components/Calibration/EditCalibartion';
 import CalibrationData from './Components/Calibration/Calibration-Data';
 import LeftSideBar from './Components/LeftSideBar/LeftSideBar';
+import Notification from './Components/Notification/Notification';
+import AddNotification from './Components/Notification/AddNotification';
 
 function App() {
   const [dataLoaded, setDataLoaded] = useState(false);
@@ -96,6 +98,8 @@ function App() {
                 <Route exact path="/calibration-new" element={<Calibration />} />
                 <Route exact path="/calibration" element={<CalibrationData />} />
                 <Route exact path="/edit-calibration/:calibrationId" element={<EditCalibration />} />
+                <Route exact path="/notification" element={<Notification />} />
+                <Route exact path="//notification-new" element={<AddNotification/>}/>
               </>
             )}
             {userType === "user" && (

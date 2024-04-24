@@ -4,10 +4,22 @@ const Notification = require('../models/notification');
 //Add Notification 
 const addNotification = async (req,res) =>{
     try {
-        const {message} =req.body
+        const {
+            message,
+            adminID,
+            adminName,
+            dateOfCalibrationAdded,
+            timeOfCalibrationAdded,
+            
+        } =req.body
 
         //Create New Notification
-        const newNotification = new Notification({message})
+        const newNotification = new Notification({message,
+            adminID,
+            adminName,
+            dateOfCalibrationAdded,
+            timeOfCalibrationAdded,
+            })
         //Save the New Notification
         await newNotification.save()
 
