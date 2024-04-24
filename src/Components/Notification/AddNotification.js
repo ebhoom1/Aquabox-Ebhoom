@@ -145,7 +145,7 @@ const AddNotification = () => {
                               id="date" 
                               name='date'
                               value={notificationData.dateOfCalibrationAdded}
-                             onChange={handleInputChange}
+                              onChange={handleInputChange}
                               placeholder="Date of Notification" 
                              />
                              

@@ -1,8 +1,40 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from "react-router-dom";
 import axios from 'axios';
 import { toast,ToastContainer } from 'react-toastify';
 const Notification = () => {
+    const [userNotification,setUserNotification] = useState(null)
+    const url ="http://localhost:4444/api"
+    useEffect(()=>{
+        const fetchNotification =async () =>{
+            try {
+                const response = await axios.get(`${url}/view-notification`);
+                const userNotification = response.data.notification;
+                console.log("user Notification :",userNotification);
+                setUserNotification(userNotification)
+
+            } catch (error) {
+                console.error(`Error in Fetching User Notification`,error);
+            }
+        }
+        fetchNotification()
+    },[]);
+    const handleDeleteNotification = async(notificationId) =>{
+        try {
+            const shouldDelete = window.confirm('Are you sure?')
+            if(shouldDelete){
+                const res = await axios.delete(`${url}/delete-notification/${notificationId}`)
+                if(res.status === 200){
+                    setUserNotification(prevNotification=>prevNotification.filter(notification=>notification._id !== notificationId))
+                    toast.success("Notification deleted Successfully"
+                    )
+                }
+            }
+        } catch (error) {
+            console.error(`Error deleting Notification:`,error);
+            toast.error('Faild to delete Notification')
+        }
+    }
   return (
     <div className="main-panel">
     <div className="content-wrapper">
@@ -43,28 +75,30 @@ const Notification = () => {
         <table className="table table-bordered">
           <thead>
             <tr>
-              <th>Message</th>
-              <th>Delete</th>
+                <th>Date of Notication Added</th>
+                <th>Time of Notification Added</th>
+                <th>Admin ID</th>
+                <th>Admin Name</th>
+                <th>Message</th>
+                <th>Delete</th>
             </tr>
           </thead>
           <tbody>
-          <tr>
-                <td>Test</td>
-               
-               
-               <td><button type="button"  className="btn btn-danger mb-2"> Delete </button></td>
+            {userNotification && userNotification.map((notification,index)=>(
+                    <tr key={index}>
+                    <th>{notification.dateOfCalibrationAdded}</th>
+                    <th>{notification.timeOfCalibrationAdded}</th>
+                    <th>{notification.adminID}</th>
+                    <th>{notification.adminName}</th>
+                    <th>{notification.message}</th>
+                    
+                    
+                    <td><button type="button"  className="btn btn-danger mb-2" onClick={()=>handleDeleteNotification(notification._id)}> Delete </button></td>
 
-              </tr>
-            {/* {userCalibrations && userCalibrations.map((calibration, index) => (
-              <tr key={index}>
-                <td>{calibration.dateOfCalibrationAdded}</td>
-               
-               <td> <Link to={`/edit-calibration/${calibration._id}`}><button type="button"  className="btn btn-primary mb-2"> Edit </button></Link></td>
-               <td><button type="button"  className="btn btn-danger mb-2" onClick={()=>handleDelete(calibration._id)}> Delete </button></td>
-
-              </tr>
-              
-            ))} */}
+                    </tr>
+            ))}
+        
+           
           </tbody>
         </table>
         <ToastContainer/>

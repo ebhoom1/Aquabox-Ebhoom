@@ -8,10 +8,47 @@ import axios from 'axios';
 
 
 const PrivateLayout = () => {
+  const url = 'http://localhost:4444/api'
+  const [userNotification,setUserNotification] = useState([]);
+  useEffect(()=>{
+            const fetchNotification =async()=>{
+              try {
+                const res = await axios.get(`${url}/view-notification`)
+                const notificaitons = res.data.notification || [];
+                setUserNotification(notificaitons)
+              } catch (error) {
+                console.error(`Error fetching Notification:`,error);
+              }
+            };
+            fetchNotification();
+  },[])
+  const [isDropdownOpenNotification, setIsDropdownOpenNotification] = useState(false);
+  const toggleDropdownNotification = () => {
+    setIsDropdownOpenNotification(!isDropdownOpenNotification); 
+    console.log('dropdown Open ',isDropdownOpenNotification);
+  };
+  const closeDropdownNotification =()=>{
+    setIsDropdownOpenNotification(false)
+  }
+  // Close dropdown when clicked outside
+  useEffect(() => {
+    const closeDropdownOnClickOutside = (event) => {
+      if (isDropdownOpenNotification && !event.target.closest('.navbar-nav')) {
+        setIsDropdownOpenNotification(false);
+      }
+    };
+
+    document.addEventListener('mousedown', closeDropdownOnClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', closeDropdownOnClickOutside);
+    };
+  }, [isDropdownOpenNotification]);
+
   const [isDropdownOpen,setIsDropdownOpen] = useState(false)
   const [onlineStatus, setOnlineStatus] = useState(navigator.onLine ? 'Online' : 'Offline');
   const toggleDropdown = () =>{
     setIsDropdownOpen(!isDropdownOpen)
+    
   }
   const closeDropdown = () =>{
     setIsDropdownOpen(false)
@@ -149,86 +186,33 @@ const PrivateLayout = () => {
               </div>
             </form> --> */}
           <ul className="navbar-nav ml-auto">
-            <li className="nav-item dropdown">
-              <a
-                className="nav-link count-indicator"
-                id="messageDropdown"
-                href="#"
-                data-toggle="dropdown"
-                aria-expanded="false"
-              >
-                <i className="mdi mdi-bell-outline"></i>
-                <span className="count">7</span>
-              </a>
-              <div
-                className="dropdown-menu dropdown-menu-right navbar-dropdown preview-list pb-0"
-                aria-labelledby="messageDropdown"
-              >
-                <a className="dropdown-item py-3">
-                  <p className="mb-0 font-weight-medium float-left">
-                    You have 7 unread mails{" "}
-                  </p>
-                  <span className="badge badge-pill badge-primary float-right">
-                    View all
-                  </span>
-                </a>
-                <div className="dropdown-divider"></div>
-                <a className="dropdown-item preview-item">
-                  <div className="preview-thumbnail">
-                    <img
-                      src="assets/images/faces/face10.jpg"
-                      alt="image"
-                      className="img-sm profile-pic"
-                    />
-                  </div>
-                  <div className="preview-item-content flex-grow py-2">
-                    <p className="preview-subject ellipsis font-weight-medium text-dark">
-                      Marian Garner{" "}
-                    </p>
-                    <p className="font-weight-light small-text">
-                      {" "}
-                      The meeting is cancelled{" "}
-                    </p>
-                  </div>
-                </a>
-                <a className="dropdown-item preview-item">
-                  <div className="preview-thumbnail">
-                    <img
-                      src="assets/images/faces/face12.jpg"
-                      alt="image"
-                      className="img-sm profile-pic"
-                    />
-                  </div>
-                  <div className="preview-item-content flex-grow py-2">
-                    <p className="preview-subject ellipsis font-weight-medium text-dark">
-                      David Grey{" "}
-                    </p>
-                    <p className="font-weight-light small-text">
-                      {" "}
-                      The meeting is cancelled{" "}
-                    </p>
-                  </div>
-                </a>
-                <a className="dropdown-item preview-item">
-                  <div className="preview-thumbnail">
-                    <img
-                      src="assets/images/faces/face1.jpg"
-                      alt="image"
-                      className="img-sm profile-pic"
-                    />
-                  </div>
-                  <div className="preview-item-content flex-grow py-2">
-                    <p className="preview-subject ellipsis font-weight-medium text-dark">
-                      Travis Jenkins{" "}
-                    </p>
-                    <p className="font-weight-light small-text">
-                      {" "}
-                      The meeting is cancelled{" "}
-                    </p>
-                  </div>
-                </a>
-              </div>
-            </li>
+          <li className="nav-item dropdown">
+                    <a
+                      className="nav-link count-indicator"
+                      onClick={toggleDropdownNotification} 
+                    >
+                      <i className="mdi mdi-bell-outline "></i>
+                      <span className="count">{userNotification.length}</span>
+                    </a>
+                    {isDropdownOpenNotification && (
+                      <div className="dropdown-container-notification">
+                        {userNotification.length > 0 ? (
+                          userNotification.map((notification, index) => (
+                            <a className="notification-item" key={index}>
+                              <div className="notification-message">
+                                <h3 className="notification-message-h3">{notification.message}</h3>
+                                <p className="notification-message-p">{notification.timeOfCalibrationAdded}</p>
+                                <p className="notification-message-p">{notification.dateOfCalibrationAdded}</p>
+                              </div>
+                            </a>
+                          ))
+                        ) : (
+                          <p className="empty-notification">No new notifications</p>
+                        )}
+                        <div className=""></div>
+                      </div>
+                    )}
+                  </li>
 
             <li className="nav-item dropdown d-xl-inline-block user-dropdown">
               <a
@@ -286,6 +270,7 @@ const PrivateLayout = () => {
                 
               </div>
             </li>
+            
           </ul>
           <button
             className="navbar-toggler navbar-toggler-right d-lg-none align-self-center"
