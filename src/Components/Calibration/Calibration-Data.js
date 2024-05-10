@@ -7,10 +7,12 @@ import { toast,ToastContainer } from 'react-toastify';
 const CalibrationData = () => {
  
   const [userCalibrations,setUserCalibrations]=useState(null)
+  const url ='http://localhost:4444'
   useEffect(()=>{
     const fetchUsers = async () => {
         try {
-          const response = await axios.get('http://localhost:4444/api/view-all-calibrations');
+         
+          const response = await axios.get(`${url}/api/view-all-calibrations`);
           const userData = response.data.calibrations;
           console.log(userData);
           setUserCalibrations(userData)
@@ -24,7 +26,7 @@ const CalibrationData = () => {
     try {
       const shouldDelete = window.confirm('Are you sure you want to delete this calibration?');
       if(shouldDelete){
-      const res = await axios.delete(`http://localhost:4444/api/delete-calibration/${calibrationId}`)
+      const res = await axios.delete(`${url}/api/delete-calibration/${calibrationId}`)
       if(res.status === 200){
         setUserCalibrations(prevCalibrations => prevCalibrations.filter(calibration =>calibration._id !== calibrationId))
         toast.success('Calibration deleted Successfully',{

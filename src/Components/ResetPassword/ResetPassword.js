@@ -17,10 +17,10 @@ const ResetPassword = () => {
  const [password,setPassword]=useState("");
  const [cpassword, setConfirmPassword] = useState("");
  const [message,setMessage]=useState("");
-
+ const url = 'http://localhost:4444'
  const userValid = async () =>{
       try {
-       const response = await axios.get(`http://localhost:4444/api/forgotpassword/${id}/${token}`,{
+       const response = await axios.get(`${url}/api/forgotpassword/${id}/${token}`,{
           headers:{
             "Content-Type":"application/json",
             "Accept":'application/json'
@@ -56,7 +56,7 @@ const sendPassword = async (e) => {
   } else {
     try {
       const res = await axios.post(
-        `http://localhost:4444/api/${id}/${token}`,
+        `${url}/api/${id}/${token}`,
         {
           password,
           cpassword,

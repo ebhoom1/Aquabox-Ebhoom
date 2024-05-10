@@ -11,7 +11,8 @@ const LeftSideBar = () => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem("userdatatoken");
-        const response = await axios.get('http://localhost:4444/api/validuser', {
+        const url ='http://localhost:4444'
+        const response = await axios.get(`${url}/api/validuser`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: token,

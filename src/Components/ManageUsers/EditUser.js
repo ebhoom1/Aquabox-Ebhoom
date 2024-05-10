@@ -26,10 +26,11 @@ const EditUsers = ()=>{
         longtitude:null,
         latitude:null
     });
+    const url ='http://localhost:4444'
     useEffect(() => {
         const fetchUser = async () => {
           try {
-            const response = await axios.get(`http://localhost:4444/api/getAuser/${userId}`);
+            const response = await axios.get(`${url}/api/getAuser/${userId}`);
             const userData = response.data.user;
             console.log(userData);
             // Set your state with userData...
@@ -48,10 +49,10 @@ const EditUsers = ()=>{
         }));
     };
      const handleSaveUser = async (event)=>{
-        
+     
         try {
             event.preventDefault();
-            const response = await axios.patch(`http://localhost:4444/api/editUser/${userId}`, userData)
+            const response = await axios.patch(`${url}/api/editUser/${userId}`, userData)
             const updatedUser = response.data.user;
             setUserData(updatedUser)
             console.log("User updated successfully:", updatedUser);

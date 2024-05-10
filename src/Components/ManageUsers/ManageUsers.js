@@ -195,10 +195,10 @@ const handleInputChange = event =>{
           }
           else{
             let formDataToSend = formData;
-
-            const response =await axios.post('http://localhost:4444/api/register',formDataToSend)
+            const url ='http://localhost:4444'
+            const response =await axios.post(`${url}/api/register`,formDataToSend)
             console.log('formDataToSend:',formDataToSend);
-            if(response.status === '201'){
+            if(response.status === 201){
               const shouldSave = window.confirm("Are you Sure to Save the user")
 
               if(shouldSave){
@@ -525,7 +525,8 @@ const handleSubmit =async(e)=>{
     })
   }
   try {
-    const response = await axios.delete(`http://localhost:4444/api/deleteuser/${userName}`)
+    const url ='http://localhost:4444'
+    const response = await axios.delete(`${url}/api/deleteuser/${userName}`)
     console.log(response.data);
     toast.success('user deleted Successfully',{
       position:'top-center'

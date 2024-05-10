@@ -4,11 +4,11 @@ import axios from 'axios';
 import { toast,ToastContainer } from 'react-toastify';
 const Notification = () => {
     const [userNotification,setUserNotification] = useState(null)
-    const url ="http://localhost:4444/api"
+    const url ="http://localhost:4444"
     useEffect(()=>{
         const fetchNotification =async () =>{
             try {
-                const response = await axios.get(`${url}/view-notification`);
+                const response = await axios.get(`${url}/api/view-notification`);
                 const userNotification = response.data.notification;
                 console.log("user Notification :",userNotification);
                 setUserNotification(userNotification)

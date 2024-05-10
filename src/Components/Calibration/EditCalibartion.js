@@ -26,11 +26,11 @@ const EditCalibration = () => {
     technician: null,
     notes: null,
   });
-
+  const url ='http://localhost:4444'
   useEffect(() => {
     const fetchCalibrationData = async () => {
       try {
-        const response = await axios.get(`http://localhost:4444/api/find-calibration-by-userId/${calibrationId}`);
+        const response = await axios.get(`${url}/api/find-calibration-by-userId/${calibrationId}`);
         const calibrationData = response.data.calibration;
         console.log(calibrationData);
         setCalibrationData(calibrationData);
@@ -59,7 +59,7 @@ const EditCalibration = () => {
           dateOfCalibrationAdded: currentDate,
           timeOfCalibrationAdded: currentTime,
         }));
-      const res = await axios.put(`http://localhost:4444/api/edit-calibration/${calibrationId}`, calibrationData);
+      const res = await axios.put(`${url}/api/edit-calibration/${calibrationId}`, calibrationData);
       const updateCalibration = res.data.calibration;
       setCalibrationData(updateCalibration);
       console.log("Calibration updated successfully:", updateCalibration);

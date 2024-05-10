@@ -16,6 +16,7 @@ const AddNotification = () => {
          timeOfCalibrationAdded:new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }) , 
          message:"",
     })
+    const url ='http://localhost:4444'
     const handleInputChange = event =>{
         const {name,value} = event.target;
         setNotificationData(prevState =>({
@@ -37,7 +38,7 @@ const AddNotification = () => {
                 adminName:validUserData.fname
             };
             console.log('NotificationDataToSend',notificationDataToSend);
-            const res = await axios.post('http://localhost:4444/api/add-notificaiton',notificationDataToSend)
+            const res = await axios.post(`${url}/api/add-notificaiton`,notificationDataToSend)
 
             if(res.status === 201){
                 const shouldSave=window.confirm("Are you sure to add this notification?");
@@ -63,7 +64,7 @@ const AddNotification = () => {
     const fetchData = async()=>{
         try {
             let token = localStorage.getItem("userdatatoken")
-            const res = await axios.get('http://localhost:4444/api/validuser',{
+            const res = await axios.get(`${url}/api/validuser`,{
                 headers:{
                     'Content-Type':"application/json",
                     'Authorization':token,

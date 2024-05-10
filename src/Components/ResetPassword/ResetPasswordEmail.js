@@ -9,7 +9,7 @@ const ResetPasswordEmail = () => {
  
   const [email,setEmail]=useState("");
   const [message,setMessage]=useState("");
-
+  const url = 'http://localhost:4444'
   const setVal = (e)=>{
     setEmail(e.target.value)
   }
@@ -22,7 +22,7 @@ const ResetPasswordEmail = () => {
       toast.warning("Include @ in your email")
     }else {
       try {
-        const response = await axios.post('http://localhost:4444/api/sendpasswordlink',{
+        const response = await axios.post(`${url}/api/sendpasswordlink`,{
         email:email
       },{
         headers:{

@@ -1,6 +1,6 @@
 const express=require('express');
 const userdb=require('../models/user');
-const bcrypt=require('bcrypt');
+const bcrypt=require('bcryptjs');
 const nodemailer=require('nodemailer');
 const jwt=require('jsonwebtoken');
 const authenticate = require('../middleware/authenticate');

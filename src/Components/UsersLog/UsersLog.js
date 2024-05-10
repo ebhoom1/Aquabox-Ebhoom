@@ -2,9 +2,6 @@ import React, { useState } from "react";
 import { useNavigate,Link } from "react-router-dom";
 import { useEffect } from 'react';
 import './index.css'
-import { useOutletContext } from "react-router-dom";
-import LeftSideBar from "../LeftSideBar/LeftSideBar";
-import { useForm, Controller } from "react-hook-form";
 import LocationDisplay from './LocationDisplay';
 import DownloadData from "../Download-Data/DownloadData";
 import axios from "axios";
@@ -14,12 +11,12 @@ const UsersLog = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [users,setUsers]=useState([]);
   const [editData,setEditData]=useState(null);
-
+  const url = 'http://localhost:4444'
  
   useEffect(()=>{
     const fetchUsers = async () => {
         try {
-          const response = await axios.get('http://localhost:4444/api/getallusers');
+          const response = await axios.get(`${url}/api/getallusers`);
           const userData = response.data.users;
           console.log(userData);
           setUsers(userData)
@@ -54,11 +51,7 @@ const navigate=useNavigate();
             <div className="page-header">
               <h4 className="page-title">Control and Monitor Dashboard</h4>
               <div className="quick-link-wrapper w-100 d-md-flex flex-md-wrap">
-                {/* <!-- <ul className="quick-links">
-    <li><a href="#">option 1</a></li>
-    <li><a href="#">Own analysis</a></li>
-    <li><a href="#"> data</a></li>
-  </ul> --> */}
+                
                 <ul className="quick-links ml-auto">
                   <li>
                     <a href="#">Settings</a>

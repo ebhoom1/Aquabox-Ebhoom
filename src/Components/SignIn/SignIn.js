@@ -14,7 +14,7 @@ const SignIn = () => {
     userType: "",
   });
   const history = useNavigate();
-
+  const url = 'http://localhost:4444'
   const setVal = (e) => {
     const { name, value } = e.target;
     setInpval((prevState) => ({
@@ -56,7 +56,7 @@ const SignIn = () => {
     } else {
       try {
         const response = await axios.post(
-          "http://localhost:4444/api/login",
+          `${url}/api/login`,
           { email, password, userType }
         );
         const { status, result } = response.data;
