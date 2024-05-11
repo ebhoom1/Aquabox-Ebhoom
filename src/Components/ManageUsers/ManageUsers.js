@@ -105,6 +105,8 @@ const [formData, setFormData]=useState({
   longtitude:"",
   latitude:""
 })
+const deployed_url = 'https://aquabox-ebhoom-3.onrender.com'
+const url ='http://localhost:4444'
 
 
 const handleInputChange = event =>{
@@ -195,8 +197,7 @@ const handleInputChange = event =>{
           }
           else{
             let formDataToSend = formData;
-            const url ='http://localhost:4444'
-            const response =await axios.post(`${url}/api/register`,formDataToSend)
+            const response =await axios.post(`${deployed_url}/api/register`,formDataToSend)
             console.log('formDataToSend:',formDataToSend);
             if(response.status === 201){
               const shouldSave = window.confirm("Are you Sure to Save the user")
@@ -515,6 +516,8 @@ const handleInputChange = event =>{
 const DeleteUsers = () => { 
 
 const [userName,setUserName]=useState('');
+const url ='http://localhost:4444'
+const deployed_url = 'https://aquabox-ebhoom-3.onrender.com'
 
 const handleSubmit =async(e)=>{
   e.preventDefault();
@@ -525,8 +528,7 @@ const handleSubmit =async(e)=>{
     })
   }
   try {
-    const url ='http://localhost:4444'
-    const response = await axios.delete(`${url}/api/deleteuser/${userName}`)
+    const response = await axios.delete(`${deployed_url}/api/deleteuser/${userName}`)
     console.log(response.data);
     toast.success('user deleted Successfully',{
       position:'top-center'

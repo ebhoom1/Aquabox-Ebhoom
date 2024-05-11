@@ -27,10 +27,12 @@ const EditUsers = ()=>{
         latitude:null
     });
     const url ='http://localhost:4444'
+    const deployed_url = 'https://aquabox-ebhoom-3.onrender.com'
+
     useEffect(() => {
         const fetchUser = async () => {
           try {
-            const response = await axios.get(`${url}/api/getAuser/${userId}`);
+            const response = await axios.get(`${deployed_url}/api/getAuser/${userId}`);
             const userData = response.data.user;
             console.log(userData);
             // Set your state with userData...
@@ -52,7 +54,7 @@ const EditUsers = ()=>{
      
         try {
             event.preventDefault();
-            const response = await axios.patch(`${url}/api/editUser/${userId}`, userData)
+            const response = await axios.patch(`${deployed_url}/api/editUser/${userId}`, userData)
             const updatedUser = response.data.user;
             setUserData(updatedUser)
             console.log("User updated successfully:", updatedUser);

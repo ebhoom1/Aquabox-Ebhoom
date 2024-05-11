@@ -12,11 +12,12 @@ const UsersLog = () => {
   const [users,setUsers]=useState([]);
   const [editData,setEditData]=useState(null);
   const url = 'http://localhost:4444'
- 
+  const deployed_url = 'https://aquabox-ebhoom-3.onrender.com'
+
   useEffect(()=>{
     const fetchUsers = async () => {
         try {
-          const response = await axios.get(`${url}/api/getallusers`);
+          const response = await axios.get(`${deployed_url}/api/getallusers`);
           const userData = response.data.users;
           console.log(userData);
           setUsers(userData)

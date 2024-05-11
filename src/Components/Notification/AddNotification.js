@@ -17,6 +17,8 @@ const AddNotification = () => {
          message:"",
     })
     const url ='http://localhost:4444'
+    const deployed_url = 'https://aquabox-ebhoom-3.onrender.com'
+
     const handleInputChange = event =>{
         const {name,value} = event.target;
         setNotificationData(prevState =>({
@@ -64,7 +66,7 @@ const AddNotification = () => {
     const fetchData = async()=>{
         try {
             let token = localStorage.getItem("userdatatoken")
-            const res = await axios.get(`${url}/api/validuser`,{
+            const res = await axios.get(`${deployed_url}/api/validuser`,{
                 headers:{
                     'Content-Type':"application/json",
                     'Authorization':token,

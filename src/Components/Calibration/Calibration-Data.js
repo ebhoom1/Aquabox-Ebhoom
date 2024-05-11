@@ -8,11 +8,13 @@ const CalibrationData = () => {
  
   const [userCalibrations,setUserCalibrations]=useState(null)
   const url ='http://localhost:4444'
+  const deployed_url = 'https://aquabox-ebhoom-3.onrender.com'
+
   useEffect(()=>{
     const fetchUsers = async () => {
         try {
          
-          const response = await axios.get(`${url}/api/view-all-calibrations`);
+          const response = await axios.get(`${deployed_url}/api/view-all-calibrations`);
           const userData = response.data.calibrations;
           console.log(userData);
           setUserCalibrations(userData)
@@ -26,7 +28,7 @@ const CalibrationData = () => {
     try {
       const shouldDelete = window.confirm('Are you sure you want to delete this calibration?');
       if(shouldDelete){
-      const res = await axios.delete(`${url}/api/delete-calibration/${calibrationId}`)
+      const res = await axios.delete(`${deployed_url}/api/delete-calibration/${calibrationId}`)
       if(res.status === 200){
         setUserCalibrations(prevCalibrations => prevCalibrations.filter(calibration =>calibration._id !== calibrationId))
         toast.success('Calibration deleted Successfully',{

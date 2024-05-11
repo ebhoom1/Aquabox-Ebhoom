@@ -40,7 +40,8 @@ const Calibration = () => {
      
 
   }
-  
+  const deployed_url = 'https://aquabox-ebhoom-3.onrender.com'
+  const url = 'http://localhost:4444'
  
   
   const handleSubmit = async (event) => {
@@ -75,7 +76,7 @@ const Calibration = () => {
         adminName: validUserData.fname
       };
       console.log('CalibrationDataToSend:', calibrationDataToSend);
-        const res = await axios.post('http://localhost:4444/api/add-calibration', calibrationDataToSend);
+        const res = await axios.post(`${deployed_url}/api/add-calibration`, calibrationDataToSend);
         
         if (res.status === 201) {
           const shouldSaveIt = window.confirm("Are you Sure to add the Calibration?");
@@ -113,7 +114,7 @@ const Calibration = () => {
     const fetchData=async()=>{
       try{
           let token = localStorage.getItem("userdatatoken")
-          const response =await axios.get('http://localhost:4444/api/validuser',{
+          const response =await axios.get(`${deployed_url}/api/validuser`,{
             headers:{
               'Content-Type':"application/json",
               'Authorization':token,

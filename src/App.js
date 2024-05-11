@@ -37,11 +37,13 @@ function App() {
   const { setLoginData } = useContext(LoginContext);
   const navigate  = useNavigate();
   const url = 'http://localhost:4444'
+  const deployed_url = 'https://aquabox-ebhoom-3.onrender.com'
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem("userdatatoken");
-        const response = await axios.get(`${url}/api/validuser`, {
+        const response = await axios.get(`${deployed_url}/api/validuser`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: token,

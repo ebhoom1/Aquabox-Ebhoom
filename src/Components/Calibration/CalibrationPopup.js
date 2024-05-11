@@ -5,12 +5,13 @@ import './index.css'
 const CalibrationPopup=({userName,onClose})=>{
 
     const [calibrationData,setCalibrationData] = useState(null);
+    const deployed_url = 'https://aquabox-ebhoom-3.onrender.com'
+    const url ='http://localhost:4444'
 
 useEffect(()=>{
     const fetchCalibrationData = async ()=>{
         try{
-            const url ='http://localhost:4444'
-            const response = await axios.get(`${url}/api/find-calibration-by-userId/${userName}`);
+            const response = await axios.get(`${deployed_url}/api/find-calibration-by-userId/${userName}`);
             const data = response.data
             if(data.success){
                 setCalibrationData(data.calibration);

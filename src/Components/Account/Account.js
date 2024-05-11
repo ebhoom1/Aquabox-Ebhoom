@@ -14,7 +14,8 @@ const  Account=()=>{
       try{
           let token = localStorage.getItem("userdatatoken")
           const url ='http://localhost:4444'
-          const response =await axios.get(`${url}/api/validuser`,{
+          const deployed_url = 'https://aquabox-ebhoom-3.onrender.com'
+          const response =await axios.get(`${deployed_url}/api/validuser`,{
             headers:{
               'Content-Type':"application/json",
               'Authorization':token,

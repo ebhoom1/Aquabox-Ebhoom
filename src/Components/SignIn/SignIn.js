@@ -15,6 +15,8 @@ const SignIn = () => {
   });
   const history = useNavigate();
   const url = 'http://localhost:4444'
+  const deployed_url = 'https://aquabox-ebhoom-3.onrender.com'
+
   const setVal = (e) => {
     const { name, value } = e.target;
     setInpval((prevState) => ({
@@ -56,7 +58,7 @@ const SignIn = () => {
     } else {
       try {
         const response = await axios.post(
-          `${url}/api/login`,
+          `${deployed_url}/api/login`,
           { email, password, userType }
         );
         const { status, result } = response.data;
@@ -91,7 +93,6 @@ const SignIn = () => {
             </h1>
           </div>
           <div className="col-12 col-lg-6 padd pt-4">
-            {/* <div className="alert alert-danger mt-3 mb-0"></div> */}
             <form>
               <p className="signin-text mb-5">Sign In</p>
               <span className="error"></span>

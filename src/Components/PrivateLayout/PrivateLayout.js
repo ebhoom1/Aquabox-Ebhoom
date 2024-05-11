@@ -9,11 +9,13 @@ import axios from 'axios';
 
 const PrivateLayout = () => {
   const url = 'http://localhost:4444'
+  const deployed_url = 'https://aquabox-ebhoom-3.onrender.com'
+
   const [userNotification,setUserNotification] = useState([]);
   useEffect(()=>{
             const fetchNotification =async()=>{
               try {
-                const res = await axios.get(`${url}/api/view-notification`)
+                const res = await axios.get(`${deployed_url}/api/view-notification`)
                 const notificaitons = res.data.notification || [];
                 setUserNotification(notificaitons)
               } catch (error) {
@@ -67,7 +69,7 @@ const PrivateLayout = () => {
     const fetchData=async()=>{
       try{
           let token = localStorage.getItem("userdatatoken")
-          const response =await axios.get(`${url}/api/validuser`,{
+          const response =await axios.get(`${deployed_url}/api/validuser`,{
             headers:{
               'Content-Type':"application/json",
               'Authorization':token,
@@ -104,7 +106,7 @@ const PrivateLayout = () => {
     try {
       let token = localStorage.getItem("userdatatoken");
 
-    const response = await axios.get(`${url}/api/logout`,{
+    const response = await axios.get(`${deployed_url}/api/logout`,{
       headers:{
         'Content-type':"application/json",
         'Authorization':token,
