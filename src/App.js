@@ -30,6 +30,8 @@ import CalibrationData from './Components/Calibration/Calibration-Data';
 import LeftSideBar from './Components/LeftSideBar/LeftSideBar';
 import Notification from './Components/Notification/Notification';
 import AddNotification from './Components/Notification/AddNotification';
+import CalibrationExceeded from './Components/Calibration/CalibrationExceeded';
+import CalibrationExceededReport from './Components/Calibration/CalibrationExceedReport';
 
 function App() {
   const [dataLoaded, setDataLoaded] = useState(false);
@@ -43,7 +45,7 @@ function App() {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem("userdatatoken");
-        const response = await axios.get(`${deployed_url}/api/validuser`, {
+        const response = await axios.get(`${url}/api/validuser`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: token,
@@ -101,7 +103,9 @@ function App() {
                 <Route exact path="/calibration" element={<CalibrationData />} />
                 <Route exact path="/edit-calibration/:calibrationId" element={<EditCalibration />} />
                 <Route exact path="/notification" element={<Notification />} />
-                <Route exact path="//notification-new" element={<AddNotification/>}/>
+                <Route exact path="/notification-new" element={<AddNotification/>}/>
+                <Route path="/calibration-exceeded" element={<CalibrationExceeded />} />
+                <Route path="/calibration-exceeded-report" element={<CalibrationExceededReport />} />
               </>
             )}
             {userType === "user" && (

@@ -1,8 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 
 const DownloadData=()=>{
-   
+  const [date, setDate] = useState("");
+  const navigate = useNavigate();
+
     const industryType=[
         {
           category:"Sugar"
@@ -73,11 +76,16 @@ const DownloadData=()=>{
       
       ]
       const compName=[{name:"company A"},{name:"company B"},{name:"company C"}]
+    
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        navigate("/calibration-exceeded-report", { state: { date } });
+      };
     return(
         <div className="row">
         <div className="col-12 col-md-12 grid-margin">
           <div className="col-12">
-            <h1>Download Data</h1>
+            <h1>Validate Data and Approve Data </h1>
           </div>
           <div className="card">
             <div className="card-body">
@@ -98,6 +106,25 @@ const DownloadData=()=>{
                         <option value={item.name}>{item.name}</option>
                       ))}
                     </select>
+
+                  </div>
+                  <div className="col-lg-6 col-md-6 mb-3"> {/* Second column for Select Name */}
+                    <label htmlFor="exampleFormControlInput5">Date </label>
+                   
+                    <input 
+                      className="input-field"
+                      type="date"
+                    />
+                    
+                  </div>
+                  <div className="col-lg-6 col-md-6 mb-3"> {/* Second column for Select Name */}
+                    <label htmlFor="exampleFormControlInput5">Engineer Name </label>
+                   
+                    <input 
+                      className="input-field"
+                      type="text"
+                    />
+                    
                   </div>
                 </div>
                 <label htmlFor="exampleFormControlInput5">User</label>
@@ -110,7 +137,11 @@ const DownloadData=()=>{
                         <input type="hidden" name="auth" />
                         <input type="hidden" name="from"  />
                         <input type="hidden" name="to"  />
-                        <button type="submit" className="btn btn-primary mb-2 mt-2"> Download </button>
+                        <button
+                         type="submit" 
+                         className="btn btn-primary mb-2 mt-2" 
+                         onClick={handleSubmit}
+                         > Check and Validate </button>
         </form>
       </div>
     </div>

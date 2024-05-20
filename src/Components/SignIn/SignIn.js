@@ -58,7 +58,7 @@ const SignIn = () => {
     } else {
       try {
         const response = await axios.post(
-          `${deployed_url}/api/login`,
+          `${url}/api/login`,
           { email, password, userType }
         );
         const { status, result } = response.data;

@@ -16,6 +16,7 @@ import axios from 'axios'
 import { Link } from 'react-router-dom';
 import WaterPopup from "./WaterPopup";
 import CalibrationPopup from "../Calibration/CalibrationPopup";
+import CalibrationExceeded from "../Calibration/CalibrationExceeded";
 
 const Water = () => {
 
@@ -239,47 +240,9 @@ const Water = () => {
         onClose={handleClosePopup}
         />
       )}
-        {/* divider */}
-        <div className="p-5"></div>
-      <div className="p-5"></div>
-      {/* divider */}
+        
+      <CalibrationExceeded/>
 
-      <div className="col-md-12 grid-margin mt-5">
-              <div className="card">
-                <div className="card-body">
-                <div className="row mt-5">
-      <div className="col-md-12">
-        <h2>Calibration Exceeded</h2>
-        <div className="table-responsive">
-          <table className="table table-bordered">
-            <thead>
-              <tr>
-                <th>SI.No</th>
-                <th>Exceeded Parameter</th>
-                <th>Date</th>
-                <th>Time</th>
-                
-                
-                
-              </tr>
-            </thead>
-            <tbody>
-              <td>1</td>
-              <td>ph 2.1</td>
-              <td>31/03/2024</td>
-              <td>07:17</td>
-             
-                
-                
-              
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-                </div>
-                </div>
-                </div>
  
       <footer className="footer">
         <div className="container-fluid clearfix">
