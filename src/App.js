@@ -32,6 +32,8 @@ import Notification from './Components/Notification/Notification';
 import AddNotification from './Components/Notification/AddNotification';
 import CalibrationExceeded from './Components/Calibration/CalibrationExceeded';
 import CalibrationExceededReport from './Components/Calibration/CalibrationExceedReport';
+import Report from './Components/Reports/Report';
+import ListOfSupportAnalyserMakeAndModel from './Components/ListOfSupportAnalyserMakeAndModel/ListOfSupportAnalyserMakeAndModel';
 
 function App() {
   const [dataLoaded, setDataLoaded] = useState(false);
@@ -106,6 +108,9 @@ function App() {
                 <Route exact path="/notification-new" element={<AddNotification/>}/>
                 <Route path="/calibration-exceeded" element={<CalibrationExceeded />} />
                 <Route path="/calibration-exceeded-report" element={<CalibrationExceededReport />} />
+                <Route exact path ="/report"element={<Report/>}/>
+                <Route exact path ="/list-of-support-analyser-make-and-model" element={<ListOfSupportAnalyserMakeAndModel/>}/>
+
               </>
             )}
             {userType === "user" && (
@@ -114,6 +119,8 @@ function App() {
                 <Route exact path="/ambient-air" element={<AmbientAir />} />
                 <Route exact path="/noise" element={<Noise />} />
                 <Route exact path="/account" element={<Account />} />
+                <Route exact path ="/report"element={<Report/>}/>
+                <Route exact path ="/list-of-support-analyser-make-and-model" element={<ListOfSupportAnalyserMakeAndModel/>}/>
               </>
             )}
           </Route>

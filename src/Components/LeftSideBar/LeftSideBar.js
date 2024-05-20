@@ -75,6 +75,19 @@ const LeftSideBar = () => {
             </Link>
           </li>
           <li className={`nav-item`}>
+            <Link className="nav-link" to="/report">
+              <i className="menu-icon typcn typcn-document-text"></i>
+              <span className="menu-title">Report</span>
+            </Link>
+          
+          </li>
+          <li className={`nav-item`}>
+          <Link className="nav-link" to="/list-of-support-analyser-make-and-model">
+              <i className="menu-icon typcn typcn-document-text"></i>
+              <span className="menu-title">List of support analyser<br/> make and model</span>
+            </Link>
+            </li>
+          <li className={`nav-item`}>
             <Link className="nav-link" to="/water">
               <i className="menu-icon typcn typcn-document-text"></i>
               <span className="menu-title">Effluent/Water Dashboard</span>
@@ -103,6 +116,19 @@ const LeftSideBar = () => {
               <span className="menu-title">Account</span>
             </Link>
           </li>
+          <li className={`nav-item`}>
+            <Link className="nav-link" to="/report">
+              <i className="menu-icon typcn typcn-document-text"></i>
+              <span className="menu-title">Report</span>
+            </Link>
+          
+          </li>
+          <li className={`nav-item`}>
+          <Link className="nav-link" to="/list-of-support-analyser-make-and-model">
+              <i className="menu-icon typcn typcn-document-text"></i>
+              <span className="menu-title">List of support analyser<br/> make and model</span>
+            </Link>
+            </li>
           <li className={`nav-item`}>
             <Link className="nav-link" to="/water">
               <i className="menu-icon typcn typcn-document-text"></i>
