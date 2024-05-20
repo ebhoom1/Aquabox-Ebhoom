@@ -9,7 +9,7 @@ const userRoutes = require('./routers/user');
 const calibrationRoutes = require('./routers/calibration');
 const notificationRoutes = require('./routers/notification');
 const calibrationExceedRoutes= require('./routers/calibrationExceed')
-const MqttSocket = require('./mqtt/mqtt-socket')
+const setupMqttClient = require('./mqtt/mqtt-socket')
 const socketIO = require('socket.io'); 
 const app = express();
 const port = process.env.PORT || 5555;
@@ -50,11 +50,10 @@ const server = app.listen(port, () => {
 
 const io = socketIO(server);
 
-// Initialize MQTT Socket with Socket.IO and active_users (if needed)
-const active_users = {}; // Replace this with your actual active users object if needed
-const mqttSocket = new MqttSocket(io, active_users);
+// Initialize MQTT Socket with Socket.IO
+const mqttClient = setupMqttClient(io);
 
 // Ensure MQTT client is running
-mqttSocket.client.on('connect', () => {
+mqttClient.on('connect', () => {
     console.log('MQTT client connected');
 });
