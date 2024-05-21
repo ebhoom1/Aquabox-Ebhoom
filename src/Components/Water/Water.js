@@ -192,9 +192,28 @@ const Water = () => {
           </div>
         </div>
         {/* <!-- Page Title Header Ends--> */}
-
+        
+                  <div className="card">
+          <div className="card-body">
+          <h1>Find Users</h1>
+           
+          <form className="form-inline  my-2 my-lg-0">
+                    <input
+                      className="form-control mr-sm-2"
+                      type="search"
+                      placeholder="Search"
+                      aria-label="Search"
+                    />
+                    <button className="btn btn-outline-primary my-2 my-sm-0" type="submit">
+                      Search
+                    </button>
+                  </form>
+          </div>
+        </div>
+        <div className="p-2"></div>
+      <div className="p-2"></div>
         <div className="row">
-          
+
          
           {water.map((item,index)=>(
           <div className="col-12 col-md-4 grid-margin"key={index}>
