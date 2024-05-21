@@ -102,8 +102,9 @@ const [formData, setFormData]=useState({
   district:"",
   state:"",
   address:"",
-  longtitude:"",
-  latitude:""
+  latitude:"",
+  longitude:"",
+  
 })
 const deployed_url = 'https://aquabox-ebhoom-3.onrender.com'
 const url ='http://localhost:4444'
@@ -186,8 +187,8 @@ const handleInputChange = event =>{
             toast.warning('Please type your address',{
               position:'top-center'
             })
-          }else if(formData.longtitude === ''){
-            toast.warning('Please type your longtitude',{
+          }else if(formData.longitude === ''){
+            toast.warning('Please type your  longitude',{
               position:'top-center'
             })
           }else if(formData.latitude === ''){
@@ -197,7 +198,7 @@ const handleInputChange = event =>{
           }
           else{
             let formDataToSend = formData;
-            const response =await axios.post(`${deployed_url}/api/register`,formDataToSend)
+            const response =await axios.post(`${url}/api/register`,formDataToSend)
             console.log('formDataToSend:',formDataToSend);
             if(response.status === 201){
               const shouldSave = window.confirm("Are you Sure to Save the user")
@@ -221,8 +222,9 @@ const handleInputChange = event =>{
                   district:"",
                   state:"",
                   address:"",
-                  longtitude:"",
-                  latitude:""
+                  latitude:"",
+                  longitude:""
+                
                 })
 
               }
@@ -462,19 +464,6 @@ const handleInputChange = event =>{
                            
                           </div>
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
-                            <label htmlFor="exampleFormControlInput6">Longitude</label>
-                            <input 
-                            type="text" 
-                            className="form-control" 
-                            id="longtitude" 
-                            name='longtitude'
-                            value={formData.longtitude}
-                            onChange={handleInputChange}
-                            placeholder="Enter Longtitude" 
-                            />
-                          
-                          </div>
-                          <div className="col-12 col-lg-6 col-md-6 mb-3">
                             <label htmlFor="exampleFormControlInput6">Latitude</label>
                             <input 
                             type="text" 
@@ -487,6 +476,20 @@ const handleInputChange = event =>{
                             />
                             
                           </div>
+                          <div className="col-12 col-lg-6 col-md-6 mb-3">
+                            <label htmlFor="exampleFormControlInput6">Longitude</label>
+                            <input 
+                            type="text" 
+                            className="form-control" 
+                            id="longitude" 
+                            name='longitude'
+                            value={formData.longitude}
+                            onChange={handleInputChange}
+                            placeholder="Enter longitude" 
+                            />
+                          
+                          </div>
+                          
 
                           <div className="mt-4 mb-5 p-2">
                             <button 
@@ -574,7 +577,43 @@ const handleSubmit =async(e)=>{
           </div>
     )
 }
+const EditUser =()=>{
+  const [users,setUsers]=useState([]);
+  const url ='http://localhost:4444'
 
+  useEffect(()=>{
+    const fetchUsers = async () => {
+        try {
+          const response = await axios.get(`${url}/api/getallusers`);
+          const userData = response.data.users;
+          console.log(userData);
+          setUsers(userData)
+        } catch (error) {
+          console.error(`Error in fetching users`, error);
+        }
+    };
+    fetchUsers()
+  },[])
+  return(
+    <div className="row">
+    <div className="col-12">
+    <h1>Edit Active Users </h1>
+  </div>
+  <div className="col-12  mb-3">
+    <ul className="list-group">
+    {users.map(user => (  
+    <li key={user._id} className="list-group-item">{user.fname}
+          <div className="FloatRight">
+          <Link to={`/edit-user/${user._id}`}><button className="btn btn-primary m-3">Edit</button></Link>
+          
+          </div>
+        </li>
+         ))}
+    </ul>
+  </div>
+</div>
+  )
+}
 const ManageUsers = () => { 
 
     return (
@@ -606,7 +645,7 @@ const ManageUsers = () => {
 
           <AddUsers/>
           <DeleteUsers/>
-          
+          <EditUser/>
 
         </div>
 

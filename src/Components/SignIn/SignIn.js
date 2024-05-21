@@ -65,7 +65,7 @@ const SignIn = () => {
 
         if (status === 200) {
           localStorage.setItem("userdatatoken", result.token);
-          history("/water");
+          history("/users-log");
           setInpval({ ...inpval, email: "", password: "", userType: "" });
         } else {
           toast.error("Invalid Credentials", {

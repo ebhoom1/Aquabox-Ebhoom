@@ -19,7 +19,7 @@ DB();
 
 // Middleware
 app.use(cors({
-    origin:['http://localhost:3000','https://aquabox-ebhoom-3.onrender.com','http://localhost:3001','http://localhost:3002'] ,
+    origin:['http://localhost:3001','https://aquabox-ebhoom-3.onrender.com'] ,
     credentials: true
 }));
 app.use(cookieParser());
@@ -50,7 +50,7 @@ const server = app.listen(port, () => {
 
 const io = socketIO(server);
 
-// Initialize MQTT Socket with Socket.IO
+//Initialize MQTT Socket with Socket.IO
 const mqttClient = setupMqttClient(io);
 
 // Ensure MQTT client is running

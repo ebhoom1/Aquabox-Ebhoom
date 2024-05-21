@@ -23,7 +23,7 @@ const EditUsers = ()=>{
         district:null,
         state:null,
         address:null,
-        longtitude:null,
+        longitude:null,
         latitude:null
     });
     const url ='http://localhost:4444'
@@ -32,7 +32,7 @@ const EditUsers = ()=>{
     useEffect(() => {
         const fetchUser = async () => {
           try {
-            const response = await axios.get(`${deployed_url}/api/getAuser/${userId}`);
+            const response = await axios.get(`${url}/api/getAuser/${userId}`);
             const userData = response.data.user;
             console.log(userData);
             // Set your state with userData...
@@ -260,19 +260,7 @@ const EditUsers = ()=>{
                               />
                              
                             </div>
-                            <div className="col-12 col-lg-6 col-md-6 mb-3">
-                              <label htmlFor="exampleFormControlInput6">Longtitude</label>
-                              <input 
-                              type="text"
-                              className="form-control"
-                              id="longtitude" 
-                              placeholder="Enter Longtitude"
-                              name='longtitude'
-                              onChange={handleChange}
-                              value={userData.longtitude}
-                              />
-                            
-                            </div>
+                         
                             <div className="col-12 col-lg-6 col-md-6 mb-3">
                               <label htmlFor="exampleFormControlInput6">Latitude</label>
                               <input 
@@ -286,6 +274,19 @@ const EditUsers = ()=>{
                               />
                               
                             </div>
+                            <div className="col-12 col-lg-6 col-md-6 mb-3">
+                              <label htmlFor="exampleFormControlInput6">Longitude</label>
+                              <input 
+                              type="text"
+                              className="form-control"
+                              id="longitude" 
+                              placeholder="Enter  longitude"
+                              name='longitude'
+                              onChange={handleChange}
+                              value={userData.longitude}
+                              />
+                            
+                            </div>
   
                             <div className="mt-4 mb-5 p-2">
                            <button type="submit" className="btn btn-primary mb-2" onClick={handleSaveUser}>Update  User </button>
@@ -293,7 +294,7 @@ const EditUsers = ()=>{
                             </div>
                             
                               <div className="mt-4 mb-5 p-2">
-                              <Link to='/users-log'><button type="button"  className="btn btn-danger mb-2"> Cancel </button></Link>
+                              <Link to='/manage-users'><button type="button"  className="btn btn-danger mb-2"> Cancel </button></Link>
                               </div>
                               
                             

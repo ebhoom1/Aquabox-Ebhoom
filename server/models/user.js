@@ -67,12 +67,15 @@ const userSchema=new mongoose.Schema({
     address:{
         type:String,
     },
-    longtitude:{
-        type:String,
+    latitude: {
+        type: Number,
+        required:true
+      },
+    longitude: {
+        type: Number,
+        required:true
     },
-    latitude:{
-        type:String,
-    },
+  
     tokens:[
         {
             token:{

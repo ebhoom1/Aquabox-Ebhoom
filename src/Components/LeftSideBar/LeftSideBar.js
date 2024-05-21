@@ -105,6 +105,7 @@ const LeftSideBar = () => {
               <span className="menu-title">Noise Dashboard</span>
             </Link>
           </li>
+         
         </>
       );
     } else {
@@ -129,6 +130,7 @@ const LeftSideBar = () => {
               <span className="menu-title">List of support analyser<br/> make and model</span>
             </Link>
             </li>
+           
           <li className={`nav-item`}>
             <Link className="nav-link" to="/water">
               <i className="menu-icon typcn typcn-document-text"></i>
@@ -147,6 +149,7 @@ const LeftSideBar = () => {
               <span className="menu-title">Noise Dashboard</span>
             </Link>
           </li>
+         
         </>
       );
     }
