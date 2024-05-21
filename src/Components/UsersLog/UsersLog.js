@@ -19,7 +19,7 @@ const UsersLog = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get(`${deployed_url}/api/getallusers`);
+        const response = await axios.get(`${url}/api/getallusers`);
         const userData = response.data.users;
         setUsers(userData);
       } catch (error) {
@@ -90,8 +90,10 @@ const UsersLog = () => {
                   <ul className="list-group">
                     {filteredUsers.map(user => (
                       <li key={user._id} className="list-group-item">
-                        {user.userName}
+                        <span>{user.userName}<br/>{user.modelName}</span>
+                        
                       </li>
+                      
                     ))}
                   </ul>
                 ) : (
