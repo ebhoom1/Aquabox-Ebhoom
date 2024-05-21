@@ -11,6 +11,8 @@ const UsersLog = () => {
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const url = 'http://localhost:4444'
   const deployed_url = 'https://aquabox-ebhoom-3.onrender.com'
 
@@ -42,6 +44,12 @@ const UsersLog = () => {
 
   const navigate = useNavigate();
 
+  const handleSearch = (event) => {
+    const query = event.target.value.toLowerCase();
+    setSearchQuery(query);
+    const filtered = users.filter(user => user.userName.toLowerCase().includes(query));
+    setFilteredUsers(filtered);
+  };
   return (
     <div className="main-panel">
       <div className="content-wrapper">
@@ -64,9 +72,31 @@ const UsersLog = () => {
             <KeralaMap users={users} />
           </div>
         </div>
+         {/* divider */}
+      <div className="p-2"></div>
+      <div className="p-2"></div>
+      {/* divider */}
         <div className="card">
           <div className="card-body">
-          
+          <h1>Find Users</h1>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Search by user name"
+              value={searchQuery}
+              onChange={handleSearch}
+            />
+          {users.length > 0 ? (
+                  <ul className="list-group">
+                    {filteredUsers.map(user => (
+                      <li key={user._id} className="list-group-item">
+                        {user.userName}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>No users found</p>
+                )}
           </div>
         </div>
         <DownloadData />
