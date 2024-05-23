@@ -49,6 +49,68 @@ const Water = () => {
   const handleCloseCalibrationPopup=()=>{
     setShowCalibrationPopup(false)
   }
+ 
+  const [validUserData, setValidUserData] = useState(null);
+  const [fetchvalue,setFetchValues]=useState([])
+  useEffect(()=>{
+    //Fetch product iD and user status when the component mounts
+    
+    const fetchData=async()=>{
+      try{
+          let token = localStorage.getItem("userdatatoken")
+          const response =await axios.get('http://localhost:4444/api/validuser',{
+            headers:{
+              'Content-Type':"application/json",
+              'Authorization':token,
+              Accept:'application/json'
+            },
+            withCredentials: true
+          })
+          const data = response.data;
+        console.log(data);
+
+        if (data.status === 201) {
+          // Update product ID and user status
+          setValidUserData(data.validUserOne);
+          console.log(data.validUserOne);
+        } else {
+          console.log("Error fetching user data");
+        }
+      }catch(error){
+        console.error("Error fetching user data :", error);
+      }
+    }
+    fetchData();
+  },[])
+  
+  // const fetchValue = async () => {
+  //   try {
+  //     const response = await axios.get('http://localhost:4444/api/get-all-values', {
+  //       headers: {
+  //         'Content-Type': "application/json",
+  //         'Authorization': localStorage.getItem("userdatatoken"),
+  //         Accept: 'application/json'
+  //       },
+  //       withCredentials: true
+  //     });
+
+  //     if (response.status === 200) {
+  //       const data = response.data.comments;
+  //       setFetchValues(data);
+  //       console.log("Fetched data:", data);
+  //     } else {
+  //       console.log("Error fetching data");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching data:", error);
+  //   }
+  // };
+  // useEffect(() => {
+  //   fetchValue (); // Fetch data initially
+  //   const interval = setInterval(fetchValue , 5000); // Fetch data every 5 seconds
+  //   return () => clearInterval(interval); // Clear interval on component unmount
+  // }, []);
+
   const water=[
     {
       parameter:"PH level",
@@ -131,38 +193,7 @@ const Water = () => {
       month:"",  
     },
   ]
-  const [validUserData, setValidUserData] = useState(null);
-
-  useEffect(()=>{
-    //Fetch product iD and user status when the component mounts
-    
-    const fetchData=async()=>{
-      try{
-          let token = localStorage.getItem("userdatatoken")
-          const response =await axios.get('http://localhost:4444/api/validuser',{
-            headers:{
-              'Content-Type':"application/json",
-              'Authorization':token,
-              Accept:'application/json'
-            },
-            withCredentials: true
-          })
-          const data = response.data;
-        console.log(data);
-
-        if (data.status === 201) {
-          // Update product ID and user status
-          setValidUserData(data.validUserOne);
-          console.log(data.validUserOne);
-        } else {
-          console.log("Error fetching user data");
-        }
-      }catch(error){
-        console.error("Error fetching user data :", error);
-      }
-    }
-    fetchData();
-  },[])
+ 
   return (
     <div className="main-panel">
       <div className="content-wrapper">
@@ -217,21 +248,21 @@ const Water = () => {
          
           {water.map((item,index)=>(
           <div className="col-12 col-md-4 grid-margin"key={index}>
-          <div className="card" onClick={() =>handleCardClick({ title: `${item.parameter}` })}>
+          <div className="card">
             <div className="card-body">
               <div className="row">
                 <div className="col-12">
-                  <h3 className="mb-3">{item.parameter}</h3>
+                  <h3 className="mb-3">PH Level</h3>
                 </div>
                 <div className="col-12 mb-3">
-                  <h1>{item.value}</h1>
+                  <h1>pH</h1>
                   {/* <h4>Alkaline Water</h4> */}
                 </div>
 
                 <div className="col-12">
                   <h5 className="text-dark">Average</h5>
-                  <p className="mb-0">Last Week: {item.week} </p>
-                  <p>Last Month:{item.month} </p>
+                  <p className="mb-0">Last Week:  </p>
+                  <p>Last Month: </p>
                 </div>
               </div>
             </div>
@@ -283,6 +314,7 @@ const Water = () => {
         </div>
       </footer>
     </div>
+
   );
 }
 

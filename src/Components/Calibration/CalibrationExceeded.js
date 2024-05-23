@@ -35,7 +35,7 @@ const CalibrationExceeded = () => {
           console.log("User Type :::::", userData.validUserOne.userType);
           setDataLoaded(true);
 
-          const commentsResponse = await axios.get(`${url}/api/get-all-comments`);
+          const commentsResponse = await axios.get(`${url}/api/get-all-values`);
           setEntries(commentsResponse.data.comments);
         }
       } catch (error) {
@@ -131,10 +131,10 @@ const CalibrationExceeded = () => {
                   <tbody>
                     {entries.map((entry) => (
                       <tr key={entry._id}>
-                        <td>{entry.id}</td>
-                        <td>{entry.parameter}</td>
-                        <td>{entry.date}</td>
-                        <td>{entry.time}</td>
+                        <td>{entry._id}</td>
+                        <td>{entry.ph}</td>
+                        <td>{entry.turbidity}</td>
+                        <td>{entry.timestamp}</td>
                         <td>{entry.commentByUser}</td>
                         <td>{entry.commentByAdmin}</td>
                         <td>
