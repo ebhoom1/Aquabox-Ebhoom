@@ -1,4 +1,5 @@
 const CalibrationExceed = require('../models/calibrationExceed')
+const moment = require('moment')
 
 const addComment = async (req,res)=>{
     try{
@@ -110,10 +111,18 @@ const handleExceedValues = async (data)=>{
 };
 const saveExceedValue = async (parameter,value)=>{
     try {
+
+         // Format the current date and time
+         const currentDate = moment().format('DD/MM/YYYY');
+         const currentTime = moment().format('HH:mm:ss');
+
         //Create a new document in the Calibration exceed collection
         const newEntry = new CalibrationExceed({
             parameter,
             value,
+            timestamp: moment().toDate(), // Store current date and time
+            formattedDate: currentDate, // Store formatted date
+            formattedTime: currentTime, // Store formatted time
             message:`Value Exceed in ${parameter} of ${value}`
         })
 
