@@ -11,13 +11,23 @@ const {
     editUser,
     deleteUser,
     getAUser,
-    changeCurrentPassword
+    changeCurrentPassword,
+    getAllDeviceCredentials
+  
+   
+    
 }=require('../controllers/user');
 const authenticate = require('../middleware/authenticate');
+const multer = require('multer');
+
 
 const router=express.Router();
 
-router.post('/register',register);
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
+router.post('/register', upload.fields([{ name: 'key', maxCount: 1 }, { name: 'cert', maxCount: 1 }, { name: 'ca', maxCount: 1 }]), register);
 router.post('/login',login);
 router.get('/validuser',authenticate, validuser);
 router.get('/logout',authenticate, logout);
@@ -29,5 +39,9 @@ router.patch('/edituser/:userId',editUser);
 router.delete('/deleteuser/:userName',deleteUser);
 router.get('/getauser/:userId', getAUser)
 router.post('/changePassword/:id/:token', changeCurrentPassword);
+
+
+
+
 
 module.exports=router;

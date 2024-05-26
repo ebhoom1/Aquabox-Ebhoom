@@ -1,11 +1,20 @@
 const IotData = require('../models/iotData')
+const userdb = require('../models/user');
 
 
-//Function to handle Mqtt Messages and save the data to MongoDB
+// Function to handle Mqtt Messages and save the data to MongoDB
 const handleSaveMessage = async (data) => {
     try {
+        // Fetch user information from the database
+        const user = await userdb.findById(data.userId);
+
+        if (!user) {
+            throw new Error('User not found');
+        }
+
         // Create a new document based on the received data
         const newEntry = new IotData({
+            product_id:data.product_id,
             ph: data.ph,
             TDS: data.tds,
             turbidity: data.turbidity,
@@ -18,7 +27,9 @@ const handleSaveMessage = async (data) => {
             ammonicalNitrogen: data.ammonicalNitrogen,
             DO: data.DO,
             chloride: data.chloride,
-            timestamp: new Date()
+            timestamp: new Date(),
+            userId: data.userId,
+            userName: data.userName, 
         });
 
         // Log the new entry object

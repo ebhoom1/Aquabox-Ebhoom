@@ -1,7 +1,10 @@
+const { required } = require('joi');
 const mongoose = require('mongoose');
 
 const iotDataSchema = new mongoose.Schema({
-   
+   product_id:{
+    type:String,
+   },
     ph:{
         type:String,
     },
@@ -69,6 +72,15 @@ const iotDataSchema = new mongoose.Schema({
     DB:{
         type:String,
     },
+    date:{
+        type:String,
+    },
+    time:{
+        type:String
+    },
+    userId: { type: String },
+    userName: { type: String },
+   
     timestamp: {
          type: Date, 
          default: Date.now

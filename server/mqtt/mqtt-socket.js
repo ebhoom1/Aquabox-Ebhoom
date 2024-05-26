@@ -4,67 +4,73 @@ const fs = require('fs');
 const iotData =require('../controllers/iotData');
 const calibrationExceed =require('../controllers/calibrationExceed')
 
-const KEY = path.resolve(__dirname, './creds/ebhoom-v1-device-private.pem.key');
-const CERT = path.resolve(__dirname, './creds/ebhoom-v1-device-certificate.pem.crt');
-const CAfile = path.resolve(__dirname, './creds/ebhoom-v1-device-AmazonRootCA1.pem');
 
-const setupMqttClient = (io) => {
-    // MQTT connection options
+
+
+
+const setupMqttClient = (io, deviceCredentials) => {
+    const { host, clientId, key, cert, ca, userId,userName } = deviceCredentials;
+
+    if (!host || !clientId || !key || !cert || !ca) {
+        console.error('Invalid device credentials:', deviceCredentials);
+        return;
+    }
+
     const options = {
-        host: 'a3gtwu0ec0i4y6-ats.iot.ap-south-1.amazonaws.com',
-        protocol: 'mqtts', // Use 'mqtts' for secure connection
+        host,
+        protocol: 'mqtts',
         keepalive: 30,
-        clientId: 'sijo1234',
+        clientId,
         clean: true,
-        key: fs.readFileSync(KEY),
-        cert: fs.readFileSync(CERT),
-        ca: fs.readFileSync(CAfile),
+        key: Buffer.from(key, 'base64'),
+        cert: Buffer.from(cert, 'base64'),
+        ca: Buffer.from(ca, 'base64')
     };
 
-    // Create MQTT client and connect to the broker
     const client = mqtt.connect(options);
-   
-    // Handle MQTT client events
-    client.on('connect', () => { 
-        
-        console.log('Connected to MQTT broker',);
+
+    client.on('connect', () => {
+        console.log(`Connected to MQTT broker for clientId: ${clientId}`);
         client.subscribe('ebhoomPub', (err) => {
             if (!err) {
-                console.log('Subscribed to topic');
+                console.log(`Subscribed to topic for clientId: ${clientId}`);
             } else {
-                console.error('Subscription error:', err);
+                console.error(`Subscription error for clientId: ${clientId}:`, err);
             }
         });
     });
 
-    // Handle MQTT client events
-client.on('message', async (topic, message) => {
-    try {
-        const data = JSON.parse(message.toString());
-        console.log('Received message:', data);
+    client.on('message', async (topic, message) => {
+        try {
+            const data = JSON.parse(message.toString());
+            console.log(`Received message for clientId: ${clientId}:`, data);
 
-        // Check the topic and handle accordingly
-        if (topic === 'ebhoomPub' && data && data.product_id) {
-            // Call the controller function to handle the message and save data to MongoDB
-            await iotData.handleSaveMessage(data);
+            // Include user information in the data
+           
+            data.userId = userId;
+            data.userName = userName;
+           
 
-            // Call the function to handle exceed values
-            await calibrationExceed.handleExceedValues(data);
-
-            // Emit data to connected clients
-            io.to(data.product_id.toString()).emit('data', data);
+            if (topic === 'ebhoomPub' && data && data.product_id) {
+                await iotData.handleSaveMessage(data);
+                await calibrationExceed.handleExceedValues(data);
+                io.to(data.product_id.toString()).emit('data', data);
+            }
+        } catch (error) {
+            console.error(`Error handling message for clientId: ${clientId}:`, error);
         }
-    } catch (error) {
-        console.error('Error handling message:', error);
-    }
-});
-    
+    });
 
     client.on('error', (err) => {
-        console.error('MQTT error:', err);
+        console.error(`MQTT error for clientId: ${clientId}:`, err);
     });
 
     return client;
 };
 
+
+
 module.exports = setupMqttClient;
+
+
+

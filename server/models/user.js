@@ -75,7 +75,24 @@ const userSchema=new mongoose.Schema({
         type: Number,
         required:true
     },
-  
+    
+    deviceCredentials: {
+        host: {
+            type: String,
+        },
+        clientId: {
+            type: String,
+        },
+        key: {
+            type: Buffer,
+        },
+        cert: {
+            type: Buffer,
+        },
+        ca: {
+            type: Buffer,
+        }
+    },
     tokens:[
         {
             token:{

@@ -4,10 +4,12 @@ const bcrypt=require('bcryptjs');
 const nodemailer=require('nodemailer');
 const jwt=require('jsonwebtoken');
 const authenticate = require('../middleware/authenticate');
-const { default: mongoose } = require('mongoose');
-const router=express.Router()
+
+
+
 
 const keysecret=process.env.SECRET_KEY
+
 
 //email config
 const transporter=nodemailer.createTransport({
@@ -22,33 +24,43 @@ const transporter=nodemailer.createTransport({
 })
 
 
-//For User Registration
-
-const register=async(req,res)=>{
-    const {userName , companyName,modelName, fname,email,password,cpassword,subscriptionDate,userType,industryType, dataInteval,district,state,address,latitude,longitude}=req.body
 
 
-    try{
-        const preuser=await userdb.findOne({email:email})
-        if(preuser){
-            return res.status(422).json({error:"This Email Already Register"})
-        }else if(password !== cpassword){
-            return res.status(422).json({error:"Password and Confirm Password not Match"})
+// For User Registration
+const register = async (req, res) => {
+    const { userName, companyName, modelName, fname, email, password, cpassword, subscriptionDate, userType, industryType, dataInteval, district, state, address, latitude, longitude, host, clientId } = req.body;
+    const { key, cert, ca } = req.files;
 
-        }else {
-            const finalUser=new userdb({
-               userName, companyName,modelName, fname,email,password,cpassword,subscriptionDate,userType,industryType, dataInteval,district,state,address,latitude,longitude
-            });
-            const storeData=await finalUser.save();
-            return res.status(201).json({ status:201, storeData})
-            
+    try {
+        if (!key || !cert || !ca) {
+            return res.status(422).json({ error: "All device credentials (key, cert, ca) are required." });
         }
-    }catch (error){
-        console.log(`Error : ${error}`);
-        return res.status(400).json(error)
-    }
 
-}
+        const preuser = await userdb.findOne({ email: email });
+        if (preuser) {
+            return res.status(422).json({ error: "This Email Already Register" });
+        } else if (password !== cpassword) {
+            return res.status(422).json({ error: "Password and Confirm Password not Match" });
+        } else {
+            const finalUser = new userdb({
+                userName, companyName, modelName, fname, email, password, cpassword, subscriptionDate, userType, industryType, dataInteval, district, state, address, latitude, longitude,
+                deviceCredentials: {
+                    host,
+                    clientId,
+                    key: key[0].buffer,
+                    cert: cert[0].buffer,
+                    ca: ca[0].buffer
+                }
+            });
+            const storeData = await finalUser.save();
+            return res.status(201).json({ status: 201, storeData });
+        }
+    } catch (error) {
+        console.log(`Error : ${error}`);
+        return res.status(400).json(error);
+    }
+};
+
 
 // user login
 
@@ -329,5 +341,30 @@ const getAUser=async (req,res)=>{
         }
     }
 
-
-module.exports={register,login,validuser,logout,sendPasswordLink,forgotPassword,changePassword, getAllUsers, editUser, deleteUser,getAUser,changeCurrentPassword}
+const getDeviceCredentidals = async(userId)=>{
+    try {
+        const user = await userdb.findById(userId)
+        if(!user || !user.deviceCredentials){
+            throw new Error('Device credentials not found for this user');
+        }
+        return user.deviceCredentials;
+    } catch (error) {
+        console.error(`Error fetching device credentials:`,error);
+        throw error;
+    }
+}
+const getAllDeviceCredentials = async(req,res)=>{
+    try {
+        const users =await userdb.find({});
+        return users.map(user=>({
+            userId:user._id,
+            userName:user.userName,
+            deviceCredentials:user.deviceCredentials
+        }));
+        
+    } catch (error) {
+        console.error('Error fetching all device credentials:', error);
+        throw error;
+    }
+}
+module.exports={register,login,validuser,logout,sendPasswordLink,forgotPassword,changePassword, getAllUsers, editUser, deleteUser,getAUser,changeCurrentPassword,getDeviceCredentidals,getAllDeviceCredentials}
