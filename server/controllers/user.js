@@ -28,7 +28,7 @@ const transporter=nodemailer.createTransport({
 
 // For User Registration
 const register = async (req, res) => {
-    const { userName, companyName, modelName, fname, email, password, cpassword, subscriptionDate, userType, industryType, dataInteval, district, state, address, latitude, longitude, host, clientId } = req.body;
+    const { userName, companyName, modelName, fname, email,mobileNumber, password, cpassword, subscriptionDate, userType, industryType, dataInteval, district, state, address, latitude, longitude, host, clientId } = req.body;
     const { key, cert, ca } = req.files;
 
     try {
@@ -43,7 +43,7 @@ const register = async (req, res) => {
             return res.status(422).json({ error: "Password and Confirm Password not Match" });
         } else {
             const finalUser = new userdb({
-                userName, companyName, modelName, fname, email, password, cpassword, subscriptionDate, userType, industryType, dataInteval, district, state, address, latitude, longitude,
+                userName, companyName, modelName, fname, email,mobileNumber, password, cpassword, subscriptionDate, userType, industryType, dataInteval, district, state, address, latitude, longitude,
                 deviceCredentials: {
                     host,
                     clientId,

@@ -60,7 +60,7 @@ app.use((err, req, res, next) => {
 const initializeMqttClients = async (io) => {
     try {
         const allDeviceCredentials = await getAllDeviceCredentials();
-        allDeviceCredentials.forEach(({ userId,userName, deviceCredentials }) => {
+        allDeviceCredentials.forEach(({ userId,userName,email,mobileNumber, deviceCredentials }) => {
             if (deviceCredentials && deviceCredentials.host && deviceCredentials.clientId && deviceCredentials.key && deviceCredentials.cert && deviceCredentials.ca) {
                 try {
                     setupMqttClient(io, { ...deviceCredentials, userId, userName });
