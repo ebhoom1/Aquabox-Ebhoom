@@ -2,6 +2,7 @@ const CalibrationExceed = require('../models/calibrationExceed')
 const moment = require('moment')
 const twilio = require('twilio');
 const nodemailer = require('nodemailer');
+const userdb = require('../models/user');
 
 //Create a new Twilio client
 
@@ -147,40 +148,47 @@ const editComments =async(req,res)=>{
 
 const handleExceedValues = async (data)=>{
     try {
-        //Check if the pH exceeds the threshold
+         // Fetch user information
+        const user =await userdb.findById(data.userId);
+
+        if(!user){
+            throw new Error('User not found')
+        }
+          //Check if the pH exceeds the threshold
         if(data.ph > 25){
-            await saveExceedValue(`pH`,data.ph);
-            await sendNotification(`pH`,data.ph);
+            await saveExceedValue(`pH`,data.ph,user);
+            await sendNotification(`pH`,data.ph,user);
         }
         // Check if  the turbitiy exceed the threshold
         if(data.turbidity > 105){
-            await saveExceedValue(`Turbidity`,data.turbidity);
-            await sendNotification('Turbidity', data.turbidity);
+            await saveExceedValue(`Turbidity`,data.turbidity,user);
+            await sendNotification('Turbidity', data.turbidity,user);
 
         }
         // Check if the ORP exceeds the threshold
         if (data.orp > 1500){
-            await saveExceedValue(`ORP`,data.orp)
-            await sendNotification('ORP', data.orp);
+            await saveExceedValue(`ORP`,data.orp,user)
+            await sendNotification('ORP', data.orp,user);
         }
     } catch (error) {
         console.error(`Error handling exceed values:`,error);
     }
 };
-const sendNotification =async(parameter,value)=>{
+const sendNotification =async(parameter,value,user)=>{
     try {
         const message = `Your calibration for ${parameter} exceed the threshold the value is ${value}`
 
         //Send email notification
-        await sendEmail('info.ebhoom@gmail.com','Calibration Exceed Notification',message)
+
+        await sendEmail(user.email,'Calibration Exceed Notification',message)
 
         //Send SMS notification
-        await sendSMS('+917736538040',message)
+        await sendSMS(user.mobileNumber,message)
     } catch (error) {
         console.error(`Error sending notification:`, error);
     }
 }
-const saveExceedValue = async (parameter,value)=>{
+const saveExceedValue = async (parameter,value,user)=>{
     try {
 
          // Format the current date and time
@@ -194,7 +202,9 @@ const saveExceedValue = async (parameter,value)=>{
             timestamp: moment().toDate(), // Store current date and time
             formattedDate: currentDate, // Store formatted date
             formattedTime: currentTime, // Store formatted time
-            message:`Value Exceed in ${parameter} of ${value}`
+            message:`Value Exceed in ${parameter} of ${value}`,
+            userId: user._id,
+            userName: user.userName
         })
 
         //Save the document to DB
