@@ -3,6 +3,7 @@ const moment = require('moment')
 const twilio = require('twilio');
 const nodemailer = require('nodemailer');
 const userdb = require('../models/user');
+const {createNotification} = require('../controllers/notification');
 
 //Create a new Twilio client
 
@@ -177,13 +178,18 @@ const handleExceedValues = async (data)=>{
 const sendNotification =async(parameter,value,user)=>{
     try {
         const message = `Your calibration for ${parameter} exceed the threshold the value is ${value}`
-
+        const currentDate = moment().format('DD/MM/YYYY');
+        const currentTime = moment().format('HH:mm:ss');
         //Send email notification
 
         await sendEmail(user.email,'Calibration Exceed Notification',message)
 
         //Send SMS notification
-        await sendSMS(user.mobileNumber,message)
+        if (user.mobileNumber) {
+            await sendSMS(user.mobileNumber, message);
+        }
+        //Add notification to the database
+        await createNotification(message,user._id,user.userName,currentDate,currentTime )
     } catch (error) {
         console.error(`Error sending notification:`, error);
     }
@@ -204,7 +210,9 @@ const saveExceedValue = async (parameter,value,user)=>{
             formattedTime: currentTime, // Store formatted time
             message:`Value Exceed in ${parameter} of ${value}`,
             userId: user._id,
-            userName: user.userName
+            userName: user.userName,
+            industryType: user.industryType,
+            companyName: user.companyName
         })
 
         //Save the document to DB

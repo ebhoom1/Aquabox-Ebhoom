@@ -11,6 +11,8 @@ const calibrationExceedSchema = new mongoose.Schema({
     message:{type:String},
     formattedDate:{type:String},
     formattedTime:{type:String},
+    industryType: { type: String },
+    companyName: { type: String },
     timestamp: { type: Date, default: Date.now }
 });
 

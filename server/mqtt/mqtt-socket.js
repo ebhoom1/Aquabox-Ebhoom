@@ -9,7 +9,7 @@ const calibrationExceed =require('../controllers/calibrationExceed')
 
 
 const setupMqttClient = (io, deviceCredentials) => {
-    const { host, clientId, key, cert, ca, userId,userName } = deviceCredentials;
+    const { host, clientId, key, cert, ca, userId,userName,email,mobileNumber} = deviceCredentials;
 
     if (!host || !clientId || !key || !cert || !ca) {
         console.error('Invalid device credentials:', deviceCredentials);
@@ -49,6 +49,8 @@ const setupMqttClient = (io, deviceCredentials) => {
            
             data.userId = userId;
             data.userName = userName;
+            data.mobileNumber =mobileNumber;
+            data.email = email;
            
 
             if (topic === 'ebhoomPub' && data && data.product_id) {

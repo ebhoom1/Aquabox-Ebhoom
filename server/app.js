@@ -5,10 +5,15 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const DB = require('./config/DB');
+
 const userRoutes = require('./routers/user');
 const calibrationRoutes = require('./routers/calibration');
 const notificationRoutes = require('./routers/notification');
-const calibrationExceedRoutes= require('./routers/calibrationExceed')
+const calibrationExceedRoutes= require('./routers/calibrationExceed');
+const calculateAverageRoute = require('./routers/calculateAverage');
+const reportRoutes=require('./routers/report');
+
+
 const mongoose = require('mongoose');
 const multer = require('multer');
 const GridFsStorage = require('multer-gridfs-storage');
@@ -21,6 +26,8 @@ const app = express();
 const port = process.env.PORT || 5555;
 const server = http.createServer(app);
 const io = socketIO(server);
+const cron = require('node-cron');
+const { calculateAndSaveAverages } = require('./controllers/iotData');
 
 // Database connection
 DB();
@@ -47,7 +54,8 @@ app.use('/api', userRoutes);
 app.use('/api', calibrationRoutes);
 app.use('/api', notificationRoutes);
 app.use('/api', calibrationExceedRoutes);
-
+app.use('/api', calculateAverageRoute);
+app.use('/api', reportRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -56,6 +64,12 @@ app.use((err, req, res, next) => {
 });
 
 
+// Schedule the averages calculation every hour
+cron.schedule('0 * * * *', async () => {
+    await calculateAndSaveAverages();
+    console.log('Averages calculated and saved.');
+});
+
 // Initialize all MQTT clients at server startup
 const initializeMqttClients = async (io) => {
     try {
@@ -63,7 +77,7 @@ const initializeMqttClients = async (io) => {
         allDeviceCredentials.forEach(({ userId,userName,email,mobileNumber, deviceCredentials }) => {
             if (deviceCredentials && deviceCredentials.host && deviceCredentials.clientId && deviceCredentials.key && deviceCredentials.cert && deviceCredentials.ca) {
                 try {
-                    setupMqttClient(io, { ...deviceCredentials, userId, userName });
+                    setupMqttClient(io, { ...deviceCredentials, userId, userName,email,mobileNumber });
                 } catch (error) {
                     console.error(`Error setting up MQTT client for user ${userId}:`, error);
                 }
@@ -88,5 +102,5 @@ io.on('connection', (socket) => {
 // Start the server and set up Socket.IO
 server.listen(port, () => {
     console.log(`Server Connected - ${port}`);
-    initializeMqttClients(io); // Initialize all MQTT clients at startup
+ // initializeMqttClients(io); // Initialize all MQTT clients at startup
 });

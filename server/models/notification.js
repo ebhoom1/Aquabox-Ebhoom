@@ -8,13 +8,22 @@ const notificationSchema = new mongoose.Schema({
     adminName:{
         type: String,
     },
-    dateOfCalibrationAdded:{
+    userId:{
+        type:String,
+    },
+    userName:{
+        type:String
+    },
+
+    dateOfNotificationAdded:{
         type: String,
     },
-    timeOfCalibrationAdded:{
+    timeOfNotificationAdded:{
         type: String,
     },
-    
+    subject:{
+        type:String,
+    },
     message:{
         type:String
     },

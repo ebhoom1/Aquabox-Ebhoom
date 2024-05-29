@@ -8,8 +8,8 @@ const addNotification = async (req,res) =>{
             message,
             adminID,
             adminName,
-            dateOfCalibrationAdded,
-            timeOfCalibrationAdded,
+            dateOfNoticationAdded,
+            timeOfNoticationAdded,
             
         } =req.body
 
@@ -17,8 +17,8 @@ const addNotification = async (req,res) =>{
         const newNotification = new Notification({message,
             adminID,
             adminName,
-            dateOfCalibrationAdded,
-            timeOfCalibrationAdded,
+            dateOfNoticationAdded,
+            timeOfNoticationAdded,
             })
         //Save the New Notification
         await newNotification.save()
@@ -36,7 +36,32 @@ const addNotification = async (req,res) =>{
         })
     }
 }
-
+//Add Notification for UserId
+const createNotification = async (message,userId,userName,  dateOfNoticationAdded,
+    timeOfNoticationAdded,req,res)=>{
+    try{
+        const newNotification = new Notification({
+            subject:"Calibration Exceed",
+            message,
+            userId:userId,
+            userName:userName,
+            dateOfNoticationAdded,
+            timeOfNoticationAdded
+            
+        });
+        await newNotification.save();
+        console.log('Notification Created:',newNotification);
+        
+    }catch(error){
+        console.error("Error Creating notification:",error);
+        res.status(500).json({
+            status:500,
+            success:false,
+            message:"Error in creating Notification",
+            errro:error.message
+        })
+    }
+}
 //View Notification
 const viewNotification = async (req,res)=>{
     try {
@@ -52,6 +77,28 @@ const viewNotification = async (req,res)=>{
         res.status(500).json({
             success:false,
             message:"Error in Fetching all Notification",
+            error:error.message
+        })
+    }
+}
+
+const getNotificationOfUser =async(req,res)=>{
+    try {
+        const {userId} = req.params;
+        //Retrieve Notification of the specific user from db
+        const userNotifications =await Notification.find({userId});
+
+        res.status(200).json({
+            status:200,
+            success:true,
+            message:`Notifications for user ${userId} fetched successfully`,
+            notifications: userNotifications,
+        })
+    } catch (error) {
+        res.status(500).json({
+            status:500,
+            success:false,
+            message:`Error in Fetching Notification`,
             error:error.message
         })
     }
@@ -87,4 +134,4 @@ const deleteNotification = async(req,res)=>{
     }
 }
 
-module.exports ={addNotification,viewNotification,deleteNotification};
+module.exports ={addNotification,viewNotification,deleteNotification,getNotificationOfUser,createNotification};

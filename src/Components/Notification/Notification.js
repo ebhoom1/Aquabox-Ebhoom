@@ -5,12 +5,11 @@ import { toast,ToastContainer } from 'react-toastify';
 const Notification = () => {
     const [userNotification,setUserNotification] = useState(null)
     const url ="http://localhost:4444"
-    const deployed_url = 'https://aquabox-ebhoom-3.onrender.com'
 
     useEffect(()=>{
         const fetchNotification =async () =>{
             try {
-                const response = await axios.get(`${deployed_url}/api/view-notification`);
+                const response = await axios.get(`${url}/api/view-notification`);
                 const userNotification = response.data.notification;
                 console.log("user Notification :",userNotification);
                 setUserNotification(userNotification)
@@ -25,7 +24,7 @@ const Notification = () => {
         try {
             const shouldDelete = window.confirm('Are you sure?')
             if(shouldDelete){
-                const res = await axios.delete(`${deployed_url}/delete-notification/${notificationId}`)
+                const res = await axios.delete(`${url}/api/delete-notification/${notificationId}`)
                 if(res.status === 200){
                     setUserNotification(prevNotification=>prevNotification.filter(notification=>notification._id !== notificationId))
                     toast.success("Notification deleted Successfully"
@@ -93,7 +92,6 @@ const Notification = () => {
                     <th>{notification.adminID}</th>
                     <th>{notification.adminName}</th>
                     <th>{notification.message}</th>
-                    
                     
                     <td><button type="button"  className="btn btn-danger mb-2" onClick={()=>handleDeleteNotification(notification._id)}> Delete </button></td>
 

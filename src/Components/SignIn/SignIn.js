@@ -15,7 +15,6 @@ const SignIn = () => {
   });
   const history = useNavigate();
   const url = 'http://localhost:4444'
-  const deployed_url = 'https://aquabox-ebhoom-3.onrender.com'
 
   const setVal = (e) => {
     const { name, value } = e.target;

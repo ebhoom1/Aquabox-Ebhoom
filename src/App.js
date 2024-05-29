@@ -41,7 +41,6 @@ function App() {
   const { setLoginData } = useContext(LoginContext);
   const navigate  = useNavigate();
   const url = 'http://localhost:4444'
-  const deployed_url = 'https://aquabox-ebhoom-3.onrender.com'
 
   useEffect(() => {
     const fetchData = async () => {

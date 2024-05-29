@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-const Calibration = require('../models/calibration'); // Import the Calibration model
+const Calibration = require('../models/calibration'); 
+const Notification = require('../models/notification')
 
 // Controller function to add a calibration
 const addCalibration = async (req, res) => {
@@ -167,5 +168,49 @@ const deleteCalibration = async (req, res) => {
     }
 };
 
+const checkAndSendNotification =async(req,res)=>{
+    try {
+        const tomorrow = new Date();
+        
+        tomorrow.setDate(tomorrow.getDate()+1);
+        const tomorrowDateString = tomorrow.toISOString().split('T')[0];
 
-module.exports = { addCalibration,viewAllCalibrations,findCalibrationByUserName,editCalibration,deleteCalibration};
+        const calibrationDue = await Calibration.find({date:tomorrowDateString})
+
+        calibrationDue.forEach(async (calibration)=>{
+            const notificationMessage = `Calibration is scheduled for ${calibration.userName} on ${calibration.date}.`;
+            const currentDate = new Date();
+            const dateOfNotificationAdded = currentDate.toISOString().split('T')[0];
+            const timeOfNotificationAdded = currentDate.toTimeString().split(' ')[0];
+            //Creating notification for user
+            const userNotification = new Notification({
+                message: notificationMessage,
+                userId: calibration.userId,
+                userName: calibration.userName,
+                dateOfNotificationAdded,
+                timeOfNotificationAdded
+            })
+            await userNotification.save()
+
+            // Create Notification for admin
+            const adminNotification = new Notification({
+                message: notificationMessage,
+                adminID: calibration.adminID,
+                adminName: calibration.adminName,
+                dateOfNotificationAdded,
+                timeOfNotificationAdded
+            });
+            await adminNotification.save();
+
+            console.log(`Notification sent:`, notificationMessage)
+        })
+    } catch (error) {
+        console.error(`Error in sending Notifications:`,error);
+    }
+};
+
+//Schedule the function to run every day
+setInterval(checkAndSendNotification, 24*60*60*1000);
+
+
+module.exports = { addCalibration,viewAllCalibrations,findCalibrationByUserName,editCalibration,deleteCalibration,checkAndSendNotification};
