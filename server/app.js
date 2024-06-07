@@ -33,7 +33,7 @@ DB();
 
 // Middleware
 app.use(cors({
-    origin:['http://localhost:3000','https://aquabox-ebhoom-3.onrender.com'] ,
+    origin:['http://localhost:3000','http://13.50.61.71:5555'] ,
     credentials: true
 }));
 app.use(cookieParser());
