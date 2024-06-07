@@ -50,7 +50,7 @@ const CalibrationExceeded = () => {
 
   const handleAddComment = async (id, commentField) => {
     try {
-      const response = await axios.post(`${url}/api/add-comments`, {
+      const response = await axios.post(`${API_URL}/api/add-comments`, {
         [commentField]: currentComment
       });
       setEntries(entries.map(entry => entry.id === id ? { ...entry, [commentField]: currentComment } : entry));
@@ -64,7 +64,7 @@ const CalibrationExceeded = () => {
 
   const handleEditComment = async (id, commentField) => {
     try {
-      const response = await axios.put(`${url}/api/edit-comments/${id}`, {
+      const response = await axios.put(`${API_URL}/api/edit-comments/${id}`, {
         [commentField]: currentComment
       });
       setEntries(entries.map(entry => entry.id === id ? { ...entry, [commentField]: currentComment } : entry));
