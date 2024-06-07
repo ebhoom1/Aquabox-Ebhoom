@@ -14,8 +14,6 @@ const calculateAverageRoute = require('./routers/calculateAverage');
 const reportRoutes=require('./routers/report');
 
 
-const mongoose = require('mongoose');
-const multer = require('multer');
  
 const { getAllDeviceCredentials } = require('./controllers/user');
 const setupMqttClient = require('./mqtt/mqtt-socket');
