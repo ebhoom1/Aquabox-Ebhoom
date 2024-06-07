@@ -9,7 +9,7 @@ export const sendResetLink = createAsyncThunk(
     'resetPasswordEmail/sendResetLink',
     async(email,{rejectWithValue})=>{
         try {
-            const response = await axios.post(`${LOCAL_API_URL}/api/sendpasswordlink`,{email},{
+            const response = await axios.post(`${API_URL}/api/sendpasswordlink`,{email},{
                 headers:{
                     'Content-Type':'application/json'
                 }

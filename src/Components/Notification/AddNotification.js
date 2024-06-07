@@ -5,6 +5,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useEffect } from 'react';
+import { API_URL,LOCAL_API_URL } from '../../utils/apiConfig';
 import axios from 'axios';
 
 const AddNotification = () => {
@@ -40,7 +41,7 @@ const AddNotification = () => {
                 adminName:validUserData.fname
             };
             console.log('NotificationDataToSend',notificationDataToSend);
-            const res = await axios.post(`${url}/api/add-notificaiton`,notificationDataToSend)
+            const res = await axios.post(`${API_URL}/api/add-notificaiton`,notificationDataToSend)
 
             if(res.status === 201){
                 const shouldSave=window.confirm("Are you sure to add this notification?");
@@ -66,7 +67,7 @@ const AddNotification = () => {
     const fetchData = async()=>{
         try {
             let token = localStorage.getItem("userdatatoken")
-            const res = await axios.get(`${deployed_url}/api/validuser`,{
+            const res = await axios.get(`${API_URL}/api/validuser`,{
                 headers:{
                     'Content-Type':"application/json",
                     'Authorization':token,

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Link } from "react-router-dom";
 import axios from 'axios';
 import { toast,ToastContainer } from 'react-toastify';
+import { API_URL } from '../../utils/apiConfig';
 const Notification = () => {
     const [userNotification,setUserNotification] = useState(null)
     const url ="http://localhost:4444"
@@ -9,7 +10,7 @@ const Notification = () => {
     useEffect(()=>{
         const fetchNotification =async () =>{
             try {
-                const response = await axios.get(`${url}/api/view-notification`);
+                const response = await axios.get(`${API_URL}/api/view-notification`);
                 const userNotification = response.data.notification;
                 console.log("user Notification :",userNotification);
                 setUserNotification(userNotification)
@@ -24,7 +25,7 @@ const Notification = () => {
         try {
             const shouldDelete = window.confirm('Are you sure?')
             if(shouldDelete){
-                const res = await axios.delete(`${url}/api/delete-notification/${notificationId}`)
+                const res = await axios.delete(`${API_URL}/api/delete-notification/${notificationId}`)
                 if(res.status === 200){
                     setUserNotification(prevNotification=>prevNotification.filter(notification=>notification._id !== notificationId))
                     toast.success("Notification deleted Successfully"

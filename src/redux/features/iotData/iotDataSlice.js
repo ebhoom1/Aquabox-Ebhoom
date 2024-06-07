@@ -9,7 +9,7 @@ export const fetchLatestIotData = createAsyncThunk(
     'iotData/fetchLatestIotData',
     async(userName,{rejectWithValue})=>{
         try {
-            const response = await axios.get(`${LOCAL_API_URL}/api/latest-iot-data/${userName}`);
+            const response = await axios.get(`${API_URL}/api/latest-iot-data/${userName}`);
             return response.data.data[0] || {};
         } catch (error) {
             return rejectWithValue(error.response.data);

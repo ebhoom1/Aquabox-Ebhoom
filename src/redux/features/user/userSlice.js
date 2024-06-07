@@ -14,7 +14,7 @@ export const fetchUser = createAsyncThunk(
       const response =
       
       
-      await axios.get(`${LOCAL_API_URL}/api/validuser`, {
+      await axios.get(`${API_URL}/api/validuser`, {
         headers: {
           "Content-Type": "application/json",
           "Authorization": token,
@@ -31,7 +31,7 @@ export const fetchNotifications = createAsyncThunk(
   'user/fetchNotifications',
   async (userName, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${LOCAL_API_URL}/api/get-notification-of-user/${userName}`);
+      const response = await axios.get(`${API_URL}/api/get-notification-of-user/${userName}`);
       return response.data.notifications;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -44,7 +44,7 @@ export const logoutUser = createAsyncThunk(
   async (_, { rejectWithValue, dispatch }) => {
     try {
       let token = localStorage.getItem('userdatatoken');
-      const response = await axios.get(`${LOCAL_API_URL}/api/logout`, {
+      const response = await axios.get(`${API_URL}/api/logout`, {
         headers: {
           'Content-Type': "application/json",
           'Authorization': token,
