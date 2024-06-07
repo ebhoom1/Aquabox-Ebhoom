@@ -880,7 +880,13 @@
 .card .card-header {
   background: #fff;
 }
+<<<<<<< HEAD
 
+=======
+.strong-value {
+  color: red;
+}
+>>>>>>> 262d3f8 (initial commit)
 .form-inline {
   display: flex;
   justify-content: flex-end;

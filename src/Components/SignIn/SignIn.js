@@ -1,20 +1,21 @@
 import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./index.css";
-import LeftSideBar from "../LeftSideBar/LeftSideBar";
+import { loginUser } from "../../redux/features/auth/authSlice";
 
 const SignIn = () => {
   const [passShow, setPassShow] = useState(false);
   const [inpval, setInpval] = useState({
     email: "",
     password: "",
-    userType: "",
+    userType: "select",
   });
-  const history = useNavigate();
-  const url = 'http://localhost:4444'
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { loading, error } = useSelector((state) => state.auth);
 
   const setVal = (e) => {
     const { name, value } = e.target;
@@ -35,50 +36,44 @@ const SignIn = () => {
     const { email, password, userType } = inpval;
 
     if (email === "") {
-      toast.error("email is required!", {
-        position: "top-center",
-      });
+      toast.error("Email is required!");
     } else if (!email.includes("@")) {
-      toast.warning("includes @ in your email!", {
-        position: "top-center",
-      });
+      toast.warning("Please include '@' in your email!");
     } else if (userType === "select") {
-      toast.error("Please select the user Type", {
-        position: "top-center",
-      });
+      toast.error("Please select the user type");
     } else if (password === "") {
-      toast.error("password is required!", {
-        position: "top-center",
-      });
+      toast.error("Password is required!");
     } else if (password.length < 6) {
-      toast.error("password must be 6 char!", {
-        position: "top-center",
-      });
+      toast.error("Password must be at least 6 characters!");
     } else {
-      try {
-        const response = await axios.post(
-          `${url}/api/login`,
-          { email, password, userType }
-        );
-        const { status, result } = response.data;
-
-        if (status === 200) {
-          localStorage.setItem("userdatatoken", result.token);
-          history("/users-log");
-          setInpval({ ...inpval, email: "", password: "", userType: "" });
-        } else {
-          toast.error("Invalid Credentials", {
-            position: "top-center",
-          });
-        }
-      } catch (error) {
-        console.error("Error Logging In :", error);
-
-        toast.error("An error Occured. Please try again later.", {
-          position: "top-center",
+      dispatch(loginUser({ email, password, userType }))
+        .unwrap()
+        .then((result) => {
+          if (userType === 'admin' && result.userType !== 'admin') {
+            toast.error("User type does not match!");
+          } else if (userType === 'user' && result.userType !== 'user') {
+            toast.error("User type does not match!");
+          } else {
+            if (userType === 'admin') {
+              navigate('/users-log');
+            } else if (userType === 'user') {
+              navigate('/account');
+            }
+            setInpval({ email: '', password: '', userType: 'select' });
+          }
+        })
+        .catch((error) => {
+          toast.error('Invalid credentials');
+          console.log("Error from catch signIn:", error);
+          localStorage.removeItem('userdatatoken');
         });
-      }
     }
+  };
+
+  const renderError = () => {
+    if (!error) return null;
+    if (typeof error === 'object') return JSON.stringify(error);
+    return error;
   };
 
   return (
@@ -88,7 +83,7 @@ const SignIn = () => {
         <div className="row">
           <div className="col-12 col-lg-6 blue-box">
             <h1 className="blue-box-text">
-               Pollution Monitoring Application
+              Pollution Monitoring Application
             </h1>
           </div>
           <div className="col-12 col-lg-6 padd pt-4">
@@ -104,6 +99,7 @@ const SignIn = () => {
                   id="email"
                   className="input-field"
                   placeholder="Email"
+                  autoComplete="email"
                 />
               </div>
               <div className="mb-4">
@@ -115,6 +111,7 @@ const SignIn = () => {
                   id="password"
                   placeholder="Enter Your password"
                   className="input-field"
+                  autoComplete="current-password"
                 />
                 <div
                   className="showpass"
@@ -135,16 +132,18 @@ const SignIn = () => {
                 <option value="select">Select</option>
                 <option value="admin">Admin</option>
                 <option value="user">User</option>
-                
               </select>
               <button
                 type="submit"
                 className="signin-button"
                 onClick={loginuser}
+                disabled={loading}
               >
                 Sign In
               </button>
             </form>
+            
+            {error && <div className="error">{renderError()}</div>}
             <ToastContainer />
           </div>
         </div>

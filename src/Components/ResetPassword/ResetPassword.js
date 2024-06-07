@@ -1,41 +1,35 @@
-import { Component, useState } from "react";
-import {Link,useParams} from 'react-router-dom'
-import "./index.css";
+import {  useEffect, useState } from "react";
+import {Link,useParams, useNavigate, Navigate} from 'react-router-dom'
+
 import {ToastContainer,toast} from 'react-toastify';
 import axios from 'axios';
-import { useForm } from "react-hook-form";
-
-import { useEffect } from 'react';
-import { useNavigate } from "react-router-dom";
+import { useDispatch,useSelector } from "react-redux";
+import { validateUser,resetPassword,clearState } from "../../redux/features/auth/resetPassowordSlice";
+import "./index.css";
+import 'react-toastify/dist/ReactToastify.css';
 
 const ResetPassword = () => { 
 
  const {id,token}= useParams();
- const history = useNavigate();
+ const navigate = useNavigate();
+ const dispatch = useDispatch();
+ const {loading,error,success} = useSelector((state)=>state.resetPassword);
 
- const [data2,setData]=useState("");
  const [password,setPassword]=useState("");
  const [cpassword, setConfirmPassword] = useState("");
- const [message,setMessage]=useState("");
- const url = 'http://localhost:4444'
- const userValid = async () =>{
-      try {
-       const response = await axios.get(`${url}/api/forgotpassword/${id}/${token}`,{
-          headers:{
-            "Content-Type":"application/json",
-            "Accept":'application/json'
-          }
-        });
-        const data = response.data;
-        if(data.status === 201){
-          console.log(`User Valid`);
-        }else{
-          history("*")
-        }
-      } catch (error) {
-        console.error(`Error:`,error);
-      }
- }
+
+ useEffect(()=>{
+  dispatch(validateUser({id,token}))
+  .unwrap()
+  .catch(()=>{
+    navigate('/');
+  })
+  return () =>{
+    dispatch(clearState());
+  }
+ },[dispatch,id,token,navigate])
+
+
  const setVal = (e) => {
   const { name, value } = e.target;
   if (name === "password") {
@@ -55,39 +49,19 @@ const sendPassword = async (e) => {
     toast.error("Password and Confirm Password do not match");
   } else {
     try {
-      const res = await axios.post(
-        `${url}/api/${id}/${token}`,
-        {
-          password,
-          cpassword,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      const data = res.data;
-      if (data.status === 201) {
-        setPassword("");
-        setConfirmPassword("")
-        setMessage(true);
-        toast.success("Password changed successfully");
-      } else {
-        toast.error("Token expired. Generate a new link.");
-      }
-    } catch (error) {
-      console.error("Error:", error);
+      await dispatch(resetPassword({id,token,password,cpassword})).unwrap();
+      toast.success("Password changed successfully");
+      setPassword('')
+      setConfirmPassword('')
+      navigate('/');
+    }catch(error){
+      toast.error(error.message ||"Token expired. Generate a new link")
     }
+      
   }
 };
 
-useState(()=>{
-  userValid()
-  setTimeout(()=>{
-    setData(true)
-  },3000)
-},[])
+
     return (
       <>
      
@@ -107,8 +81,7 @@ useState(()=>{
                     value={password}
                     onChange={setVal}
                   />
-                  {/* <span className="error">Minimum 8 Characters required</span>
-                   <span className="error">Password is required</span> */}
+                 
                   
                   <input
                     className="input-field mb-4"

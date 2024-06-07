@@ -1,145 +1,80 @@
-import React, { useState } from 'react'
-import { Link } from 'react-router-dom';
-import LeftSideBar from "../LeftSideBar/LeftSideBar";
+import React, { useState,useEffect } from 'react'
+import {useDispatch,useSelector} from 'react-redux';
+import { updateCalibrationData,updateTimeOfCalibrationAdded, addCalibration} from '../../redux/features/calibration/calibrationSlice';
+import { fetchUser } from '../../redux/features/user/userSlice';
+import { Link,useNavigate  } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
-import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { useEffect } from 'react';
 import CalibrationData from './Calibration-Data';
 import axios from 'axios';
 
 
 
 const Calibration = () => { 
-  const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
-  const [timeOfCalibrationAdded, setTimeOfCalibrationAdded] = useState(currentTime);
-  const [validUserData, setValidUserData] = useState(null);
-  const [calibrationData,setCalibrationData]=useState({
-    adminID:"",
-    adminName:"",
-    dateOfCalibrationAdded: new Date().toISOString().slice(0, 10), // Initialize with current date
-    timeOfCalibrationAdded: currentTime, 
-    userId:"",
-    date:"",
-    equipmentName:"",
-    before:"",
-    after:"",
-    technician:"",
-    notes:"",
-  })
-  const handleInputChange = event =>{
-    const { name, value } = event.target;   
-    if(name === 'time'){
-      setTimeOfCalibrationAdded(value)
-    }else{
-      setCalibrationData({
-        ...calibrationData,
-        [name]:value,
-      });
-    }
-     
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const {calibrationData,loading,error} =useSelector((state)=>state.calibration);
+  const {userData}=useSelector((state)=>state.user)
+
+  const validateUser = async () => {
+      const response = await dispatch(fetchUser()).unwrap(); 
+  };
+
+  if (!userData) {
+    validateUser();
   }
-  const deployed_url = 'https://aquabox-ebhoom-3.onrender.com'
-  const url = 'http://localhost:4444'
- 
-  
-  const handleSubmit = async (event) => {
+
+  const handleInputChange =event =>{
+    const {name,value} = event.target;
+    if(name === 'time'){
+      dispatch(updateTimeOfCalibrationAdded(value))
+    }else{
+      dispatch(updateCalibrationData({[name]:value}));
+    }
+  };
+  const handleCancel = async()=>{
+    navigate('/calibration')
+  }
+
+  const handleSubmit =async(event)=>{
     try {
       event.preventDefault();
-  
+
       if (calibrationData.date === '') {
-        toast.warning('Please add the date', {
-          position: 'top-center'
-        });
-      } else if (calibrationData.equipmentName === '') {
-        toast.warning('Please add the equipment Name', {
-          position: 'top-center'
-        });
-      } else if (calibrationData.before === '') {
-        toast.warning('Please add the before', {
-          position: 'top-center'
-        });
-      } else if (calibrationData.after === '') {
-        toast.warning('Please add the after', {
-          position: 'top-center'
-        });
-      } else if (calibrationData.technician === '') {
-        toast.warning('Please add the technician', {
-          position: 'top-center'
-        });
-      } else  {
-         // Include userId, userType, and userName in the calibrationDataToSend object
-      let calibrationDataToSend = {
-        ...calibrationData,
-        adminID: validUserData.userName,
-        adminName: validUserData.fname
-      };
-      console.log('CalibrationDataToSend:', calibrationDataToSend);
-        const res = await axios.post(`${url}/api/add-calibration`, calibrationDataToSend);
-        
-        if (res.status === 201) {
-          const shouldSaveIt = window.confirm("Are you Sure to add the Calibration?");
-          if (shouldSaveIt) {
-            setCalibrationData({
-              adminID:"",
-              adminName:"",
-              dateOfCalibrationAdded:"",
-              timeOfCalibrationAdded: "", 
-              userId:"",
-              date:"",
-              equipmentName:"",
-              before:"",
-              after:"",
-              technician:"",
-              notes:"",
-            });
-          }
+        toast.warning('Please add the date', { position: 'top-center' });
+    } else if (calibrationData.equipmentName === '') {
+        toast.warning('Please add the equipment Name', { position: 'top-center' });
+    } else if (calibrationData.before === '') {
+        toast.warning('Please add the before', { position: 'top-center' });
+    } else if (calibrationData.after === '') {
+        toast.warning('Please add the after', { position: 'top-center' });
+    } else if (calibrationData.technician === '') {
+        toast.warning('Please add the technician', { position: 'top-center' });
+    } else {
+        let calibrationDataToSend ={
+          ...calibrationData,
+          adminID:userData.userName,
+          adminName:userData.fname,
         }
-        toast.success('The Calibration is added Successfully', {
-          position: 'top-center'
-        });
+        dispatch(addCalibration(calibrationDataToSend));
+        toast.success( `The Calibration Added Successfully`,{
+          position:'top-center'
+        })
       }
     } catch (error) {
       console.log(error);
-      toast.error('An error occurred. Please try again.', {
-        position: 'top-center'
-      });
+      toast.error('An error occurred. Please try again.',error, { position: 'top-center' });
     }
-  };
-  
-  useEffect(()=>{
-    //Fetch product iD and user status when the component mounts
-    
-    const fetchData=async()=>{
-      try{
-          let token = localStorage.getItem("userdatatoken")
-          const response =await axios.get(`${url}/api/validuser`,{
-            headers:{
-              'Content-Type':"application/json",
-              'Authorization':token,
-              Accept:'application/json'
-            },
-            withCredentials: true
-          })
-          const data = response.data;
-        console.log(data);
+  }
+if(loading){
+  return <div>Loading...</div>
 
-        if (data.status === 201) {
-          // Update product ID and user status
-          setValidUserData(data.validUserOne);
-          console.log(data.validUserOne);
-        } else {
-          console.log("Error fetching user data");
-        }
-      }catch(error){
-        console.error("Error fetching user data :", error);
-      }
-    }
-    fetchData();
-  },[])
+}
+if(error){
+ return <div>Error...{error}</div>
 
-
+}
     return (
       <div className="main-panel">
         <div className="content-wrapper">
@@ -183,15 +118,12 @@ const Calibration = () => {
                        
                           <div className="col-12">
                             <h1>Calibration Added by</h1>
-                             {/* <h1>Update User</h1> */}
                           </div>
 
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
-                            <label htmlFor="exampleFormControlInput5">User ID</label>
-                            <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Equipment Name" name='userName' value= { validUserData && validUserData.userName}
-                            />
-                            
-                          </div>
+                                            <label htmlFor="exampleFormControlInput5">User ID</label>
+                                            <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Equipment Name" name='userName' value={userData.validUserOne && userData.validUserOne.userName} readOnly />
+                                        </div>
 
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
                             <label htmlFor="exampleFormControlInput4">Date of Calibration Added</label>
@@ -207,22 +139,13 @@ const Calibration = () => {
                           </div>
                           
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
-                            <label htmlFor="exampleFormControlInput4">Time of Calibration Added</label>
-                            <input type="text" 
-                            className="form-control" 
-                            id="time" 
-                            name='time'
-                            value={timeOfCalibrationAdded}
-                            onChange={handleInputChange}
-                            placeholder="time of Calibration" 
-                           />
-                            
+                              <label htmlFor="exampleFormControlInput4">Time of Calibration Added</label>
+                              <input type="text" className="form-control" id="time" name='time' value={calibrationData.timeOfCalibrationAdded} onChange={handleInputChange} placeholder="time of Calibration" />
                           </div>
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
                               <label htmlFor="exampleFormControlInput5">User Name</label>
-                              <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="User Name" name='fname' value= { validUserData && validUserData.fname}  
-                            />
-                             
+                              <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="User Name" name='fname' value= { userData.validUserOne && userData.validUserOne.fname}  
+                            />   
                           </div>
                           
                           <div className="col-12">
@@ -331,7 +254,7 @@ const Calibration = () => {
                           </div>
                           
                             <div className="mt-4 mb-5 p-2">
-                            <button type="button"  className="btn btn-danger mb-2"> Cancel </button>
+                            <button type="button"  className="btn btn-danger mb-2" onClick={handleCancel}> Cancel </button>
                             </div>
                             
                           

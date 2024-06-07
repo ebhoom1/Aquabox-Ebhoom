@@ -1,13 +1,9 @@
-import React, { useState } from 'react'
-import { Link } from 'react-router-dom';
-import LeftSideBar from "../LeftSideBar/LeftSideBar";
-
-import { useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
-import { useEffect } from 'react';
+import React, { useState,useEffect } from 'react'
+import { Link,useNavigate } from 'react-router-dom';
+import { useDispatch,useSelector } from 'react-redux';
+import { fetchUsers,addUser,deleteUser,clearState } from '../../redux/features/userLog/userLogSlice';
 import { ToastContainer, toast } from 'react-toastify';
-import axios from 'axios';
-import { DatePicker } from 'rsuite';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 
@@ -87,6 +83,9 @@ const AddUsers = () => {
     },
   
   ]
+  const dispatch = useDispatch();
+  const {loading,error} = useSelector((state)=>state.userLog);
+
 const [formData, setFormData]=useState({
   userName:"",
   companyName:"",
@@ -114,8 +113,7 @@ const [formData, setFormData]=useState({
   }
   
 })
-const deployed_url = 'https://aquabox-ebhoom-3.onrender.com'
-const url ='http://localhost:4444'
+
 
 
 const handleInputChange = event =>{
@@ -125,6 +123,17 @@ const handleInputChange = event =>{
     [name]:value,
   });
 }
+const handleFileChange = (e, field) => {
+  const file = e.target.files[0];
+  setFormData((prevFormData) => ({
+    ...prevFormData,
+    deviceCredentials: {
+      ...prevFormData.deviceCredentials,
+      [field]: file,
+    },
+  }));
+};
+
 const handleSubmit = async (event) => {
   event.preventDefault();
   
@@ -142,56 +151,50 @@ const handleSubmit = async (event) => {
   }
 
   try {
-      const response = await axios.post(`${url}/api/register`, formDataToSend, {
-          headers: {
-              'Content-Type': 'multipart/form-data'
-          }
-      });
-
-      if (response.status === 201) {
-          const shouldSave = window.confirm("Are you Sure to Save the user");
-          if (shouldSave) {
-              console.log(`Data submitted successfully`);
-              setFormData({
-                  date: new Date().toLocaleDateString(),
-                  userName: "",
-                  companyName: "",
-                  modelName: "",
-                  fname: "",
-                  email: "",
-                  mobileNumber: "",
-                  password: "",
-                  cpassword: "",
-                  subscriptionDate: "",
-                  userType: "",
-                  industryType: "",
-                  dataInteval: "",
-                  district: "",
-                  state: "",
-                  address: "",
-                  latitude: "",
-                  longitude: "",
-                  deviceCredentials: {
-                      host: "",
-                      clientId: "",
-                      key: "",
-                      cert: "",
-                      ca: "",
-                  }
-              });
-          }
-          toast.success('The User is added Successfully', {
-              position: 'top-center'
-          });
+    await dispatch(addUser(formDataToSend)).unwrap();
+    toast.success('The User is added Successfully', {
+      position: 'top-center'
+    });
+    setFormData({
+      userName: "",
+      companyName: "",
+      modelName: "",
+      fname: "",
+      email: "",
+      mobileNumber: "",
+      password: "",
+      cpassword: "",
+      subscriptionDate: "",
+      userType: "",
+      industryType: "",
+      dataInteval: "",
+      district: "",
+      state: "",
+      address: "",
+      latitude: "",
+      longitude: "",
+      deviceCredentials: {
+        host: "",
+        clientId: "",
+        key: "",
+        cert: "",
+        ca: "",
       }
+    });
   } catch (error) {
-      console.log(error);
+      console.log("catch error AddUser:",error);
       toast.error('Error In Occured Please try again', {
           position: 'top-center'
       });
   }
 };
+if (loading) {
+  return <div>Loading...</div>;
+}
 
+if (error) {
+  return <div>Error: {error.message}</div>;
+}
 
    
     return (
@@ -493,11 +496,7 @@ const handleSubmit = async (event) => {
                             className="form-control" 
                             id="key" 
                             name='key'
-                            value={formData.key}
-                            onChange={(e) => setFormData({ ...formData, deviceCredentials: { ...formData.deviceCredentials, key: e.target.files[0] } })}
-                          
-                            />
-                          
+                            onChange={(e) => setFormData({ ...formData, deviceCredentials: { ...formData.deviceCredentials, key: e.target.files[0] } })}                          />                          
                           </div>
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
                             <label htmlFor="exampleFormControlInput6">Certificate</label>
@@ -506,9 +505,7 @@ const handleSubmit = async (event) => {
                             className="form-control" 
                             id="cert" 
                             name='cert'
-                            value={formData.cert}
-                            onChange={(e) => setFormData({ ...formData, deviceCredentials: { ...formData.deviceCredentials, cert: e.target.files[0] } })}
-                            
+                            onChange={(e) => setFormData({ ...formData, deviceCredentials: { ...formData.deviceCredentials, cert: e.target.files[0] } })}                            
                             />
                           
                           </div>
@@ -518,11 +515,8 @@ const handleSubmit = async (event) => {
                             type="file" 
                             className="form-control" 
                             id="ca" 
-                            name='ca'
-                            value={formData.ca}
-                            onChange={(e) => setFormData({ ...formData, deviceCredentials: { ...formData.deviceCredentials, ca: e.target.files[0] } })}
-                            />
-                          
+                            name="ca"
+                            onChange={(e) => setFormData({ ...formData, deviceCredentials: { ...formData.deviceCredentials, ca: e.target.files[0] } })}                          />
                           </div>
                           
                           
@@ -553,8 +547,7 @@ const handleSubmit = async (event) => {
 const DeleteUsers = () => { 
 
 const [userName,setUserName]=useState('');
-const url ='http://localhost:4444'
-const deployed_url = 'https://aquabox-ebhoom-3.onrender.com'
+const dispatch =useDispatch();
 
 const handleSubmit =async(e)=>{
   e.preventDefault();
@@ -565,12 +558,12 @@ const handleSubmit =async(e)=>{
     })
   }
   try {
-    const response = await axios.delete(`${deployed_url}/api/deleteuser/${userName}`)
-    console.log(response.data);
-    toast.success('user deleted Successfully',{
+   await dispatch(deleteUser(userName)).unwrap();
+       toast.success('user deleted Successfully',{
       position:'top-center'
     })
-  } catch (error) {
+    setUserName('')   
+  } catch (error) { 
     console.error(`Error deleting user:`,error);
     toast.error('Error in Deleting User /  User ID not found',{
       position:'top-center'
@@ -612,22 +605,19 @@ const handleSubmit =async(e)=>{
     )
 }
 const EditUser =()=>{
-  const [users,setUsers]=useState([]);
-  const url ='http://localhost:4444'
+  const dispatch = useDispatch();
+  const { users, loading, error } = useSelector((state) => state.userLog);
 
   useEffect(()=>{
-    const fetchUsers = async () => {
-        try {
-          const response = await axios.get(`${url}/api/getallusers`);
-          const userData = response.data.users;
-          console.log(userData);
-          setUsers(userData)
-        } catch (error) {
-          console.error(`Error in fetching users`, error);
-        }
-    };
-    fetchUsers()
-  },[])
+    dispatch(fetchUsers());
+  },[dispatch]);
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+  
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
   return(
     <div className="row">
     <div className="col-12">

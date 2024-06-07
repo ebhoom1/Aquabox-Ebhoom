@@ -1,13 +1,13 @@
 import './App.css';
 import { Routes, Route, useNavigate } from 'react-router-dom';
-import { useContext, useEffect, useState } from 'react';
-import axios from "axios";
-import { LoginContext } from './Components/ContextProvider/Context';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchUser } from './redux/features/user/userSlice';
 import Header from './Components/Header/Header';
 import Footer from './Components/Footer/Footer';
 import PrivateLayout from './Components/PrivateLayout/PrivateLayout';
 import Water from './Components/Water/Water';
-import Attendence from './Components/Attendance/Attendence';
+import Attendance from './Components/Attendance/Attendence';
 import ManageUsers from './Components/ManageUsers/ManageUsers';
 import UsersLog from './Components/UsersLog/UsersLog';
 import Account from './Components/Account/Account';
@@ -36,96 +36,80 @@ import Report from './Components/Reports/Report';
 import ListOfSupportAnalyserMakeAndModel from './Components/ListOfSupportAnalyserMakeAndModel/ListOfSupportAnalyserMakeAndModel';
 
 function App() {
-  const [dataLoaded, setDataLoaded] = useState(false);
-  const [userType, setUserType] = useState("");
-  const { setLoginData } = useContext(LoginContext);
-  const navigate  = useNavigate();
-  const url = 'http://localhost:4444'
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { userData, loading, userType } = useSelector((state) => state.user);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = localStorage.getItem("userdatatoken");
-        const response = await axios.get(`${url}/api/validuser`, {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: token,
+    
+      dispatch(fetchUser())
+
+        .unwrap()
+        .then((responseData) => {
+          if (responseData.status === 401 || !responseData.validUserOne) {
+            console.log("User not Valid");
+            navigate('/');
+          } else {
+            console.log("User verify");
           }
-        });
-        const responseData = response.data;
-  
-        if (responseData.status === 401 || !responseData.validUserOne) {
-          console.log("User not valid");
+        })
+        .catch((error) => {
+          console.error("Error Validating User:", error);
           navigate('/');
-        } else {
-          console.log("User Verify");
-          setLoginData(responseData);
-          setUserType(responseData.validUserOne.userType);
-          console.log("User Type :::::", responseData.validUserOne.userType);
-          setDataLoaded(true);
-        }
-      } catch (error) {
-        console.error("Error Validating user:", error);
-        navigate('/');
-      }
-    };
-  
-    fetchData();
-  }, [navigate, setLoginData]);
-
+        });
+    
+  }, [dispatch,navigate]);
   return (
-    <>
-      <Routes>
-        <Route path="/" element={<PublicLayout />}>
-          <Route exact path="" element={<SignIn />} />
-          <Route exact path="signup" element={<SignUp />} />
-          <Route exact path="signup-confirmation" element={<SignUpConfirmation />} />
-          <Route exact path="reset-password-otp" element={<ResetPasswordOtp />} />
-          <Route exact path="reset-password/:id/:token" element={<ResetPassword />} />
-          <Route exact path="reset-password-email" element={<ResetPasswordEmail />} />
-          <Route exact path="faq" element={<Faq />} />
-          <Route exact path="/download-data" element={<DownloadData />} />
-          <Route exact path="terms" element={<Terms />} />
+    <Routes>
+      <Route path="/" element={<PublicLayout />}>
+        <Route index element={<SignIn />} />
+        <Route path="signup" element={<SignUp />} />
+        <Route path="signup-confirmation" element={<SignUpConfirmation />} />
+        <Route path="reset-password-otp" element={<ResetPasswordOtp />} />
+        <Route path="reset-password/:id/:token" element={<ResetPassword />} />
+        <Route path="reset-password-email" element={<ResetPasswordEmail />} />
+        <Route path="faq" element={<Faq />} />
+        <Route path="download-data" element={<DownloadData />} />
+        <Route path="terms" element={<Terms />} />
+      </Route>
+
+      {!loading && userData && (
+       
+        <Route path="/" element={<PrivateLayout />}>
+          {userType === "admin" && (
+            <>
+              <Route path="water" element={<Water />} />
+              <Route path="ambient-air" element={<AmbientAir />} />
+              <Route path="noise" element={<Noise />} />
+              <Route path="account" element={<Account />} />
+              <Route path="attendance-report" element={<Attendance />} />
+              <Route path="manage-users" element={<ManageUsers />} />
+              <Route path="edit-user/:userId" element={<EditUsers />} />
+              <Route path="users-log" element={<UsersLog />} />
+              <Route path="calibration-new" element={<Calibration />} />
+              <Route path="calibration" element={<CalibrationData />} />
+              <Route path="edit-calibration/:userName" element={<EditCalibration />} />
+              <Route path="notification" element={<Notification />} />
+              <Route path="notification-new" element={<AddNotification />} />
+              <Route path="calibration-exceeded" element={<CalibrationExceeded />} />
+              <Route path="calibration-exceeded-report" element={<CalibrationExceededReport />} />
+              <Route path="report" element={<Report />} />
+              <Route path="list-of-support-analyser-make-and-model" element={<ListOfSupportAnalyserMakeAndModel />} />
+            </>
+          )}
+          {userType === "user" && (
+            <>
+              <Route path="water" element={<Water />} />
+              <Route path="ambient-air" element={<AmbientAir />} />
+              <Route path="noise" element={<Noise />} />
+              <Route path="account" element={<Account />} />
+              <Route path="report" element={<Report />} />
+              <Route path="list-of-support-analyser-make-and-model" element={<ListOfSupportAnalyserMakeAndModel />} />
+            </>
+          )}
         </Route>
-
-        {dataLoaded && (
-          <Route path="/" element={<PrivateLayout />}>
-            {userType === "admin" && (
-              <>
-                <Route exact path="/water" element={<Water />} />
-                <Route exact path="/ambient-air" element={<AmbientAir />} />
-                <Route exact path="/noise" element={<Noise />} />
-                <Route exact path="/account" element={<Account />} />
-                <Route exact path="/attendance-report" element={<Attendence />} />
-                <Route exact path="/manage-users" element={<ManageUsers />} />
-                <Route exact path='/edit-user/:userId' element={<EditUsers/>}/>
-                <Route exact path="/users-log" element={<UsersLog />} />
-                <Route exact path="/calibration-new" element={<Calibration />} />
-                <Route exact path="/calibration" element={<CalibrationData />} />
-                <Route exact path="/edit-calibration/:userName" element={<EditCalibration />} />
-                <Route exact path="/notification" element={<Notification />} />
-                <Route exact path="/notification-new" element={<AddNotification/>}/>
-                <Route path="/calibration-exceeded" element={<CalibrationExceeded />} />
-                <Route path="/calibration-exceeded-report" element={<CalibrationExceededReport />} />
-                <Route exact path ="/report"element={<Report/>}/>
-                <Route exact path ="/list-of-support-analyser-make-and-model" element={<ListOfSupportAnalyserMakeAndModel/>}/>
-
-              </>
-            )}
-            {userType === "user" && (
-              <>
-                <Route exact path="/water" element={<Water />} />
-                <Route exact path="/ambient-air" element={<AmbientAir />} />
-                <Route exact path="/noise" element={<Noise />} />
-                <Route exact path="/account" element={<Account />} />
-                <Route exact path ="/report"element={<Report/>}/>
-                <Route exact path ="/list-of-support-analyser-make-and-model" element={<ListOfSupportAnalyserMakeAndModel/>}/>
-              </>
-            )}
-          </Route>
-        )}
-      </Routes>
-    </>
+      )}
+    </Routes>
   );
 }
 

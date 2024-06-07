@@ -1,49 +1,50 @@
 import './index.css';
 import React, { useEffect, useState } from "react";
+import {useDispatch,useSelector} from 'react-redux';
+import { fetchUser } from "../../redux/features/user/userSlice";
+import {fetchLatestIotData} from "../../redux/features/iotData/iotDataSlice"
 import NoisePopup from './NoisePopup';
 import CalibrationPopup from '../Calibration/CalibrationPopup';
 import axios from 'axios';
+import CalibrationExceeded from '../Calibration/CalibrationExceeded';
 
 const Noise = () => {
+  const dispatch =useDispatch();
+  const {userData,userType} =useSelector((state)=>state.user);
+  const {latestData,loading,error} = useSelector((state)=>state.iotData)
   const [showPopup, setShowPopup] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
   const [showCalibrationPopup, setShowCalibrationPopup] = useState(false);
   const [fetchvalue, setFetchValues] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  
+  // Sample data for demonstration, replace with your actual data
+ const weekData = [{ name: "Mon", value: 30 }, { name: "Tue", value: 40 }, { name: "Wed", value: 50 }];
+ const monthData = [{ name: "Week 1", value: 100 }, { name: "Week 2", value: 200 }, { name: "Week 3", value: 150 }];
+ const dayData=[{ name: "9:00 am", value: 30 }, { name: "10:00am", value: 33 }, { name: "11:00am", value: 40 }, { name: "12:00pm", value: 41 }, { name: "1:00pm", value: 70 },{ name: "2:00pm", value: 54 },{ name: "3:00pm", value: 31 },{ name: "4:00pm", value: 31.2 }];
+ const sixMonthData=[{ name: "Jan-June", value: 30 }, { name: "July-December", value: 40 }];
+ const yearData=[{ name: "2021", value: 20 }, { name: "2022", value: 90 }, { name: "2023", value: 30 }, { name: "2024", value: 50 }];
 
-  const fetchValue = async () => {
-    try {
-      const response = await axios.get('http://localhost:4444/api/get-all-values', {
-        headers: {
-          'Content-Type': "application/json",
-          'Authorization': localStorage.getItem("userdatatoken"),
-          Accept: 'application/json'
-        },
-        withCredentials: true
-      });
+ const validateUser = async () => {
+  const response = await dispatch(fetchUser()).unwrap(); 
+};
 
-      if (response.status === 200) {
-        const data = response.data.comments;
-        setFetchValues(data);
-        console.log("Fetched data:", data);
-      } else {
-        console.log("Error fetching data");
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
+if (!userData) {
+validateUser();
+}
+ 
+ useEffect(()=>{
+  if(userData){
+    if(userType === 'user'){
+      dispatch(fetchLatestIotData(userData.validUserOne.userName))
     }
-  };
+  }
+ },[userData, userType, dispatch])
 
-  useEffect(() => {
-    fetchValue(); // Fetch data initially
-    const interval = setInterval(fetchValue, 1000); // Fetch data every 5 seconds
-    return () => clearInterval(interval); // Clear interval on component unmount
-  }, []);
-
-  const handleCardClick = (card) => {
-    setSelectedCard(card);
-    setShowPopup(true);
-  };
-
+ const handleCardClick = (card) => {
+  setSelectedCard(card);
+  setShowPopup(true);
+};
   const handleClosePopup = () => {
     setShowPopup(false);
     setSelectedCard(null);
@@ -57,8 +58,10 @@ const Noise = () => {
     setShowCalibrationPopup(false);
   }
 
-  const latestValue = fetchvalue.length > 0 ? fetchvalue[fetchvalue.length - 1] : null;
-
+  const handleSearch = (e) => {
+    e.preventDefault();
+    dispatch(fetchLatestIotData(searchQuery));
+  };
   return (
     <div className="main-panel">
       <div className="content-wrapper">
@@ -67,17 +70,65 @@ const Noise = () => {
             <div className="page-header">
               <h4 className="page-title">Noise DASHBOARD</h4>
               <div className="quick-link-wrapper w-100 d-md-flex flex-md-wrap">
-                <ul className="quick-links ml-auto">
-                  <h5>Data Interval:</h5>
-                </ul>
-                <ul className="quick-links ml-auto">
-                  <button type="submit" onClick={handleOpenCalibrationPopup} className="btn btn-primary mb-2 mt-2"> Calibration </button>
-                </ul>
+              <ul className="quick-links ml-auto">
+               {userData.validUserOne && userData.validUserOne.userType === 'user' &&(
+                <h5>Data Interval: <span className="span-class">{userData.validUserOne && userData.validUserOne.dataInteval}</span></h5>
+               )}
+               </ul>
+               <ul className="quick-links ml-auto">
+               {latestData && (
+                <>
+                  <h5>Analyser Health : </h5>
+                  {latestData.validationStatus ? (
+                    <h5 style={{color:"green"}}>Good</h5>
+                  ) : (
+                    <h5  style={{color:"red"}}>Problem</h5>
+                  )}
+                  
+                </>
+              )}
+              </ul>
+               {userData.validUserOne && userData.validUserOne.userType === 'user' &&(
+               <ul className="quick-links ml-auto">
+               
+                <button type="submit" onClick={() => handleOpenCalibrationPopup(userData.validUserOne.userName)} className="btn btn-primary mb-2 mt-2"> Calibration </button>
+
+               </ul>
+               )}
               </div>
             </div>
           </div>
         </div>
-
+               {/* <!-- Page Title Header Ends--> */}
+        {userData.validUserOne && userData.validUserOne.userType === 'admin' &&(
+            <div className="card">
+            <div className="card-body">
+            <h1>Find Users</h1>
+            
+            <form className="form-inline  my-2 my-lg-0"onSubmit={handleSearch}>
+                      <input
+                        className="form-control mr-sm-2"
+                        type="search"
+                        placeholder="Search"
+                        aria-label="Search"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                      />
+                      <button className="btn btn-outline-primary my-2 my-sm-0" type="submit"  >
+                        Search
+                      </button>
+                     
+                    </form>
+                    
+            
+            <h1>{latestData.userName}</h1>
+           
+            </div>
+          </div>
+        )}
+              
+        <div className="p-2"></div>
+      <div className="p-2"></div>
         <div className="row">
           <div className="col-12 col-md-4 grid-margin">
             <div className="card" onClick={() => handleCardClick({ title: "Limits in DB" })}>
@@ -87,20 +138,10 @@ const Noise = () => {
                     <h3 className="mb-3">Limits in DB</h3>
                   </div>
                   <div className="col-12 mb-3">
-                    <h1> dB</h1>
+                  <h6><strong className="strong-value">{latestData.db || 'N/A'}</strong> dB   </h6>
+
                   </div>
                   <div className="col-12">
-                    {latestValue ? (
-                      <>
-                        <h5 className="text-dark">pH: {latestValue.ph}</h5>
-                        <h5 className="text-dark">Turbidity: {latestValue.turbidity}</h5>
-                        <h5 className="text-dark">ORP: {latestValue.ORP}</h5>
-                        <p className="mb-0">Last Week: </p>
-                        <p>Last Month: </p>
-                      </>
-                    ) : (
-                      <p>No data available</p>
-                    )}
                   </div>
                 </div>
               </div>
@@ -108,7 +149,7 @@ const Noise = () => {
           </div>
         </div>
 
-        {/* {showPopup && selectedCard && (
+        {showPopup && selectedCard && (
           <NoisePopup
             title={selectedCard.title}
             weekData={weekData} // Pass actual week data here
@@ -118,7 +159,7 @@ const Noise = () => {
             yearData={yearData}
             onClose={handleClosePopup}
           />
-        )} */}
+        )}
 
         {showCalibrationPopup && (
           <CalibrationPopup
@@ -127,40 +168,8 @@ const Noise = () => {
         )}
       </div>
 
-      <div className="p-5"></div>
-      <div className="p-5"></div>
-
-      <div className="col-md-12 grid-margin mt-5">
-        <div className="card">
-          <div className="card-body">
-            <div className="row mt-5">
-              <div className="col-md-12">
-                <h2>Calibration Exceeded</h2>
-                <div className="table-responsive">
-                  <table className="table table-bordered">
-                    <thead>
-                      <tr>
-                        <th>SI.No</th>
-                        <th>Exceeded Parameter</th>
-                        <th>Date</th>
-                        <th>Time</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>1</td>
-                        <td>ph 2.1</td>
-                        <td>31/03/2024</td>
-                        <td>07:17</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <CalibrationExceeded/>
+      
 
       <footer className="footer">
         <div className="container-fluid clearfix">

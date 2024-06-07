@@ -1,43 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios'; // Import axios for making HTTP requests
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchUser } from '../../redux/features/user/userSlice';
 
 const LeftSideBar = () => {
-  const [userType, setUserType] = useState('');
-  const [dataLoaded, setDataLoaded] = useState(false);
-  const navigate  = useNavigate();
-  const deployed_url = 'https://aquabox-ebhoom-3.onrender.com'
-  const url ='http://localhost:4444'
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { userType, loading, error, userData } = useSelector((state) => state.user);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = localStorage.getItem("userdatatoken");
-        const response = await axios.get(`${url}/api/validuser`, {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: token,
-          }
-        });
-        const responseData = response.data;
-
-        if (responseData.status === 401 || !responseData.validUserOne) {
-          console.log("User not valid");
-          navigate('/');
-        } else {
-          console.log("User Verify");
-          setUserType(responseData.validUserOne.userType);
-          console.log("User Type :::::", responseData.validUserOne.userType);
-          setDataLoaded(true);
-        }
-      } catch (error) {
-        console.error("Error Validating user:", error);
+  const validateUser = async () => {
+    try {
+      const response = await dispatch(fetchUser()).unwrap();
+      console.log('response from LeftSideBar:', response);
+      if (!response) {
         navigate('/');
       }
-    };
+    } catch (error) {
+      console.error(`Error Validating user: ${error}`);
+      navigate('/');
+    }
+  };
 
-    fetchData();
-  }, []);
+  if (!userData) {
+    validateUser();
+  }
 
   // Define menu items based on userType
   const getMenuItems = () => {
@@ -79,14 +65,13 @@ const LeftSideBar = () => {
               <i className="menu-icon typcn typcn-document-text"></i>
               <span className="menu-title">Report</span>
             </Link>
-          
           </li>
           <li className={`nav-item`}>
-          <Link className="nav-link" to="/list-of-support-analyser-make-and-model">
+            <Link className="nav-link" to="/list-of-support-analyser-make-and-model">
               <i className="menu-icon typcn typcn-document-text"></i>
-              <span className="menu-title">List of support analyser<br/> make and model</span>
+              <span className="menu-title">List of support analyser<br /> make and model</span>
             </Link>
-            </li>
+          </li>
           <li className={`nav-item`}>
             <Link className="nav-link" to="/water">
               <i className="menu-icon typcn typcn-document-text"></i>
@@ -105,7 +90,6 @@ const LeftSideBar = () => {
               <span className="menu-title">Noise Dashboard</span>
             </Link>
           </li>
-         
         </>
       );
     } else {
@@ -122,15 +106,13 @@ const LeftSideBar = () => {
               <i className="menu-icon typcn typcn-document-text"></i>
               <span className="menu-title">Report</span>
             </Link>
-          
           </li>
           <li className={`nav-item`}>
-          <Link className="nav-link" to="/list-of-support-analyser-make-and-model">
+            <Link className="nav-link" to="/list-of-support-analyser-make-and-model">
               <i className="menu-icon typcn typcn-document-text"></i>
-              <span className="menu-title">List of support analyser<br/> make and model</span>
+              <span className="menu-title">List of support analyser<br /> make and model</span>
             </Link>
-            </li>
-           
+          </li>
           <li className={`nav-item`}>
             <Link className="nav-link" to="/water">
               <i className="menu-icon typcn typcn-document-text"></i>
@@ -149,14 +131,16 @@ const LeftSideBar = () => {
               <span className="menu-title">Noise Dashboard</span>
             </Link>
           </li>
-         
         </>
       );
     }
   };
 
-  if (!dataLoaded) {
+  if (loading) {
     return <div>Loading...</div>;
+  }
+  if (error) {
+    return <div>Error: {error}</div>;
   }
 
   return (

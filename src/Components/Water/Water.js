@@ -1,7 +1,8 @@
 
 import React, { createContext, useEffect, useState } from "react";
-import { useOutletContext } from "react-router-dom";
-
+import {useDispatch,useSelector} from 'react-redux';
+import { fetchUser } from "../../redux/features/user/userSlice";
+import {fetchLatestIotData} from "../../redux/features/iotData/iotDataSlice"
 import axios from 'axios'
 import { Link } from 'react-router-dom';
 import WaterPopup from "./WaterPopup";
@@ -9,11 +10,16 @@ import CalibrationPopup from "../Calibration/CalibrationPopup";
 import CalibrationExceeded from "../Calibration/CalibrationExceeded";
 import { ToastContainer, toast } from "react-toastify";
 
-const Water = () => {
 
+const Water = () => {
+  const dispatch =useDispatch();
+  const {userData,userType} =useSelector((state)=>state.user);
+  const {latestData,loading,error} = useSelector((state)=>state.iotData)
   const [showPopup,setShowPopup]=useState(false);
   const [selectedCard, setSelectedCard]=useState(null);
   const[showCalibrationPopup,setShowCalibrationPopup]=useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
 
  // Sample data for demonstration, replace with your actual data
  const weekData = [{ name: "Mon", value: 30 }, { name: "Tue", value: 40 }, { name: "Wed", value: 50 }];
@@ -22,67 +28,81 @@ const Water = () => {
  const sixMonthData=[{ name: "Jan-June", value: 30 }, { name: "July-December", value: 40 }];
  const yearData=[{ name: "2021", value: 20 }, { name: "2022", value: 90 }, { name: "2023", value: 30 }, { name: "2024", value: 50 }];
 
+ const validateUser = async () => {
+  const response = await dispatch(fetchUser()).unwrap(); 
+};
+
+if (!userData) {
+validateUser();
+}
  
+ useEffect(()=>{
+  if(userData){
+    if(userType === 'user'){
+      dispatch(fetchLatestIotData(userData.validUserOne.userName))
+    }
+  }
+ },[userData, userType, dispatch])
 
-  const [validUserData, setValidUserData] = useState(null);
-  const [latestData,setLatestData] =useState({});
-  const [searchQuery, setSearchQuery] = useState("");
-  const url = `http://localhost:5555`
-  useEffect(()=>{
-    //Fetch product iD and user status when the component mounts
+  // const [validUserData, setValidUserData] = useState(null);
+  // const [latestData,setLatestData] =useState({});
+ 
+  // const url = `http://localhost:5555`
+  // useEffect(()=>{
+  //   //Fetch product iD and user status when the component mounts
     
-    const fetchData=async()=>{
-      try{
-          let token = localStorage.getItem("userdatatoken")
-          const response =await axios.get(`${url}/api/validuser`,{
-            headers:{
-              'Content-Type':"application/json",
-              'Authorization':token,
-              Accept:'application/json'
-            },
-            withCredentials: true
-          })
-          const data = response.data;
-        console.log(data);
+  //   const fetchData=async()=>{
+  //     try{
+  //         let token = localStorage.getItem("userdatatoken")
+  //         const response =await axios.get(`${url}/api/validuser`,{
+  //           headers:{
+  //             'Content-Type':"application/json",
+  //             'Authorization':token,
+  //             Accept:'application/json'
+  //           },
+  //           withCredentials: true
+  //         })
+  //         const data = response.data;
+  //       console.log(data);
 
-        if (data.status === 201) {
-          // Update product ID and user status
-          setValidUserData(data.validUserOne);
-          console.log(data.validUserOne);
-        } else {
-          console.log("Error fetching user data");
-        }
-      }catch(error){
-        console.error("Error fetching user data :", error);
-      }
-    }
-    fetchData();
-  },[])
+  //       if (data.status === 201) {
+  //         // Update product ID and user status
+  //         setValidUserData(data.validUserOne);
+  //         console.log(data.validUserOne);
+  //       } else {
+  //         console.log("Error fetching user data");
+  //       }
+  //     }catch(error){
+  //       console.error("Error fetching user data :", error);
+  //     }
+  //   }
+  //   fetchData();
+  // },[])
 
 
-  useEffect(() => {
-    if (validUserData) {
-      if (validUserData.userType === 'user') {
-        fetchLatestData(validUserData.userName);
-      }else if(validUserData.userType === 'admin'){
-        fetchLatestData(handleSearch)
-      }
-    }
-  }, [validUserData]);
+  // useEffect(() => {
+  //   if (validUserData) {
+  //     if (validUserData.userType === 'user') {
+  //       fetchLatestData(validUserData.userName);
+  //     }else if(validUserData.userType === 'admin'){
+  //       fetchLatestData(handleSearch)
+  //     }
+  //   }
+  // }, [validUserData]);
 
-  const fetchLatestData = async (userName) => {
-    try {
-      const response = await axios.get(`${url}/api/latest-iot-data/${userName}`);
-      if (response.data.status === 200) {
-        setLatestData(response.data.data[0] || {});
-        console.log(`Latest IoT data of ${userName}:`, response.data.data[0]);
-      } else {
-        console.log("Error fetching latest IoT Data");
-      }
-    } catch (error) {
-      console.error("Error fetching latest IoT Data:", error);
-    }
-  };
+  // const fetchLatestData = async (userName) => {
+  //   try {
+  //     const response = await axios.get(`${url}/api/latest-iot-data/${userName}`);
+  //     if (response.data.status === 200) {
+  //       setLatestData(response.data.data[0] || {});
+  //       console.log(`Latest IoT data of ${userName}:`, response.data.data[0]);
+  //     } else {
+  //       console.log("Error fetching latest IoT Data");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching latest IoT Data:", error);
+  //   }
+  // };
 
     
 
@@ -108,7 +128,7 @@ const Water = () => {
  
   const handleSearch = (e) => {
     e.preventDefault();
-        fetchLatestData(searchQuery);
+    dispatch(fetchLatestIotData(searchQuery));
   };
   const water=[
     {
@@ -218,8 +238,8 @@ const Water = () => {
               <div className="quick-link-wrapper w-100 d-md-flex flex-md-wrap">
                
                <ul className="quick-links ml-auto">
-               {validUserData && validUserData.userType === 'user' &&(
-                <h5>Data Interval: <span className="span-class">{validUserData && validUserData.dataInteval}</span></h5>
+               {userData.validUserOne && userData.validUserOne.userType === 'user' &&(
+                <h5>Data Interval: <span className="span-class">{userData.validUserOne && userData.validUserOne.dataInteval}</span></h5>
                )}
                </ul>
                <ul className="quick-links ml-auto">
@@ -236,10 +256,10 @@ const Water = () => {
               )}
 
                </ul>
-               {validUserData && validUserData.userType === 'user' &&(
+               {userData.validUserOne && userData.validUserOne.userType === 'user' &&(
                <ul className="quick-links ml-auto">
                
-                <button type="submit" onClick={() => handleOpenCalibrationPopup(validUserData.userName)} className="btn btn-primary mb-2 mt-2"> Calibration </button>
+                <button type="submit" onClick={() => handleOpenCalibrationPopup(userData.validUserOne.userName)} className="btn btn-primary mb-2 mt-2"> Calibration </button>
 
                </ul>
                )}
@@ -248,7 +268,7 @@ const Water = () => {
           </div>
         </div>
         {/* <!-- Page Title Header Ends--> */}
-        {validUserData && validUserData.userType === 'admin' &&(
+        {userData.validUserOne && userData.validUserOne.userType === 'admin' &&(
             <div className="card">
             <div className="card-body">
             <h1>Find Users</h1>
@@ -279,7 +299,7 @@ const Water = () => {
       <div className="p-2"></div>
         <div className="row">
 
-          {/* {console.log(`Latest IoT with userName ${validUserData.userName}:`,latestData)} */}
+          {/* {console.log(`Latest IoT with userName ${userData.validUserOne.userName}:`,latestData)} */}
           {water.map((item,index)=>(
           <div className="col-12 col-md-4 grid-margin"key={index}>
           <div className="card" onClick={() => handleCardClick(item.parameter)} >
@@ -313,7 +333,7 @@ const Water = () => {
       {/* Render Calibration Popup if showCalibrationPopup is true */}
       {showCalibrationPopup &&  (
         <CalibrationPopup 
-        userName={validUserData.userName}
+        userName={userData.validUserOne.userName}
         onClose={handleCloseCalibrationPopup}
         
         />

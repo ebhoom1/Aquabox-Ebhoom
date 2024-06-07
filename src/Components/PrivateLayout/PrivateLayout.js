@@ -1,343 +1,141 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { Navigate, useLocation, Outlet, Link, useNavigate } from "react-router-dom"
-import LeftSideBar from "../LeftSideBar/LeftSideBar";
-
-import './index.css'
-import { LoginContext } from '../ContextProvider/Context';
-import axios from 'axios';
-
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate, Outlet } from 'react-router-dom';
+import { fetchUser, fetchNotifications, logoutUser } from './../../redux/features/user/userSlice';
+import LeftSideBar from '../LeftSideBar/LeftSideBar';
+import './index.css';
 
 const PrivateLayout = () => {
-  const url = 'http://localhost:4444'
-  const deployed_url = 'https://aquabox-ebhoom-3.onrender.com'
-
-  const [userNotification,setUserNotification] = useState([]);
-  useEffect(()=>{
-            const fetchNotification =async()=>{
-              try {
-                const res = await axios.get(`${url}/api/view-notification`)
-                const notificaitons = res.data.notification || [];
-                setUserNotification(notificaitons)
-              } catch (error) {
-                console.error(`Error fetching Notification:`,error);
-              }
-            };
-            fetchNotification();
-  },[])
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { userData, notifications, loading, error } = useSelector((state) => state.user);
   const [isDropdownOpenNotification, setIsDropdownOpenNotification] = useState(false);
-  const toggleDropdownNotification = () => {
-    setIsDropdownOpenNotification(!isDropdownOpenNotification); 
-    console.log('dropdown Open ',isDropdownOpenNotification);
-  };
-  const closeDropdownNotification =()=>{
-    setIsDropdownOpenNotification(false)
-  }
-  // Close dropdown when clicked outside
-  useEffect(() => {
-    const closeDropdownOnClickOutside = (event) => {
-      if (isDropdownOpenNotification && !event.target.closest('.navbar-nav')) {
-        setIsDropdownOpenNotification(false);
-      }
-    };
-
-    document.addEventListener('mousedown', closeDropdownOnClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', closeDropdownOnClickOutside);
-    };
-  }, [isDropdownOpenNotification]);
-
-  const [isDropdownOpen,setIsDropdownOpen] = useState(false)
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [onlineStatus, setOnlineStatus] = useState(navigator.onLine ? 'Online' : 'Offline');
-  const toggleDropdown = () =>{
-    setIsDropdownOpen(!isDropdownOpen)
-    
-  }
-  const closeDropdown = () =>{
-    setIsDropdownOpen(false)
-  }
-  const {loginData,setLoginData} = useContext(LoginContext);
 
-  const history = useNavigate();
-
-  const[anchorE1, setAnchorE1]=useState(null);
-  const open = Boolean(anchorE1);
-  const [validUserData, setValidUserData] = useState(null);
-
-  useEffect(()=>{
-    //Fetch product iD and user status when the component mounts
-    
-    const fetchData=async()=>{
-      try{
-          let token = localStorage.getItem("userdatatoken")
-          const response =await axios.get(`${url}/api/validuser`,{
-            headers:{
-              'Content-Type':"application/json",
-              'Authorization':token,
-              Accept:'application/json'
-            },
-            withCredentials: true
-          })
-          const data = response.data;
-        console.log(data);
-
-        if (data.status === 201) {
-          // Update product ID and user status
-          setValidUserData(data.validUserOne);
-          console.log(data.validUserOne);
-        } else {
-          console.log("Error fetching user data");
-        }
-      }catch(error){
-        console.error("Error fetching user data :", error);
-      }
-    }
-    fetchData();
-  },[])
-  
-  const handleClick = (event) =>{
-        setAnchorE1(event.currentTarget);
-  };
-  const handleClose = () =>{
-    setAnchorE1(null)
-  }
- 
-  
-  const logoutUser = async () =>{
+  const validateUser = async () => {
     try {
-      let token = localStorage.getItem("userdatatoken");
-
-    const response = await axios.get(`${url}/api/logout`,{
-      headers:{
-        'Content-type':"application/json",
-        'Authorization':token,
-        Accept:'application/json'
-      },
-      withCredentials:true
-    });
-
-    const data = response.data
-    console.log(data);
-
-    if(data.status === 201){
-
-        console.log('User logged out');
-        localStorage.removeItem("userdatatoken");
-        setLoginData(false);
-        history("/")
-    }else{
-      console.log("Enter Logging out");
-    }
+      const response = await dispatch(fetchUser()).unwrap();
+      console.log('response from PrivateLayout:', response);
+      if (!response) {
+        navigate('/');
+      } else {
+        dispatch(fetchNotifications(response.userData._id));
+        
+      }
     } catch (error) {
-      console.error("Error logging out :", error);
+      console.error('Error Validating user:', error);
+      navigate('/');
     }
+  };
+
+  if (!userData) {
+    validateUser();
     
   }
- const goDash = () =>{
-      history('/')
- }
- const goError = () =>{
-  history('*')
- }
- useEffect(() => {
-  // Listen for online/offline status changes
+  
   const handleOnlineStatusChange = () => {
     setOnlineStatus(navigator.onLine ? 'Online' : 'Offline');
   };
+
   window.addEventListener('online', handleOnlineStatusChange);
   window.addEventListener('offline', handleOnlineStatusChange);
 
-  // Clean up event listeners
-  return () => {
-    window.removeEventListener('online', handleOnlineStatusChange);
-    window.removeEventListener('offline', handleOnlineStatusChange);
+  const toggleDropdownNotification = () => {
+    setIsDropdownOpenNotification(!isDropdownOpenNotification);
   };
-}, []);
+
+  const handleLogout = async () => {
+    try {
+      await dispatch(logoutUser()).unwrap();
+      navigate('/');
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
+
   return (
     <div className="container-scroller">
-      {/* <!-- partial:partials/_navbar.html --> */}
       <nav className="navbar default-layout col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
         <div className="text-center navbar-brand-wrapper d-flex align-items-top justify-content-center">
           <a className="navbar-brand brand-logo" href="#">
             <h1 className="aqualogo">EBHOOM</h1>
             <span className="navbar-brand brand-logo-mini">
               <h1 className="aqualogo">AB</h1>
-            </span>{" "}
+            </span>
           </a>
         </div>
         <div className="navbar-menu-wrapper d-flex align-items-center">
           <ul className="navbar-nav">
-          
-           <li className="nav-item font-weight-semibold d-none d-lg-block">User ID : {validUserData && validUserData.userName} </li>
-            
-
             <li className="nav-item font-weight-semibold d-none d-lg-block">
-              
-            <div>
-              {onlineStatus === 'Online' ? (
-                <span className='online'>Online</span>
-              ) : (
-                <span className='offline'>Offline</span>
-              )}
-            </div>
-               
+              User ID : {userData.validUserOne && userData.validUserOne.userName}
+            </li>
+            <li className="nav-item font-weight-semibold d-none d-lg-block">
+              <div>
+                {onlineStatus === 'Online' ? (
+                  <span className="online">Online</span>
+                ) : (
+                  <span className="offline">Offline</span>
+                )}
+              </div>
             </li>
           </ul>
-          {/* <!-- <form className="ml-auto search-form d-none d-md-block" action="#">
-              <div className="form-group">
-                <input type="search" className="form-control" placeholder="Search Here" />
-              </div>
-            </form> --> */}
           <ul className="navbar-nav ml-auto">
-          <li className="nav-item dropdown">
-                    <a
-                      className="nav-link count-indicator"
-                      onClick={toggleDropdownNotification} 
-                    >
-                      <i className="mdi mdi-bell-outline "></i>
-                      <span className="count">{userNotification.length}</span>
-                    </a>
-                    {isDropdownOpenNotification && (
-                      <div className="dropdown-container-notification">
-                        {userNotification.length > 0 ? (
-                          userNotification.map((notification, index) => (
-                            <a className="notification-item" key={index}>
-                              <div className="notification-message">
-                                <h3 className="notification-message-h3">{notification.message}</h3>
-                                <p className="notification-message-p">{notification.timeOfCalibrationAdded}</p>
-                                <p className="notification-message-p">{notification.dateOfCalibrationAdded}</p>
-                              </div>
-                            </a>
-                          ))
-                        ) : (
-                          <p className="empty-notification">No new notifications</p>
-                        )}
-                        <div className=""></div>
-                      </div>
-                    )}
-                  </li>
-
-            <li className="nav-item dropdown d-xl-inline-block user-dropdown">
-              <a
-                className="nav-link dropdown-toggle"
-                id="UserDropdown"
-                href="#"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                <img
-                  className="img-xs rounded-circle"
-                  src="assets/images/admin.png"
-                  alt="Profile image"
-                />{" "}
+            <li className="nav-item dropdown">
+              <a className="nav-link count-indicator" onClick={toggleDropdownNotification}>
+                <i className="mdi mdi-bell-outline"></i>
+                <span className="count">{notifications.length}</span>
               </a>
-              <div
-                className="dropdown-menu dropdown-menu-right navbar-dropdown"
-                aria-labelledby="UserDropdown"
-              >
-                <div className="dropdown-header text-center">
-                  <img
-                    className="img-md rounded-circle"
-                    src="assets/images/admin.png"
-                    alt="Profile image"
-                  />
-                  
-                    <p className="mb-1 mt-3 font-weight-semibold"></p>
-                  
-                  
-                    <p className="font-weight-light text-muted mb-0">
-                     {validUserData && validUserData.userName}
-                    </p>
-                  
-
+              {isDropdownOpenNotification && (
+                <div className="dropdown-container-notification">
+                  {notifications.length > 0 ? (
+                    notifications.map((notification, index) => (
+                      <a className="notification-item" key={index}>
+                        <div className="notification-message">
+                          <h3 className="notification-message-h3">{notification.message}</h3>
+                          <p className="notification-message-p">{notification.timeOfCalibrationAdded}</p>
+                          <p className="notification-message-p">{notification.dateOfCalibrationAdded}</p>
+                        </div>
+                      </a>
+                    ))
+                  ) : (
+                    <p className="empty-notification">No new notifications</p>
+                  )}
                 </div>
-                {/* <a className="dropdown-item">
-                  My Profile <i className="dropdown-item-icon ti-dashboard"></i>
+              )}
+            </li>
+            <li className="nav-item dropdown d-xl-inline-block user-dropdown">
+              <a className="nav-link dropdown-toggle" id="UserDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+                <img className="img-xs rounded-circle" src="assets/images/admin.png" alt="Profile image" />
+              </a>
+              <div className="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
+                <div className="dropdown-header text-center">
+                  <img className="img-md rounded-circle" src="assets/images/admin.png" alt="Profile image" />
+                  <p className="font-weight-light text-muted mb-0">{userData.validUserOne && userData.validUserOne.userName}</p>
+                </div>
+                <a className="dropdown-item" onClick={handleLogout}>
+                  Sign Out<i className="dropdown-item-icon ti-power-off"></i>
                 </a>
-                <a className="dropdown-item">
-                  Messages<span className="badge badge-pill badge-danger">1</span>
-                  <i className="dropdown-item-icon ti-comment-alt"></i>
-                </a>
-                <a className="dropdown-item">
-                  Activity<i className="dropdown-item-icon ti-location-arrow"></i>
-                </a>
-                <a className="dropdown-item">
-                  FAQ<i className="dropdown-item-icon ti-help-alt"></i>
-                </a> */}
-               <a  className="dropdown-item" onClick={() => {
-                                        logoutUser()
-                                        handleClose()
-                                    }}>
-                  Sign Out<i className="dropdown-item-icon ti-power-off"></i> 
-                </a>
-                
               </div>
             </li>
-            
           </ul>
-          <button
-            className="navbar-toggler navbar-toggler-right d-lg-none align-self-center"
-            type="button"
-            onClick={toggleDropdown}
-           
-          >
-            <span className="mdi mdi-menu"></span>
-          </button>
-          {isDropdownOpen && (
-  <div className="dropdown-menu-right navbar-dropdown toggle-dropdown">
-    <ul className="dropdown-list">
-      {validUserData && validUserData.userType === "admin" && (
-        <>
-          <li>
-            <Link to="/manage-users" onClick={closeDropdown}>Manage Users</Link>
-          </li>
-          <li>
-            <Link to="/users-log" onClick={closeDropdown}>Users Log</Link>
-          </li>
-          <li>
-            <Link to="/calibration" onClick={closeDropdown}>Calibration</Link>
-          </li>
-          <li>
-            <Link to="/notification" onClick={closeDropdown}>Notification</Link>
-          </li>
-          <li>
-            <Link to="/report" onClick={closeDropdown}>Report</Link>
-          </li>
-          <li>
-            <Link to="/list-of-support-analyser-make-and-model" onClick={closeDropdown}>List of suport analyser <br/> make and model</Link>
-          </li>
-        </>
-      )}
-      <li>
-        <Link to="/water" onClick={closeDropdown}>Effluent/Water Dashboard</Link>
-      </li>
-      <li>
-        <Link to="/ambient-air" onClick={closeDropdown}>Ambient Air Dashboard</Link>
-      </li>
-      <li>
-        <Link to="/noise" onClick={closeDropdown}>Noise Dashboard</Link>
-      </li>
-      <li>
-        <Link to="/account" onClick={closeDropdown}>Account</Link>
-      </li>
-    </ul>
-  </div>
-)}
-
         </div>
       </nav>
-      {/* <!-- partial --> */}
       <div className="container-fluid page-body-wrapper">
-        {/* <!-- partial:partials/_sidebar.html --> */}
         <LeftSideBar />
-        {/* <!-- partial --> */}
-
-        <Outlet  />
-
-
+        <Outlet />
       </div>
     </div>
-  )
-
+  );
 };
 
 export default PrivateLayout;
+ 

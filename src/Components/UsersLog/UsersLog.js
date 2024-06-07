@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import LocationDisplay from './LocationDisplay';
+import { useDispatch,useSelector } from "react-redux";
+import { fetchUsers,setFilteredUsers } from "../../redux/features/userLog/userLogSlice";
 import DownloadData from "../Download-Data/DownloadData";
 import KeralaMap from './KeralaMap';
 import { ToastContainer } from "react-toastify";
@@ -10,45 +9,21 @@ import './index.css';
 const UsersLog = () => {
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [users, setUsers] = useState([]);
-  const [filteredUsers, setFilteredUsers] = useState([]);
+  const dispatch = useDispatch()
+  const { users, filteredUsers, loading, error } = useSelector((state) => state.userLog);
   const [searchQuery, setSearchQuery] = useState('');
-  const url = 'http://localhost:4444'
-  const deployed_url = 'https://aquabox-ebhoom-3.onrender.com'
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await axios.get(`${url}/api/getallusers`);
-        const userData = response.data.users;
-        setUsers(userData);
-      } catch (error) {
-        console.error(`Error in fetching users`, error);
-      }
-    };
-    fetchUsers();
-  }, []);
+  useEffect(()=>{
+    dispatch(fetchUsers());
+  },[]);
 
-  const handleLocationClick = (userId) => {
-    const user = users.find(user => user._id === userId);
-    if (user) {
-      setShowLocationModal(true);
-      setSelectedUser(user);
-    }
-  };
 
-  const handleCloseLocationModal = () => {
-    setShowLocationModal(false);
-    setSelectedUser(null);
-  };
-
-  const navigate = useNavigate();
 
   const handleSearch = (event) => {
     const query = event.target.value.toLowerCase();
     setSearchQuery(query);
     const filtered = users.filter(user => user.userName.toLowerCase().includes(query));
-    setFilteredUsers(filtered);
+    dispatch(setFilteredUsers(filtered));
   };
   return (
     <div className="main-panel">
@@ -103,14 +78,7 @@ const UsersLog = () => {
         </div>
         <DownloadData />
       </div>
-      {/* {showLocationModal && (
-        <LocationDisplay
-          latitude={selectedUser.latitude}
-          longitude={selectedUser.longitude}
-          address={selectedUser.address}
-          onClose={handleCloseLocationModal}
-        />
-      )} */}
+      
       <footer className="footer">
         <div className="container-fluid clearfix">
           <span className="text-muted d-block text-center text-sm-left d-sm-inline-block">

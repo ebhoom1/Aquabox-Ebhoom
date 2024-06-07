@@ -6,7 +6,7 @@ const CalibrationPopup=({userName,onClose})=>{
 
     const [calibrationData,setCalibrationData] = useState(null);
     const deployed_url = 'https://aquabox-ebhoom-3.onrender.com'
-    const url ='http://localhost:4444'
+    const url ='http://localhost:5555'
 
 useEffect(()=>{
     const fetchCalibrationData = async ()=>{

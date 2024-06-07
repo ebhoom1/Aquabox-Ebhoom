@@ -1,0 +1,57 @@
+import {createSlice, createAsyncThunk} from '@reduxjs/toolkit'
+import axios from 'axios'
+
+const url =  'http://localhost:5555';
+
+export const sendResetLink = createAsyncThunk(
+    'resetPasswordEmail/sendResetLink',
+    async(email,{rejectWithValue})=>{
+        try {
+            const response = await axios.post(`${url}/api/sendpasswordlink`,{email},{
+                headers:{
+                    'Content-Type':'application/json'
+                }
+            })
+            return response.data
+        } catch (error) {
+            return rejectWithValue(error.response.data)            
+        }
+    }
+)
+
+const resetPasswordEmailSlice = createSlice({
+    name:'resetPasswordEmail',
+    initialState:{
+        loading:false,
+        error:null,
+        success:false
+    },
+    reducers:{
+        clearState:(state)=>{
+            state.loading = false;
+            state.error = null;
+            state.success = false;
+        }
+    },
+    extraReducers:(builder)=>{
+        builder
+        
+        .addCase(sendResetLink.pending,(state)=>{
+            state.loading = true;
+            state.error = null;
+            state.success = false;
+        })
+        .addCase(sendResetLink.fulfilled,(state)=>{
+            state.loading = false;
+            state.success = true;
+        })
+        .addCase(sendResetLink.rejected,(state,action)=>{
+            state.loading =false;
+            state.error = action.payload;
+        });
+    }
+});
+
+export const {clearState} = resetPasswordEmailSlice.actions;
+
+export default resetPasswordEmailSlice.reducer;

@@ -1,44 +1,31 @@
 import React, { Component, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchUser } from '../../redux/features/user/userSlice';
 import LeftSideBar from "../LeftSideBar/LeftSideBar";
 import axios from 'axios';
 import './index.css'
 
 const  Account=()=>{
-  const [validUserData, setValidUserData] = useState(null);
+  const dispatch = useDispatch();
+  const {userData,loading,error} = useSelector((state)=>state.user);
 
   useEffect(()=>{
-    //Fetch product iD and user status when the component mounts
-    
-    const fetchData=async()=>{
-      try{
-          let token = localStorage.getItem("userdatatoken")
-          const url ='http://localhost:4444'
-          const deployed_url = 'https://aquabox-ebhoom-3.onrender.com'
-          const response =await axios.get(`${deployed_url}/api/validuser`,{
-            headers:{
-              'Content-Type':"application/json",
-              'Authorization':token,
-              Accept:'application/json'
-            },
-            withCredentials: true
-          })
-          const data = response.data;
-        console.log(data);
-
-        if (data.status === 201) {
-          // Update product ID and user status
-          setValidUserData(data.validUserOne);
-          console.log(data.validUserOne);
-        } else {
-          console.log("Error fetching user data");
-        }
-      }catch(error){
-        console.error("Error fetching user data :", error);
-      }
+    if(!userData){
+      dispatch(fetchUser())
+      console.log("account:",userData);
     }
-    fetchData();
-  },[])
+  },[dispatch,userData])
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
+
+  
     return (
       <div className="main-panel">
         <div className="content-wrapper">
@@ -70,17 +57,17 @@ const  Account=()=>{
                 <div className="card-body">
                   <div className="row">
                     <div className="col-12">
-                      <p className="account-details">User ID : { validUserData && validUserData.userName} <sup><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                      <p className="account-details">User ID : { userData.validUserOne && userData.validUserOne.userName} <sup><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-check-circle-fill" viewBox="0 0 16 16">
                         <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
                       </svg></sup></p>
-                      <p className="account-details">Company Name : { validUserData && validUserData.companyName}</p>
-                      <p className="account-details">Model Name :{ validUserData && validUserData.modelName} </p>
-                      <p className="account-details">Name : { validUserData && validUserData.fname}</p>
-                      <p className="account-details">Email ID :  { validUserData && validUserData.email}</p>
+                      <p className="account-details">Company Name : { userData.validUserOne && userData.validUserOne.companyName}</p>
+                      <p className="account-details">Model Name :{ userData.validUserOne && userData.validUserOne.modelName} </p>
+                      <p className="account-details">Name : { userData.validUserOne && userData.validUserOne.fname}</p>
+                      <p className="account-details">Email ID :  { userData.validUserOne && userData.validUserOne.email}</p>
                       <p className="account-details">Password : ************  <Link to='/reset-password-email'> <button type="button" className="password-button">Change Password</button></Link></p>
                      
-                      <p className="account-details">Subcription Date : { validUserData && validUserData.subscriptionDate}</p>
-                      <p className="account-details">Industry Type : { validUserData && validUserData.industryType}</p>
+                      <p className="account-details">Subcription Date : { userData.validUserOne && userData.validUserOne.subscriptionDate}</p>
+                      <p className="account-details">Industry Type : { userData.validUserOne && userData.validUserOne.industryType}</p>
 
                     
 

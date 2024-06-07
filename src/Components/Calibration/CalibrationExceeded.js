@@ -12,7 +12,7 @@ const CalibrationExceeded = () => {
   const [currentComment, setCurrentComment] = useState('');
   const [isEditingAdminComment, setIsEditingAdminComment] = useState(false);
   const navigate = useNavigate();
-  const url = 'http://localhost:4444';
+  const url = 'http://localhost:5555';
 
   useEffect(() => {
     const fetchData = async () => {
