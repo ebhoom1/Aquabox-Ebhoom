@@ -32,9 +32,9 @@ const register = async (req, res) => {
     const { key, cert, ca } = req.files;
 
     try {
-        if (!key || !cert || !ca) {
-            return res.status(422).json({ error: "All device credentials (key, cert, ca) are required." });
-        }
+        // if (!key || !cert || !ca) {
+        //     return res.status(422).json({ error: "All device credentials (key, cert, ca) are required." });
+        // }
 
         const preuser = await userdb.findOne({ email: email });
         if (preuser) {

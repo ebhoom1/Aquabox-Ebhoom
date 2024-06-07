@@ -76,7 +76,7 @@ const Calibration = () => {
         adminName: validUserData.fname
       };
       console.log('CalibrationDataToSend:', calibrationDataToSend);
-        const res = await axios.post(`${deployed_url}/api/add-calibration`, calibrationDataToSend);
+        const res = await axios.post(`${url}/api/add-calibration`, calibrationDataToSend);
         
         if (res.status === 201) {
           const shouldSaveIt = window.confirm("Are you Sure to add the Calibration?");
@@ -114,7 +114,7 @@ const Calibration = () => {
     const fetchData=async()=>{
       try{
           let token = localStorage.getItem("userdatatoken")
-          const response =await axios.get(`${deployed_url}/api/validuser`,{
+          const response =await axios.get(`${url}/api/validuser`,{
             headers:{
               'Content-Type':"application/json",
               'Authorization':token,

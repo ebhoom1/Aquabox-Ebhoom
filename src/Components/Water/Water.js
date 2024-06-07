@@ -2,21 +2,12 @@
 import React, { createContext, useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 
-import {
-  BarChart,
-  Bar,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
 import axios from 'axios'
 import { Link } from 'react-router-dom';
 import WaterPopup from "./WaterPopup";
 import CalibrationPopup from "../Calibration/CalibrationPopup";
 import CalibrationExceeded from "../Calibration/CalibrationExceeded";
+import { ToastContainer, toast } from "react-toastify";
 
 const Water = () => {
 
@@ -32,33 +23,18 @@ const Water = () => {
  const yearData=[{ name: "2021", value: 20 }, { name: "2022", value: 90 }, { name: "2023", value: 30 }, { name: "2024", value: 50 }];
 
  
- const handleCardClick = (card) => {
-    setSelectedCard(card);
-    setShowPopup(true);
-  };
 
-  const handleClosePopup = () => {
-    setShowPopup(false);
-    setSelectedCard(null);
-  };
-
-  const handleOpenCalibrationPopup=()=>{
-    setShowCalibrationPopup(true)
-   
-  }
-  const handleCloseCalibrationPopup=()=>{
-    setShowCalibrationPopup(false)
-  }
- 
   const [validUserData, setValidUserData] = useState(null);
-  const [fetchvalue,setFetchValues]=useState([])
+  const [latestData,setLatestData] =useState({});
+  const [searchQuery, setSearchQuery] = useState("");
+  const url = `http://localhost:5555`
   useEffect(()=>{
     //Fetch product iD and user status when the component mounts
     
     const fetchData=async()=>{
       try{
           let token = localStorage.getItem("userdatatoken")
-          const response =await axios.get('http://localhost:4444/api/validuser',{
+          const response =await axios.get(`${url}/api/validuser`,{
             headers:{
               'Content-Type':"application/json",
               'Authorization':token,
@@ -82,39 +58,63 @@ const Water = () => {
     }
     fetchData();
   },[])
-  
-  // const fetchValue = async () => {
-  //   try {
-  //     const response = await axios.get('http://localhost:4444/api/get-all-values', {
-  //       headers: {
-  //         'Content-Type': "application/json",
-  //         'Authorization': localStorage.getItem("userdatatoken"),
-  //         Accept: 'application/json'
-  //       },
-  //       withCredentials: true
-  //     });
 
-  //     if (response.status === 200) {
-  //       const data = response.data.comments;
-  //       setFetchValues(data);
-  //       console.log("Fetched data:", data);
-  //     } else {
-  //       console.log("Error fetching data");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching data:", error);
-  //   }
-  // };
-  // useEffect(() => {
-  //   fetchValue (); // Fetch data initially
-  //   const interval = setInterval(fetchValue , 5000); // Fetch data every 5 seconds
-  //   return () => clearInterval(interval); // Clear interval on component unmount
-  // }, []);
 
+  useEffect(() => {
+    if (validUserData) {
+      if (validUserData.userType === 'user') {
+        fetchLatestData(validUserData.userName);
+      }else if(validUserData.userType === 'admin'){
+        fetchLatestData(handleSearch)
+      }
+    }
+  }, [validUserData]);
+
+  const fetchLatestData = async (userName) => {
+    try {
+      const response = await axios.get(`${url}/api/latest-iot-data/${userName}`);
+      if (response.data.status === 200) {
+        setLatestData(response.data.data[0] || {});
+        console.log(`Latest IoT data of ${userName}:`, response.data.data[0]);
+      } else {
+        console.log("Error fetching latest IoT Data");
+      }
+    } catch (error) {
+      console.error("Error fetching latest IoT Data:", error);
+    }
+  };
+
+    
+
+
+
+  const handleCardClick = (card) => {
+    setSelectedCard(card);
+    setShowPopup(true);
+  };
+
+  const handleClosePopup = () => {
+    setShowPopup(false);
+    setSelectedCard(null);
+  };
+
+  const handleOpenCalibrationPopup=()=>{
+    setShowCalibrationPopup(true)
+   
+  }
+  const handleCloseCalibrationPopup=()=>{
+    setShowCalibrationPopup(false)
+  }
+ 
+  const handleSearch = (e) => {
+    e.preventDefault();
+        fetchLatestData(searchQuery);
+  };
   const water=[
     {
-      parameter:"PH level",
+      parameter:"Ph",
       value:'pH',
+      name:'ph',
       week:":",
       month:":",
       
@@ -122,12 +122,14 @@ const Water = () => {
     {
       parameter:"TDS",
       value:'mg/l',
+      name:'TDS',
       week:"",
       month:"",
     },
     {
       parameter:"Turbidity",
       value:'NTU',
+      name:'turbidity',
       week:"",
       month:"",
       
@@ -135,60 +137,70 @@ const Water = () => {
     {
       parameter:"Temperature",
       value:'℃',
+      name:'temperature',
       week:"",
       month:"",  
     },
     {
       parameter:"BOD",
       value:'mg/l',
+      name:'BOD',
       week:"",
       month:"",  
     },
     {
       parameter:"COD",
       value:'mg/l',
+      name:'COD',
       week:"",
       month:"",  
     },
     {
       parameter:"TSS",
       value:'mg/l',
+      name:'TSS',
       week:"",
       month:"",  
     },
     {
       parameter:"ORP",
       value:'mV',
+      name:'ORP',
       week:"",
       month:"",  
     },
     {
       parameter:"Nitrate",
       value:'mg/l',
+      name:'nitrate',
       week:"",
       month:"",  
     },
     {
       parameter:"Ammonical Nitrogen",
       value:'mg/l',
+      name:'ammonicalNitrogen',
       week:"",
       month:"",  
     },
     {
       parameter:"DO",
       value:'mg/l',
+      name:'DO',
       week:"",
       month:"",  
     },
     {
       parameter:"Chloride",
       value:'mmol/l',
+      name:'chloride',
       week:"",
       month:"",  
     },
     {
       parameter:"Colour",
       value:'color',
+      name:'color',
       week:"",
       month:"",  
     },
@@ -206,57 +218,80 @@ const Water = () => {
               <div className="quick-link-wrapper w-100 d-md-flex flex-md-wrap">
                
                <ul className="quick-links ml-auto">
+               {validUserData && validUserData.userType === 'user' &&(
                 <h5>Data Interval: <span className="span-class">{validUserData && validUserData.dataInteval}</span></h5>
-
+               )}
                </ul>
                <ul className="quick-links ml-auto">
-                <h5>Analyser Health </h5>
+               {latestData && (
+                <>
+                  <h5>Analyser Health : </h5>
+                  {latestData.validationStatus ? (
+                    <h5 style={{color:"green"}}>Good</h5>
+                  ) : (
+                    <h5  style={{color:"red"}}>Problem</h5>
+                  )}
+                  
+                </>
+              )}
 
                </ul>
+               {validUserData && validUserData.userType === 'user' &&(
                <ul className="quick-links ml-auto">
                
                 <button type="submit" onClick={() => handleOpenCalibrationPopup(validUserData.userName)} className="btn btn-primary mb-2 mt-2"> Calibration </button>
 
                </ul>
+               )}
              </div>
             </div>
           </div>
         </div>
         {/* <!-- Page Title Header Ends--> */}
-        
-                  <div className="card">
-          <div className="card-body">
-          <h1>Find Users</h1>
+        {validUserData && validUserData.userType === 'admin' &&(
+            <div className="card">
+            <div className="card-body">
+            <h1>Find Users</h1>
+            
+            <form className="form-inline  my-2 my-lg-0"onSubmit={handleSearch}>
+                      <input
+                        className="form-control mr-sm-2"
+                        type="search"
+                        placeholder="Search"
+                        aria-label="Search"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                      />
+                      <button className="btn btn-outline-primary my-2 my-sm-0" type="submit"  >
+                        Search
+                      </button>
+                     
+                    </form>
+                    
+            
+            <h1>{latestData.userName}</h1>
            
-          <form className="form-inline  my-2 my-lg-0">
-                    <input
-                      className="form-control mr-sm-2"
-                      type="search"
-                      placeholder="Search"
-                      aria-label="Search"
-                    />
-                    <button className="btn btn-outline-primary my-2 my-sm-0" type="submit">
-                      Search
-                    </button>
-                  </form>
+            </div>
           </div>
-        </div>
+        )}
+              
         <div className="p-2"></div>
       <div className="p-2"></div>
         <div className="row">
 
-         
+          {/* {console.log(`Latest IoT with userName ${validUserData.userName}:`,latestData)} */}
           {water.map((item,index)=>(
           <div className="col-12 col-md-4 grid-margin"key={index}>
-          <div className="card">
+          <div className="card" onClick={() => handleCardClick(item.parameter)} >
             <div className="card-body">
               <div className="row">
                 <div className="col-12">
-                  <h3 className="mb-3">PH Level</h3>
+                  <h3 className="mb-3">{item.parameter}</h3>
                 </div>
                 <div className="col-12 mb-3">
-                  <h1>pH</h1>
-                  {/* <h4>Alkaline Water</h4> */}
+                  <h6><strong className="strong-value">{latestData[item.name] || 'N/A'}</strong> {item.value}   </h6>
+                 
+                 
                 </div>
 
                 <div className="col-12">
@@ -267,6 +302,7 @@ const Water = () => {
               </div>
             </div>
           </div>
+          <ToastContainer/>
           </div>
           ))}
          

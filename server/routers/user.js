@@ -27,7 +27,7 @@ const router=express.Router();
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-router.post('/register', upload.fields([{ name: 'key', maxCount: 1 }, { name: 'cert', maxCount: 1 }, { name: 'ca', maxCount: 1 }]), register);
+router.post('/register', upload.fields([{ name: 'key' }, { name: 'cert' }, { name: 'ca' }]), register);
 router.post('/login',login);
 router.get('/validuser',authenticate, validuser);
 router.get('/logout',authenticate, logout);

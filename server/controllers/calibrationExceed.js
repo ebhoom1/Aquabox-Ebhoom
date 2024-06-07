@@ -177,7 +177,7 @@ const handleExceedValues = async (data)=>{
 };
 const sendNotification =async(parameter,value,user)=>{
     try {
-        const message = `Your calibration for ${parameter} exceed the threshold the value is ${value}`
+        const message = `Your calibration for ${parameter} exceed the threshold the value is ${value} of userId ${user._id} and userName ${user.userName}`
         const currentDate = moment().format('DD/MM/YYYY');
         const currentTime = moment().format('HH:mm:ss');
         //Send email notification
@@ -208,11 +208,12 @@ const saveExceedValue = async (parameter,value,user)=>{
             timestamp: moment().toDate(), // Store current date and time
             formattedDate: currentDate, // Store formatted date
             formattedTime: currentTime, // Store formatted time
-            message:`Value Exceed in ${parameter} of ${value}`,
+            message:`Value Exceed in ${parameter} of ${value} of userId ${user._id} and userName ${user.userName}`,
             userId: user._id,
             userName: user.userName,
             industryType: user.industryType,
-            companyName: user.companyName
+            companyName: user.companyName,
+            
         })
 
         //Save the document to DB

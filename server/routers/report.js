@@ -1,5 +1,5 @@
 const express = require('express');
-const {createReport,findReport,findReportsByUserName,editReport,deletedReport} = require('../controllers/report');
+const {createReport,findReport,findReportsByUserName,editReport,deletedReport,downloadReportAsPDF, downloadReportAsCSV } = require('../controllers/report');
 
 
 const router = express.Router();
@@ -19,4 +19,11 @@ router.patch('/edit-report/:id',editReport);
 //Delete a Report
 router.delete('delete-report/:id',deletedReport);
 
+//Download PDF Report
+router.get('/report-download/pdf/:id',downloadReportAsPDF);
+
+//Download CSV Report
+router.get('/report-download/csv/:id',downloadReportAsCSV);
+
 module.exports =router;
+

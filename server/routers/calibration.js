@@ -13,7 +13,7 @@ const router = express.Router()
 router.post('/add-calibration', addCalibration);
 
 // Edit calibration
-router.patch('/edit-calibration/:id', editCalibration);
+router.patch('/edit-calibration/:userName', editCalibration);
 
 // View all calibrations
 router.get('/view-all-calibrations', viewAllCalibrations);

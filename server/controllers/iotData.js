@@ -147,5 +147,85 @@ const calculateAndSaveAverages = async () =>{
     }
 }
 
+const getAllIotData =async (req,res)=>{
+    try{
+        const allData =await IotData.find({});
+        
+        res.status(200).json({
+            status:200,
+            success:true,
+            message:'All IoT data fetched Succesfully',
+            data:allData
+        })
+    }catch(error){
+        console.error('Error fetching IoT data:',error);
+        res.status(500).json({
+            success:false,
+            message:'Error fetching IoT data',
+            error:error.message
+        })
+    }
+}
+const getLatestIoTData = async (req,res)=>{
+     const {userName} =req.params;
+    try {
+        const latestData = await IotData.aggregate([
+            {$match : {userName:userName}},
+            {$sort:{timestamp: -1}}, //Sort by timestamp in descending order 
+            {
+                $group:{
+                    _id:"product_id",
+                    latestRecord: {$first:"$$ROOT"}
+                }
+            },
+            {$replaceRoot: {newRoot: "$latestRecord"}}
+        ])
+        res.status(200).json({
+            status:200,
+            success:true,
+            message:'Latest IoT Data fetched successfully',
+            data:latestData
+        })
+    } catch (error) {
+        console.error('Error fetching latest IoT Data:',error);
+        res.status(500).json({
+            status:500,
+            success:false,
+            message:'Error fetching latest IoT data',
+            error:error.message
+        })
+    }
+}
 
-module.exports ={handleSaveMessage, calculateAndSaveAverages}
+const getIotDataByUserName = async (req,res)=>{
+    const {userName} =req.params;
+
+    try {
+        const data = await IotData.find({userName});
+        if(data.length === 0){
+            return res.status(404).json({
+                status:404,
+                success:false,
+                message:'No IoT data found for the specified userName',
+               
+
+            });           
+        }
+        res.status(200).json({
+            status:200,
+            success:true,
+            message:`IoT data for userName ${userName} fetched successfully`,
+            data
+        });
+    } catch (error) {
+        console.error(`Error Fetching IoT data by userName:`,error);
+        res.status(500).json({
+            status:500,
+            success:false,
+            message:`Error Fetching IoT data by userName|| Internal Server error`,
+            error:error.message,
+        })
+    }
+}
+
+module.exports ={handleSaveMessage, calculateAndSaveAverages,getAllIotData, getLatestIoTData,getIotDataByUserName}

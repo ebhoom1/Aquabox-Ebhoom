@@ -102,7 +102,7 @@ function App() {
                 <Route exact path="/users-log" element={<UsersLog />} />
                 <Route exact path="/calibration-new" element={<Calibration />} />
                 <Route exact path="/calibration" element={<CalibrationData />} />
-                <Route exact path="/edit-calibration/:calibrationId" element={<EditCalibration />} />
+                <Route exact path="/edit-calibration/:userName" element={<EditCalibration />} />
                 <Route exact path="/notification" element={<Notification />} />
                 <Route exact path="/notification-new" element={<AddNotification/>}/>
                 <Route path="/calibration-exceeded" element={<CalibrationExceeded />} />

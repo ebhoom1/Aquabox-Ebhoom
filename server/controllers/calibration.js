@@ -110,14 +110,16 @@ const findCalibrationByUserName = async (req, res) => {
    
     
 };
+
+
 // Controller function to edit a calibration
 const editCalibration = async (req, res) => {
     try {
-        const { id } = req.params;
+        const { userName } = req.params;
         const updateFields = req.body;
 
         // Find the calibration by ID and update it
-        const updatedCalibration = await Calibration.findByIdAndUpdate(id, updateFields, { new: true });
+        const updatedCalibration = await Calibration.findOneAndUpdate(    { userName: userName }, updateFields, { new: true });
 
         if (!updatedCalibration) {
             return res.status(404).json({

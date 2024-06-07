@@ -14,7 +14,7 @@ const CalibrationData = () => {
     const fetchUsers = async () => {
         try {
          
-          const response = await axios.get(`${deployed_url}/api/view-all-calibrations`);
+          const response = await axios.get(`${url}/api/view-all-calibrations`);
           const userData = response.data.calibrations;
           console.log(userData);
           setUserCalibrations(userData)
@@ -112,7 +112,7 @@ const CalibrationData = () => {
                   <td>{calibration.after}</td>
                   <td>{calibration.technician}</td>
                   <td>{calibration.notes}</td>
-                 <td> <Link to={`/edit-calibration/${calibration._id}`}><button type="button"  className="btn btn-primary mb-2"> Edit </button></Link></td>
+                 <td> <Link to={`/edit-calibration/${calibration.userName}`}><button type="button"  className="btn btn-primary mb-2"> Edit </button></Link></td>
                  <td><button type="button"  className="btn btn-danger mb-2" onClick={()=>handleDelete(calibration._id)}> Delete </button></td>
 
                 </tr>

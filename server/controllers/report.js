@@ -2,6 +2,9 @@ const CalibrationExceeded = require('../models/calibrationExceed');
 const User = require('../models/user');
 const Report = require('../models/report');
 
+const PDFDocument = require('pdfkit');
+const { Parser } = require('json2csv');
+const fs = require('fs');
 
 // Create Report
 
@@ -167,6 +170,109 @@ const deletedReport = async(req,res)=>{
     }
 }
 
+//Funtion to generate PDF
+const generatePDF = (report,res)=>{
+    const doc = new PDFDocument();
 
+    doc.pipe(res);
 
-module.exports = {createReport,findReport,findReportsByUserName,editReport,deletedReport};
+    doc.fontSize(16).text(`Report Details`,{align:'center'});
+
+    doc.moveDown();
+
+    doc.fontSize(12).text(`Industry Type: ${report.industryType}`);
+    doc.fontSize(12).text(`Company Name: ${report.companyName}`);
+    doc.fontSize(12).text(`From Date: ${report.fromDate}`);
+    doc.fontSize(12).text(`To Date: ${report.toDate}`);
+    doc.fontSize(12).text(`Engineer Name: ${report.engineerName}`);
+    doc.fontSize(12).text(`User Name: ${report.userName}`);
+    doc.fontSize(12).text(`Report Approved: ${report.reportApproved ? 'Approved' : 'Deined'}`);
+
+    doc.moveDown();
+    doc.fontSize(14).text('Calibration Exceeds:', { underline: true });
+
+    report.calibrationExceeds.forEach((exceed, index) => {
+        doc.moveDown();
+        doc.fontSize(12).text(`Exceed ${index + 1}:`);
+        doc.fontSize(12).text(`  Parameter: ${exceed.parameter}`);
+        doc.fontSize(12).text(`  Value: ${exceed.value}`);
+        doc.fontSize(12).text(`  Date: ${exceed.formattedDate}`);
+        doc.fontSize(12).text(`  Time: ${exceed.formattedTime}`);
+        doc.fontSize(12).text(`  Message: ${exceed.message}`);
+    });
+
+    doc.end();
+};
+
+//Function to generate CSV
+const generateCSV = (report,res)=>{
+    const fields = [
+        'industryType', 'companyName', 'fromDate', 'toDate', 'engineerName', 'userName', 'reportApproved'
+    ];
+    const calibrationFields =[
+        'paramter','value','formattedDate', 'formattedTime', 'message'
+    ];
+
+    const csvParser =new Parser({fields});
+    const csvCalibrationParser = new Parser({fields: calibrationFields})
+
+    const csvData = csvParser.parse(report)
+
+    let csvCalibrationData = '';
+    report.calibrationExceeds.forEach((exceed,index)=>{
+        csvCalibrationData += csvCalibrationParser.parse(exceed) +'/n';
+
+    })
+    res.header('Content-Type','text/csv');
+    res.attachment('report.csv');
+    res.send(`${csvData}\n\nCalibration Exceeds:\n ${csvCalibrationData}`);
+
+}
+
+//Download Report as PDF
+
+const downloadReportAsPDF =async(req,res)=>{
+    try {
+        const userId = req.params.id
+        const report = await Report.findById(userId);
+        if(!report){
+            return res.status(404).json({message:'Report not found'});
+        }
+
+        res.header('Content-Type','application/pdf');
+        res.attachment('report.pdf');
+        generatePDF(report,res);
+    } catch (error) {
+        res.status(500).json({
+            status:500,
+            success:false,
+            message:'Error downloading report',
+            error:error.message
+        })
+    }
+}
+
+//Download report as CSV
+
+const downloadReportAsCSV = async (req,res) =>{
+    try {
+        const userId = req.params.id
+        const report =await Report.findById(userId);
+        
+        if(!report){
+            return res.stauts(404).json({
+                message:'Report not found'
+            })
+        }
+        generateCSV(report,res);
+    } catch (error) {
+        res.status(500).json({
+            status:500,
+            success:false,
+            message:'Erro Downloading Report',
+            error:error.message
+        })
+    }
+}
+
+module.exports = {createReport,findReport,findReportsByUserName,editReport,deletedReport,downloadReportAsPDF,downloadReportAsCSV};

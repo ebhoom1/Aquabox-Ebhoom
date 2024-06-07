@@ -103,14 +103,14 @@ const UsersLog = () => {
         </div>
         <DownloadData />
       </div>
-      {showLocationModal && (
+      {/* {showLocationModal && (
         <LocationDisplay
           latitude={selectedUser.latitude}
           longitude={selectedUser.longitude}
           address={selectedUser.address}
           onClose={handleCloseLocationModal}
         />
-      )}
+      )} */}
       <footer className="footer">
         <div className="container-fluid clearfix">
           <span className="text-muted d-block text-center text-sm-left d-sm-inline-block">

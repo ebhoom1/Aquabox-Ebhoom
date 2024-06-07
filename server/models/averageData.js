@@ -199,6 +199,9 @@ const averageDataSchema = new mongoose.Schema({
         sixMonth: averageTypeSchema,
         year: averageTypeSchema
     },
+    DataIsNotRecieved:{
+        type:Boolean
+    },
     timestamp: {
         type: Date,
         default: Date.now

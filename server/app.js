@@ -102,5 +102,6 @@ io.on('connection', (socket) => {
 // Start the server and set up Socket.IO
 server.listen(port, () => {
     console.log(`Server Connected - ${port}`);
- // initializeMqttClients(io); // Initialize all MQTT clients at startup
+    
+//initializeMqttClients(io); // Initialize all MQTT clients at startup
 });

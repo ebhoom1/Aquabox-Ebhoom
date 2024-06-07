@@ -82,27 +82,28 @@ const viewNotification = async (req,res)=>{
     }
 }
 
-const getNotificationOfUser =async(req,res)=>{
+const getNotificationOfUser = async (req, res) => {
     try {
-        const {userId} = req.params;
-        //Retrieve Notification of the specific user from db
-        const userNotifications =await Notification.find({userId});
-
-        res.status(200).json({
-            status:200,
-            success:true,
-            message:`Notifications for user ${userId} fetched successfully`,
-            notifications: userNotifications,
-        })
+      const { adminID } = req.params;
+  
+      // Retrieve notifications of the specific user from the database
+      const userNotifications = await Notification.find({ adminID });
+  
+      res.status(200).json({
+        status: 200,
+        success: true,
+        message: `Notifications for user ${adminID} fetched successfully`,
+        userNotifications,
+      });
     } catch (error) {
-        res.status(500).json({
-            status:500,
-            success:false,
-            message:`Error in Fetching Notification`,
-            error:error.message
-        })
+      res.status(500).json({
+        status: 500,
+        success: false,
+        message: `Error in Fetching Notifications`,
+        error: error.message,
+      });
     }
-}
+  };
 
 //Delete Notification
 

@@ -11,7 +11,7 @@ const CalibrationPopup=({userName,onClose})=>{
 useEffect(()=>{
     const fetchCalibrationData = async ()=>{
         try{
-            const response = await axios.get(`${deployed_url}/api/find-calibration-by-userId/${userName}`);
+            const response = await axios.get(`${url}/api/find-calibration-by-userId/${userName}`);
             const data = response.data
             if(data.success){
                 setCalibrationData(data.calibration);

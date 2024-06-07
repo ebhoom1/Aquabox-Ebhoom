@@ -11,8 +11,10 @@ import axios from 'axios';
 
 
 const EditCalibration = () => { 
-  const { calibrationId } = useParams();
-
+  const { userName } = useParams();
+useEffect(() => {
+  console.log('userName:', userName);
+}, [userName]);
   const [calibrationData, setCalibrationData] = useState({
     adminID: null,
     adminName: null,
@@ -30,7 +32,7 @@ const EditCalibration = () => {
   useEffect(() => {
     const fetchCalibrationData = async () => {
       try {
-        const response = await axios.get(`${url}/api/find-calibration-by-userId/${calibrationId}`);
+        const response = await axios.get(`http://localhost:4444/api/find-calibration-by-userId/${userName}`);
         const calibrationData = response.data.calibration;
         console.log(calibrationData);
         setCalibrationData(calibrationData);
@@ -39,7 +41,7 @@ const EditCalibration = () => {
       }
     };
     fetchCalibrationData();
-  }, [calibrationId]);
+  }, [userName]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -59,7 +61,7 @@ const EditCalibration = () => {
           dateOfCalibrationAdded: currentDate,
           timeOfCalibrationAdded: currentTime,
         }));
-      const res = await axios.put(`${url}/api/edit-calibration/${calibrationId}`, calibrationData);
+      const res = await axios.patch(`${url}/api/edit-calibration/${userName}`, calibrationData);
       const updateCalibration = res.data.calibration;
       setCalibrationData(updateCalibration);
       console.log("Calibration updated successfully:", updateCalibration);

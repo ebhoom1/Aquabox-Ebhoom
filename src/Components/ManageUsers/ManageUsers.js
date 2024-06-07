@@ -93,6 +93,7 @@ const [formData, setFormData]=useState({
   modelName:"",
   fname:"",
   email:"",
+  mobileNumber:"",
   password:"",
   cpassword:"",
   subscriptionDate:"",
@@ -104,6 +105,13 @@ const [formData, setFormData]=useState({
   address:"",
   latitude:"",
   longitude:"",
+  deviceCredentials:{
+    host:"",
+    clientId:"",
+    key:"",
+    cert:"",
+    ca:"",
+  }
   
 })
 const deployed_url = 'https://aquabox-ebhoom-3.onrender.com'
@@ -117,130 +125,74 @@ const handleInputChange = event =>{
     [name]:value,
   });
 }
-  const handleSubmit =async (event)=>{
-
-        try {
-          event.preventDefault();
-          
-          //validation Check
-
-          if(formData.userName === ''){
-            toast.warning('Please add the User ID',{
-              position:'top-center'
-            })
-          }else if(formData.companyName === ''){
-            toast.warning('Please add the Company Name',{
-              position:'top-center'
-            })
-          }else if(formData.fname === ''){
-            toast.warning("Please add your Name",{
-              position:'top-center'
-            })
-          }else if(formData.email ===''){
-            toast.warning("please add your Email",{
-              position:'top-center'
-            })
-          }else if(formData.modelName ===''){
-            toast.warning("please add your Model Name",{
-              position:'top-center'
-            })
+const handleSubmit = async (event) => {
+  event.preventDefault();
+  
+  const formDataToSend = new FormData();
+  for (const key in formData) {
+      if (formData.hasOwnProperty(key)) {
+          if (key === 'deviceCredentials') {
+              formDataToSend.append('key', formData.deviceCredentials.key);
+              formDataToSend.append('cert', formData.deviceCredentials.cert);
+              formDataToSend.append('ca', formData.deviceCredentials.ca);
+          } else {
+              formDataToSend.append(key, formData[key]);
           }
-          else if (formData.pasword === ''){
-            toast.warning('Please add your password',{
-              position:'top-center'
-            })
-          }else if (formData.cpassword === ''){
-            toast.warning('please confirm your password',{
-              position:'top-center'
-            })
-
-          }else if(formData.password !== formData.cpassword){
-            toast.error('Password and Confirm Password Mismatch',{
-              position:'top-center'
-            })
-          }
-          else if(formData.subscriptionDate===''){
-            toast.warning('Please add Subcription Date',{
-              position:'top-center'
-            })
-          }else if(formData.userType === 'select'){
-            toast.warning('Please select the user type',{
-              position:'top-center'
-            })
-          }else if(formData.industryType === 'select'){
-            toast.warning('Please select the Industty Type',{
-              position:'top-center'
-            })
-          }else if(formData.dataInterval === 'select'){
-            toast.warning('Please select the Data Interval',{
-              position:'top-center'
-            })
-          }else if(formData.district === ''){
-            toast.warning('Please type your district',{
-              position:'top-center'
-            })
-          }else if(formData.state === ''){
-            toast.warning('Please type your State',{
-              position:'top-center'
-            })
-          }else if(formData.address === ''){
-            toast.warning('Please type your address',{
-              position:'top-center'
-            })
-          }else if(formData.longitude === ''){
-            toast.warning('Please type your  longitude',{
-              position:'top-center'
-            })
-          }else if(formData.latitude === ''){
-            toast.warning('Please type your latitude',{
-              position:'top-center'
-            })
-          }
-          else{
-            let formDataToSend = formData;
-            const response =await axios.post(`${url}/api/register`,formDataToSend)
-            console.log('formDataToSend:',formDataToSend);
-            if(response.status === 201){
-              const shouldSave = window.confirm("Are you Sure to Save the user")
-
-              if(shouldSave){
-                console.log(`Data submitted successfully`);
-
-                setFormData({
-                  date: new Date().toLocaleDateString(),
-                  userName:"",
-                  companyName:"",
-                  modelName:"",
-                  fname:"",
-                  email:"",
-                  password:"",
-                  cpassword:"",
-                  subscriptionDate:"",
-                  userType:"",
-                  industryType:"",
-                  dataInteval:"",
-                  district:"",
-                  state:"",
-                  address:"",
-                  latitude:"",
-                  longitude:""
-                
-                })
-
-              }
-            }
-            toast.success('The User is added Successfully',{
-              position:'top-center'
-            })
-          }
-        } catch (error) {
-          console.log(error);
-          toast.error('Error In Occured Please try again',{
-            position:'top-center'
-          })
-        }
+      }
   }
- 
+
+  try {
+      const response = await axios.post(`${url}/api/register`, formDataToSend, {
+          headers: {
+              'Content-Type': 'multipart/form-data'
+          }
+      });
+
+      if (response.status === 201) {
+          const shouldSave = window.confirm("Are you Sure to Save the user");
+          if (shouldSave) {
+              console.log(`Data submitted successfully`);
+              setFormData({
+                  date: new Date().toLocaleDateString(),
+                  userName: "",
+                  companyName: "",
+                  modelName: "",
+                  fname: "",
+                  email: "",
+                  mobileNumber: "",
+                  password: "",
+                  cpassword: "",
+                  subscriptionDate: "",
+                  userType: "",
+                  industryType: "",
+                  dataInteval: "",
+                  district: "",
+                  state: "",
+                  address: "",
+                  latitude: "",
+                  longitude: "",
+                  deviceCredentials: {
+                      host: "",
+                      clientId: "",
+                      key: "",
+                      cert: "",
+                      ca: "",
+                  }
+              });
+          }
+          toast.success('The User is added Successfully', {
+              position: 'top-center'
+          });
+      }
+  } catch (error) {
+      console.log(error);
+      toast.error('Error In Occured Please try again', {
+          position: 'top-center'
+      });
+  }
+};
+
+
    
     return (
       <div className="row">
@@ -312,6 +264,19 @@ const handleInputChange = event =>{
                             value={formData.email}
                             onChange={handleInputChange}
                             placeholder="Enter Email"
+                            />
+                            
+                          </div>
+                          <div className="col-12 col-lg-6 col-md-6 mb-3">
+                            <label htmlFor="exampleFormControlInput3">Mobile Number</label>
+                            <input 
+                            type="number" 
+                            className="form-control" 
+                            id="mobileNumber" 
+                            name='mobileNumber'
+                            value={formData.mobileNumber}
+                            onChange={handleInputChange}
+                            placeholder="Enter mobile Number"
                             />
                             
                           </div>
@@ -490,7 +455,77 @@ const handleInputChange = event =>{
                           
                           </div>
                           
-
+                          
+                          <div className="col-12">
+                            <h1>Add Device Configurations</h1>
+                            
+                          </div>
+                          <div className="col-12 col-lg-6 col-md-6 mb-3">
+                            <label htmlFor="exampleFormControlInput6">Client ID</label>
+                            <input 
+                            type="text" 
+                            className="form-control" 
+                            id="clientId" 
+                            name='clientId'
+                            value={formData.clientId}
+                            onChange={handleInputChange}
+                            placeholder="Enter clientId" 
+                            />
+                          
+                          </div>
+                          <div className="col-12 col-lg-6 col-md-6 mb-3">
+                            <label htmlFor="exampleFormControlInput6">Host </label>
+                            <input 
+                            type="text" 
+                            className="form-control" 
+                            id="host" 
+                            name='host'
+                            value={formData.host}
+                            onChange={handleInputChange}
+                            placeholder="Enter host" 
+                            />
+                          
+                          </div>
+                          <div className="col-12 col-lg-6 col-md-6 mb-3">
+                            <label htmlFor="exampleFormControlInput6">Key</label>
+                            <input 
+                            type="file" 
+                            className="form-control" 
+                            id="key" 
+                            name='key'
+                            value={formData.key}
+                            onChange={(e) => setFormData({ ...formData, deviceCredentials: { ...formData.deviceCredentials, key: e.target.files[0] } })}
+                          
+                            />
+                          
+                          </div>
+                          <div className="col-12 col-lg-6 col-md-6 mb-3">
+                            <label htmlFor="exampleFormControlInput6">Certificate</label>
+                            <input 
+                            type="file" 
+                            className="form-control" 
+                            id="cert" 
+                            name='cert'
+                            value={formData.cert}
+                            onChange={(e) => setFormData({ ...formData, deviceCredentials: { ...formData.deviceCredentials, cert: e.target.files[0] } })}
+                            
+                            />
+                          
+                          </div>
+                          <div className="col-12 col-lg-6 col-md-6 mb-3">
+                            <label htmlFor="exampleFormControlInput6">CA</label>
+                            <input 
+                            type="file" 
+                            className="form-control" 
+                            id="ca" 
+                            name='ca'
+                            value={formData.ca}
+                            onChange={(e) => setFormData({ ...formData, deviceCredentials: { ...formData.deviceCredentials, ca: e.target.files[0] } })}
+                            />
+                          
+                          </div>
+                          
+                          
                           <div className="mt-4 mb-5 p-2">
                             <button 
                             type="submit" 
@@ -499,7 +534,6 @@ const handleInputChange = event =>{
                                Add User 
                             </button>
                           </div>
-                          
                             <div className="mt-4 mb-5 p-2">
                             <button type="button"  className="btn btn-danger mb-2"> Cancel </button>
                             </div>
