@@ -7,7 +7,7 @@ const addNotification = async (req,res) =>{
         const {
             message,
             adminID,
-            adminName,
+            adminName,             
             dateOfNoticationAdded,
             timeOfNoticationAdded,
             
