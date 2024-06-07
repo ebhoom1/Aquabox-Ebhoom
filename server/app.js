@@ -16,8 +16,7 @@ const reportRoutes=require('./routers/report');
 
 const mongoose = require('mongoose');
 const multer = require('multer');
-const GridFsStorage = require('multer-gridfs-storage');
-const Grid = require('gridfs-stream'); 
+ 
 const { getAllDeviceCredentials } = require('./controllers/user');
 const setupMqttClient = require('./mqtt/mqtt-socket');
 const http = require('http');
