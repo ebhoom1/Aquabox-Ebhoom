@@ -2,6 +2,7 @@ import {createSlice,createAsyncThunk} from '@reduxjs/toolkit'
 import axios from 'axios'
 import { LOCAL_API_URL,API_URL } from '../../../utils/apiConfig';
 
+
 const url  = 'http://localhost:5555'
 
 export const validateUser = createAsyncThunk(
@@ -24,7 +25,7 @@ export const resetPassword =createAsyncThunk(
     'resetPassword/resetPassword',
     async({id,token,password,cpassword},{rejectWithValue})=>{
         try {
-            const response = await axios.post(`${LOCAL_API_URL}/api/${id}/${token}`,{
+            const response = await axios.post(`${URL}/api/${id}/${token}`,{
                 password,
                 cpassword
             },{
