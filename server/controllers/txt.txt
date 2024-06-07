@@ -159,30 +159,3 @@ module.exports = { calculateAndSaveAverages };
 
 
 
-//tiwilo//
-
-ACCOUNTSID= AC16116151f40f27195ca7e326ada5cb83
-AUTHTOKEN = d7ea43981a772f6b6c9bddb41a6a87ff
-
-
-//Create a new Twilio client
-const twilio = require('twilio');
-const accountsid = process.env.ACCOUNTSID
-const authtoken =process.env.AUTHTOKEN
-
-const client = new twilio(accountsid,authtoken);
-
-//function to send sms notification for exceed calibration
-const sendSMS = async(to,message)=>{
-    try{
-        //send SMS
-        await client.messages.create({
-            body:message,
-            from:process.env.PHONE_NUMBER,
-            to:to
-        })
-        console.log(`SMS sent successfully`);
-    }catch(error){
-        console.error(`Error sending SMS:`, error)
-    }
-}
