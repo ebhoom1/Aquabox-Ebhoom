@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios"
 import './index.css'
+import { API_URL } from "../../utils/apiConfig";
 
 const CalibrationPopup=({userName,onClose})=>{
 
@@ -11,7 +12,7 @@ const CalibrationPopup=({userName,onClose})=>{
 useEffect(()=>{
     const fetchCalibrationData = async ()=>{
         try{
-            const response = await axios.get(`${url}/api/find-calibration-by-userId/${userName}`);
+            const response = await axios.get(`${API_URL}/api/find-calibration-by-userId/${userName}`);
             const data = response.data
             if(data.success){
                 setCalibrationData(data.calibration);

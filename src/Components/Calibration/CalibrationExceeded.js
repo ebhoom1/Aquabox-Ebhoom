@@ -3,6 +3,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from '../../utils/apiConfig';
 
 const CalibrationExceeded = () => {
   const [userType, setUserType] = useState('');
@@ -18,7 +19,7 @@ const CalibrationExceeded = () => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem("userdatatoken");
-        const userResponse = await axios.get(`${url}/api/validuser`, {
+        const userResponse = await axios.get(`${API_URL}/api/validuser`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: token,
@@ -35,7 +36,7 @@ const CalibrationExceeded = () => {
           console.log("User Type :::::", userData.validUserOne.userType);
           setDataLoaded(true);
 
-          const commentsResponse = await axios.get(`${url}/api/get-all-values`);
+          const commentsResponse = await axios.get(`${API_URL}/api/get-all-values`);
           setEntries(commentsResponse.data.comments);
         }
       } catch (error) {
