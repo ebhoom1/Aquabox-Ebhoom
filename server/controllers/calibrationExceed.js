@@ -1,10 +1,31 @@
 const CalibrationExceed = require('../models/calibrationExceed')
 const moment = require('moment')
+const twilio = require('twilio');
 const nodemailer = require('nodemailer');
 const userdb = require('../models/user');
 const {createNotification} = require('../controllers/notification');
 
+//Create a new Twilio client
 
+const accountsid = process.env.ACCOUNTSID
+const authtoken =process.env.AUTHTOKEN
+
+const client = new twilio(accountsid,authtoken);
+
+//function to send sms notification for exceed calibration
+const sendSMS = async(to,message)=>{
+    try{
+        //send SMS
+        await client.messages.create({
+            body:message,
+            from:process.env.PHONE_NUMBER,
+            to:to
+        })
+        console.log(`SMS sent successfully`);
+    }catch(error){
+        console.error(`Error sending SMS:`, error)
+    }
+}
 
 //email config
 const transporter=nodemailer.createTransport({
@@ -163,10 +184,10 @@ const sendNotification =async(parameter,value,user)=>{
 
         await sendEmail(user.email,'Calibration Exceed Notification',message)
 
-        // //Send SMS notification
-        // if (user.mobileNumber) {
-        //     await sendSMS(user.mobileNumber, message);
-        // }
+        //Send SMS notification
+        if (user.mobileNumber) {
+            await sendSMS(user.mobileNumber, message);
+        }
         //Add notification to the database
         await createNotification(message,user._id,user.userName,currentDate,currentTime )
     } catch (error) {
