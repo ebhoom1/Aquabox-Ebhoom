@@ -228,4 +228,4 @@ const getIotDataByUserName = async (req,res)=>{
     }
 }
 
-module.exports ={handleSaveMessage, calculateAndSaveAverages,getAllIotData, getLatestIoTData,getIotDataByUserName}
+module.exports ={handleSaveMessage,calculateAndSaveAverages,getAllIotData, getLatestIoTData,getIotDataByUserName}

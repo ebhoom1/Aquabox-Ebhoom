@@ -1,5 +1,6 @@
 import {createSlice, createAsyncThunk} from '@reduxjs/toolkit'
 import axios from 'axios'
+import { LOCAL_API_URL,API_URL } from '../../../utils/apiConfig';
 
 const url =  'http://localhost:5555';
 
@@ -7,7 +8,7 @@ export const sendResetLink = createAsyncThunk(
     'resetPasswordEmail/sendResetLink',
     async(email,{rejectWithValue})=>{
         try {
-            const response = await axios.post(`${url}/api/sendpasswordlink`,{email},{
+            const response = await axios.post(`${LOCAL_API_URL}/api/sendpasswordlink`,{email},{
                 headers:{
                     'Content-Type':'application/json'
                 }

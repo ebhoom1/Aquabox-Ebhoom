@@ -1,13 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from 'axios';
-
+import { LOCAL_API_URL,API_URL } from "../../../utils/apiConfig";
 const url = 'http://localhost:5555';
 
 export const addCalibration = createAsyncThunk(
     'calibration/addCalibration',
     async (calibrationData, { rejectWithValue }) => {
         try {
-            const response = await axios.post(`${url}/api/add-calibration`, calibrationData, {
+            const response = await axios.post(`${LOCAL_API_URL}/api/add-calibration`, calibrationData, {
                 headers: {
                     "Content-Type": "application/json",
                 }
@@ -23,7 +23,7 @@ export const fetchCalibrations = createAsyncThunk(
     'calibration/fetchCalibrations',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await axios.get(`${url}/api/view-all-calibrations`);
+            const response = await axios.get(`${LOCAL_API_URL}/api/view-all-calibrations`);
             return response.data.calibrations;
         } catch (error) {
             return rejectWithValue(error.response.data?.message || error.message);
@@ -35,7 +35,7 @@ export const fetchCalibrationById = createAsyncThunk(
     'calibration/fetchCalibrationById',
     async (calibrationId, { rejectWithValue }) => {
         try {
-            const response = await axios.get(`${url}/api/find-calibration-by-userId/${calibrationId}`);
+            const response = await axios.get(`${LOCAL_API_URL}/api/find-calibration-by-userId/${calibrationId}`);
             return response.data.calibration;
         } catch (error) {
             return rejectWithValue(error.response.data?.message || error.message);
@@ -47,7 +47,7 @@ export const deleteCalibration = createAsyncThunk(
     'calibration/deleteCalibration',
     async (calibrationId, { rejectWithValue }) => {
         try {
-            await axios.delete(`${url}/api/delete-calibration/${calibrationId}`);
+            await axios.delete(`${LOCAL_API_URL}/api/delete-calibration/${calibrationId}`);
             return calibrationId;
         } catch (error) {
             return rejectWithValue(error.response.data?.message || error.message);
@@ -59,7 +59,7 @@ export const editCalibration = createAsyncThunk(
     'calibration/editCalibration',
     async ({ userName, updatedData }, { rejectWithValue }) => {
         try {
-            const response = await axios.patch(`${url}/api/edit-calibration/${userName}`, updatedData);
+            const response = await axios.patch(`${LOCAL_API_URL}/api/edit-calibration/${userName}`, updatedData);
             return response.data.calibration;
         } catch (error) {
             return rejectWithValue(error.response.data?.message || error.message);

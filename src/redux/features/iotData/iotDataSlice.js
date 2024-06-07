@@ -1,13 +1,13 @@
 import {createSlice,createAsyncThunk} from "@reduxjs/toolkit";
 import axios from 'axios';
-
+import { LOCAL_API_URL,API_URL } from "../../../utils/apiConfig";
 const url = 'http://localhost:5555';
 
 export const fetchLatestIotData = createAsyncThunk(
     'iotData/fetchLatestIotData',
     async(userName,{rejectWithValue})=>{
         try {
-            const response = await axios.get(`${url}/api/latest-iot-data/${userName}`);
+            const response = await axios.get(`${LOCAL_API_URL}/api/latest-iot-data/${userName}`);
             return response.data.data[0] || {};
         } catch (error) {
             return rejectWithValue(error.response.data);

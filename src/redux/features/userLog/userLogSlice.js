@@ -1,5 +1,6 @@
 import {createSlice,createAsyncThunk}from '@reduxjs/toolkit'
 import  axios  from 'axios'
+import { LOCAL_API_URL,API_URL } from '../../../utils/apiConfig';
 
 const url = 'http://localhost:5555';
 
@@ -8,7 +9,7 @@ export const fetchUsers =createAsyncThunk(
     'userLog/fetchUsers',
     async(_, { rejectWithValue })=>{
         try {
-            const response =await axios.get(`${url}/api/getallusers`)
+            const response =await axios.get(`${LOCAL_API_URL}/api/getallusers`)
             return response.data.users;
             
         } catch (error) {
@@ -21,7 +22,7 @@ export const fetchUserById = createAsyncThunk(
     'users/fetchUserById',
     async(userId,{rejectWithValue})=>{
         try{
-            const response = await axios.get(`${url}/api/getauser/${userId}`)
+            const response = await axios.get(`${LOCAL_API_URL}/api/getauser/${userId}`)
             return response.data.user
         }catch(error){
             return rejectWithValue(error.response.data)
@@ -34,7 +35,7 @@ export const addUser =createAsyncThunk(
     'users/adduser',
     async (formData, { rejectWithValue })=>{
       try{
-        const response = await axios.post(`${url}/api/register`,formData,{
+        const response = await axios.post(`${LOCAL_API_URL}/api/register`,formData,{
           headers:{
             'Content-Type':'multipart/form-data',
           },
@@ -51,7 +52,7 @@ export const updateUser = createAsyncThunk(
     'users/updateUser',
     async({userId,userData},{rejectWithValue})=>{
         try {
-            const response = await axios.patch(`${url}/api/edituser/${userId}`,userData,{
+            const response = await axios.patch(`${LOCAL_API_URL}/api/edituser/${userId}`,userData,{
                 headers:{
                     'Content-Type':'multipart/form-data'
                 }
@@ -67,7 +68,7 @@ export const updateUser = createAsyncThunk(
     `user/deleteUser`,
     async(userName,{ rejectWithValue })=>{
     try {
-      const response = await axios.delete(`${url}/api/deleteuser/${userName}`);
+      const response = await axios.delete(`${LOCAL_API_URL}/api/deleteuser/${userName}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
