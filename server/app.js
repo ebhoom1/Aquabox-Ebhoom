@@ -4,6 +4,7 @@ require('dotenv').config();
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const path = require('path'); // Add this line
 const DB = require('./config/DB');
 
 const userRoutes = require('./routers/user');
@@ -39,6 +40,9 @@ app.use(cors({
 app.use(cookieParser());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, '../client/build')));
 
 // Request logging middleware
 app.use((req, res, next) => {
@@ -95,6 +99,12 @@ io.on('connection', (socket) => {
         console.log('Client disconnected');
     });
 });
+
+// All other requests should be handled by React app
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
+  });
+  
 
 // Start the server and set up Socket.IO
 server.listen(port, () => {
