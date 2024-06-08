@@ -33,7 +33,7 @@ DB();
 
 // Middleware
 app.use(cors({
-    origin:['http://localhost:3000','http://13.50.61.71:5555','http://13.50.61.71:3000'] ,
+    origin:['http://localhost:3000','http://13.202.11.195:5555','http://13.202.11.195:3000'] ,
     credentials: true
 }));
 app.use(cookieParser());
