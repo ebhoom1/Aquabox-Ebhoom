@@ -834,6 +834,39 @@
     right: 0;
   }
 }
+/* Sidebar styles for large screens */
+.sidebar {
+  width: 270px;
+  transition: all 0.3s;
+}
+
+/* Sidebar styles for small screens */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 0;
+    position: fixed;
+    top: 0;
+    left: -270px;
+    height: 100%;
+    z-index: 1;
+    background: #236a80;
+    transition: all 0.3s;
+  }
+  .sidebar.active {
+    left: 0;
+  }
+  .toggle-button {
+    display: block;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 2;
+  }
+}
+
+.toggle-button {
+  display: none;
+}
 
 /* Footer */
 .footer {
@@ -880,13 +913,9 @@
 .card .card-header {
   background: #fff;
 }
-<<<<<<< HEAD
-
-=======
 .strong-value {
   color: red;
 }
->>>>>>> 262d3f8 (initial commit)
 .form-inline {
   display: flex;
   justify-content: flex-end;

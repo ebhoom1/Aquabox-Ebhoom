@@ -29,14 +29,17 @@ const authSlice = createSlice({
     user: null,
     loading: false,
     error: null,
+    isSidebarActive: false,
   },
   reducers: {
     logout: (state) => {
       state.user = null;
       localStorage.removeItem('userdatatoken');
-    }
-  },
-  extraReducers: (builder) => {
+    },
+    
+  
+},
+  extraReducers:(builder) => {
     builder
       .addCase(loginUser.pending, (state) => {
         state.loading = true;

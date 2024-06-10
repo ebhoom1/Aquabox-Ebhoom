@@ -144,7 +144,7 @@ const LeftSideBar = () => {
   }
 
   return (
-    <nav className='sidebar sidebar-offcanvas' id="sidebar">
+    <nav className="sidebar sidebar-offcanvas"  id="sidebar">
       <ul className="nav">
         <li className="nav-item nav-profile">
           <a href="#" className="nav-link">

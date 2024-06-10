@@ -13,6 +13,7 @@ const PrivateLayout = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [onlineStatus, setOnlineStatus] = useState(navigator.onLine ? 'Online' : 'Offline');
 
+  
   const validateUser = async () => {
     try {
       const response = await dispatch(fetchUser()).unwrap();
@@ -20,7 +21,7 @@ const PrivateLayout = () => {
       if (!response) {
         navigate('/');
       } else {
-        dispatch(fetchNotifications(response.userData._id));
+        dispatch(fetchNotifications(response.userData.validUserOne._id));
         
       }
     } catch (error) {
@@ -51,6 +52,75 @@ const PrivateLayout = () => {
       navigate('/');
     } catch (error) {
       console.error('Error logging out:', error);
+    }
+  };
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const closeDropdown = () => {
+    setIsDropdownOpen(false);
+  };
+  const getDropdownItems = () => {
+    const { userType } = userData.validUserOne;
+    if (userType === 'admin') {
+      return (
+        <>
+          <li>
+            <Link to="/manage-users" onClick={closeDropdown}>Manage Users</Link>
+          </li>
+          <li>
+            <Link to="/users-log" onClick={closeDropdown}>Users Log</Link>
+          </li>
+          <li>
+            <Link to="/calibration" onClick={closeDropdown}>Calibration</Link>
+          </li>
+          <li>
+            <Link to="/notification" onClick={closeDropdown}>Notification</Link>
+          </li>
+          <li>
+            <Link to="/account" onClick={closeDropdown}>Account</Link>
+          </li>
+          <li>
+            <Link to="/report" onClick={closeDropdown}>Report</Link>
+          </li>
+          <li>
+            <Link to="/support-analyzer" onClick={closeDropdown}>List of support analyzer make and model</Link>
+          </li>
+          <li>
+            <Link to="/water" onClick={closeDropdown}>Effluent/Water Dashboard</Link>
+          </li>
+          <li>
+            <Link to="/ambient-air" onClick={closeDropdown}>Ambient Air Dashboard</Link>
+          </li>
+          <li>
+            <Link to="/noise" onClick={closeDropdown}>Noise Dashboard</Link>
+          </li>
+        </>
+      );
+    } else {
+      return (
+        <>
+          <li>
+            <Link to="/account" onClick={closeDropdown}>Account</Link>
+          </li>
+          <li>
+            <Link to="/report" onClick={closeDropdown}>Report</Link>
+          </li>
+          <li>
+            <Link to="/support-analyzer" onClick={closeDropdown}>List of support analyzer make and model</Link>
+          </li>
+          <li>
+            <Link to="/water" onClick={closeDropdown}>Effluent/Water Dashboard</Link>
+          </li>
+          <li>
+            <Link to="/ambient-air" onClick={closeDropdown}>Ambient Air Dashboard</Link>
+          </li>
+          <li>
+            <Link to="/noise" onClick={closeDropdown}>Noise Dashboard</Link>
+          </li>
+        </>
+      );
     }
   };
 
@@ -126,11 +196,28 @@ const PrivateLayout = () => {
                 </a>
               </div>
             </li>
+            
           </ul>
+          <button
+            className="navbar-toggler navbar-toggler-right d-lg-none align-self-center"
+            type="button"
+            onClick={toggleDropdown}
+          >
+            <span className="mdi mdi-menu"></span>
+          </button>
+           {/* Dropdown */}
+           {isDropdownOpen && (
+            <div className="dropdown-menu-right navbar-dropdown toggle-dropdown">
+              <ul className="dropdown-list">
+                {getDropdownItems()}
+              </ul>
+            </div>
+          )}
         </div>
       </nav>
+      
       <div className="container-fluid page-body-wrapper">
-        <LeftSideBar />
+      <LeftSideBar />
         <Outlet />
       </div>
     </div>
