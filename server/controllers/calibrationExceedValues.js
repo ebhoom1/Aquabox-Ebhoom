@@ -1,5 +1,6 @@
 const CalibrationExceedValues = require('../models/calibrationExceedValues');
 
+//Add Calibration Exceed Values
 const AddCalibrationExceedValues = async (req, res) => {
     try {
         const { product_id, ph, tds, turbidity, temperature, bod, cod,
@@ -28,6 +29,7 @@ const AddCalibrationExceedValues = async (req, res) => {
     }
 };
 
+// Get calibration Exceed Values by userName
 const getCalibrationExceedValues = async (req, res) => {
     try {
         const { userName } = req.params;
