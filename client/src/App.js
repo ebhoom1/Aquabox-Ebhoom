@@ -34,6 +34,8 @@ import CalibrationExceeded from './Components/Calibration/CalibrationExceeded';
 import CalibrationExceededReport from './Components/Calibration/CalibrationExceedReport';
 import Report from './Components/Reports/Report';
 import ListOfSupportAnalyserMakeAndModel from './Components/ListOfSupportAnalyserMakeAndModel/ListOfSupportAnalyserMakeAndModel';
+import Subscribe from './Components/Subscribe/Subscribe';
+
 
 function App() {
   const dispatch = useDispatch();
@@ -95,6 +97,7 @@ function App() {
               <Route path="calibration-exceeded-report" element={<CalibrationExceededReport />} />
               <Route path="report" element={<Report />} />
               <Route path="list-of-support-analyser-make-and-model" element={<ListOfSupportAnalyserMakeAndModel />} />
+              <Route path= '/subscribe-data' element={<Subscribe/>}/>
             </>
           )}
           {userType === "user" && (

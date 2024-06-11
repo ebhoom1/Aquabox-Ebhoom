@@ -29,13 +29,17 @@ if (!userData) {
 validateUser();
 }
  
- useEffect(()=>{
-  if(userData){
-    if(userType === 'user'){
-      dispatch(fetchLatestIotData(userData.validUserOne.userName))
+useEffect(() => {
+  if (userData) {
+    if (userType === 'user') {
+      dispatch(fetchLatestIotData(userData.validUserOne.userName));
+      const interval = setInterval(() => {
+        dispatch(fetchLatestIotData(userData.validUserOne.userName));
+      }, 1000); // Fetch every second
+      return () => clearInterval(interval); // Cleanup interval on component unmount
     }
   }
- },[userData, userType, dispatch])
+}, [userData, userType, dispatch]);
  
  
  const handleCardClick = (card) => {

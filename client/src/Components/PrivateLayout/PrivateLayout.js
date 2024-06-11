@@ -85,6 +85,9 @@ const PrivateLayout = () => {
             <Link to="/report" onClick={closeDropdown}>Report</Link>
           </li>
           <li>
+            <Link to="/subscribe-data" onClick={closeDropdown}>Subscribe</Link>
+          </li>
+          <li>
             <Link to="/support-analyzer" onClick={closeDropdown}>List of support analyzer make and model</Link>
           </li>
           <li>

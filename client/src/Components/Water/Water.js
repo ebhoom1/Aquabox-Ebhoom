@@ -3,7 +3,6 @@ import React, { createContext, useEffect, useState } from "react";
 import {useDispatch,useSelector} from 'react-redux';
 import { fetchUser } from "../../redux/features/user/userSlice";
 import {fetchLatestIotData} from "../../redux/features/iotData/iotDataSlice"
-import axios from 'axios'
 import { Link } from 'react-router-dom';
 import WaterPopup from "./WaterPopup";
 import CalibrationPopup from "../Calibration/CalibrationPopup";
@@ -36,77 +35,17 @@ if (!userData) {
 validateUser();
 }
  
- useEffect(()=>{
-  if(userData){
-    if(userType === 'user'){
-      dispatch(fetchLatestIotData(userData.validUserOne.userName))
+ useEffect(() => {
+    if (userData) {
+      if (userType === 'user') {
+        dispatch(fetchLatestIotData(userData.validUserOne.userName));
+        const interval = setInterval(() => {
+          dispatch(fetchLatestIotData(userData.validUserOne.userName));
+        }, 1000); // Fetch every second
+        return () => clearInterval(interval); // Cleanup interval on component unmount
+      }
     }
-  }
- },[userData, userType, dispatch])
-
-  // const [validUserData, setValidUserData] = useState(null);
-  // const [latestData,setLatestData] =useState({});
- 
-  // const url = `http://localhost:5555`
-  // useEffect(()=>{
-  //   //Fetch product iD and user status when the component mounts
-    
-  //   const fetchData=async()=>{
-  //     try{
-  //         let token = localStorage.getItem("userdatatoken")
-  //         const response =await axios.get(`${url}/api/validuser`,{
-  //           headers:{
-  //             'Content-Type':"application/json",
-  //             'Authorization':token,
-  //             Accept:'application/json'
-  //           },
-  //           withCredentials: true
-  //         })
-  //         const data = response.data;
-  //       console.log(data);
-
-  //       if (data.status === 201) {
-  //         // Update product ID and user status
-  //         setValidUserData(data.validUserOne);
-  //         console.log(data.validUserOne);
-  //       } else {
-  //         console.log("Error fetching user data");
-  //       }
-  //     }catch(error){
-  //       console.error("Error fetching user data :", error);
-  //     }
-  //   }
-  //   fetchData();
-  // },[])
-
-
-  // useEffect(() => {
-  //   if (validUserData) {
-  //     if (validUserData.userType === 'user') {
-  //       fetchLatestData(validUserData.userName);
-  //     }else if(validUserData.userType === 'admin'){
-  //       fetchLatestData(handleSearch)
-  //     }
-  //   }
-  // }, [validUserData]);
-
-  // const fetchLatestData = async (userName) => {
-  //   try {
-  //     const response = await axios.get(`${url}/api/latest-iot-data/${userName}`);
-  //     if (response.data.status === 200) {
-  //       setLatestData(response.data.data[0] || {});
-  //       console.log(`Latest IoT data of ${userName}:`, response.data.data[0]);
-  //     } else {
-  //       console.log("Error fetching latest IoT Data");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching latest IoT Data:", error);
-  //   }
-  // };
-
-    
-
-
+  }, [userData, userType, dispatch]);
 
   const handleCardClick = (card) => {
     setSelectedCard(card);

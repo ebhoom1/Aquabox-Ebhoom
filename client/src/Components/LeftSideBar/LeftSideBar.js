@@ -67,9 +67,15 @@ const LeftSideBar = () => {
             </Link>
           </li>
           <li className={`nav-item`}>
+            <Link className="nav-link" to="/subscribe-data">
+              <i className="menu-icon typcn typcn-document-text"></i>
+              <span className="menu-title">Subscribe</span>
+            </Link>
+          </li>
+          <li className={`nav-item`}>
             <Link className="nav-link" to="/list-of-support-analyser-make-and-model">
               <i className="menu-icon typcn typcn-document-text"></i>
-              <span className="menu-title">List of support analyser<br /> make and model</span>
+              <span className="menu-title">List of supported analyser<br /> make and model</span>
             </Link>
           </li>
           <li className={`nav-item`}>
