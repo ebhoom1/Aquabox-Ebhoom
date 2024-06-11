@@ -11,6 +11,7 @@ const userRoutes = require('./routers/user');
 const calibrationRoutes = require('./routers/calibration');
 const notificationRoutes = require('./routers/notification');
 const calibrationExceedRoutes= require('./routers/calibrationExceed');
+const calibrationExceedValuesRoute = require('./routers/calibrationExceedValues');
 const calculateAverageRoute = require('./routers/calculateAverage');
 const reportRoutes=require('./routers/report');
 
@@ -55,6 +56,7 @@ app.use('/api', userRoutes);
 app.use('/api', calibrationRoutes);
 app.use('/api', notificationRoutes);
 app.use('/api', calibrationExceedRoutes);
+app.use('/api', calibrationExceedValuesRoute);
 app.use('/api', calculateAverageRoute);
 app.use('/api', reportRoutes);
 

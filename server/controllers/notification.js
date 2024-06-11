@@ -84,10 +84,10 @@ const viewNotification = async (req,res)=>{
 
 const getNotificationOfUser = async (req, res) => {
     try {
-      const { adminID } = req.params;
+      const { userName } = req.params;
   
       // Retrieve notifications of the specific user from the database
-      const userNotifications = await Notification.find({ adminID });
+      const userNotifications = await Notification.find({ userName });
   
       res.status(200).json({
         status: 200,
