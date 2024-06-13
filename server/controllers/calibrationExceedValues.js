@@ -3,23 +3,36 @@ const CalibrationExceedValues = require('../models/calibrationExceedValues');
 //Add Calibration Exceed Values
 const AddCalibrationExceedValues = async (req, res) => {
     try {
-        const { product_id, ph, tds, turbidity, temperature, bod, cod,
-            tss, orp, nitrate, ammonicalNitrogen, DO, chloride, PM10, PM25, NOH, NH3, WindSpeed,
-            WindDir, AirTemperature, Humidity, solarRadiation, DB, date, time, userName } = req.body;
+        const { product_id, ph, TDS, turbidity, temperature, BOD, COD,
+            TSS, ORP, nitrate, ammonicalNitrogen, DO, chloride, PM10, PM25, NOH, NH3, WindSpeed,
+            WindDir, AirTemperature, Humidity, solarRadiation, DB, date, adminUserName,userName,adminName,industryType } = req.body;
 
-        const newCalibrationExceedValues = new CalibrationExceedValues({
-            product_id, ph, tds, turbidity, temperature, bod, cod,
-            tss, orp, nitrate, ammonicalNitrogen, DO, chloride, PM10, PM25, NOH, NH3, WindSpeed,
-            WindDir, AirTemperature, Humidity, solarRadiation, DB, date, time, userName
-        });
+            const preIndustry = await CalibrationExceedValues.findOne({industryType:industryType,});
+            if(preIndustry){
+                return res.status(422).json({error:'This Industry already used'})
+            }
+            // Check if an entry with the same userName and product_id already exists
+            const preUserProduct = await CalibrationExceedValues.findOne({ userName: userName });
+            if (preUserProduct) {
+            return res.status(422).json({ error: 'This user ID combination already exists' });
+            }
+            
+                const newCalibrationExceedValues = new CalibrationExceedValues({
+                    product_id, ph, TDS, turbidity, temperature, BOD, COD,
+                    TSS, ORP, nitrate, ammonicalNitrogen, DO, chloride, PM10, PM25, NOH, NH3, WindSpeed,
+                    WindDir, AirTemperature, Humidity, solarRadiation, DB, date, adminUserName, userName, adminName,industryType
+                });
+        
+                await newCalibrationExceedValues.save();
+        
+                res.status(201).json({
+                    success: true,
+                    message: 'The Calibration Exceed Values are saved successfully',
+                    calibrationExceedValues: newCalibrationExceedValues
+                });
+            
 
-        await newCalibrationExceedValues.save();
-
-        res.status(201).json({
-            success: true,
-            message: 'The Calibration Exceed Values are saved successfully',
-            calibrationExceedValues: newCalibrationExceedValues
-        });
+        
     } catch (error) {
         res.status(500).json({
             success: false,
@@ -29,7 +42,26 @@ const AddCalibrationExceedValues = async (req, res) => {
     }
 };
 
-// Get calibration Exceed Values by userName
+//Get All calibration Exceed Values 
+  const getAllCalibrationExceedValues=async (req,res)=>{
+    try {
+        const allCalibrationExceedValues=await CalibrationExceedValues.find()
+
+        res.status(200).json({
+            success:true,
+            message:'All Calibration Exceed Values finded successfully',
+            calibrationExceedValues:allCalibrationExceedValues
+        })
+    } catch (error) {
+        res.status(500).json({
+            success:false,
+            message:'Failed to fetch the Calibration Exceed Values',
+            error:error.message
+        })
+    }
+  }
+
+// Get calibration Exceed Values by UserName
 const getCalibrationExceedValues = async (req, res) => {
     try {
         const { userName } = req.params;
@@ -52,8 +84,46 @@ const getCalibrationExceedValues = async (req, res) => {
     }
 };
 
-//Edit Calibration Exceed Values
+// Get calibration Exceed Value by Industry Type
+const getCalibrationExceedValuesByIndustryType = async (req,res)=>{
+    try {
+        const {industryType} =req.params;
 
+        //Check if industryType is Provided
+        if(!industryType){
+            return res.status(400).json({
+                status:400,
+                success:false,
+                message:'industry type paramater is required'
+            })
+        }
+        const IndustryCalibrationExceedValues = await CalibrationExceedValues.find({industryType})
+        // Handle case when no records are found
+        if (!IndustryCalibrationExceedValues.length) {
+            return res.status(404).json({
+                status: 404,
+                success: false,
+                message: `No calibration exceed values found for industry type: ${industryType}`
+            });
+        }
+        res.status(200).json({
+            status: 200,
+            success: true,
+            message: `Calibration Exceed Values of ${industryType} fetched successfully`,
+            IndustryTypCalibrationExceedValues: IndustryCalibrationExceedValues,
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: 500,
+            success: false,
+            message: 'Error in fetching the calibration exceed values',
+            error: error.message,
+        });
+    }
+}
+
+
+//Edit Calibration Exceed Values
 const editCalibrationExceedValues = async( req,res)=>{
     try {
         const {userName} =req.params;
@@ -84,13 +154,12 @@ const editCalibrationExceedValues = async( req,res)=>{
 }
 
 // Delete Calibration Exceed Values
-
 const deleteCalibrationExceedValues = async (req,res)=>{
     try {
-        const {_id} = req.params;
+        const { _id } = req.params;
 
-        // find the Calibration exceed Value by Id and Delete it
-        const deletedCalibrationExceedValue = await CalibrationExceedValues.findByIdAndDelete(_id);
+         // Find the Calibration Exceed Value by Id and delete it
+         const deletedCalibrationExceedValue = await CalibrationExceedValues.findByIdAndDelete(_id);
 
         if(!deletedCalibrationExceedValue){
             return res.status(404).json({
@@ -112,4 +181,4 @@ const deleteCalibrationExceedValues = async (req,res)=>{
         
     }
 }
-module.exports = { getCalibrationExceedValues, AddCalibrationExceedValues,editCalibrationExceedValues,deleteCalibrationExceedValues };
+module.exports = { getCalibrationExceedValues, AddCalibrationExceedValues,editCalibrationExceedValues,deleteCalibrationExceedValues,getAllCalibrationExceedValues,getCalibrationExceedValuesByIndustryType };

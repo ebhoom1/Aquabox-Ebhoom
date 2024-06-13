@@ -28,7 +28,7 @@ const transporter=nodemailer.createTransport({
 
 // For User Registration
 const register = async (req, res) => {
-    const { userName, companyName, modelName, fname, email,mobileNumber, password, cpassword, subscriptionDate, userType, industryType, dataInteval, district, state, address, latitude, longitude, host, clientId } = req.body;
+    const { userName, companyName, modelName, fname, email,mobileNumber, password, cpassword, subscriptionDate, userType, industryType, dataInteval, district, state, address, latitude, longitude,topic, host, clientId } = req.body;
     const { key, cert, ca } = req.files;
 
     try {
@@ -45,6 +45,7 @@ const register = async (req, res) => {
             const finalUser = new userdb({
                 userName, companyName, modelName, fname, email,mobileNumber, password, cpassword, subscriptionDate, userType, industryType, dataInteval, district, state, address, latitude, longitude,
                 deviceCredentials: {
+                    topic,
                     host,
                     clientId,
                     key: key[0].buffer,

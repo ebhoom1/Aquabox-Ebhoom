@@ -159,3 +159,42 @@ module.exports = { calculateAndSaveAverages };
 
 
 
+const industryThresholds = await CalibrationExceedValues.findOne({industryType:user.industryType})
+        if(!industryThresholds){
+            throw new Error(`No thresholds found for industry type: ${user.industryType}`)
+        }
+        const exceedParameters =[
+            { parameter: 'ph', value: data.ph, threshold: industryThresholds.ph },
+            { parameter: 'turbidity', value: data.turbidity, threshold: industryThresholds.turbidity },
+            { parameter: 'ORP', value: data.orp, threshold: industryThresholds.ORP },
+            { parameter: 'TDS', value:data.tds, threshold:industryThresholds.TDS},
+            { parameter: 'temperature',value:data.temperature,threshold:industryThresholds.temperature},
+            { parameter: 'BOD', value:data.bod,threshold:industryThresholds.BOD},
+            { parameter: 'COD', value:data.cod,threshold:industryThresholds.COD},
+            { parameter: 'TSS', value:data.tss,threshoild:industryThresholds.TSS},
+            { parameter: 'nitrate', value: data.nitrate, threshold: industryThresholds.nitrate },
+            { parameter: 'ammonicalNitrogen', value: data.ammonicalNitrogen, threshold: industryThresholds.ammonicalNitrogen },
+            { parameter: 'DO', value: data.do, threshold: industryThresholds.DO },
+            { parameter: 'chloride', value:data.chloride, threshold:industryThresholds.chloride},
+            { parameter: 'PM10',value:data.PM10,threshold:industryThresholds.PM10},
+            { parameter: 'PM25', value:data.PM25,threshold:industryThresholds.PM25},
+            { parameter: 'NOH', value:data.noh,threshold:industryThresholds.NOH},
+            { parameter: 'NH3', value:data.NH3,threshoild:industryThresholds.NH3},
+            { parameter: 'WindSpeed', value: data.WindSpeed, threshold: industryThresholds.WindSpeed },
+            { parameter: 'WindDir', value: data.WindDir, threshold: industryThresholds.WindDir },
+            { parameter: 'AirTemperature', value: data.AirTemperature, threshold: industryThresholds.AirTemperature },
+            { parameter: 'Humidity', value:data.Humidity, threshold:industryThresholds.Humidity},
+            { parameter: 'solarRadiation',value:data.solarRadiation,threshold:industryThresholds.solarRadiation},
+            { parameter: 'DB', value:data.db,threshold:industryThresholds.DB},
+
+
+        ]
+        for (const { parameter, value, threshold } of exceedParameters) {
+            if(value > threshold){
+                 await saveExceedValue(parameter, value, user);
+                await sendNotification(parameter, value, user);
+            }
+        }
+
+
+

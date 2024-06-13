@@ -59,9 +59,10 @@ const handleSaveMessage = async (data) => {
             chloride: data.chloride || null,
             timestamp: new Date(),
             userId: data.userId,
+            topic:data.topic,
             userName: data.userName, 
-            // mobileNumber:data.mobileNumber,
-            // email:data.email,
+            mobileNumber:data.mobileNumber,
+            email:data.email,
             validationStatus:validationStatus.success,
             validationMessage:validationStatus.message
         });

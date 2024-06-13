@@ -6,6 +6,8 @@ import resetPasswordReducer from '../features/auth/resetPassowordSlice';
 import resetPasswordEmailReducer from '../features/auth/resetPasswordEmailSlice';
 import CalibrationReducer from '../features/calibration/calibrationSlice';
 import LatestIotDataReducer from '../features/iotData/iotDataSlice';
+import calibrationExceedValueReducer from '../features/calibrationExceedValues/calibrationExceedValueSlice';
+
 
 const store = configureStore({
   reducer: {
@@ -16,6 +18,7 @@ const store = configureStore({
     resetPasswordEmail:resetPasswordEmailReducer,
     calibration:CalibrationReducer,
     iotData:LatestIotDataReducer,
+    calibrationExceedValue:calibrationExceedValueReducer,
     
   },
 });

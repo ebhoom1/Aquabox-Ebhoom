@@ -1,73 +1,77 @@
-const CalibrationExceed = require('../models/calibrationExceed')
-const moment = require('moment')
+const CalibrationExceed = require('../models/calibrationExceed');
+const moment = require('moment');
 const twilio = require('twilio');
 const nodemailer = require('nodemailer');
 const userdb = require('../models/user');
-const {createNotification} = require('../controllers/notification');
+const { createNotification } = require('../controllers/notification');
+const CalibrationExceedValues = require('../models/calibrationExceedValues');
 
-//Create a new Twilio client
+// Create a new Twilio client
+const accountsid ="AC16116151f40f27195ca7e326ada5cb83"
+const authtoken = "d7ea43981a772f6b6c9bddb41a6a87ff"
 
-const accountsid = process.env.ACCOUNTSID
-const authtoken =process.env.AUTHTOKEN
+const client = new twilio(accountsid, authtoken);
 
-const client = new twilio(accountsid,authtoken);
-
-//function to send sms notification for exceed calibration
-const sendSMS = async(to,message)=>{
-    try{
-        //send SMS
+// Function to send SMS notification for exceed calibration
+const sendSMS = async (to, message) => {
+    try {
+        // Send SMS
         await client.messages.create({
-            body:message,
-            from:process.env.PHONE_NUMBER,
-            to:to
-        })
+            body: message,
+            from: "+14423428965",
+            to: to
+        });
         console.log(`SMS sent successfully`);
-    }catch(error){
-        console.error(`Error sending SMS:`, error)
+    } catch (error) {
+        console.error(`Error sending SMS:`, error);
+
+        if (error.code === 20003) {
+            console.error(`Authentication error: Check your Twilio credentials.`);
+        } else {
+            console.error(`Twilio error:`, error.message);
+        }
     }
 }
 
-//email config
-const transporter=nodemailer.createTransport({
-    host:'smtp.gmail.com',
-    port:465,
-    secure:true,
-    service:'gmail',
-    auth:{
-        user:process.env.EMAIl,
-        pass:process.env.PASSWORD
+// Email config
+const transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIl,
+        pass: process.env.PASSWORD
     }
 })
 
-//Funtion to send email
-const sendEmail = async( to, subject, text)=>{
+// Function to send email
+const sendEmail = async (to, subject, text) => {
     try {
-        //Send mail with defined transport object
+        // Send mail with defined transport object
         await transporter.sendMail({
-            from:process.env.EMAIl,
-            to:to,
-            subject:subject,
-            text:text
-        })
-        console.log(`Email Sent Successfully`);
-
+            from: process.env.EMAIl,
+            to: to,
+            subject: subject,
+            text: text
+        });
+        console.log(`Email sent successfully`);
     } catch (error) {
-        console.error(`Error sending email:`,error)
+        console.error(`Error sending email:`, error);
     }
 }
 
-const addComment = async (req,res)=>{
-    try{
-        const {commentByUser,commentByAdmin}=req.body
-
-        const newComment = new CalibrationExceed({commentByUser,commentByAdmin})
-        await newComment.save()
+const addComment = async (req, res) => {
+    try {
+        const { commentByUser, commentByAdmin } = req.body;
+        const newComment = new CalibrationExceed({ commentByUser, commentByAdmin });
+        await newComment.save();
         res.status(201).json({
             success: true,
             message: 'Comment added successfully',
             calibration: newComment
         });
-    }catch(error){
+    } catch (error) {
         res.status(500).json({
             success: false,
             message: 'Failed to add comment',
@@ -75,28 +79,27 @@ const addComment = async (req,res)=>{
         });
     }
 }
-const viewAllComments = async(req,res)=>{
+
+const viewAllComments = async (req, res) => {
     try {
-        const allComments =await CalibrationExceed.find();
-        
+        const allComments = await CalibrationExceed.find();
         res.status(200).json({
-            success:true,
-            message:'All comment are finded',
-            comments:allComments
-        })
+            success: true,
+            message: 'All comments are found',
+            comments: allComments
+        });
     } catch (error) {
         res.status(500).json({
-            success:false,
-            message:'Failed fetch the comments',
-            error:error.message
-        })
+            success: false,
+            message: 'Failed to fetch the comments',
+            error: error.message
+        });
     }
 }
 
-const getAcomment =  async (req, res) => {
+const getAcomment = async (req, res) => {
     try {
-        const { id } = req.params;  // Assuming you're passing the ID as a parameter in the URL
-
+        const { id } = req.params; // Assuming you're passing the ID as a parameter in the URL
         const comment = await CalibrationExceed.findOne({ _id: id });
 
         if (!comment) {
@@ -120,110 +123,158 @@ const getAcomment =  async (req, res) => {
     }
 };
 
-const editComments =async(req,res)=>{
+const editComments = async (req, res) => {
     try {
-        const {id}=req.params;
+        const { id } = req.params;
         const updateField = req.body;
+        const updateComments = await CalibrationExceed.findByIdAndUpdate(id, updateField, { new: true });
 
-        const updateComments = await CalibrationExceed.findByIdAndUpdate(id,updateField,{new:true})
-
-        if(!updateComments){
+        if (!updateComments) {
             return res.status(404).json({
-                success:false,
-                message:'Comment not edited'
+                success: false,
+                message: 'Comment not edited'
             });
         }
         res.status(200).json({
-            success:true,
-            message:'Comments updated successfully',
-            comments:updateComments
-        })
+            success: true,
+            message: 'Comments updated successfully',
+            comments: updateComments
+        });
     } catch (error) {
         res.status(500).json({
-            succes:false,
-            message:'Failed to update the comment',
-            error:error.message
-        })
+            success: false,
+            message: 'Failed to update the comment',
+            error: error.message
+        });
     }
 }
 
-const handleExceedValues = async (data)=>{
+const handleExceedValues = async (data) => {
     try {
-         // Fetch user information
-        const user =await userdb.findById(data.userId);
+        // console.log(`Handling exceed values for data:`, data); // Debugging statement
 
-        if(!user){
-            throw new Error('User not found')
-        }
-          //Check if the pH exceeds the threshold
-        if(data.ph > 25){
-            await saveExceedValue(`pH`,data.ph,user);
-            await sendNotification(`pH`,data.ph,user);
-        }
-        // Check if  the turbitiy exceed the threshold
-        if(data.turbidity > 105){
-            await saveExceedValue(`Turbidity`,data.turbidity,user);
-            await sendNotification('Turbidity', data.turbidity,user);
+        const user = await userdb.findById(data.userId);
+        // console.log(`User found:`, user); // Debugging statement
 
+        if (!user) {
+            throw new Error('User not found');
         }
-        // Check if the ORP exceeds the threshold
-        if (data.orp > 1500){
-            await saveExceedValue(`ORP`,data.orp,user)
-            await sendNotification('ORP', data.orp,user);
+
+        if (user.userType === 'user') {
+            if (!user.industryType) {
+                throw new Error(`User with ID ${user._id} has no industry type specified.`);
+            }
+
+            const industryThresholds = await CalibrationExceedValues.findOne({ industryType: user.industryType });
+            console.log(`Industry thresholds found:`, industryThresholds); // Debugging statement
+
+            if (!industryThresholds) {
+                throw new Error(`No thresholds found for industry type: ${user.industryType}`);
+            }
+
+            const exceedParameters = [
+                { parameter: 'ph', value: data.ph, threshold: industryThresholds.ph },
+                { parameter: 'turbidity', value: data.turbidity, threshold: industryThresholds.turbidity },
+                { parameter: 'ORP', value: data.orp, threshold: industryThresholds.ORP },
+                { parameter: 'TDS', value: data.tds, threshold: industryThresholds.TDS },
+                { parameter: 'temperature', value: data.temperature, threshold: industryThresholds.temperature },
+                { parameter: 'BOD', value: data.bod, threshold: industryThresholds.BOD },
+                { parameter: 'COD', value: data.cod, threshold: industryThresholds.COD },
+                { parameter: 'TSS', value: data.tss, threshold: industryThresholds.TSS },
+                // { parameter: 'nitrate', value: data.nitrate, threshold: industryThresholds.nitrate },
+                // { parameter: 'ammonicalNitrogen', value: data.ammonicalNitrogen, threshold: industryThresholds.ammonicalNitrogen },
+                // { parameter: 'DO', value: data.do, threshold: industryThresholds.DO },
+                // { parameter: 'chloride', value: data.chloride, threshold: industryThresholds.chloride },
+                // { parameter: 'PM10', value: data.PM10, threshold: industryThresholds.PM10 },
+                // { parameter: 'PM25', value: data.PM25, threshold: industryThresholds.PM25 },
+                // { parameter: 'NOH', value: data.noh, threshold: industryThresholds.NOH },
+                // { parameter: 'NH3', value: data.NH3, threshold: industryThresholds.NH3 },
+                // { parameter: 'WindSpeed', value: data.WindSpeed, threshold: industryThresholds.WindSpeed },
+                // { parameter: 'WindDir', value: data.WindDir, threshold: industryThresholds.WindDir },
+                // { parameter: 'AirTemperature', value: data.AirTemperature, threshold: industryThresholds.AirTemperature },
+                // { parameter: 'Humidity', value: data.Humidity, threshold: industryThresholds.Humidity },
+                // { parameter: 'solarRadiation', value: data.solarRadiation, threshold: industryThresholds.solarRadiation },
+                // { parameter: 'DB', value: data.db, threshold: industryThresholds.DB }
+            ];
+
+            for (const { parameter, value, threshold } of exceedParameters) {
+                if (value >= threshold) {
+                    console.log(`Exceed value detected: ${parameter} with value ${value} exceeding threshold ${threshold}`); // Debugging statement
+                    await saveExceedValue(parameter, value, user);
+                    await sendNotification(parameter, value, user);
+                } else {
+                    console.log(`Value within limits: ${parameter} with value ${value}, threshold ${threshold}`); // Debugging statement
+                }
+            }
+        } else {
+            console.log(`User type is admin, skipping exceed value checks.`); // Debugging statement
         }
+
     } catch (error) {
-        console.error(`Error handling exceed values:`,error);
+        console.error(`Error handling exceed values:`, error);
     }
 };
-const sendNotification =async(parameter,value,user)=>{
+   
+    
+
+
+const sendNotification = async (parameter, value, user) => {
     try {
-        const message = `Your calibration for ${parameter} exceed the threshold the value is ${value} of userId ${user._id} and userName ${user.userName}`
+        const message = `Your calibration for ${parameter} exceeds the threshold. The value is ${value} for userId ${user._id} and userName ${user.userName}`;
         const currentDate = moment().format('DD/MM/YYYY');
         const currentTime = moment().format('HH:mm:ss');
-        //Send email notification
 
-        await sendEmail(user.email,'Calibration Exceed Notification',message)
+        console.log(`Sending notification with message: ${message}`); // Debugging statement
 
-        //Send SMS notification
+        // Send email notification
+        await sendEmail(user.email, 'Calibration Exceed Notification', message);
+
+        // Send SMS notification
         if (user.mobileNumber) {
             await sendSMS(user.mobileNumber, message);
         }
-        //Add notification to the database
-        await createNotification(message,user._id,user.userName,currentDate,currentTime )
+
+        // Add notification to the database
+        await createNotification(message, user._id, user.userName, currentDate, currentTime);
     } catch (error) {
         console.error(`Error sending notification:`, error);
     }
-}
-const saveExceedValue = async (parameter,value,user)=>{
+};
+
+const saveExceedValue = async (parameter, value, user) => {
     try {
+        // console.log(`Saving exceed value for parameter: ${parameter}, value: ${value}, user:`, user); // Debugging statement
 
-         // Format the current date and time
-         const currentDate = moment().format('DD/MM/YYYY');
-         const currentTime = moment().format('HH:mm:ss');
+        // Format the current date and time
+        const currentDate = moment().format('DD/MM/YYYY');
+        const currentTime = moment().format('HH:mm:ss');
 
-        //Create a new document in the Calibration exceed collection
+        // Create a new document in the CalibrationExceed collection
         const newEntry = new CalibrationExceed({
             parameter,
             value,
             timestamp: moment().toDate(), // Store current date and time
             formattedDate: currentDate, // Store formatted date
             formattedTime: currentTime, // Store formatted time
-            message:`Value Exceed in ${parameter} of ${value} of userId ${user._id} and userName ${user.userName}`,
+            message: `Value Exceed in ${parameter} of ${value} for userId ${user._id} and userName ${user.userName}`,
             userId: user._id,
             userName: user.userName,
             industryType: user.industryType,
             companyName: user.companyName,
-            
-        })
+        });
 
-        //Save the document to DB
+        // Save the document to DB
         await newEntry.save();
+         console.log(`Exceed value saved successfully`); // Debugging statement
+
         return {
             success: true,
-            message: "calibration Exceed value saved successfully",
+            message: "Calibration Exceed value saved successfully",
             newEntry
         };
     } catch (error) {
+        console.error(`Error saving exceed value:`, error); // Debugging statement
+
         return {
             success: false,
             message: "Error saving data to MongoDB",
@@ -232,4 +283,4 @@ const saveExceedValue = async (parameter,value,user)=>{
     }
 }
 
-module.exports ={addComment,viewAllComments,editComments,getAcomment, handleExceedValues};
+module.exports = { addComment, viewAllComments, editComments, getAcomment, handleExceedValues }

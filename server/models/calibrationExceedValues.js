@@ -73,8 +73,15 @@ const calibrationExceedValueSchema = new mongoose.Schema({
     date: {
         type: String,
     },
-    time: {
-        type: String
+   
+    adminUserName:{
+        type:String,
+    },
+    adminName:{
+        type:String
+    },
+    industryType:{
+        type:String,
     },
     userName: {
         type: String

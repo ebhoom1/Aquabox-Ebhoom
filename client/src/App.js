@@ -35,6 +35,9 @@ import CalibrationExceededReport from './Components/Calibration/CalibrationExcee
 import Report from './Components/Reports/Report';
 import ListOfSupportAnalyserMakeAndModel from './Components/ListOfSupportAnalyserMakeAndModel/ListOfSupportAnalyserMakeAndModel';
 import Subscribe from './Components/Subscribe/Subscribe';
+import AddCalibrationExceedValues from './Components/Calibration Exceed Value/AddCalibrationExceedValues';
+import CalibrationExceedValue from './Components/Calibration Exceed Value/CalibrationExceedValue';
+import EditCalibrationExceedValue from './Components/Calibration Exceed Value/EditCalibrationExceedValue';
 
 
 function App() {
@@ -95,6 +98,9 @@ function App() {
               <Route path="notification-new" element={<AddNotification />} />
               <Route path="calibration-exceeded" element={<CalibrationExceeded />} />
               <Route path="calibration-exceeded-report" element={<CalibrationExceededReport />} />
+              <Route path= "add-calibration-exceed-value" element={<AddCalibrationExceedValues/>}/>
+              <Route path= "calibration-exceed-value" element={<CalibrationExceedValue/>}/>
+              <Route path= "edit-calibration-exceed-value/:userName" element={<EditCalibrationExceedValue/>}/>
               <Route path="report" element={<Report />} />
               <Route path="list-of-support-analyser-make-and-model" element={<ListOfSupportAnalyserMakeAndModel />} />
               <Route path= '/subscribe-data' element={<Subscribe/>}/>

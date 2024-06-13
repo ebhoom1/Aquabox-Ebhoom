@@ -9,7 +9,7 @@ const calibrationExceed =require('../controllers/calibrationExceed')
 
 
 const setupMqttClient = (io, deviceCredentials) => {
-    const { host, clientId, key, cert, ca, userId,userName,email,mobileNumber} = deviceCredentials;
+    const { host, clientId, key, cert, ca, userId,userName,email,mobileNumber,topic} = deviceCredentials;
 
     if (!host || !clientId || !key || !cert || !ca) {
         console.error('Invalid device credentials:', deviceCredentials);
@@ -30,12 +30,12 @@ const setupMqttClient = (io, deviceCredentials) => {
     const client = mqtt.connect(options);
 
     client.on('connect', () => {
-        console.log(`Connected to MQTT broker for clientId: ${clientId}`);
+        // console.log(`Connected to MQTT broker for clientId: ${clientId}`);
         client.subscribe('ebhoomPub', (err) => {
             if (!err) {
-                console.log(`Subscribed to topic for clientId: ${clientId}`);
+                // console.log(`Subscribed to topic for clientId: ${clientId}`);
             } else {
-                console.error(`Subscription error for clientId: ${clientId}:`, err);
+                // console.error(`Subscription error for clientId: ${clientId}:`, err);
             }
         });
     });
@@ -43,7 +43,7 @@ const setupMqttClient = (io, deviceCredentials) => {
     client.on('message', async (topic, message) => {
         try {
             const data = JSON.parse(message.toString());
-            console.log(`Received message for clientId: ${clientId}:`, data);
+            // console.log(`Received message for clientId: ${clientId}:`, data);
 
             // Include user information in the data
            
@@ -51,11 +51,12 @@ const setupMqttClient = (io, deviceCredentials) => {
             data.userName = userName;
             data.mobileNumber =mobileNumber;
             data.email = email;
-           
+            // data.topic =topic;
 
             if (topic === 'ebhoomPub' && data && data.product_id) {
                 await iotData.handleSaveMessage(data);
-                await calibrationExceed.handleExceedValues(data);
+                 await calibrationExceed.handleExceedValues(data);
+                
                 io.to(data.product_id.toString()).emit('data', data);
             }
         } catch (error) {

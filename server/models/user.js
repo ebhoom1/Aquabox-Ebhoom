@@ -81,6 +81,9 @@ const userSchema=new mongoose.Schema({
     },
     
     deviceCredentials: {
+        topic:{
+            type:String,
+        },
         host: {
             type: String,
         },
@@ -90,7 +93,7 @@ const userSchema=new mongoose.Schema({
         key: {
             type: Buffer,
         },
-        cert: {
+        cert: { 
             type: Buffer,
         },
         ca: {
