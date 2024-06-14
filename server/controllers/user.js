@@ -248,13 +248,17 @@ const editUser= async(req,res)=>{
         const userId =req.params.userId;
         const updateFields= req.body;
 
-
-        const updatedUser = await userdb.findByIdAndUpdate(userId,updateFields, {new:true});
-
+        const updatedUser = await userdb.findByIdAndUpdate(userId,updateFields, { new: true });
+        
         if(!updatedUser){
                 return res.status(404).json({status:404, message:"user Not Found"})
         }else{
-            return res.status(200).json({status:200, message: " User upaded successfully", user: updatedUser })
+            return res.status(200).json(
+                {status:200,
+                success:true,
+                message: "User upadated successfully", 
+                user: updatedUser
+             })
         }
 
     }catch(error){

@@ -48,21 +48,17 @@ export const addUser =createAsyncThunk(
     }
   );
 
-export const updateUser = createAsyncThunk(
+  export const updateUser = createAsyncThunk(
     'users/updateUser',
-    async({userId,userData},{rejectWithValue})=>{
-        try {
-            const response = await axios.patch(`${API_URL}/api/edituser/${userId}`,userData,{
-                headers:{
-                    'Content-Type':'multipart/form-data'
-                }
-            })
-            return response.data.user;
-        } catch (error) {
-            return rejectWithValue(error.response.data);
-        }
+    async ({ userId, formData }, { rejectWithValue }) => {
+      try {
+        const response = await axios.patch(`${API_URL}/api/edituser/${userId}`, formData);
+        return response.data.user;
+      } catch (error) {
+        return rejectWithValue(error.response.data);
+      }
     }
-)  
+  );
 
   export const deleteUser =createAsyncThunk(
     `user/deleteUser`,
