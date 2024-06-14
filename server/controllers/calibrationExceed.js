@@ -230,9 +230,9 @@ const sendNotification = async (parameter, value, user) => {
         await sendEmail(user.email, 'Calibration Exceed Notification', message);
 
         // Send SMS notification
-        if (user.mobileNumber) {
-            await sendSMS(user.mobileNumber, message);
-        }
+        // if (user.mobileNumber) {
+        //     await sendSMS(user.mobileNumber, message);
+        // }
 
         // Add notification to the database
         await createNotification(message, user._id, user.userName, currentDate, currentTime);
@@ -249,8 +249,13 @@ const saveExceedValue = async (parameter, value, user) => {
         const currentDate = moment().format('DD/MM/YYYY');
         const currentTime = moment().format('HH:mm:ss');
 
+        // Generate a serial number
+        const lastEntry = await CalibrationExceed.findOne().sort({ sl_No: -1 });
+        const newSerialNumber = lastEntry ? lastEntry.sl_No + 1 : 1;
+
         // Create a new document in the CalibrationExceed collection
         const newEntry = new CalibrationExceed({
+            sl_No: newSerialNumber,
             parameter,
             value,
             timestamp: moment().toDate(), // Store current date and time

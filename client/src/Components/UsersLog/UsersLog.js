@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch,useSelector } from "react-redux";
 import { fetchUsers,setFilteredUsers } from "../../redux/features/userLog/userLogSlice";
-import DownloadData from "../Download-Data/DownloadData";
+import DownloadData from "../ValidateData/ValidateData";
 import KeralaMap from './KeralaMap';
 import { ToastContainer } from "react-toastify";
 import './index.css';
+import ValidateData from "../ValidateData/ValidateData";
 
 const UsersLog = () => {
   const [showLocationModal, setShowLocationModal] = useState(false);
@@ -76,7 +77,7 @@ const UsersLog = () => {
                 )}
           </div>
         </div>
-        <DownloadData />
+        <ValidateData />
       </div>
       
       <footer className="footer">

@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserById, updateUser } from '../../redux/features/userLog/userLogSlice';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import axios from 'axios';
+import { API_URL } from '../../utils/apiConfig';
 
 const EditUsers = () => {
   const { userId } = useParams();
@@ -48,65 +50,70 @@ const EditUsers = () => {
     }
   }, [selectedUser]);
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    if (['host', 'clientId'].includes(name)) {
-      setUserData((prevUserData) => ({
-        ...prevUserData,
+
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (['host', 'clientId', 'key', 'cert', 'ca'].includes(name)) {
+      setUserData((prevData) => ({
+        ...prevData,
         deviceCredentials: {
-          ...prevUserData.deviceCredentials,
+          ...prevData.deviceCredentials,
           [name]: value,
         },
       }));
     } else {
-      setUserData((prevUserData) => ({
-        ...prevUserData,
+      setUserData((prevData) => ({
+        ...prevData,
         [name]: value,
       }));
     }
   };
 
-  const handleFileChange = (event) => {
-    const { name, files } = event.target;
-    setUserData((prevUserData) => ({
-      ...prevUserData,
+  const handleFileChange = (e) => {
+    const { name, files } = e.target;
+    setUserData((prevData) => ({
+      ...prevData,
       deviceCredentials: {
-        ...prevUserData.deviceCredentials,
+        ...prevData.deviceCredentials,
         [name]: files[0],
       },
     }));
   };
 
-  const handleSaveUser = async (event) => {
-    event.preventDefault();
+  const handleSaveUser = async (e) => {
+    e.preventDefault();
     try {
       const formData = new FormData();
-      for (const [key, value] of Object.entries(userData)) {
+      for (const key in userData) {
         if (key === 'deviceCredentials') {
-          for (const [credKey, credValue] of Object.entries(value)) {
-            if (credValue instanceof File) {
-              formData.append(credKey, credValue);
-            } else {
-              formData.append(credKey, credValue || '');
-            }
+          for (const credKey in userData.deviceCredentials) {
+            formData.append(credKey, userData.deviceCredentials[credKey]);
           }
         } else {
-          formData.append(key, value || '');
+          formData.append(key, userData[key]);
         }
       }
-      await dispatch(updateUser({ userId, formData })).unwrap();
-      toast.success("User updated successfully");
-      setTimeout(() => {
-        navigate("/manage-users");
-      }, 500);
+
+      const response = await axios.patch(`${API_URL}/api/edituser/${userId}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (response.status === 200) {
+        toast.success('User updated successfully!');
+        console.log('Response after edit:', response.data.user);
+        setTimeout(() => {
+          navigate("/manage-users");
+        }, 3000);
+      }
     } catch (error) {
-      console.error(`Error in updating user`, error);
-      toast.error("Error updating user");
-      setTimeout(() => {
-        navigate("/manage-users");
-      }, 2000);
+      console.error('Error updating user:', error);
+      toast.error('Failed to update user.');
     }
   };
+
   
   const handleCancel =async()=>{
     setTimeout(()=>{

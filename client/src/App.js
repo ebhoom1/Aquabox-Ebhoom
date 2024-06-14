@@ -22,7 +22,7 @@ import SignUp from './Components/SignUp/SignUp';
 import SignUpConfirmation from './Components/SignUp/SignUpConfirmation';
 import AmbientAir from './Components/AmbientAir/AmbientAir';
 import Noise from './Components/Noise/Noise';
-import DownloadData from './Components/Download-Data/DownloadData';
+import ValidateData from './Components/ValidateData/ValidateData';
 import Calibration from './Components/Calibration/Calibration';
 import EditUsers from './Components/ManageUsers/EditUser';
 import EditCalibration from './Components/Calibration/EditCalibartion';
@@ -74,7 +74,6 @@ function App() {
         <Route path="reset-password/:id/:token" element={<ResetPassword />} />
         <Route path="reset-password-email" element={<ResetPasswordEmail />} />
         <Route path="faq" element={<Faq />} />
-        <Route path="download-data" element={<DownloadData />} />
         <Route path="terms" element={<Terms />} />
       </Route>
 

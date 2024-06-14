@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 
-const DownloadData=()=>{
+const ValidateData=()=>{
   const [date, setDate] = useState("");
   const navigate = useNavigate();
 
@@ -150,4 +150,4 @@ const DownloadData=()=>{
     )
 }
 
- export default DownloadData;
+ export default ValidateData;
