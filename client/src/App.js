@@ -38,6 +38,8 @@ import Subscribe from './Components/Subscribe/Subscribe';
 import AddCalibrationExceedValues from './Components/Calibration Exceed Value/AddCalibrationExceedValues';
 import CalibrationExceedValue from './Components/Calibration Exceed Value/CalibrationExceedValue';
 import EditCalibrationExceedValue from './Components/Calibration Exceed Value/EditCalibrationExceedValue';
+import ViewReport from './Components/Reports/ViewReport';
+import EditReport from './Components/Reports/EditReport';
 
 
 function App() {
@@ -101,6 +103,8 @@ function App() {
               <Route path= "calibration-exceed-value" element={<CalibrationExceedValue/>}/>
               <Route path= "edit-calibration-exceed-value/:userName" element={<EditCalibrationExceedValue/>}/>
               <Route path="report" element={<Report />} />
+              <Route path="view-report/:userName" element={<ViewReport />}/>
+              <Route path= "edit-report/:userName" element={<EditReport />}/>
               <Route path="list-of-support-analyser-make-and-model" element={<ListOfSupportAnalyserMakeAndModel />} />
               <Route path= '/subscribe-data' element={<Subscribe/>}/>
             </>
@@ -112,6 +116,7 @@ function App() {
               <Route path="noise" element={<Noise />} />
               <Route path="account" element={<Account />} />
               <Route path="report" element={<Report />} />
+              <Route path="view-report/:userName" element={<ViewReport />}/>
               <Route path="list-of-support-analyser-make-and-model" element={<ListOfSupportAnalyserMakeAndModel />} />
             </>
           )}

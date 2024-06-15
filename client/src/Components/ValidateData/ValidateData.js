@@ -77,6 +77,7 @@ const ValidateData = () => {
                 <div className="col-lg-6 col-md-6 mb-3">
                   <label>Select Industry</label>
                   <select className="input-field" onChange={(e) => setIndustry(e.target.value)}>
+                  <option >select</option>
                     {industryType.map((item) => (
                       <option key={item.category} value={item.category}>
                         {item.category}
@@ -87,6 +88,7 @@ const ValidateData = () => {
                 <div className="col-lg-6 col-md-6 mb-3">
                   <label>Select Company</label>
                   <select className="input-field" onChange={(e) => setCompany(e.target.value)}>
+                  <option >select</option>
                     {users.map((item) => (
                       <option key={item.companyName} value={item.companyName}>
                         {item.companyName}
@@ -105,10 +107,10 @@ const ValidateData = () => {
                 <div className="col-lg-6 col-md-6 mb-3">
                   <label>User</label>
                   <select className="input-field" onChange={(e) => setUserName(e.target.value)}>
+                    <option >select</option>
                     {users.map((item) => (
-                      <option key={item.userName} value={item.userName}>
+                      <option  value={item.userName}>
                         {item.userName}
-                        {console.log('userName from validate Data',item.userName)}
                       </option>
                     ))}
                   </select>

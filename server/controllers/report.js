@@ -228,7 +228,7 @@ const generateCSV = (report,res)=>{
         'industryType', 'companyName', 'fromDate', 'toDate', 'engineerName', 'userName', 'reportApproved'
     ];
     const calibrationFields =[
-        'paramter','value','formattedDate', 'formattedTime', 'message'
+        'parameter','value','formattedDate', 'formattedTime', 'message'
     ];
 
     const csvParser =new Parser({fields});
