@@ -36,7 +36,7 @@ const CalibrationExceeded = () => {
           console.log("User Type :::::", userData.validUserOne.userType);
           setDataLoaded(true);
 
-          const commentsResponse = await axios.get(`${API_URL}/api/get-all-values`);
+          const commentsResponse = await axios.get(`${API_URL}/api/get-all-exceed-data`);
           setEntries(commentsResponse.data.comments);
         }
       } catch (error) {

@@ -11,19 +11,19 @@ router.post('/create-report', createReport);
 router.get('/get-all-report',findReport);
 
 //get a Report using userName
-router.get('/get-a-report/:id',findReportsByUserName);
+router.get('/get-a-report/:userName',findReportsByUserName);
 
 //edit a Report 
-router.patch('/edit-report/:id',editReport);
+router.patch('/edit-report/:userName',editReport);
 
 //Delete a Report
-router.delete('delete-report/:id',deletedReport);
+router.delete('/delete-report/:userId',deletedReport);
 
 //Download PDF Report
-router.get('/report-download/pdf/:id',downloadReportAsPDF);
+router.get('/report-download/pdf/:userId',downloadReportAsPDF);
 
 //Download CSV Report
-router.get('/report-download/csv/:id',downloadReportAsCSV);
+router.get('/report-download/csv/:userId',downloadReportAsCSV);
 
 module.exports =router;
 

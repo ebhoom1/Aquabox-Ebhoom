@@ -1,15 +1,15 @@
 const express =require('express')
 
-const {addComment,viewAllComments,editComments, getAcomment} =require('../controllers/calibrationExceed')
+const {addComment,getAllExceedData,editComments, getAUserExceedData} =require('../controllers/calibrationExceed')
 
 const router =express.Router()
 
 router.post('/add-comments',addComment);
 
-router.get('/get-all-values',viewAllComments);
+router.get('/get-all-exceed-data',getAllExceedData);
 
-router.put('/edit-comments/:id',editComments);
+router.put('/edit-comments/:id',editComments); 
 
-router.get('/get-a-value',getAcomment)
+router.get('/user-exceed-data',getAUserExceedData)  
 
-module.exports =router;
+module.exports =router; 

@@ -20,22 +20,14 @@ const reportSchema = new mongoose.Schema({
     userName:{
         type:String
     },
-    CalibrationExceed:{
-        serialNumber:{type:String},
-        parameter:{type:String},
-        date:{type:String},
-        time:{type:String},
-        commentByUser:{type: String},
-        commentByAdmin: { type: String },
-
-    },
-    reportApproved:{
-        approved:{
-            type:Boolean,
-            required:true
-        }
-    }
-
+    calibrationExceeds: [{ 
+        parameter: String,
+        value: Number,
+        formattedDate: String,
+        formattedTime: String,
+        message: String
+      }],
+    reportApproved: { type: Boolean, required: true },
 })
 const Report = mongoose.model('Report',reportSchema);
 

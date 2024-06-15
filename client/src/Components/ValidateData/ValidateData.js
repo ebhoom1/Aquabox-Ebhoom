@@ -1,153 +1,126 @@
-import React, { useState } from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_URL } from "../../utils/apiConfig";
 
-
-const ValidateData=()=>{
-  const [date, setDate] = useState("");
+const ValidateData = () => {
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [industry, setIndustry] = useState("");
+  const [company, setCompany] = useState("");
+  const [userName, setUserName] = useState(""); 
+  const [users, setUsers] = useState([]);
   const navigate = useNavigate();
 
-    const industryType=[
-        {
-          category:"Sugar"
-        },
-        {
-          category:"Cement"
-        },
-        {
-          category:"Distillery"
-        },
-        {
-          category:"Petrochemical"
-        },
-        {
-          category:"Plup & Paper"
-        },
-        {
-          category:"Fertilizer"
-        },
-        {
-          category:"Tannery"
-        },
-        {
-          category:"Pecticides"
-        },
-        {
-          category:"Thermal Power Station"
-        },
-        {
-          category:"Caustic Soda"
-        },
-        {
-          category:"Pharmaceuticals"
-        },
-        {
-          category:"Dye and Dye Stuff"
-        },
-        {
-          category:"Refinery"
-        },
-        {
-          category:"Copper Smelter"
-        },
-        {
-          category:"Iron and Steel"
-        },
-        {
-          category:"Zinc Smelter"
-        },
-        {
-          category:"Aluminium"
-        },
-        {
-          category:"STP/ETP"
-        },
-        {
-          category:"NWMS/SWMS"
-        },
-        {
-          category:"Noise"
-        },
-        {
-          category:"Zinc Smelter"
-        },
-        {
-          category:"Other"
-        },
-      
-      ]
-      const compName=[{name:"company A"},{name:"company B"},{name:"company C"}]
-    
-      const handleSubmit = (e) => {
-        e.preventDefault();
-        navigate("/calibration-exceeded-report", { state: { date } });
-      };
-    return(
-        <div className="row">
-        <div className="col-12 col-md-12 grid-margin">
-          <div className="col-12">
-            <h1>Validate Data and Approve Data </h1>
-          </div>
-          <div className="card">
-            <div className="card-body">
-              <form target="_blank" method="post">
-                <div className="row"> {/* Parent row */}
-                  <div className="col-lg-6 col-md-6 mb-3"> {/* First column for Select Industry */}
-                    <label htmlFor="exampleFormControlInput5">Select Industry </label>
-                    <select className="input-field">
-                      {industryType.map((item) => (
-                        <option value={item.category}>{item.category}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="col-lg-6 col-md-6 mb-3"> {/* Second column for Select Name */}
-                    <label htmlFor="exampleFormControlInput5">Select Name </label>
-                    <select className="input-field">
-                      {compName.map((item) => (
-                        <option value={item.name}>{item.name}</option>
-                      ))}
-                    </select>
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/api/getallusers`);
+        const filteredUsers = response.data.users.filter(user => user.userType === "user");
+        setUsers(filteredUsers);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
 
-                  </div>
-                  <div className="col-lg-6 col-md-6 mb-3"> {/* Second column for Select Name */}
-                    <label htmlFor="exampleFormControlInput5">Date </label>
-                   
-                    <input 
-                      className="input-field"
-                      type="date"
-                    />
-                    
-                  </div>
-                  <div className="col-lg-6 col-md-6 mb-3"> {/* Second column for Select Name */}
-                    <label htmlFor="exampleFormControlInput5">Engineer Name </label>
-                   
-                    <input 
-                      className="input-field"
-                      type="text"
-                    />
-                    
-                  </div>
+    fetchUsers();
+  }, []);
+
+  const industryType = [
+    { category: "Sugar" },
+    { category: "Cement" },
+    { category: "Distillery" },
+    { category: "Petrochemical" },
+    { category: "Plup & Paper" },
+    { category: "Fertilizer" },
+    { category: "Tannery" },
+    { category: "Pecticides" },
+    { category: "Thermal Power Station" },
+    { category: "Caustic Soda" },
+    { category: "Pharmaceuticals" },
+    { category: "Dye and Dye Stuff" },
+    { category: "Refinery" },
+    { category: "Copper Smelter" },
+    { category: "Iron and Steel" },
+    { category: "Zinc Smelter" },
+    { category: "Aluminium" },
+    { category: "STP/ETP" },
+    { category: "NWMS/SWMS" },
+    { category: "Noise" },
+    { category: "Zinc Smelter" },
+    { category: "Other" },
+  ];
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    navigate("/calibration-exceeded-report", {
+      state: {
+        dateFrom,
+        dateTo,
+        industry,
+        company,
+        userName,
+      }
+    });
+  };
+
+  return (
+    <div className="row">
+      <div className="col-12 col-md-12 grid-margin">
+        <div className="col-12">
+          <h1>Validate Data and Approve Data</h1>
+        </div>
+        <div className="card">
+          <div className="card-body">
+            <form onSubmit={handleSubmit}>
+              <div className="row">
+                <div className="col-lg-6 col-md-6 mb-3">
+                  <label>Select Industry</label>
+                  <select className="input-field" onChange={(e) => setIndustry(e.target.value)}>
+                    {industryType.map((item) => (
+                      <option key={item.category} value={item.category}>
+                        {item.category}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-                <label htmlFor="exampleFormControlInput5">User</label>
-                        <select id="pdid" className="input-field" >
-                          
-                            <option>oo</option>
-                        
-                        </select>
-                        
-                        <input type="hidden" name="auth" />
-                        <input type="hidden" name="from"  />
-                        <input type="hidden" name="to"  />
-                        <button
-                         type="submit" 
-                         className="btn btn-primary mb-2 mt-2" 
-                         onClick={handleSubmit}
-                         > Check and Validate </button>
-        </form>
+                <div className="col-lg-6 col-md-6 mb-3">
+                  <label>Select Company</label>
+                  <select className="input-field" onChange={(e) => setCompany(e.target.value)}>
+                    {users.map((item) => (
+                      <option key={item.companyName} value={item.companyName}>
+                        {item.companyName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="col-lg-6 col-md-6 mb-3">
+                  <label>From Date</label>
+                  <input className="input-field" type="date" onChange={(e) => setDateFrom(e.target.value)} />
+                </div>
+                <div className="col-lg-6 col-md-6 mb-3">
+                  <label>To Date</label>
+                  <input className="input-field" type="date" onChange={(e) => setDateTo(e.target.value)} />
+                </div>
+                <div className="col-lg-6 col-md-6 mb-3">
+                  <label>User</label>
+                  <select className="input-field" onChange={(e) => setUserName(e.target.value)}>
+                    {users.map((item) => (
+                      <option key={item.userName} value={item.userName}>
+                        {item.userName}
+                        {console.log('userName from validate Data',item.userName)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <button type="submit" className="btn btn-primary mb-2 mt-2">Check and Validate</button>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-        </div>
-    )
-}
+  );
+};
 
- export default ValidateData;
+export default ValidateData;

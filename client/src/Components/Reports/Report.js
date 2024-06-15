@@ -49,7 +49,8 @@ const Report = () => {
 <thead>
   <tr>
     <th>SI.No</th>
-    <th>Date</th>
+    <th>From Date</th>
+    <th> Date</th>
     <th>User Remark Comment</th>
     <th>Admin Remark Comment</th>
     <th>Verified/Decliend</th>

@@ -80,7 +80,7 @@ const addComment = async (req, res) => {
     }
 }
 
-const viewAllComments = async (req, res) => {
+const getAllExceedData = async (req, res) => {
     try {
         const allComments = await CalibrationExceed.find();
         res.status(200).json({
@@ -97,31 +97,61 @@ const viewAllComments = async (req, res) => {
     }
 }
 
-const getAcomment = async (req, res) => {
+const getAUserExceedData = async (req, res) => {
     try {
-        const { id } = req.params; // Assuming you're passing the ID as a parameter in the URL
-        const comment = await CalibrationExceed.findOne({ _id: id });
-
-        if (!comment) {
-            return res.status(404).json({
-                success: false,
-                message: 'Comment not found'
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: 'Comment retrieved successfully',
-            comment: comment
+      const { userName, industryType, companyName, fromDate, toDate } = req.query;
+  
+      // Construct the query object
+      let query = {};
+  
+      if (userName) {
+        query.userName = userName;
+      }
+  
+      if (industryType) {
+        query.industryType = industryType;
+      }
+  
+      if (companyName) {
+        query.companyName = companyName;
+      }
+  
+      if (fromDate && toDate) {
+        query.timestamp = {
+          $gte: new Date(fromDate),
+          $lte: new Date(toDate)
+        };
+      }
+  
+      // Fetch and sort the data
+      const comments = await CalibrationExceed.find(query).sort({ timestamp: -1 });
+  
+      if (!comments || comments.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'No comments found'
         });
+      }
+  
+      res.status(200).json({
+        success: true,
+        message: 'Comments retrieved successfully',
+        comments: comments
+      });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Failed to retrieve the comment',
-            error: error.message
-        });
+      res.status(500).json({
+        success: false,
+        message: 'Failed to retrieve the comments',
+        error: error.message
+      });
     }
-};
+  };
+  
+  
+  
+  
+
+  
 
 const editComments = async (req, res) => {
     try {
@@ -227,7 +257,7 @@ const sendNotification = async (parameter, value, user) => {
         console.log(`Sending notification with message: ${message}`); // Debugging statement
 
         // Send email notification
-        await sendEmail(user.email, 'Calibration Exceed Notification', message);
+        // await sendEmail(user.email, 'Calibration Exceed Notification', message);
 
         // Send SMS notification
         // if (user.mobileNumber) {
@@ -255,7 +285,7 @@ const saveExceedValue = async (parameter, value, user) => {
 
         // Create a new document in the CalibrationExceed collection
         const newEntry = new CalibrationExceed({
-            sl_No: newSerialNumber,
+             sl_No: newSerialNumber,
             parameter,
             value,
             timestamp: moment().toDate(), // Store current date and time
@@ -288,4 +318,4 @@ const saveExceedValue = async (parameter, value, user) => {
     }
 }
 
-module.exports = { addComment, viewAllComments, editComments, getAcomment, handleExceedValues }
+module.exports = { addComment, getAllExceedData, editComments, getAUserExceedData, handleExceedValues }
