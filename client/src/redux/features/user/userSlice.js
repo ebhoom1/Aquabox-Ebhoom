@@ -1,27 +1,23 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import { LOCAL_API_URL ,API_URL} from '../../../utils/apiConfig';
-
-
-const url = 'http://localhost:5555';
+import { LOCAL_API_URL, API_URL } from '../../../utils/apiConfig';
 
 export const fetchUser = createAsyncThunk(
   'user/fetchUser',
   async (_, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('userdatatoken');
-     
-      const response =
-      
-      
-      await axios.get(`${API_URL}/api/validuser`, {
+      console.log('Sending request to fetch user with token:', token);  // Log the token
+      const response = await axios.get(`${API_URL}/api/validuser`, {
         headers: {
           "Content-Type": "application/json",
           "Authorization": token,
         },
       });
+      console.log('User data response:', response.data);  // Log the response
       return response.data;
     } catch (error) {
+      console.error('Error fetching user:', error.response.data);  // Log the error
       return rejectWithValue(error.response.data);
     }
   }
@@ -31,9 +27,12 @@ export const fetchNotifications = createAsyncThunk(
   'user/fetchNotifications',
   async (userName, { rejectWithValue }) => {
     try {
+      console.log(`Sending request to fetch notifications for user: ${userName}`);  // Log the userName
       const response = await axios.get(`${API_URL}/api/get-notification-of-user/${userName}`);
-      return response.data.notifications;
+      console.log('Notifications response:', response.data.userNotifications);  // Log the response
+      return response.data.userNotifications;
     } catch (error) {
+      console.error('Error fetching notifications:', error.response.data);  // Log the error
       return rejectWithValue(error.response.data);
     }
   }
@@ -43,7 +42,8 @@ export const logoutUser = createAsyncThunk(
   'user/logoutUser',
   async (_, { rejectWithValue, dispatch }) => {
     try {
-      let token = localStorage.getItem('userdatatoken');
+      const token = localStorage.getItem('userdatatoken');
+      console.log('Sending request to logout with token:', token);  // Log the token
       const response = await axios.get(`${API_URL}/api/logout`, {
         headers: {
           'Content-Type': "application/json",
@@ -52,6 +52,7 @@ export const logoutUser = createAsyncThunk(
         },
         withCredentials: true
       });
+      console.log('Logout response:', response.data);  // Log the response
       if (response.data.status === 201) {
         localStorage.removeItem('userdatatoken');
         dispatch(logout());
@@ -60,6 +61,7 @@ export const logoutUser = createAsyncThunk(
         return rejectWithValue(response.data);
       }
     } catch (error) {
+      console.error('Error logging out:', error.response.data);  // Log the error
       return rejectWithValue(error.response.data);
     }
   }
@@ -80,9 +82,7 @@ const userSlice = createSlice({
       state.userType = '';
       state.notifications = [];
     },
-  
   },
-  
   extraReducers: (builder) => {
     builder
       .addCase(fetchUser.pending, (state) => {
@@ -120,9 +120,7 @@ const userSlice = createSlice({
       .addCase(logoutUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      })
-  
-      
+      });
   }
 });
 

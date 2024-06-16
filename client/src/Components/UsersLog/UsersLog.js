@@ -32,7 +32,7 @@ const UsersLog = () => {
         <div className="row page-title-header">
           <div className="col-12">
             <div className="page-header">
-              <h4 className="page-title">Control and Monitor Dashboard fazil</h4>
+              <h4 className="page-title">Control and Monitor Dashboard</h4>
               <div className="quick-link-wrapper w-100 d-md-flex flex-md-wrap">
                 <ul className="quick-links ml-auto">
                   <li><a href="#">Settings</a></li>

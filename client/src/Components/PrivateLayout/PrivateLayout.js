@@ -1,46 +1,67 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate, Outlet } from 'react-router-dom';
-import { fetchUser, fetchNotifications, logoutUser } from './../../redux/features/user/userSlice';
+import { fetchUser, logoutUser } from './../../redux/features/user/userSlice';
+import axios from 'axios';
 import LeftSideBar from '../LeftSideBar/LeftSideBar';
+import { useSwipeable } from 'react-swipeable';
 import './index.css';
+import { API_URL } from '../../utils/apiConfig';
 
 const PrivateLayout = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { userData, notifications, loading, error } = useSelector((state) => state.user);
+  const { userData, loading, error } = useSelector((state) => state.user);
   const [isDropdownOpenNotification, setIsDropdownOpenNotification] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [onlineStatus, setOnlineStatus] = useState(navigator.onLine ? 'Online' : 'Offline');
+  const [notifications, setNotifications] = useState([]);
 
-  
-  const validateUser = async () => {
-    try {
-      const response = await dispatch(fetchUser()).unwrap();
-      console.log('response from PrivateLayout:', response);
-      if (!response) {
+  useEffect(() => {
+    const validateUser = async () => {
+      try {
+        const response = await dispatch(fetchUser()).unwrap();
+        console.log('User Data:', response);
+        if (!response) {
+          navigate('/');
+        }
+      } catch (error) {
+        console.error('Error Validating user:', error);
         navigate('/');
-      } else {
-        dispatch(fetchNotifications(response.userData.validUserOne._id));
-        
       }
-    } catch (error) {
-      console.error('Error Validating user:', error);
-      navigate('/');
+    };
+
+    if (!userData) {
+      validateUser();
     }
-  };
 
-  if (!userData) {
-    validateUser();
-    
-  }
-  
-  const handleOnlineStatusChange = () => {
-    setOnlineStatus(navigator.onLine ? 'Online' : 'Offline');
-  };
+    const handleOnlineStatusChange = () => {
+      setOnlineStatus(navigator.onLine ? 'Online' : 'Offline');
+    };
 
-  window.addEventListener('online', handleOnlineStatusChange);
-  window.addEventListener('offline', handleOnlineStatusChange);
+    window.addEventListener('online', handleOnlineStatusChange);
+    window.addEventListener('offline', handleOnlineStatusChange);
+
+    return () => {
+      window.removeEventListener('online', handleOnlineStatusChange);
+      window.removeEventListener('offline', handleOnlineStatusChange);
+    };
+  }, [dispatch, navigate, userData]);
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      if (userData && userData.validUserOne) {
+        try {
+          const response = await axios.get(`${API_URL}/api/get-notification-of-user/${userData.validUserOne.userName}`);
+          setNotifications(response.data.userNotifications);
+        } catch (error) {
+          console.error('Error fetching notifications:', error);
+        }
+      }
+    };
+
+    fetchNotifications();
+  }, [userData]);
 
   const toggleDropdownNotification = () => {
     setIsDropdownOpenNotification(!isDropdownOpenNotification);
@@ -54,6 +75,7 @@ const PrivateLayout = () => {
       console.error('Error logging out:', error);
     }
   };
+
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
@@ -61,71 +83,50 @@ const PrivateLayout = () => {
   const closeDropdown = () => {
     setIsDropdownOpen(false);
   };
+
   const getDropdownItems = () => {
     const { userType } = userData.validUserOne;
     if (userType === 'admin') {
       return (
         <>
-          <li>
-            <Link to="/manage-users" onClick={closeDropdown}>Manage Users</Link>
-          </li>
-          <li>
-            <Link to="/users-log" onClick={closeDropdown}>Users Log</Link>
-          </li>
-          <li>
-            <Link to="/calibration" onClick={closeDropdown}>Calibration</Link>
-          </li>
-          <li>
-            <Link to="/notification" onClick={closeDropdown}>Notification</Link>
-          </li>
-          <li>
-            <Link to="/account" onClick={closeDropdown}>Account</Link>
-          </li>
-          <li>
-            <Link to="/report" onClick={closeDropdown}>Report</Link>
-          </li>
-          <li>
-            <Link to="/subscribe-data" onClick={closeDropdown}>Subscribe</Link>
-          </li>
-          <li>
-            <Link to="/support-analyzer" onClick={closeDropdown}>List of support analyzer make and model</Link>
-          </li>
-          <li>
-            <Link to="/water" onClick={closeDropdown}>Effluent/Water Dashboard</Link>
-          </li>
-          <li>
-            <Link to="/ambient-air" onClick={closeDropdown}>Ambient Air Dashboard</Link>
-          </li>
-          <li>
-            <Link to="/noise" onClick={closeDropdown}>Noise Dashboard</Link>
-          </li>
+          <li><Link to="/manage-users" onClick={closeDropdown}>Manage Users</Link></li>
+          <li><Link to="/users-log" onClick={closeDropdown}>Users Log</Link></li>
+          <li><Link to="/calibration" onClick={closeDropdown}>Calibration</Link></li>
+          <li><Link to="/notification" onClick={closeDropdown}>Notification</Link></li>
+          <li><Link to="/account" onClick={closeDropdown}>Account</Link></li>
+          <li><Link to="/report" onClick={closeDropdown}>Report</Link></li>
+          <li><Link to="/subscribe-data" onClick={closeDropdown}>Subscribe</Link></li>
+          <li><Link to="/support-analyzer" onClick={closeDropdown}>List of support analyzer make and model</Link></li>
+          <li><Link to="/water" onClick={closeDropdown}>Effluent/Water Dashboard</Link></li>
+          <li><Link to="/ambient-air" onClick={closeDropdown}>Ambient Air Dashboard</Link></li>
+          <li><Link to="/noise" onClick={closeDropdown}>Noise Dashboard</Link></li>
         </>
       );
     } else {
       return (
         <>
-          <li>
-            <Link to="/account" onClick={closeDropdown}>Account</Link>
-          </li>
-          <li>
-            <Link to="/report" onClick={closeDropdown}>Report</Link>
-          </li>
-          <li>
-            <Link to="/support-analyzer" onClick={closeDropdown}>List of support analyzer make and model</Link>
-          </li>
-          <li>
-            <Link to="/water" onClick={closeDropdown}>Effluent/Water Dashboard</Link>
-          </li>
-          <li>
-            <Link to="/ambient-air" onClick={closeDropdown}>Ambient Air Dashboard</Link>
-          </li>
-          <li>
-            <Link to="/noise" onClick={closeDropdown}>Noise Dashboard</Link>
-          </li>
+          <li><Link to="/account" onClick={closeDropdown}>Account</Link></li>
+          <li><Link to="/report" onClick={closeDropdown}>Report</Link></li>
+          <li><Link to="/support-analyzer" onClick={closeDropdown}>List of support analyzer make and model</Link></li>
+          <li><Link to="/water" onClick={closeDropdown}>Effluent/Water Dashboard</Link></li>
+          <li><Link to="/ambient-air" onClick={closeDropdown}>Ambient Air Dashboard</Link></li>
+          <li><Link to="/noise" onClick={closeDropdown}>Noise Dashboard</Link></li>
         </>
       );
     }
   };
+  const handleSwipeRight = (index) => {
+    setNotifications((prevNotifications) => prevNotifications.filter((_, i) => i !== index));
+  };
+
+  const swipeHandlers = useSwipeable({
+    onSwipedRight: (eventData) => {
+      const index = parseInt(eventData.event.target.dataset.index, 10);
+      handleSwipeRight(index);
+    },
+    preventDefaultTouchmoveEvent: true,
+    trackMouse: true,
+  });
 
   if (loading) {
     return <div>Loading...</div>;
@@ -149,7 +150,7 @@ const PrivateLayout = () => {
         <div className="navbar-menu-wrapper d-flex align-items-center">
           <ul className="navbar-nav">
             <li className="nav-item font-weight-semibold d-none d-lg-block">
-              User ID : {userData.validUserOne && userData.validUserOne.userName}
+              User ID: {userData.validUserOne && userData.validUserOne.userName}
             </li>
             <li className="nav-item font-weight-semibold d-none d-lg-block">
               <div>
@@ -169,19 +170,21 @@ const PrivateLayout = () => {
               </a>
               {isDropdownOpenNotification && (
                 <div className="dropdown-container-notification">
-                  {notifications.length > 0 ? (
-                    notifications.map((notification, index) => (
-                      <a className="notification-item" key={index}>
-                        <div className="notification-message">
-                          <h3 className="notification-message-h3">{notification.message}</h3>
-                          <p className="notification-message-p">{notification.timeOfCalibrationAdded}</p>
-                          <p className="notification-message-p">{notification.dateOfCalibrationAdded}</p>
-                        </div>
-                      </a>
-                    ))
-                  ) : (
-                    <p className="empty-notification">No new notifications</p>
-                  )}
+                  {notifications.map((notification, index) => (
+                    <a key={notification._id} className="notification-item">
+                      <div className="notification-message">
+                        <h5 className="notification-message-h5">{notification.subject}</h5>
+                        <p className="notification-message-p">{notification.message}</p>
+                        <p className="notification-message-p">{notification.dateOfNotificationAdded}</p>
+                        <button
+                          className="delete-button"
+                          onClick={() => handleSwipeRight(index)}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </a>
+                  ))}
                 </div>
               )}
             </li>
@@ -199,7 +202,6 @@ const PrivateLayout = () => {
                 </a>
               </div>
             </li>
-            
           </ul>
           <button
             className="navbar-toggler navbar-toggler-right d-lg-none align-self-center"
@@ -208,8 +210,7 @@ const PrivateLayout = () => {
           >
             <span className="mdi mdi-menu"></span>
           </button>
-           {/* Dropdown */}
-           {isDropdownOpen && (
+          {isDropdownOpen && (
             <div className="dropdown-menu-right navbar-dropdown toggle-dropdown">
               <ul className="dropdown-list">
                 {getDropdownItems()}
@@ -218,9 +219,8 @@ const PrivateLayout = () => {
           )}
         </div>
       </nav>
-      
       <div className="container-fluid page-body-wrapper">
-      <LeftSideBar />
+        <LeftSideBar />
         <Outlet />
       </div>
     </div>
@@ -228,4 +228,3 @@ const PrivateLayout = () => {
 };
 
 export default PrivateLayout;
- 

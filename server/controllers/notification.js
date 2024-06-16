@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Notification = require('../models/notification');
+const cron = require('node-cron');
 
 //Add Notification 
 const addNotification = async (req,res) =>{
@@ -37,16 +38,16 @@ const addNotification = async (req,res) =>{
     }
 }
 //Add Notification for UserId
-const createNotification = async (message,userId,userName,  dateOfNoticationAdded,
-    timeOfNoticationAdded,req,res)=>{
+const createNotification = async (message,userId,userName,  currentDate,
+    currentTime,req,res)=>{
     try{
         const newNotification = new Notification({
             subject:"Calibration Exceed",
             message,
             userId:userId,
             userName:userName,
-            dateOfNoticationAdded,
-            timeOfNoticationAdded
+            dateOfNoticationAdded:currentDate,
+            timeOfNoticationAdded:currentTime
             
         });
         await newNotification.save();
@@ -92,7 +93,7 @@ const getNotificationOfUser = async (req, res) => {
       res.status(200).json({
         status: 200,
         success: true,
-        message: `Notifications for user ${adminID} fetched successfully`,
+        message: `Notifications for user ${userName} fetched successfully`,
         userNotifications,
       });
     } catch (error) {
@@ -134,5 +135,20 @@ const deleteNotification = async(req,res)=>{
         })
     }
 }
+const deleteOldNotifications = async () =>{
+    try{
+        const fourHundredDays = new Date();
+        fourHundredDays.setDate(fourHundredDays.getDate()-400);
 
-module.exports ={addNotification,viewNotification,deleteNotification,getNotificationOfUser,createNotification};
+        const result =await Notification.deleteMany({dateOfNotificationAdded: { $lt: oneWeekAgo }})
+        console.log(`Deleted ${result.deletedCount} old notifications`);
+    }catch(error){
+        console.error('Error deleting old notifications:', error);
+    }
+}
+//Schedule the task to run every day at midnight
+cron.schedule('0 0 * * *', () => {
+    console.log('Running cron job to delete old notifications');
+    deleteOldNotifications();
+  });
+module.exports ={addNotification,viewNotification,deleteNotification,getNotificationOfUser,createNotification,deleteOldNotifications};

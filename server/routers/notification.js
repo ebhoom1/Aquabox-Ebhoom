@@ -21,7 +21,7 @@ router.get('/view-notification',viewNotification);
 router.delete('/delete-notification/:id',deleteNotification);
 
 // Get Notifications of a Specific User
-router.get('/get-notification-of-user/:adminID', getNotificationOfUser);
+router.get('/get-notification-of-user/:userName', getNotificationOfUser);
 
 
 // Add a new route to manually trigger checkAndSendNotifications

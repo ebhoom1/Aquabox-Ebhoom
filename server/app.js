@@ -27,6 +27,7 @@ const server = http.createServer(app);
 const io = socketIO(server);
 const cron = require('node-cron');
 const { calculateAndSaveAverages } = require('./controllers/iotData');
+const { deleteOldNotifications } = require('./controllers/notification');
 
 // Database connection
 DB();
@@ -72,6 +73,11 @@ cron.schedule('0 * * * *', async () => {
     await calculateAndSaveAverages();
     console.log('Averages calculated and saved.');
 });
+// Schedule the task to delete old notifications every day at midnight
+cron.schedule('0 0 * * *', () => {
+    deleteOldNotifications();
+    console.log('Old notifications deleted.');
+});
 
 // Initialize all MQTT clients at server startup
 const initializeMqttClients = async (io) => {
@@ -111,5 +117,6 @@ app.get('*', (req, res) => {
 // Start the server and set up Socket.IO
 server.listen(port, () => {
     console.log(`Server Connected - ${port}`);
-//initializeMqttClients(io); // Initialize all MQTT clients at startup
+
+   // initializeMqttClients(io); // Initialize all MQTT clients at startup
 });
