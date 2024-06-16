@@ -4,7 +4,6 @@ import { Link, useNavigate, Outlet } from 'react-router-dom';
 import { fetchUser, logoutUser } from './../../redux/features/user/userSlice';
 import axios from 'axios';
 import LeftSideBar from '../LeftSideBar/LeftSideBar';
-import { useSwipeable } from 'react-swipeable';
 import './index.css';
 import { API_URL } from '../../utils/apiConfig';
 
@@ -115,18 +114,7 @@ const PrivateLayout = () => {
       );
     }
   };
-  const handleSwipeRight = (index) => {
-    setNotifications((prevNotifications) => prevNotifications.filter((_, i) => i !== index));
-  };
-
-  const swipeHandlers = useSwipeable({
-    onSwipedRight: (eventData) => {
-      const index = parseInt(eventData.event.target.dataset.index, 10);
-      handleSwipeRight(index);
-    },
-    preventDefaultTouchmoveEvent: true,
-    trackMouse: true,
-  });
+  
 
   if (loading) {
     return <div>Loading...</div>;
@@ -165,7 +153,7 @@ const PrivateLayout = () => {
           <ul className="navbar-nav ml-auto">
             <li className="nav-item dropdown">
               <a className="nav-link count-indicator" onClick={toggleDropdownNotification}>
-                <i className="mdi mdi-bell-outline"></i>
+                <i className="mdi mdi-bell-outline notification-indication"></i>
                 <span className="count">{notifications.length}</span>
               </a>
               {isDropdownOpenNotification && (
@@ -176,12 +164,7 @@ const PrivateLayout = () => {
                         <h5 className="notification-message-h5">{notification.subject}</h5>
                         <p className="notification-message-p">{notification.message}</p>
                         <p className="notification-message-p">{notification.dateOfNotificationAdded}</p>
-                        <button
-                          className="delete-button"
-                          onClick={() => handleSwipeRight(index)}
-                        >
-                          Delete
-                        </button>
+                        
                       </div>
                     </a>
                   ))}

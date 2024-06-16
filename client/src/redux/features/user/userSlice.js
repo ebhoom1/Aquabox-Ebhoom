@@ -23,21 +23,6 @@ export const fetchUser = createAsyncThunk(
   }
 );
 
-export const fetchNotifications = createAsyncThunk(
-  'user/fetchNotifications',
-  async (userName, { rejectWithValue }) => {
-    try {
-      console.log(`Sending request to fetch notifications for user: ${userName}`);  // Log the userName
-      const response = await axios.get(`${API_URL}/api/get-notification-of-user/${userName}`);
-      console.log('Notifications response:', response.data.userNotifications);  // Log the response
-      return response.data.userNotifications;
-    } catch (error) {
-      console.error('Error fetching notifications:', error.response.data);  // Log the error
-      return rejectWithValue(error.response.data);
-    }
-  }
-);
-
 export const logoutUser = createAsyncThunk(
   'user/logoutUser',
   async (_, { rejectWithValue, dispatch }) => {
@@ -71,7 +56,6 @@ const userSlice = createSlice({
   name: 'user',
   initialState: {
     userData: null,
-    notifications: [],
     loading: false,
     error: null,
     userType: '',
@@ -95,18 +79,6 @@ const userSlice = createSlice({
         state.userType = action.payload.validUserOne.userType;
       })
       .addCase(fetchUser.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-      .addCase(fetchNotifications.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchNotifications.fulfilled, (state, action) => {
-        state.loading = false;
-        state.notifications = action.payload;
-      })
-      .addCase(fetchNotifications.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
