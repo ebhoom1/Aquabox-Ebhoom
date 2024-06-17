@@ -129,8 +129,8 @@ const CalibrationExceededReport = () => {
                           <td>{item.value}</td>
                           <td>{item.formattedDate}</td>
                           <td>{item.formattedTime}</td>
-                          <td>{item.userRemarkComment || 'N/A'}</td>
-                          <td>{item.adminRemarkComment || 'N/A'}</td>
+                          <td>{item.commentByUser || 'N/A'}</td>
+                          <td>{item.commentByAdmin || 'N/A' }</td>
                         </tr>
                       ))}
                     </tbody>

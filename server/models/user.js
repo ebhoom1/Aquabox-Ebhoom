@@ -53,6 +53,10 @@ const userSchema=new mongoose.Schema({
         type:String,
         
     },
+    endSubscriptionDate:{
+        type:String,
+        
+    },
     userType:{
         type:String
     },

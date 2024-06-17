@@ -52,31 +52,7 @@ const UsersLog = () => {
       <div className="p-2"></div>
       <div className="p-2"></div>
       {/* divider */}
-        <div className="card">
-          <div className="card-body">
-          <h1>Find Users</h1>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Search by user name"
-              value={searchQuery}
-              onChange={handleSearch}
-            />
-          {users.length > 0 ? (
-                  <ul className="list-group">
-                    {filteredUsers.map(user => (
-                      <li key={user._id} className="list-group-item">
-                        <span>{user.userName}<br/>{user.modelName}</span>
-                        
-                      </li>
-                      
-                    ))}
-                  </ul>
-                ) : (
-                  <p>No users found</p>
-                )}
-          </div>
-        </div>
+      
         <ValidateData />
       </div>
       

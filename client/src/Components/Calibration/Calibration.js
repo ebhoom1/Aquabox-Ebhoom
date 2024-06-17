@@ -58,13 +58,13 @@ const Calibration = () => {
           adminName:userData.fname,
         }
         dispatch(addCalibration(calibrationDataToSend));
-        toast.success( `The Calibration Added Successfully`,{
-          position:'top-center'
-        })
+        toast.success( `The Calibration Added Successfully`)
+        setTimeout(()=>{navigate('/calibration')},500)
       }
     } catch (error) {
       console.log(error);
-      toast.error('An error occurred. Please try again.',error, { position: 'top-center' });
+      toast.error('An error occurred. Please try again.',error, );
+      setTimeout(()=>{navigate('/calibration')},1000)
     }
   }
 if(loading){
@@ -122,7 +122,7 @@ if(error){
 
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
                                             <label htmlFor="exampleFormControlInput5">User ID</label>
-                                            <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Equipment Name" name='userName' value={userData.validUserOne && userData.validUserOne.userName} readOnly />
+                                            <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Equipment Name" name='userName' value={userData.validUserOne && userData.validUserOne.userName} onChange={handleInputChange} />
                                         </div>
 
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
@@ -144,7 +144,7 @@ if(error){
                           </div>
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
                               <label htmlFor="exampleFormControlInput5">User Name</label>
-                              <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="User Name" name='fname' value= { userData.validUserOne && userData.validUserOne.fname}  
+                              <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="User Name" name='fname' value= { userData.validUserOne && userData.validUserOne.fname} onChange={handleInputChange} 
                             />   
                           </div>
                           

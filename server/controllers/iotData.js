@@ -167,36 +167,39 @@ const getAllIotData =async (req,res)=>{
         })
     }
 }
-const getLatestIoTData = async (req,res)=>{
-     const {userName} =req.params;
+
+const getLatestIoTData = async (req, res) => {
+    const { userName } = req.params;
     try {
         const latestData = await IotData.aggregate([
-            {$match : {userName:userName}},
-            {$sort:{timestamp: -1}}, //Sort by timestamp in descending order 
+            { $match: { userName: userName } },
+            { $sort: { timestamp: -1 } }, // Sort by timestamp in descending order 
             {
-                $group:{
-                    _id:"product_id",
-                    latestRecord: {$first:"$$ROOT"}
+                $group: {
+                    _id: "$product_id",
+                    latestRecord: { $first: "$$ROOT" }
                 }
             },
-            {$replaceRoot: {newRoot: "$latestRecord"}}
-        ])
+            { $replaceRoot: { newRoot: "$latestRecord" } }
+        ]).allowDiskUse(true); // Enable disk usage for sorting
+
         res.status(200).json({
-            status:200,
-            success:true,
-            message:'Latest IoT Data fetched successfully',
-            data:latestData
-        })
+            status: 200,
+            success: true,
+            message: 'Latest IoT Data fetched successfully',
+            data: latestData
+        });
     } catch (error) {
-        console.error('Error fetching latest IoT Data:',error);
+        console.error('Error fetching latest IoT Data:', error);
         res.status(500).json({
-            status:500,
-            success:false,
-            message:'Error fetching latest IoT data',
-            error:error.message
-        })
+            status: 500,
+            success: false,
+            message: 'Error fetching latest IoT data',
+            error: error.message
+        });
     }
-}
+};
+
 
 const getIotDataByUserName = async (req,res)=>{
     const {userName} =req.params;

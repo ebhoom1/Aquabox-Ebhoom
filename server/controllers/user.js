@@ -26,24 +26,27 @@ const transporter=nodemailer.createTransport({
 
 
 
-// For User Registration
 const register = async (req, res) => {
-    const { userName, companyName, modelName, fname, email,mobileNumber, password, cpassword, subscriptionDate, userType, industryType, dataInteval, district, state, address, latitude, longitude,topic, host, clientId } = req.body;
+    const { userName, companyName, modelName, fname, email, mobileNumber, password, cpassword, subscriptionDate, userType, industryType, dataInteval, district, state, address, latitude, longitude, topic, host, clientId } = req.body;
     const { key, cert, ca } = req.files;
 
     try {
-        // if (!key || !cert || !ca) {
-        //     return res.status(422).json({ error: "All device credentials (key, cert, ca) are required." });
-        // }
-
         const preuser = await userdb.findOne({ email: email });
         if (preuser) {
             return res.status(422).json({ error: "This Email Already Register" });
         } else if (password !== cpassword) {
             return res.status(422).json({ error: "Password and Confirm Password not Match" });
         } else {
+            // Calculate endSubscriptionDate
+            const subscriptionDateObj = new Date(subscriptionDate);
+            const endSubscriptionDate = new Date(subscriptionDateObj);
+            endSubscriptionDate.setDate(subscriptionDateObj.getDate() + 30);
+
+            // Format endSubscriptionDate to "YYYY-MM-DD"
+            const formattedEndSubscriptionDate = endSubscriptionDate.toISOString().split('T')[0];
+
             const finalUser = new userdb({
-                userName, companyName, modelName, fname, email,mobileNumber, password, cpassword, subscriptionDate, userType, industryType, dataInteval, district, state, address, latitude, longitude,
+                userName, companyName, modelName, fname, email, mobileNumber, password, cpassword, subscriptionDate, endSubscriptionDate: formattedEndSubscriptionDate, userType, industryType, dataInteval, district, state, address, latitude, longitude,
                 deviceCredentials: {
                     topic,
                     host,
@@ -53,6 +56,7 @@ const register = async (req, res) => {
                     ca: ca[0].buffer
                 }
             });
+
             const storeData = await finalUser.save();
             return res.status(201).json({ status: 201, storeData });
         }
@@ -61,6 +65,7 @@ const register = async (req, res) => {
         return res.status(400).json(error);
     }
 };
+
 
 
 // user login
@@ -241,6 +246,7 @@ const getAllUsers= async(req,res)=>{
         }
 }
 
+
 // edit user
 const editUser= async(req,res)=>{
 
@@ -302,6 +308,21 @@ const getAUser=async (req,res)=>{
     }
 }
 
+const getAUserByUserName = async(req,res)=>{
+    try {
+       const {userName}=req.params;
+        
+       const user = await userdb.findOne({userName});
+
+       if(!user){
+        return res.status(404).json({status:404, message:"User Not Found"})
+       }else{
+        return res.status(200).json({status:200, user});
+    }
+    } catch (error) {
+        return res.status(500).json({status:500, error: "Internal Server Error"})
+    }
+}
 //Change Current Password 
     const changeCurrentPassword = async (req, res) => {
         const { id, token } = req.params;
@@ -372,4 +393,4 @@ const getAllDeviceCredentials = async(req,res)=>{
         throw error;
     }
 }
-module.exports={register,login,validuser,logout,sendPasswordLink,forgotPassword,changePassword, getAllUsers, editUser, deleteUser,getAUser,changeCurrentPassword,getDeviceCredentidals,getAllDeviceCredentials}
+module.exports={register,login,validuser,logout,sendPasswordLink,forgotPassword,changePassword, getAllUsers, editUser, deleteUser,getAUser,changeCurrentPassword,getDeviceCredentidals,getAllDeviceCredentials,getAUserByUserName}

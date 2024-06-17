@@ -4,6 +4,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { API_URL } from '../../utils/apiConfig';
+import './index.css';
 
 const CalibrationExceeded = () => {
   const [userType, setUserType] = useState('');
@@ -12,8 +13,8 @@ const CalibrationExceeded = () => {
   const [currentEntryId, setCurrentEntryId] = useState(null);
   const [currentComment, setCurrentComment] = useState('');
   const [isEditingAdminComment, setIsEditingAdminComment] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,8 +37,16 @@ const CalibrationExceeded = () => {
           console.log("User Type :::::", userData.validUserOne.userType);
           setDataLoaded(true);
 
-          const commentsResponse = await axios.get(`${API_URL}/api/get-all-exceed-data`);
-          setEntries(commentsResponse.data.comments);
+          const apiUrl = userData.validUserOne.userType === 'admin'
+            ? `${API_URL}/api/get-all-exceed-data`
+            : `${API_URL}/api/get-user-exceed-data/${userData.validUserOne.userName}`;
+
+          const commentsResponse = await axios.get(apiUrl);
+          if (commentsResponse.data && commentsResponse.data.userExceedData) {
+            setEntries(commentsResponse.data.userExceedData);
+          } else {
+            setEntries([]);
+          }
         }
       } catch (error) {
         console.error("Error Validating user or fetching comments:", error);
@@ -48,12 +57,29 @@ const CalibrationExceeded = () => {
     fetchData();
   }, [navigate]);
 
+  const handleSearch = async () => {
+    try {
+      const apiUrl = searchQuery
+        ? `${API_URL}/api/get-user-exceed-data/${searchQuery}`
+        : `${API_URL}/api/get-all-exceed-data`;
+
+      const searchResponse = await axios.get(apiUrl);
+      if (searchResponse.data && searchResponse.data.userExceedData) {
+        setEntries(searchResponse.data.userExceedData);
+      } else {
+        setEntries([]);
+      }
+    } catch (error) {
+      toast.error("Failed to search comments");
+    }
+  };
+
   const handleAddComment = async (id, commentField) => {
     try {
-      const response = await axios.post(`${API_URL}/api/add-comments`, {
+      await axios.post(`${API_URL}/api/add-comments/${id}`, {
         [commentField]: currentComment
       });
-      setEntries(entries.map(entry => entry.id === id ? { ...entry, [commentField]: currentComment } : entry));
+      setEntries(entries.map(entry => entry._id === id ? { ...entry, [commentField]: currentComment } : entry));
       toast.success(`${commentField} added successfully`);
       setCurrentEntryId(null);
       setCurrentComment('');
@@ -64,10 +90,10 @@ const CalibrationExceeded = () => {
 
   const handleEditComment = async (id, commentField) => {
     try {
-      const response = await axios.put(`${API_URL}/api/edit-comments/${id}`, {
+      await axios.put(`${API_URL}/api/edit-comments/${id}`, {
         [commentField]: currentComment
       });
-      setEntries(entries.map(entry => entry.id === id ? { ...entry, [commentField]: currentComment } : entry));
+      setEntries(entries.map(entry => entry._id === id ? { ...entry, [commentField]: currentComment } : entry));
       toast.success(`${commentField} updated successfully`);
       setCurrentEntryId(null);
       setCurrentComment('');
@@ -77,29 +103,17 @@ const CalibrationExceeded = () => {
     }
   };
 
-  const handleVerified = () => {
-    toast.success('Calibration exceed approved');
-  };
-
-  const handleDenied = () => {
-    toast.error('Calibration exceed denied');
-  };
-
   return (
     <>
+      <ToastContainer />
       <div className="card">
         <div className="card-body">
           <div className="row mt-5">
             <div className="col-md-12">
               <h2>Download Calibration Exceeded Data</h2>
-
               <div className="col-lg-6 col-md-6 mb-3">
                 <label htmlFor="date">Date </label>
-                <input 
-                  className="input-field"
-                  type="date"
-                  id="date"
-                />
+                <input className="input-field" type="date" id="date" />
               </div>
               <button type="submit" className="btn btn-primary mb-2 mt-2">
                 Download
@@ -107,7 +121,6 @@ const CalibrationExceeded = () => {
             </div>
           </div>
         </div>
-        <ToastContainer />
       </div>
 
       <div className="card">
@@ -116,12 +129,29 @@ const CalibrationExceeded = () => {
             <div className="col-md-12">
               <h2>Calibration Exceeded</h2>
 
+              {userType === 'admin' && (
+                <div className="mb-3">
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Search by user name"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                  <button className="btn btn-primary mt-2" onClick={handleSearch}>
+                    Search
+                  </button>
+                </div>
+              )}
+
               <div className="table-responsive">
                 <table className="table table-bordered">
                   <thead>
                     <tr>
                       <th>SI.No</th>
+                      <th>User ID</th>
                       <th>Exceeded Parameter</th>
+                      <th>Value</th>
                       <th>Date</th>
                       <th>Time</th>
                       <th>User Remark Comment</th>
@@ -130,12 +160,14 @@ const CalibrationExceeded = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {entries.map((entry) => (
+                    {entries.map((entry, index) => (
                       <tr key={entry._id}>
-                        <td>{entry._id}</td>
-                        <td>{entry.ph}</td>
-                        <td>{entry.turbidity}</td>
-                        <td>{entry.timestamp}</td>
+                        <td>{index + 1}</td>
+                        <td>{entry.userName}</td>
+                        <td>{entry.parameter}</td>
+                        <td>{entry.value}</td>
+                        <td>{entry.formattedDate}</td>
+                        <td>{entry.formattedTime}</td>
                         <td>{entry.commentByUser}</td>
                         <td>{entry.commentByAdmin}</td>
                         <td>
@@ -173,41 +205,44 @@ const CalibrationExceeded = () => {
               </div>
 
               {currentEntryId !== null && (
-                <div className="mb-3">
-                  <textarea
-                    className="form-control"
-                    value={currentComment}
-                    onChange={(e) => setCurrentComment(e.target.value)}
-                    placeholder={isEditingAdminComment ? "Edit admin comment" : "Enter comment"}
-                  ></textarea>
-                  <button
-                    className="btn btn-success mt-2"
-                    onClick={() => {
-                      if (isEditingAdminComment) {
-                        handleEditComment(currentEntryId, 'commentByAdmin');
-                      } else {
-                        handleAddComment(currentEntryId, userType === 'admin' ? 'commentByAdmin' : 'commentByUser');
-                      }
-                    }}
-                  >
-                    {isEditingAdminComment ? 'Save' : 'Add'}
-                  </button>
-                  <button
-                    className="btn btn-danger mt-2 ms-2"
-                    onClick={() => {
-                      setCurrentEntryId(null);
-                      setCurrentComment('');
-                      setIsEditingAdminComment(false);
-                    }}
-                  >
-                    Cancel
-                  </button>
-                </div>
+                <>
+                  <div className="overlay" onClick={() => setCurrentEntryId(null)}></div>
+                  <div className="popup">
+                    <textarea
+                      value={currentComment}
+                      onChange={(e) => setCurrentComment(e.target.value)}
+                      placeholder={isEditingAdminComment ? "Edit admin comment" : "Enter comment"}
+                    ></textarea>
+                    <div className="popup-buttons">
+                      <button
+                        className="btn btn-success"
+                        onClick={() => {
+                          if (isEditingAdminComment) {
+                            handleEditComment(currentEntryId, 'commentByAdmin');
+                          } else {
+                            handleAddComment(currentEntryId, 'commentByUser');
+                          }
+                        }}
+                      >
+                        {isEditingAdminComment ? 'Save' : 'Add'}
+                      </button>
+                      <button
+                        className="btn btn-danger"
+                        onClick={() => {
+                          setCurrentEntryId(null);
+                          setCurrentComment('');
+                          setIsEditingAdminComment(false);
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </>
               )}
             </div>
           </div>
         </div>
-        <ToastContainer />
       </div>
     </>
   );

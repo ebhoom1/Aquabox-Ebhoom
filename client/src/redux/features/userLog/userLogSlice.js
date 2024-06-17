@@ -26,7 +26,17 @@ export const fetchUserById = createAsyncThunk(
     }
   }
 );
-
+export const fetchUserByUserName = createAsyncThunk(
+  'userLog/fetchUserByUserName',
+  async(userName,{rejectWithValue})=>{
+    try{
+      const response = await axios.get(`${API_URL}/api/get-user-by-userName/${userName}`);
+      return response.data.user;
+    }catch(error){
+      return rejectWithValue(error.response.data);
+    }
+  }  
+);
 export const addUser = createAsyncThunk(
   'userLog/addUser',
   async (formData, { rejectWithValue }) => {
@@ -114,6 +124,17 @@ const userLogSlice = createSlice({
         state.selectedUser = action.payload;
       })
       .addCase(fetchUserById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(fetchUserByUserName.pending,(state)=>{
+        state.loading = false;
+      })
+      .addCase(fetchUserByUserName.fulfilled,(state,action)=>{
+        state.loading = false;
+        state.users = action.payload ? [action.payload] : [];
+      })
+      .addCase(fetchUserByUserName.rejected,(state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })

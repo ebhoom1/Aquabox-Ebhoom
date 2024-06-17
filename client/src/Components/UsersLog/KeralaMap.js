@@ -30,8 +30,8 @@ const KeralaMap = ({ users }) => {
           <Popup>
             <div>
               <h4>{user.fname}</h4>
-              <p>{user.address}</p>
-              {console.log('log from keralaMap:',user.longitude,user.latitude)}
+              <p>{user.modelName}</p>
+              
             </div>
           </Popup>
        </Marker>

@@ -37,34 +37,15 @@ useEffect(()=>{
                     <span className="visually-hidden">X</span>
                 </button>
                 <div className="calibration-details">
-    <div className="card mb-3">
-        <div className="card-body">
-            <p className="card-text">Date:<strong> {calibrationData && calibrationData.date}</strong></p>
-        </div>
-    </div>
-    <div className="card mb-3">
-        <div className="card-body">
-            <p className="card-text">User ID: <strong>{calibrationData && calibrationData.userName}</strong></p>
-        </div>
-    </div>
-    <div className="card mb-3">
-        <div className="card-body">
-            <p className="card-text">Model Name: <strong>{calibrationData && calibrationData.equipmentName}</strong></p>
-        </div>
-    </div>
+                <p className="card-text">Date:<strong> {calibrationData && calibrationData.date}</strong></p>
+                <p className="card-text">User ID: <strong>{calibrationData && calibrationData.userName}</strong></p>
+                <p className="card-text">Model Name: <strong>{calibrationData && calibrationData.equipmentName}</strong></p>
+                <h1 className="card-title">Results</h1>
+                <p className="card-text">Before: <strong>{calibrationData && calibrationData.before}</strong></p>
+                <p className="card-text">After: <strong>{calibrationData && calibrationData.after}</strong></p>
+                <p className="card-text">notes: <strong>{calibrationData && calibrationData.notes}</strong></p>
    
-            <h1 className="card-title">Results</h1>
-       
-    <div className="card mb-3">
-        <div className="card-body">
-            <p className="card-text">Before: <strong>{calibrationData && calibrationData.before}</strong></p>
-        </div>
-    </div>
-    <div className="card mb-3">
-        <div className="card-body">
-            <p className="card-text">After: <strong>{calibrationData && calibrationData.after}</strong></p>
-        </div>
-    </div>
+   
 </div>
 
             </div>     

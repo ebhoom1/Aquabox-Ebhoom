@@ -63,19 +63,31 @@ const sendEmail = async (to, subject, text) => {
 
 const addComment = async (req, res) => {
     try {
-        const { commentByUser, commentByAdmin } = req.body;
-        const newComment = new CalibrationExceed({ commentByUser, commentByAdmin });
-        await newComment.save();
-        res.status(201).json({
-            success: true,
-            message: 'Comment added successfully',
-            calibration: newComment
+        const { id } = req.params;
+       
+        const updateFields = req.body;
+      
+    
+        const calibrationExceedcomments = await CalibrationExceed.findByIdAndUpdate(
+            id,
+          { $set: updateFields },
+          { new: true }
+        );
+    
+        if (!calibrationExceedcomments) {
+          return res.status(404).json({ message: 'Calibration Exceed comments not found' });
+        }
+    
+        res.status(200).json({
+          success: true,
+          message: 'Comment added successfully',
+          calibrationExceedcomments
         });
-    } catch (error) {
+      } catch (error) {
         res.status(500).json({
-            success: false,
-            message: 'Failed to add comment',
-            error: error.message
+          success: false,
+          message: 'Failed to add comment',
+          error: error.message
         });
     }
 }
@@ -86,7 +98,7 @@ const getAllExceedData = async (req, res) => {
         res.status(200).json({
             success: true,
             message: 'All comments are found',
-            comments: allComments
+            userExceedData: allComments
         });
     } catch (error) {
         res.status(500).json({
@@ -99,55 +111,80 @@ const getAllExceedData = async (req, res) => {
 
 const getAUserExceedData = async (req, res) => {
     try {
-      const { userName, industryType, companyName, fromDate, toDate } = req.query;
-  
-      // Construct the query object
-      let query = {};
-  
-      if (userName) {
-        query.userName = userName;
-      }
-  
-      if (industryType) {
-        query.industryType = industryType;
-      }
-  
-      if (companyName) {
-        query.companyName = companyName;
-      }
-  
-      if (fromDate && toDate) {
-        query.timestamp = {
-          $gte: new Date(fromDate),
-          $lte: new Date(toDate)
-        };
-      }
-  
-      // Fetch and sort the data
-      const comments = await CalibrationExceed.find(query).sort({ timestamp: -1 });
-  
-      if (!comments || comments.length === 0) {
-        return res.status(404).json({
-          success: false,
-          message: 'No comments found'
+        const { userName, industryType, companyName, fromDate, toDate } = req.query;
+
+        // Construct the query object
+        let query = {};
+
+        if (userName) {
+            query.userName = userName;
+        }
+
+        if (industryType) {
+            query.industryType = industryType;
+        }
+
+        if (companyName) {
+            query.companyName = companyName;
+        }
+
+        if (fromDate && toDate) {
+            query.timestamp = {
+                $gte: new Date(fromDate),
+                $lte: new Date(toDate)
+            };
+        }
+
+        // Fetch and sort the data with allowDiskUse
+        const comments = await CalibrationExceed.find(query)
+            .sort({ timestamp: -1 })
+            .allowDiskUse(true);
+
+        if (!comments || comments.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'No comments found'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Comments retrieved successfully',
+            comments: comments
         });
-      }
-  
-      res.status(200).json({
-        success: true,
-        message: 'Comments retrieved successfully',
-        comments: comments
-      });
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: 'Failed to retrieve the comments',
-        error: error.message
-      });
+        res.status(500).json({
+            success: false,
+            message: 'Failed to retrieve the comments',
+            error: error.message
+        });
     }
-  };
+};
+
   
-  
+const getExceedDataByUserName = async(req,res)=>{
+    try {
+        const {userName}=req.params;
+        
+        //Retrive Exceed Data using UserName
+        const userExceedData= await CalibrationExceed.find({userName});
+
+        res.status(200).json({
+            status:200,
+            success:true,
+            message:`Calibration Exceed data of User ${userName} fetched successfully`,
+            userExceedData
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            status: 500,
+            success: false,
+            message: `Error in Fetching User Exceed Data`,
+            error: error.message,
+          });
+    }
+} 
   
   
 
@@ -156,27 +193,35 @@ const getAUserExceedData = async (req, res) => {
 const editComments = async (req, res) => {
     try {
         const { id } = req.params;
-        const updateField = req.body;
-        const updateComments = await CalibrationExceed.findByIdAndUpdate(id, updateField, { new: true });
-
+        const { commentByUser, commentByAdmin } = req.body;
+        const updateFields = {};
+        if (commentByUser) updateFields.commentByUser = commentByUser;
+        if (commentByAdmin) updateFields.commentByAdmin = commentByAdmin;
+    
+        const updateComments = await CalibrationExceed.findByIdAndUpdate(
+          id,
+          { $set: updateFields },
+          { new: true }
+        );
+    
         if (!updateComments) {
-            return res.status(404).json({
-                success: false,
-                message: 'Comment not edited'
-            });
+          return res.status(404).json({
+            success: false,
+            message: 'Comment not edited'
+          });
         }
         res.status(200).json({
-            success: true,
-            message: 'Comments updated successfully',
-            comments: updateComments
+          success: true,
+          message: 'Comments updated successfully',
+          comments: updateComments
         });
-    } catch (error) {
+      } catch (error) {
         res.status(500).json({
-            success: false,
-            message: 'Failed to update the comment',
-            error: error.message
+          success: false,
+          message: 'Failed to update the comment',
+          error: error.message
         });
-    }
+      }
 }
 
 const handleExceedValues = async (data) => {
@@ -296,6 +341,8 @@ const saveExceedValue = async (parameter, value, user) => {
             userName: user.userName,
             industryType: user.industryType,
             companyName: user.companyName,
+            commentByUser:'N/A',
+            commentByAdmin:'N/A',
         });
 
         // Save the document to DB
@@ -318,4 +365,4 @@ const saveExceedValue = async (parameter, value, user) => {
     }
 }
 
-module.exports = { addComment, getAllExceedData, editComments, getAUserExceedData, handleExceedValues }
+module.exports = { addComment, getAllExceedData, editComments, getAUserExceedData, handleExceedValues,getExceedDataByUserName }

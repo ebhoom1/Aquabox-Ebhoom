@@ -19,32 +19,64 @@ export const fetchLatestIotData = createAsyncThunk(
         }
     }
 );
+// New fetchIotDataByUserName thunk
+export const fetchIotDataByUserName = createAsyncThunk(
+    'iotData/fetchIotDataByUserName',
+    async(userName, { rejectWithValue }) => {
+        try {
+            const response = await axios.get(`${url}/api/get-IoT-Data-by-userName/${userName}`);
+            const data = response.data.data;
+            
+            // Assuming the data has a `timestamp` field or similar for determining the most recent entry
+            const latestEntry = data.reduce((latest, current) => {
+                return new Date(current.timestamp) > new Date(latest.timestamp) ? current : latest;
+            }, data[0]);
 
-const iotDataSlice =createSlice({
-    name:'iotData',
-    initialState:{
-        latestData:{},
-        loading:false,
-        error:null,
-    },
-    reducers:{},
-    extraReducers:(builder)=>{
-        builder
-
-        .addCase(fetchLatestIotData.pending,(state)=>{
-            state.loading = true;
-            state.error = null;
-        })
-        .addCase(fetchLatestIotData.fulfilled,(state,action)=>{
-            state.loading =false;
-            state.latestData = action.payload;
-        })
-        .addCase(fetchLatestIotData.rejected, (state, action) => {
-            state.loading = false;
-            state.error = action.payload;
-        })
-       
+            return latestEntry;
+        } catch (error) {
+            return rejectWithValue(error.response.data);
+        }
     }
-})
+);
 
-export default iotDataSlice.reducer
+
+const iotDataSlice = createSlice({
+    name: 'iotData',
+    initialState: {
+        latestData: {},
+        userData: {},
+        loading: false,
+        error: null,
+    },
+    reducers: {},
+    extraReducers: (builder) => {
+        builder
+            .addCase(fetchLatestIotData.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(fetchLatestIotData.fulfilled, (state, action) => {
+                state.loading = false;
+                state.latestData = action.payload;
+            })
+            .addCase(fetchLatestIotData.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            })
+            // Handling fetchIotDataByUserName actions
+            .addCase(fetchIotDataByUserName.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(fetchIotDataByUserName.fulfilled, (state, action) => {
+                state.loading = false;
+                state.userData = action.payload;
+            })
+            .addCase(fetchIotDataByUserName.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            });
+    }
+});
+
+export default iotDataSlice.reducer;

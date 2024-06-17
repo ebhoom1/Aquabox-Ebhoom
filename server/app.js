@@ -112,11 +112,11 @@ io.on('connection', (socket) => {
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
   });
-  
+    
 
 // Start the server and set up Socket.IO
 server.listen(port, () => {
     console.log(`Server Connected - ${port}`);
 
-   // initializeMqttClients(io); // Initialize all MQTT clients at startup
+   initializeMqttClients(io); // Initialize all MQTT clients at startup
 });

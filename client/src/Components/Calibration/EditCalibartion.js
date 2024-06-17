@@ -23,11 +23,13 @@ const EditCalibration = () => {
     event.preventDefault();
     try {
       await dispatch(editCalibration({ userName, updatedData: calibrationData }));
-      toast.success('Calibration Updated Successfully', { position: "top-center" });
+      toast.success('Calibration Updated Successfully',);
+      setTimeout(()=>{navigate('/calibration')},500)
      
     } catch (error) {
       console.error('Error in Updating Calibration', error);
       toast.error('Error in Updating Calibration');
+      setTimeout(()=>{navigate('/calibration')},1000)
     }
   };
 
@@ -71,7 +73,7 @@ const EditCalibration = () => {
                     </div>
                     <div className="col-12 col-lg-6 col-md-6 mb-3">
                       <label htmlFor="exampleFormControlInput5">User ID</label>
-                      <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="User ID" name='adminID' value={calibrationData.adminID} readOnly />
+                      <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="User ID" name='adminID' value={calibrationData.adminID}  onChange={handleChange}/>
                     </div>
                     <div className="col-12 col-lg-6 col-md-6 mb-3">
                       <label htmlFor="exampleFormControlInput4">Date of Calibration Added</label>
@@ -99,7 +101,7 @@ const EditCalibration = () => {
                     </div>
                     <div className="col-12 col-lg-6 col-md-6 mb-3">
                       <label htmlFor="exampleFormControlInput5">User Name</label>
-                      <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="User Name" name='adminName' value={calibrationData.adminName} readOnly />
+                      <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="User Name" name='adminName' value={calibrationData.adminName} onChange={handleChange}  />
                     </div>
                     <div className="col-12">
                       <h1>Edit Calibration Details</h1>

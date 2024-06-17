@@ -12,7 +12,8 @@ const {
     deleteUser,
     getAUser,
     changeCurrentPassword,
-    getAllDeviceCredentials
+    getAllDeviceCredentials,
+    getAUserByUserName
   
    
     
@@ -38,6 +39,7 @@ router.get('/getallusers',getAllUsers);
 router.patch('/edituser/:userId', editUser);
 router.delete('/deleteuser/:userName',deleteUser);
 router.get('/getauser/:userId', getAUser)
+router.get('/get-user-by-userName/:userName',getAUserByUserName)
 router.post('/changePassword/:id/:token', changeCurrentPassword);
 
 

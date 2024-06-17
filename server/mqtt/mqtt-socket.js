@@ -30,12 +30,12 @@ const setupMqttClient = (io, deviceCredentials) => {
     const client = mqtt.connect(options);
 
     client.on('connect', () => {
-        // console.log(`Connected to MQTT broker for clientId: ${clientId}`);
+         console.log(`Connected to MQTT broker for clientId: ${clientId}`);
         client.subscribe('ebhoomPub', (err) => {
             if (!err) {
-                // console.log(`Subscribed to topic for clientId: ${clientId}`);
+                 console.log(`Subscribed to topic for clientId: ${clientId}`);
             } else {
-                // console.error(`Subscription error for clientId: ${clientId}:`, err);
+                 console.error(`Subscription error for clientId: ${clientId}:`, err);
             }
         });
     });
@@ -43,7 +43,7 @@ const setupMqttClient = (io, deviceCredentials) => {
     client.on('message', async (topic, message) => {
         try {
             const data = JSON.parse(message.toString());
-            // console.log(`Received message for clientId: ${clientId}:`, data);
+           console.log(`Received message for clientId: ${clientId}:`, data);
 
             // Include user information in the data
            
