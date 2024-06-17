@@ -14,6 +14,7 @@ const calibrationExceedRoutes= require('./routers/calibrationExceed');
 const calibrationExceedValuesRoute = require('./routers/calibrationExceedValues');
 const calculateAverageRoute = require('./routers/calculateAverage');
 const reportRoutes=require('./routers/report');
+const paymentRoutes = require('./routes/payment');
 
 
  
@@ -60,6 +61,7 @@ app.use('/api', calibrationExceedRoutes);
 app.use('/api', calibrationExceedValuesRoute);
 app.use('/api', calculateAverageRoute);
 app.use('/api', reportRoutes);
+app.use('/api/payment', paymentRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
