@@ -120,6 +120,12 @@ const LeftSideBar = () => {
             </Link>
           </li>
           <li className={`nav-item`}>
+            <Link className="nav-link" to="/transactions">
+              <i className="menu-icon typcn typcn-document-text"></i>
+              <span className="menu-title">Payments</span>
+            </Link>
+          </li>
+          <li className={`nav-item`}>
             <Link className="nav-link" to="/list-of-support-analyser-make-and-model">
               <i className="menu-icon typcn typcn-document-text"></i>
               <span className="menu-title">List of support analyser<br /> make and model</span>

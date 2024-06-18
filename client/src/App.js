@@ -41,6 +41,7 @@ import EditCalibrationExceedValue from './Components/Calibration Exceed Value/Ed
 import ViewReport from './Components/Reports/ViewReport';
 import EditReport from './Components/Reports/EditReport';
 import 'bootstrap-icons/font/bootstrap-icons.css';
+import Transaction from './Components/Transactions/Transaction';
 
 
 
@@ -118,6 +119,7 @@ function App() {
               <Route path="noise" element={<Noise />} />
               <Route path="account" element={<Account />} />
               <Route path="report" element={<Report />} />
+              <Route path ="/transactions" element={<Transaction/>}/>
               <Route path="view-report/:userName" element={<ViewReport />}/>
               <Route path="list-of-support-analyser-make-and-model" element={<ListOfSupportAnalyserMakeAndModel />} />
             </>
