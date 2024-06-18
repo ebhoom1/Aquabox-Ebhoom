@@ -6,6 +6,8 @@ import Modal from "react-modal";
 import "react-toastify/dist/ReactToastify.css";
 import "./index.css";
 import { loginUser } from "../../redux/features/auth/authSlice";
+import axios from "axios";
+import { API_URL } from "../../utils/apiConfig";
 
 const SignIn = () => {
   const [passShow, setPassShow] = useState(false);
@@ -16,6 +18,7 @@ const SignIn = () => {
   });
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [paymentCompleted, setPaymentCompleted] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { loading, error } = useSelector((state) => state.auth);
@@ -90,10 +93,68 @@ const SignIn = () => {
 
   const closeModal = () => {
     setModalIsOpen(false);
-    if (inpval.userType === 'admin') {
-      navigate('/users-log');
-    } else if (inpval.userType === 'user') {
-      navigate('/account');
+  };
+
+  const handlePayment = async () => {
+    if (!selectedUser) return;
+
+    try {
+      const response = await axios.post(`${API_URL}/api/create-order`, {
+        userName: selectedUser.userName,
+        amount: calculatePrice(selectedUser),
+      });
+
+      const { order } = response.data;
+      const options = {
+        key:"rzp_test_b2b3Y59oVOxWMb",
+        amount: order.amount,
+        currency: order.currency,
+        name: "AquaBox Control and Monitor System",
+        description: "Subscription Payment",
+        order_id: order.id,
+        handler: async (response) => {
+          try {
+            const verifyResponse = await axios.post(`${API_URL}/api/verify-payment`, {
+              order_id: response.razorpay_order_id,
+              payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              userName: selectedUser.userName,
+              modelName: selectedUser.modelName,
+              amount: order.amount, // Pass the amount here
+            });
+
+            if (verifyResponse.data.success) {
+              toast.success("Payment Successful and Subscription Updated!");
+              closeModal();
+              setPaymentCompleted(true);
+              if (inpval.userType === 'admin') {
+                navigate('/users-log');
+              } else if (inpval.userType === 'user') {
+                navigate('/account');
+              }
+            } else {
+              toast.error("Payment Verification Failed!");
+            }
+          } catch (error) {
+            toast.error("Error verifying payment!");
+            console.error("Error verifying payment:", error);
+          }
+        },
+        prefill: {
+          name: selectedUser.fname,
+          email: selectedUser.email,
+          contact: selectedUser.mobileNumber,
+        },
+        theme: {
+          color: "#3399cc",
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (error) {
+      toast.error("Error creating order!");
+      console.error("Error creating order:", error);
     }
   };
 
@@ -201,11 +262,7 @@ const SignIn = () => {
             <button
               type="button"
               className="btn btn-primary mt-2"
-              onClick={() => {
-                // Handle the payment process here
-                console.log("Pay button clicked for", selectedUser.userName);
-                closeModal();
-              }}
+              onClick={handlePayment}
             >
               Pay
             </button>

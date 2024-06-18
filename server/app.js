@@ -61,7 +61,7 @@ app.use('/api', calibrationExceedRoutes);
 app.use('/api', calibrationExceedValuesRoute);
 app.use('/api', calculateAverageRoute);
 app.use('/api', reportRoutes);
-app.use('/api/payment', paymentRoutes);
+app.use('/api', paymentRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -120,5 +120,5 @@ app.get('*', (req, res) => {
 server.listen(port, () => {
     console.log(`Server Connected - ${port}`);
 
-   initializeMqttClients(io); // Initialize all MQTT clients at startup
+  //initializeMqttClients(io); // Initialize all MQTT clients at startup
 });

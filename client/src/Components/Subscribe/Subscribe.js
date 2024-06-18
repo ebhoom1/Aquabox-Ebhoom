@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import Modal from 'react-modal';
 import { fetchUsers, fetchUserByUserName } from './../../redux/features/userLog/userLogSlice';
 import axios from 'axios';
 import { API_URL } from '../../utils/apiConfig';
 import 'bootstrap-icons/font/bootstrap-icons.css';
+import 'react-toastify/dist/ReactToastify.css';
 
 Modal.setAppElement('#root'); // Bind modal to your appElement (http://reactcommunity.org/react-modal/accessibility/)
 
@@ -35,7 +36,6 @@ const Subscribe = () => {
     }
   };
 
-  
   const calculatePrice = (user) => {
     if (!user) return 0;
     let fee = 0;
@@ -44,7 +44,7 @@ const Subscribe = () => {
     } else if (user.modelName === 'mars') {
       fee = 25000; // Admin price for Mars
     }
-    return fee;
+    return fee ; // Convert to paise
   };
 
   const openModal = (user) => {
@@ -55,6 +55,63 @@ const Subscribe = () => {
   const closeModal = () => {
     setModalIsOpen(false);
     setSelectedUser(null);
+  };
+
+  const handlePayment = async () => {
+    if (!selectedUser) return;
+
+    try {
+      const response = await axios.post(`${API_URL}/api/create-order`, {
+        userName: selectedUser.userName,
+        amount: calculatePrice(selectedUser),
+      });
+
+      const { order } = response.data;
+      const options = {
+        key:"rzp_test_b2b3Y59oVOxWMb",
+        amount: order.amount,
+        currency: order.currency,
+        name: "AquaBox Control and Monitor System",
+        description: "Subscription Payment",
+        order_id: order.id,
+        handler: async (response) => {
+          try {
+            const verifyResponse = await axios.post(`${API_URL}/api/verify-payment`, {
+              order_id: response.razorpay_order_id,
+              payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              userName: selectedUser.userName,
+              modelName: selectedUser.modelName,
+              amount: order.amount,
+            });
+
+            if (verifyResponse.data.success) {
+              toast.success("Payment Successful and Subscription Updated!");
+              closeModal();
+            } else {
+              toast.error("Payment Verification Failed!");
+            }
+          } catch (error) {
+            toast.error("Error verifying payment!");
+            console.error("Error verifying payment:", error);
+          }
+        },
+        prefill: {
+          name: selectedUser.fname,
+          email: selectedUser.email,
+          contact: selectedUser.mobileNumber,
+        },
+        theme: {
+          color: "#3399cc",
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (error) {
+      toast.error("Error creating order!");
+      console.error("Error creating order:", error);
+    }
   };
 
   return (
@@ -72,7 +129,7 @@ const Subscribe = () => {
           <div className="card-body">
             <div className="row mt-5">
               <div className="col-md-12">
-              <h2>Subscription Data of Users</h2>
+                <h2>Subscription Data of Users</h2>
 
                 <form className="form-inline my-2 my-lg-0" onSubmit={handleSearch}>
                   <input
@@ -178,23 +235,18 @@ const Subscribe = () => {
             transform: 'translate(-50%, -50%)',
             textAlign: 'center',
           },
-          
         }}
       >
         {selectedUser && (
           <div>
-           <h2><i className="bi bi-currency-rupee"></i></h2> 
+            <h2><i className="bi bi-currency-rupee"></i></h2>
             <h4>User Name: {selectedUser.userName}</h4>
             <h4>Model Name: {selectedUser.modelName}</h4>
-            <h5>Price: <i className="bi bi-currency-rupee"></i> {calculatePrice(selectedUser)}</h5>            
+            <h5>Price: <i className="bi bi-currency-rupee"></i> {calculatePrice(selectedUser )}</h5>
             <button
               type="button"
               className="btn btn-primary mt-2"
-              onClick={() => {
-                // Handle the payment process here
-                console.log("Pay button clicked for", selectedUser.userName);
-                closeModal();
-              }}
+              onClick={handlePayment}
             >
               Pay
             </button>

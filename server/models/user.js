@@ -57,6 +57,10 @@ const userSchema=new mongoose.Schema({
         type:String,
         
     },
+    subscriptionActive: {
+        type: Boolean,
+        default: false,
+      },
     userType:{
         type:String
     },

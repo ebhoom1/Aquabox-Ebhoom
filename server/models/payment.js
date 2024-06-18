@@ -1,11 +1,32 @@
-const mongoose =require('mongoose');
+const mongoose = require('mongoose');
 
-const paymentSchema = new mongoose.Schema({
-    userName:{type:String, ref:'User',required:true},
-    razorPayPaymentId:{type:String, required:true},
-    amount: { type: Number, required: true },
-  status: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now }
+const PaymentSchema = new mongoose.Schema({
+  userName: {
+    type: String,
+    required: true,
+  },
+  modelName: {
+    type: String,
+    required: true,
+  },
+  amountPaid: {
+    type: Number,
+    required: true,
+  },
+  paymentDate: {
+    type: String,
+    required: true,
+  },
+  orderId: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  paymentId: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+});
 
-})
-module.exports = mongoose.model('Payment', paymentSchema);
+module.exports = mongoose.model('Payment', PaymentSchema);
