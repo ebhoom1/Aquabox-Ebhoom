@@ -14,7 +14,7 @@ const calibrationExceedRoutes= require('./routers/calibrationExceed');
 const calibrationExceedValuesRoute = require('./routers/calibrationExceedValues');
 const calculateAverageRoute = require('./routers/calculateAverage');
 const reportRoutes=require('./routers/report');
-const paymentRoutes = require('./routes/payment');
+const paymentRoutes = require('./routers/payment');
 
 
  

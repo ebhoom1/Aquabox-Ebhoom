@@ -40,6 +40,8 @@ import CalibrationExceedValue from './Components/Calibration Exceed Value/Calibr
 import EditCalibrationExceedValue from './Components/Calibration Exceed Value/EditCalibrationExceedValue';
 import ViewReport from './Components/Reports/ViewReport';
 import EditReport from './Components/Reports/EditReport';
+import 'bootstrap-icons/font/bootstrap-icons.css';
+
 
 
 function App() {

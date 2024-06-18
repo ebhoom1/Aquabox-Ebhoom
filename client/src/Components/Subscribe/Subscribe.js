@@ -1,12 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ToastContainer } from 'react-toastify';
+import Modal from 'react-modal';
 import { fetchUsers, fetchUserByUserName } from './../../redux/features/userLog/userLogSlice';
+import axios from 'axios';
+import { API_URL } from '../../utils/apiConfig';
+import 'bootstrap-icons/font/bootstrap-icons.css';
+
+Modal.setAppElement('#root'); // Bind modal to your appElement (http://reactcommunity.org/react-modal/accessibility/)
 
 const Subscribe = () => {
   const dispatch = useDispatch();
   const { users, loading, error } = useSelector((state) => state.userLog);
   const [searchQuery, setSearchQuery] = useState('');
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   useEffect(() => {
     dispatch(fetchUsers());
@@ -25,6 +33,28 @@ const Subscribe = () => {
     } else {
       dispatch(fetchUsers());
     }
+  };
+
+  
+  const calculatePrice = (user) => {
+    if (!user) return 0;
+    let fee = 0;
+    if (user.modelName === 'venus') {
+      fee = 15000; // Admin price for Venus
+    } else if (user.modelName === 'mars') {
+      fee = 25000; // Admin price for Mars
+    }
+    return fee;
+  };
+
+  const openModal = (user) => {
+    setSelectedUser(user);
+    setModalIsOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+    setSelectedUser(null);
   };
 
   return (
@@ -90,7 +120,13 @@ const Subscribe = () => {
                               <td>{user.subscriptionDate}</td>
                               <td>{user.endSubscriptionDate}</td>
                               <td>
-                                <button type="button" className="btn btn-primary">Pay</button>
+                                <button
+                                  type="button"
+                                  className="btn btn-primary"
+                                  onClick={() => openModal(user)}
+                                >
+                                  Pay
+                                </button>
                               </td>
                             </tr>
                           ))
@@ -126,6 +162,44 @@ const Subscribe = () => {
           </span>
         </div>
       </footer>
+
+      <Modal
+        isOpen={modalIsOpen}
+        onRequestClose={closeModal}
+        contentLabel="Payment Modal"
+        style={{
+          content: {
+            top: '50%',
+            left: '50%',
+            right: 'auto',
+            bottom: 'auto',
+            marginRight: '-50%',
+            transform: 'translate(-50%, -50%)',
+            textAlign: 'center',
+          },
+          
+        }}
+      >
+        {selectedUser && (
+          <div>
+           <h2><i className="bi bi-currency-rupee"></i></h2> 
+            <h4>User Name: {selectedUser.userName}</h4>
+            <h4>Model Name: {selectedUser.modelName}</h4>
+            <h5>Price: <i className="bi bi-currency-rupee"></i> {calculatePrice(selectedUser)}</h5>            
+            <button
+              type="button"
+              className="btn btn-primary mt-2"
+              onClick={() => {
+                // Handle the payment process here
+                console.log("Pay button clicked for", selectedUser.userName);
+                closeModal();
+              }}
+            >
+              Pay
+            </button>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };
