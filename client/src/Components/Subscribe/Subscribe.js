@@ -7,6 +7,7 @@ import axios from 'axios';
 import { API_URL } from '../../utils/apiConfig';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import 'react-toastify/dist/ReactToastify.css';
+import Transaction from '../Transactions/Transaction';
 
 Modal.setAppElement('#root'); // Bind modal to your appElement (http://reactcommunity.org/react-modal/accessibility/)
 
@@ -204,6 +205,8 @@ const Subscribe = () => {
           </div>
         </div>
       </div>
+
+              <Transaction/>
 
       <footer className="footer">
         <div className="container-fluid clearfix">

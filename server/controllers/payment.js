@@ -75,5 +75,28 @@ const getTransactions = async (req, res) => {
     res.status(500).json({ success: false, message: 'Error fetching transactions', error });
   }
 };
+const getTransactionsByUserName = async (req,res)=>{
+  try{
+     const {userName}=req.params;
+     
+     const transaction = await Payment.findOne({userName});
 
-module.exports = { createOrder, verifyPayment,getTransactions  };
+     if(!transaction){
+      res.status(404).json({message:`Not found the user: ${userName}`})
+     }
+     res.status(200).json({
+      status:200,
+      success:true,
+      message:`Fetched the Transaction details of ${userName}`,
+      transaction
+     })
+  }catch(error){
+    res.status(500).json({
+      status:500,
+      success:false,
+      message:`Error in Fetching the Transaction details of  ${userName}`,
+      error:message.error
+    })
+  }
+}
+module.exports = { createOrder, verifyPayment,getTransactions,getTransactionsByUserName  };
