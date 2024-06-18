@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
+import Modal from "react-modal";
 import "react-toastify/dist/ReactToastify.css";
 import "./index.css";
 import { loginUser } from "../../redux/features/auth/authSlice";
@@ -13,9 +14,13 @@ const SignIn = () => {
     password: "",
     userType: "select",
   });
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { loading, error } = useSelector((state) => state.auth);
+
+  Modal.setAppElement('#root'); // Bind modal to your appElement
 
   const setVal = (e) => {
     const { name, value } = e.target;
@@ -24,6 +29,7 @@ const SignIn = () => {
       [name]: value,
     }));
   };
+
   const handleSelectChange = (e) => {
     const { value } = e.target;
     setInpval((prevState) => ({
@@ -31,6 +37,11 @@ const SignIn = () => {
       userType: value,
     }));
   };
+
+  const calculatePrice = (user) => {
+    return user.modelName === "venus" ? 17000 : user.modelName === "mars" ? 30000 : 0;
+  };
+
   const loginuser = async (e) => {
     e.preventDefault();
     const { email, password, userType } = inpval;
@@ -54,12 +65,19 @@ const SignIn = () => {
           } else if (userType === 'user' && result.userType !== 'user') {
             toast.error("User type does not match!");
           } else {
-            if (userType === 'admin') {
-              navigate('/users-log');
-            } else if (userType === 'user') {
-              navigate('/account');
+            const now = new Date();
+            const endSubscriptionDate = new Date(result.endSubscriptionDate);
+            if (now.toDateString() === endSubscriptionDate.toDateString()) {
+              setSelectedUser(result);
+              setModalIsOpen(true);
+            } else {
+              if (userType === 'admin') {
+                navigate('/users-log');
+              } else if (userType === 'user') {
+                navigate('/account');
+              }
+              setInpval({ email: '', password: '', userType: 'select' });
             }
-            setInpval({ email: '', password: '', userType: 'select' });
           }
         })
         .catch((error) => {
@@ -67,6 +85,15 @@ const SignIn = () => {
           console.log("Error from catch signIn:", error);
           localStorage.removeItem('userdatatoken');
         });
+    }
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+    if (inpval.userType === 'admin') {
+      navigate('/users-log');
+    } else if (inpval.userType === 'user') {
+      navigate('/account');
     }
   };
 
@@ -148,6 +175,43 @@ const SignIn = () => {
           </div>
         </div>
       </div>
+
+      <Modal
+        isOpen={modalIsOpen}
+        onRequestClose={closeModal}
+        contentLabel="Payment Modal"
+        style={{
+          content: {
+            top: '50%',
+            left: '50%',
+            right: 'auto',
+            bottom: 'auto',
+            marginRight: '-50%',
+            transform: 'translate(-50%, -50%)',
+            textAlign: 'center',
+          },
+        }}
+      >
+        {selectedUser && (
+          <div>
+            <h2><i className="bi bi-currency-rupee"></i></h2> 
+            <h4>User Name: {selectedUser.userName}</h4>
+            <h4>Model Name: {selectedUser.modelName}</h4>
+            <h5>Price: <i className="bi bi-currency-rupee"></i> {calculatePrice(selectedUser)}</h5>            
+            <button
+              type="button"
+              className="btn btn-primary mt-2"
+              onClick={() => {
+                // Handle the payment process here
+                console.log("Pay button clicked for", selectedUser.userName);
+                closeModal();
+              }}
+            >
+              Pay
+            </button>
+          </div>
+        )}
+      </Modal>
     </>
   );
 };

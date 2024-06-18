@@ -72,6 +72,8 @@ const Subscribe = () => {
           <div className="card-body">
             <div className="row mt-5">
               <div className="col-md-12">
+              <h2>Subscription Data of Users</h2>
+
                 <form className="form-inline my-2 my-lg-0" onSubmit={handleSearch}>
                   <input
                     className="form-control mr-sm-2"
@@ -85,7 +87,6 @@ const Subscribe = () => {
                     Search
                   </button>
                 </form>
-                <h2>Report</h2>
 
                 <div className="table-responsive mt-3">
                   {loading ? (
