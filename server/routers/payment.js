@@ -4,7 +4,7 @@ const router = express.Router();
 
 router.post('/create-order', createOrder);
 router.post('/verify-payment', verifyPayment);
-router.get('/transactions', getTransactions);
+router.get('/transactions', getTransactions);   
 router.get('/transaction-by-user/:userName',getTransactionsByUserName);
 
 module.exports = router;

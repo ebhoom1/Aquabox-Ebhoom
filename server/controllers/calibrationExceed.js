@@ -336,7 +336,7 @@ const saveExceedValue = async (parameter, value, user) => {
             timestamp: moment().toDate(), // Store current date and time
             formattedDate: currentDate, // Store formatted date
             formattedTime: currentTime, // Store formatted time
-            message: `Value Exceed in ${parameter} of ${value} for userId ${user._id} and userName ${user.userName}`,
+            message: `Value Exceed in ${parameter} of ${value} for userId ${user.userName}`,
             userId: user._id,
             userName: user.userName,
             industryType: user.industryType,

@@ -110,6 +110,8 @@ function App() {
               <Route path= "edit-report/:userName" element={<EditReport />}/>
               <Route path="list-of-support-analyser-make-and-model" element={<ListOfSupportAnalyserMakeAndModel />} />
               <Route path= '/subscribe-data' element={<Subscribe/>}/>
+              <Route path ="/transactions" element={<Transaction/>}/>
+
             </>
           )}
           {userType === "user" && (

@@ -8,6 +8,7 @@ import { API_URL } from '../../utils/apiConfig';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import 'react-toastify/dist/ReactToastify.css';
 import Transaction from '../Transactions/Transaction';
+import { Link } from 'react-router-dom';
 
 Modal.setAppElement('#root'); // Bind modal to your appElement (http://reactcommunity.org/react-modal/accessibility/)
 
@@ -122,7 +123,15 @@ const Subscribe = () => {
           <div className="col-12">
             <div className="page-header">
               <h4 className="page-title">Subscription Data</h4>
-              <div className="quick-link-wrapper w-100 d-md-flex flex-md-wrap"></div>
+              <div className="quick-link-wrapper w-100 d-md-flex flex-md-wrap">
+           
+            <ul className="quick-links ml-auto">
+              <li>
+                <Link to={'/transactions'}><h6>Transactions</h6></Link>
+              </li>
+           
+            </ul>
+          </div>
             </div>
           </div>
         </div>
@@ -206,7 +215,6 @@ const Subscribe = () => {
         </div>
       </div>
 
-              <Transaction/>
 
       <footer className="footer">
         <div className="container-fluid clearfix">
