@@ -2,7 +2,7 @@
 import React, { createContext, useEffect, useState } from "react";
 import {useDispatch,useSelector} from 'react-redux';
 import { fetchUser } from "../../redux/features/user/userSlice";
-import {fetchLatestIotData} from "../../redux/features/iotData/iotDataSlice"
+import {fetchLatestIotData,fetchIotDataByUserName,fetchAverageIotData} from "../../redux/features/iotData/iotDataSlice"
 import { Link } from 'react-router-dom';
 import WaterPopup from "./WaterPopup";
 import CalibrationPopup from "../Calibration/CalibrationPopup";
@@ -13,19 +13,28 @@ import { ToastContainer, toast } from "react-toastify";
 const Water = () => {
   const dispatch =useDispatch();
   const {userData,userType} =useSelector((state)=>state.user);
-  const {latestData,loading,error} = useSelector((state)=>state.iotData)
+  const {latestData,averageData,loading,error} = useSelector((state)=>state.iotData)
   const [showPopup,setShowPopup]=useState(false);
   const [selectedCard, setSelectedCard]=useState(null);
   const[showCalibrationPopup,setShowCalibrationPopup]=useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
 
- // Sample data for demonstration, replace with your actual data
- const weekData = [{ name: "Mon", value: 30 }, { name: "Tue", value: 40 }, { name: "Wed", value: 50 }];
- const monthData = [{ name: "Week 1", value: 100 }, { name: "Week 2", value: 200 }, { name: "Week 3", value: 150 }];
- const dayData=[{ name: "9:00 am", value: 30 }, { name: "10:00am", value: 33 }, { name: "11:00am", value: 40 }, { name: "12:00pm", value: 41 }, { name: "1:00pm", value: 70 },{ name: "2:00pm", value: 54 },{ name: "3:00pm", value: 31 },{ name: "4:00pm", value: 31.2 }];
- const sixMonthData=[{ name: "Jan-June", value: 30 }, { name: "July-December", value: 40 }];
- const yearData=[{ name: "2021", value: 20 }, { name: "2022", value: 90 }, { name: "2023", value: 30 }, { name: "2024", value: 50 }];
+//  // Sample data for demonstration, replace with your actual data
+//  const weekData = [{ name: "Mon", value: 30 }, { name: "Tue", value: 40 }, { name: "Wed", value: 50 }];
+//  const monthData = [{ name: "Week 1", value: 100 }, { name: "Week 2", value: 200 }, { name: "Week 3", value: 150 }];
+//  const dayData=[{ name: "9:00 am", value: 30 }, { name: "10:00am", value: 33 }, { name: "11:00am", value: 40 }, { name: "12:00pm", value: 41 }, { name: "1:00pm", value: 70 },{ name: "2:00pm", value: 54 },{ name: "3:00pm", value: 31 },{ name: "4:00pm", value: 31.2 }];
+//  const sixMonthData=[{ name: "Jan-June", value: 30 }, { name: "July-December", value: 40 }];
+//  const yearData=[{ name: "2021", value: 20 }, { name: "2022", value: 90 }, { name: "2023", value: 30 }, { name: "2024", value: 50 }];
+
+
+// Sample data for demonstration, replace with your actual data
+const [weekData, setWeekData] = useState([]);
+const [monthData, setMonthData] = useState([]);
+const [dayData, setDayData] = useState([]);
+const [sixMonthData, setSixMonthData] = useState([]);
+const [yearData, setYearData] = useState([]);
+
 
  const validateUser = async () => {
   const response = await dispatch(fetchUser()).unwrap(); 
@@ -38,14 +47,26 @@ validateUser();
  useEffect(() => {
     if (userData) {
       if (userType === 'user') {
-        dispatch(fetchLatestIotData(userData.validUserOne.userName));
+        dispatch(fetchIotDataByUserName(userData.validUserOne.userName));
+        dispatch(fetchAverageIotData(userData.validUserOne.userName));
         const interval = setInterval(() => {
-          dispatch(fetchLatestIotData(userData.validUserOne.userName));
+          dispatch(fetchIotDataByUserName(userData.validUserOne.userName));
+          dispatch(fetchAverageIotData(userData.validUserOne.userName));
         }, 1000); // Fetch every second
         return () => clearInterval(interval); // Cleanup interval on component unmount
       }
     }
   }, [userData, userType, dispatch]);
+
+  useEffect(() => {
+    if (averageData) {
+      setWeekData(averageData.filter(item => item.averageType === 'week'));
+      setMonthData(averageData.filter(item => item.averageType === 'month'));
+      setDayData(averageData.filter(item => item.averageType === 'day'));
+      setSixMonthData(averageData.filter(item => item.averageType === 'sixmonth'));
+      setYearData(averageData.filter(item => item.averageType === 'year'));
+    }
+  }, [averageData]);
 
   const handleCardClick = (card) => {
     setSelectedCard(card);
@@ -67,7 +88,8 @@ validateUser();
  
   const handleSearch = (e) => {
     e.preventDefault();
-    dispatch(fetchLatestIotData(searchQuery));
+    dispatch(fetchIotDataByUserName(searchQuery));
+    dispatch(fetchAverageIotData(searchQuery));
   };
   const water=[
     {
@@ -255,8 +277,8 @@ validateUser();
 
                 <div className="col-12">
                   <h5 className="text-dark">Average</h5>
-                  <p className="mb-0">Last Week:  </p>
-                  <p>Last Month: </p>
+                  <p className="mb-0">Last Week: {weekData.length > 0 ? weekData[0][item.name] : 'N/A'} </p>
+                  <p>Last Month:{weekData.length > 0 ? weekData[0][item.name] : 'N/A'} </p>
                 </div>
               </div>
             </div>

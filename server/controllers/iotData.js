@@ -232,4 +232,29 @@ const getIotDataByUserName = async (req,res)=>{
     }
 }
 
-module.exports ={handleSaveMessage,calculateAndSaveAverages,getAllIotData, getLatestIoTData,getIotDataByUserName}
+const getAverageIotData = async(req,res)=>{
+    try {
+        const {userName} = req.params;
+        
+        const userIoTdata = await IotDataAverage.find({userName})
+
+        if(!userIoTdata){
+            res.status(404).json({message:'User Not found'})
+        }
+        res.status(200).json({
+            status:200,
+            success:true,
+            message:'Fetched Iot average value',
+            userIoTdata
+        })
+    } catch (error) {
+        res.status(500).json({
+            status: 500,
+            success: false,
+            message: `Error in Fetching IoT Data of User`,
+            error: error.message,
+          });
+    }
+}
+
+module.exports ={handleSaveMessage,calculateAndSaveAverages,getAllIotData, getLatestIoTData,getIotDataByUserName,getAverageIotData }
