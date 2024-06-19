@@ -42,6 +42,7 @@ import ViewReport from './Components/Reports/ViewReport';
 import EditReport from './Components/Reports/EditReport';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import Transaction from './Components/Transactions/Transaction';
+import DownloadIoTdata from './Components/Download/DownloadIoTdata';
 
 
 
@@ -80,6 +81,7 @@ function App() {
         <Route path="reset-password-email" element={<ResetPasswordEmail />} />
         <Route path="faq" element={<Faq />} />
         <Route path="terms" element={<Terms />} />
+        <Route path="/download-IoT-Data" element={<DownloadIoTdata/>}/>
       </Route>
 
       {!loading && userData && (
@@ -111,6 +113,8 @@ function App() {
               <Route path="list-of-support-analyser-make-and-model" element={<ListOfSupportAnalyserMakeAndModel />} />
               <Route path= '/subscribe-data' element={<Subscribe/>}/>
               <Route path ="/transactions" element={<Transaction/>}/>
+              <Route path="/download-IoT-Data" element={<DownloadIoTdata/>}/>
+
 
             </>
           )}
@@ -124,6 +128,8 @@ function App() {
               <Route path ="/transactions" element={<Transaction/>}/>
               <Route path="view-report/:userName" element={<ViewReport />}/>
               <Route path="list-of-support-analyser-make-and-model" element={<ListOfSupportAnalyserMakeAndModel />} />
+              <Route path="/download-IoT-Data" element={<DownloadIoTdata/>}/>
+
             </>
           )}
         </Route>

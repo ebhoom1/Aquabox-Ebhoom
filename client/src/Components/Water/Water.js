@@ -224,6 +224,9 @@ validateUser();
 
                </ul>
                )}
+               <ul  className="quick-links ml-auto">
+               <Link to={"/download-IoT-Data"}><button type="submit"  className="btn btn-primary mb-2 mt-2"> Download </button></Link>
+               </ul>
              </div>
             </div>
           </div>
