@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import { API_URL } from '../../utils/apiConfig';
 
 const DownloadIoTdata = () => {
@@ -7,7 +7,9 @@ const DownloadIoTdata = () => {
     const [dateTo, setDateTo] = useState("");
     const [industry, setIndustry] = useState("");
     const [company, setCompany] = useState("");
+    const [format, setFormat] = useState("");
     const [users, setUsers] = useState([]);
+
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -23,6 +25,30 @@ const DownloadIoTdata = () => {
         fetchUsers();
       }, []);
     
+      const handleDownload = async (e) => {
+        e.preventDefault();
+
+        try {
+            const response = await axios.post(`${API_URL}/api/downloadIotData`, {
+                dateFrom,
+                dateTo,
+                industry,
+                company,
+                format
+            }, {
+                responseType: 'blob'
+            });
+
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `iot_data.${format}`);
+            document.body.appendChild(link);
+            link.click();
+        } catch (error) {
+            console.error("Error downloading data:", error);
+        }
+    };
 
     const industryType = [
         { category: "Sugar" },
@@ -50,56 +76,60 @@ const DownloadIoTdata = () => {
       ];
   return (
     <div className="row">
-    <div className="col-12 col-md-12 grid-margin">
-      <div className="col-12">
-        <h1>Download IoT Data</h1>
-      </div>
-      <div className="card">
-        <div className="card-body">
-          <form>
-            <div className="row">
-              <div className="col-lg-6 col-md-6 mb-3">
-                <label>Select Industry</label>
-                <select className="input-field" onChange={(e) => setIndustry(e.target.value)}>
-                <option >select</option>
-                  {industryType.map((item) => (
-                    <option key={item.category} value={item.category}>
-                      {item.category}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="col-lg-6 col-md-6 mb-3">
-                <label>Select Company</label>
-                <select className="input-field" onChange={(e) => setCompany(e.target.value)}>
-                <option >select</option>
-                  {users.map((item) => (
-                    <option key={item.companyName} value={item.companyName}>
-                      {item.companyName}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="col-lg-6 col-md-6 mb-3">
-                <label>From Date</label>
-                <input className="input-field" type="date" onChange={(e) => setDateFrom(e.target.value)} />
-              </div>
-              <div className="col-lg-6 col-md-6 mb-3">
-                <label>To Date</label>
-                <input className="input-field" type="date" onChange={(e) => setDateTo(e.target.value)} />
-              </div>
-             
+            <div className="col-12 col-md-12 grid-margin">
+                <div className="col-12">
+                    <h1>Download IoT Data</h1>
+                </div>
+                <div className="card">
+                    <div className="card-body">
+                        <form onSubmit={handleDownload}>
+                            <div className="row">
+                                <div className="col-lg-6 col-md-6 mb-3">
+                                    <label>Select Industry</label>
+                                    <select className="input-field" onChange={(e) => setIndustry(e.target.value)}>
+                                        <option>select</option>
+                                        {industryType.map((item) => (
+                                            <option key={item.category} value={item.category}>
+                                                {item.category}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="col-lg-6 col-md-6 mb-3">
+                                    <label>Select Company</label>
+                                    <select className="input-field" onChange={(e) => setCompany(e.target.value)}>
+                                        <option>select</option>
+                                        {users.map((item) => (
+                                            <option key={item.companyName} value={item.companyName}>
+                                                {item.companyName}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="col-lg-6 col-md-6 mb-3">
+                                    <label>From Date</label>
+                                    <input className="input-field" type="date" onChange={(e) => setDateFrom(e.target.value)} />
+                                </div>
+                                <div className="col-lg-6 col-md-6 mb-3">
+                                    <label>To Date</label>
+                                    <input className="input-field" type="date" onChange={(e) => setDateTo(e.target.value)} />
+                                </div>
+                                <div className="col-lg-6 col-md-6 mb-3">
+                                    <label>Download Format</label>
+                                    <select className="input-field" onChange={(e) => setFormat(e.target.value)}>
+                                        <option>select</option>
+                                        <option value="pdf">PDF</option>
+                                        <option value="csv">CSV</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit" className="btn btn-outline-success">Download</button>
+                        </form>
+                    </div>
+                </div>
             </div>
-            <select className="btn btn-success" >
-                             <option>Download</option>
-                             <option value="pdf">PDF</option>
-                             <option value="csv">CSV</option>
-                            </select>          </form>
         </div>
-      </div>
-    </div>
-  </div>
-  )
+    )
 }
 
 export default DownloadIoTdata

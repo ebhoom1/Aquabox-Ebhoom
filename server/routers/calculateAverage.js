@@ -2,7 +2,10 @@ const express = require('express');
 const { calculateAndSaveAverages,
         getAllIotData,
         getIotDataByUserName,
-        getLatestIoTData,getAverageIotData 
+        getLatestIoTData,
+        getAverageIotData,
+        downloadIotData
+        
 } = require('../controllers/iotData');
 
 const router = express.Router();
@@ -28,6 +31,10 @@ router.get('/calculate-averages', async (req, res) => {
 
 //Route to find the Average IOT Data By userId
 router.get('/get-average-data/:userName',getAverageIotData)
+
+//Route to download the Iot VAlue
+router.post('/downloadIotData',downloadIotData)
+
 
 
 module.exports = router;

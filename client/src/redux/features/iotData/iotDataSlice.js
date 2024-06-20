@@ -44,6 +44,8 @@ export const fetchAverageIotData = createAsyncThunk(
     async (userName, { rejectWithValue }) => {
         try {
             const response = await axios.get(`${API_URL}/api/get-average-data/${userName}`);
+            console.log("userName to fetch IoT Average:",userName)
+            console.log('API Response AVERAGE IOT DATA:', response.data.userIoTdata); 
             return response.data.userIoTdata;
         } catch (error) {
             return rejectWithValue(error.response.data);
@@ -55,7 +57,7 @@ const iotDataSlice = createSlice({
     initialState: {
         latestData: {},
         averageData: [],
-        userData: {},
+        userIotData: {},
         loading: false,
         error: null,
     },
@@ -81,7 +83,7 @@ const iotDataSlice = createSlice({
             })
             .addCase(fetchIotDataByUserName.fulfilled, (state, action) => {
                 state.loading = false;
-                state.userData = action.payload;
+                state.userIotData = action.payload;
             })
             .addCase(fetchIotDataByUserName.rejected, (state, action) => {
                 state.loading = false;
@@ -94,6 +96,7 @@ const iotDataSlice = createSlice({
             .addCase(fetchAverageIotData.fulfilled, (state, action) => {
                 state.loading = false;
                 state.averageData = action.payload;
+                console.log('State averageData:', state.averageData);
             })
             .addCase(fetchAverageIotData.rejected, (state, action) => {
                 state.loading = false;

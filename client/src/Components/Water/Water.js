@@ -2,7 +2,7 @@
 import React, { createContext, useEffect, useState } from "react";
 import {useDispatch,useSelector} from 'react-redux';
 import { fetchUser } from "../../redux/features/user/userSlice";
-import {fetchLatestIotData,fetchIotDataByUserName,fetchAverageIotData} from "../../redux/features/iotData/iotDataSlice"
+import {fetchIotDataByUserName,fetchAverageIotData} from "../../redux/features/iotData/iotDataSlice"
 import { Link } from 'react-router-dom';
 import WaterPopup from "./WaterPopup";
 import CalibrationPopup from "../Calibration/CalibrationPopup";
@@ -13,7 +13,7 @@ import { ToastContainer, toast } from "react-toastify";
 const Water = () => {
   const dispatch =useDispatch();
   const {userData,userType} =useSelector((state)=>state.user);
-  const {latestData,averageData,loading,error} = useSelector((state)=>state.iotData)
+  const {latestData,averageData,userIotData,loading,error} = useSelector((state)=>state.iotData)
   const [showPopup,setShowPopup]=useState(false);
   const [selectedCard, setSelectedCard]=useState(null);
   const[showCalibrationPopup,setShowCalibrationPopup]=useState(false);
@@ -49,18 +49,20 @@ validateUser();
       if (userType === 'user') {
         dispatch(fetchIotDataByUserName(userData.validUserOne.userName));
         dispatch(fetchAverageIotData(userData.validUserOne.userName));
-        const interval = setInterval(() => {
-          dispatch(fetchIotDataByUserName(userData.validUserOne.userName));
-          dispatch(fetchAverageIotData(userData.validUserOne.userName));
-        }, 1000); // Fetch every second
-        return () => clearInterval(interval); // Cleanup interval on component unmount
+        // const interval = setInterval(() => {
+        //   dispatch(fetchIotDataByUserName(userData.validUserOne.userName));
+        //   dispatch(fetchAverageIotData(userData.validUserOne.userName));
+        // }, 1000); // Fetch every second
+        // return () => clearInterval(interval); // Cleanup interval on component unmount
       }
     }
   }, [userData, userType, dispatch]);
 
   useEffect(() => {
     if (averageData) {
+      console.log('Average Data:', averageData);
       setWeekData(averageData.filter(item => item.averageType === 'week'));
+      console.log("average data for week :",averageData.filter(item => item.averageType === 'year'))
       setMonthData(averageData.filter(item => item.averageType === 'month'));
       setDayData(averageData.filter(item => item.averageType === 'day'));
       setSixMonthData(averageData.filter(item => item.averageType === 'sixmonth'));
@@ -273,7 +275,7 @@ validateUser();
                   <h3 className="mb-3">{item.parameter}</h3>
                 </div>
                 <div className="col-12 mb-3">
-                  <h6><strong className="strong-value">{latestData[item.name] || 'N/A'}</strong> {item.value}   </h6>
+                  <h6><strong className="strong-value">{userIotData[item.name] || 'N/A'}</strong> {item.value}   </h6>
                  
                  
                 </div>

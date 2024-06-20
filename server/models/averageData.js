@@ -4,6 +4,7 @@ const IotDataAverageSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     userName: { type: String, required: true },
     averageType: { type: String, enum: ['hour', 'day', 'month', 'sixmonth', 'year'], required: true },
+    name: { type: String, required: true },
     ph: { type: Number, default: null },
     TDS: { type: Number, default: null },
     turbidity: { type: Number, default: null },

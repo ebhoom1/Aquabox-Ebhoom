@@ -1,3 +1,5 @@
+const { Parser } = require('json2csv');
+const PDFDocument = require('pdfkit');
 const IotData = require('../models/iotData')
 const userdb = require('../models/user');
 const IotDataAverage = require(`../models/averageData`);
@@ -60,6 +62,8 @@ const handleSaveMessage = async (data) => {
             timestamp: new Date(),
             userId: data.userId,
             topic:data.topic,
+            companyName:data.compayName,
+            industryType:data.industryType,
             userName: data.userName, 
             mobileNumber:data.mobileNumber,
             email:data.email,
@@ -90,63 +94,88 @@ const handleSaveMessage = async (data) => {
 };
 
 
-const calculateAverage = async ( userId, averageType, startTime,endTime) =>{
-    const data =await IotData.find({
-        userId:userId,
-        timestamp:{
-            $gte:startTime,
-            $lt:endTime
+const calculateAverage = async (userId, averageType, startTime, endTime, index) => {
+    const data = await IotData.find({
+        userId: userId,
+        timestamp: {
+            $gte: startTime,
+            $lt: endTime
         }
     });
 
-    if(data.length === 0){
+    if (data.length === 0) {
         return;
     }
-    const fields =['ph', 'TDS', 'turbidity', 'temperature', 
+
+    const fields = ['ph', 'TDS', 'turbidity', 'temperature', 
                     'BOD', 'COD', 'TSS', 'ORP', 'nitrate',
-                     'ammonicalNitrogen','DO', 'chloride', 
+                     'ammonicalNitrogen', 'DO', 'chloride', 
                     'PM10', 'PM25', 'NOH', 'NH3', 'WindSpeed',
                     'WindDir', 'AirTemperature', 'Humidity', 
                     'solarRadiation', 'DB'];
 
-    const averages=fields.reduce((acc,fields)=>{
-        acc[fields] = data.reduce((sum,item)=> sum + parseFloat(item[fields] || 0),0) /data.length;
+    const averages = fields.reduce((acc, field) => {
+        acc[field] = data.reduce((sum, item) => sum + parseFloat(item[field] || 0), 0) / data.length;
         return acc;
-    },{});
+    }, {});
+
+    const getName = (averageType, index) => {
+        const namesMap = {
+            hour: [],
+            day: [
+                "12:00 am", "1:00 am", "2:00 am", "3:00 am", "4:00 am", 
+                "5:00 am", "6:00 am", "7:00 am", "8:00 am", "9:00 am", 
+                "10:00 am", "11:00 am", "12:00 pm"
+            ],
+            week: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+            month: ["1st week", "2nd week", "3rd week", "4th week"],
+            sixmonth: ["Jan-June", "July-December"],
+            year: []
+        };
+
+        if (averageType === 'year') {
+            const currentYear = new Date().getFullYear();
+            const startYear = currentYear - index;
+            return `${startYear}`;
+        } else if (averageType === 'hour') {
+            return `Hour ${index}`;
+        }
+
+        return namesMap[averageType][index % namesMap[averageType].length];
+    };
 
     const averageEntry = new IotDataAverage({
-        userId:userId,
-        userName:data[0].userName,
-        averageType:averageType,
+        userId: userId,
+        userName: data[0].userName,
+        averageType: averageType,
+        name: getName(averageType, index),
         ...averages
     });
+
     await averageEntry.save();
 };
 
-const calculateAndSaveAverages = async () =>{
+const calculateAndSaveAverages = async () => {
     const users = await IotData.distinct('userId');
 
-    for(let userId of users){
+    for (let userId of users) {
         const now = new Date();
+        const intervals = [
+            { type: 'hour', startTime: new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours() - 1), endTime: now },
+            { type: 'day', startTime: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1), endTime: now },
+            { type: 'week', startTime: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7), endTime: now },
+            { type: 'month', startTime: new Date(now.getFullYear(), now.getMonth() - 1), endTime: now },
+            { type: 'sixmonth', startTime: new Date(now.getFullYear(), now.getMonth() - 6), endTime: now },
+            { type: 'year', startTime: new Date(now.getFullYear() - 1), endTime: now }
+        ];
 
-        //Hourly average
-        await calculateAverage(userId,'hour', new Date(now.getFullYear(),now.getMonth(),now.getDate(),now.getHours()-1),now);
-
-        //Daily average
-        await calculateAverage(userId,'day', new Date(now.getFullYear(),now.getMonth(),now.getDate()-1),now);
-
-        //Monthly average
-        await calculateAverage(userId,'month', new Date(now.getFullYear(),now.getMonth()-1),now);
-
-        //Six-monthly average
-        await calculateAverage(userId,'sixmonth', new Date(now.getFullYear(), now.getMonth()-6),now);
-
-
-        //Yearly average
-        await calculateAverage(userId, 'year',new Date(now.getFullYear()-1),now);
-
+        for (let i = 0; i < intervals.length; i++) {
+            const { type, startTime, endTime } = intervals[i];
+            await calculateAverage(userId, type, startTime, endTime, i);
+        }
     }
-}
+};
+
 
 const getAllIotData =async (req,res)=>{
     try{
@@ -232,6 +261,8 @@ const getIotDataByUserName = async (req,res)=>{
     }
 }
 
+
+
 const getAverageIotData = async(req,res)=>{
     try {
         const {userName} = req.params;
@@ -257,4 +288,42 @@ const getAverageIotData = async(req,res)=>{
     }
 }
 
-module.exports ={handleSaveMessage,calculateAndSaveAverages,getAllIotData, getLatestIoTData,getIotDataByUserName,getAverageIotData }
+const downloadIotData = async (req, res) => {
+    const { dateFrom, dateTo, industry, company, format } = req.body;
+
+    try {
+        const query = {
+            timestamp: { $gte: new Date(dateFrom), $lte: new Date(dateTo) },
+            industry,
+            company
+        };
+
+        const data = await IotData.find(query);
+
+        if (format === 'csv') {
+            const fields = Object.keys(data[0].toObject());
+            const parser = new Parser({ fields });
+            const csv = parser.parse(data);
+
+            res.header('Content-Type', 'text/csv');
+            res.attachment('iot_data.csv');
+            return res.send(csv);
+        } else if (format === 'pdf') {
+            const doc = new PDFDocument();
+            res.header('Content-Type', 'application/pdf');
+            res.attachment('iot_data.pdf');
+
+            doc.pipe(res);
+            doc.text(JSON.stringify(data, null, 2));
+            doc.end();
+        } else {
+            return res.status(400).json({ message: 'Invalid format specified' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Error processing request', error: error.message });
+    }
+}
+
+module.exports ={handleSaveMessage,calculateAndSaveAverages,getAllIotData, getLatestIoTData,getIotDataByUserName,getAverageIotData,
+    downloadIotData
+ }

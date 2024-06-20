@@ -9,7 +9,7 @@ const calibrationExceed =require('../controllers/calibrationExceed')
 
 
 const setupMqttClient = (io, deviceCredentials) => {
-    const { host, clientId, key, cert, ca, userId,userName,email,mobileNumber,topic} = deviceCredentials;
+    const { host, clientId, key, cert, ca, userId,userName,email,mobileNumber,topic,companyName,industryType} = deviceCredentials;
 
     if (!host || !clientId || !key || !cert || !ca) {
         console.error('Invalid device credentials:', deviceCredentials);
@@ -26,7 +26,7 @@ const setupMqttClient = (io, deviceCredentials) => {
         cert: Buffer.from(cert, 'base64'),
         ca: Buffer.from(ca, 'base64')
     };
-
+    
     const client = mqtt.connect(options);
 
     client.on('connect', () => {
@@ -52,6 +52,8 @@ const setupMqttClient = (io, deviceCredentials) => {
             data.mobileNumber =mobileNumber;
             data.email = email;
             // data.topic =topic;
+            data.companyName =companyName;
+            data.industryType =industryType;
 
             if (topic === 'ebhoomPub' && data && data.product_id) {
                 await iotData.handleSaveMessage(data);

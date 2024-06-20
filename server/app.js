@@ -120,5 +120,5 @@ app.get('*', (req, res) => {
 server.listen(port, () => {
     console.log(`Server Connected - ${port}`);
 
-  //initializeMqttClients(io); // Initialize all MQTT clients at startup
+ //initializeMqttClients(io); // Initialize all MQTT clients at startup
 });

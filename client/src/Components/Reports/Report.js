@@ -37,7 +37,7 @@ const Report = () => {
             setEntries(commentsResponse.data.report);
           } else {
             const userReports = await axios.get(`${API_URL}/api/get-a-report/${userData.validUserOne.userName}`);
-            setEntries(userReports.data.reports);
+            setEntries(userReports.data.reports || []);
           }
         }
       } catch (error) {
@@ -185,7 +185,7 @@ const Report = () => {
                             </td>
                           )}
                           <td>
-                          <select className="btn btn-success" onChange={(e) => handleDownload(entry._id, e.target.value)}>
+                          <select className="btn btn-outline-success" onChange={(e) => handleDownload(entry._id, e.target.value)}>
                              <option>Download</option>
                              <option value="pdf">PDF</option>
                              <option value="csv">CSV</option>

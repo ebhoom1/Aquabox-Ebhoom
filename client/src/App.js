@@ -107,7 +107,7 @@ function App() {
               <Route path= "add-calibration-exceed-value" element={<AddCalibrationExceedValues/>}/>
               <Route path= "calibration-exceed-value" element={<CalibrationExceedValue/>}/>
               <Route path= "edit-calibration-exceed-value/:userName" element={<EditCalibrationExceedValue/>}/>
-              <Route path="report" element={<Report />} />
+              <Route path="/report" element={<Report />} />
               <Route path="view-report/:userName" element={<ViewReport />}/>
               <Route path= "edit-report/:userName" element={<EditReport />}/>
               <Route path="list-of-support-analyser-make-and-model" element={<ListOfSupportAnalyserMakeAndModel />} />
@@ -124,8 +124,9 @@ function App() {
               <Route path="ambient-air" element={<AmbientAir />} />
               <Route path="noise" element={<Noise />} />
               <Route path="account" element={<Account />} />
-              <Route path="report" element={<Report />} />
+              <Route path="/report" element={<Report />} />
               <Route path ="/transactions" element={<Transaction/>}/>
+              <Route path= "edit-report/:userName" element={<EditReport />}/>
               <Route path="view-report/:userName" element={<ViewReport />}/>
               <Route path="list-of-support-analyser-make-and-model" element={<ListOfSupportAnalyserMakeAndModel />} />
               <Route path="/download-IoT-Data" element={<DownloadIoTdata/>}/>
