@@ -74,20 +74,6 @@ const CalibrationExceeded = () => {
     }
   };
 
-  const handleAddComment = async (id, commentField) => {
-    try {
-      await axios.post(`${API_URL}/api/add-comments/${id}`, {
-        [commentField]: currentComment
-      });
-      setEntries(entries.map(entry => entry._id === id ? { ...entry, [commentField]: currentComment } : entry));
-      toast.success(`${commentField} added successfully`);
-      setCurrentEntryId(null);
-      setCurrentComment('');
-    } catch (error) {
-      toast.error(`Failed to add ${commentField}`);
-    }
-  };
-
   const handleEditComment = async (id, commentField) => {
     try {
       await axios.put(`${API_URL}/api/edit-comments/${id}`, {
@@ -106,22 +92,7 @@ const CalibrationExceeded = () => {
   return (
     <>
       <ToastContainer />
-      <div className="card">
-        <div className="card-body">
-          <div className="row mt-5">
-            <div className="col-md-12">
-              <h2>Download Calibration Exceeded Data</h2>
-              <div className="col-lg-6 col-md-6 mb-3">
-                <label htmlFor="date">Date </label>
-                <input className="input-field" type="date" id="date" />
-              </div>
-              <button type="submit" className="btn btn-primary mb-2 mt-2">
-                Download
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+   
 
       <div className="card">
         <div className="card-body">
@@ -177,7 +148,7 @@ const CalibrationExceeded = () => {
                               className="btn btn-primary m-2"
                               onClick={() => {
                                 setCurrentEntryId(entry._id);
-                                setCurrentComment(entry.commentByAdmin);
+                                setCurrentComment(entry.commentByAdmin || '');
                                 setIsEditingAdminComment(true);
                               }}
                             >
@@ -190,7 +161,7 @@ const CalibrationExceeded = () => {
                               className="btn btn-primary m-2"
                               onClick={() => {
                                 setCurrentEntryId(entry._id);
-                                setCurrentComment(entry.commentByUser);
+                                setCurrentComment(entry.commentByUser || '');
                                 setIsEditingAdminComment(false);
                               }}
                             >
@@ -220,7 +191,7 @@ const CalibrationExceeded = () => {
                           if (isEditingAdminComment) {
                             handleEditComment(currentEntryId, 'commentByAdmin');
                           } else {
-                            handleAddComment(currentEntryId, 'commentByUser');
+                            handleEditComment(currentEntryId, 'commentByUser');
                           }
                         }}
                       >
