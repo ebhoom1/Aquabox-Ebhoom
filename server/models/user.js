@@ -87,26 +87,9 @@ const userSchema=new mongoose.Schema({
         type: Number,
         required:true
     },
-    
-    deviceCredentials: {
-        topic:{
-            type:String,
-        },
-        host: {
-            type: String,
-        },
-        clientId: {
-            type: String,
-        },
-        key: {
-            type: Buffer,
-        },
-        cert: { 
-            type: Buffer,
-        },
-        ca: {
-            type: Buffer,
-        }
+    productID:{
+        type:Number,
+        required:true
     },
     tokens:[
         {
@@ -150,4 +133,4 @@ userSchema.methods.generateAuthtoken=async function(){
 //creating model
 const userdb=new mongoose.model('Users',userSchema)
 
-module.exports=userdb;
+module.exports=userdb; 

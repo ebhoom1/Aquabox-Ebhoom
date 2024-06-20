@@ -44,6 +44,8 @@ const KeralaMap = ({ users }) => {
       {users.map(user => {
         const userIoT = userIotData[user.userName];
         const isHealthy = userIoT && userIoT.validationStatus;
+        const analyzerHealth = userIoT && userIoT.message ? userIoT.message : (isHealthy ? 'Good' : 'Problem');
+        console.log("validation status:", userIoT && userIoT.validationStatus);
 
         return (
           <Marker
@@ -56,7 +58,7 @@ const KeralaMap = ({ users }) => {
                 <h5>User ID: {user.userName}</h5>
                 <p>Company Name: <strong>{user.companyName}</strong></p>
                 <p>Model Name: <strong>{user.modelName}</strong></p>
-                <p>Analyzer Health: <strong>{isHealthy ? 'Good' : 'Problem'}</strong></p>
+                <p>Analyzer Health: <strong>{analyzerHealth}</strong></p>
               </div>
             </Popup>
           </Marker>

@@ -26,13 +26,16 @@ export const fetchIotDataByUserName = createAsyncThunk(
         try {
             const response = await axios.get(`${url}/api/get-IoT-Data-by-userName/${userName}`);
             const data = response.data.data;
-            
+
+            if (!data || data.length === 0) {
+                return rejectWithValue({ message: `No data found for ${userName}` });
+            }
             // Assuming the data has a `timestamp` field or similar for determining the most recent entry
             const latestEntry = data.reduce((latest, current) => {
                 return new Date(current.timestamp) > new Date(latest.timestamp) ? current : latest;
             }, data[0]);
 
-            return latestEntry;
+            return latestEntry  || { message: `No data found for ${userName}` };
         } catch (error) {
             return rejectWithValue(error.response.data);
         }

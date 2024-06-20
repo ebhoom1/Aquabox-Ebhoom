@@ -37,7 +37,7 @@ DB();
 
 // Middleware
 app.use(cors({
-    origin:['http://localhost:3000','http://13.202.11.195:5555','http://13.202.11.195:3000'] ,
+    origin:['http://localhost:3000','http://13.202.11.195:5555','http://13.232.163.105:5555'] ,
     credentials: true
 }));
 app.use(cookieParser());
@@ -81,21 +81,37 @@ cron.schedule('0 0 * * *', () => {
     console.log('Old notifications deleted.');
 });
 
+// // Initialize all MQTT clients at server startup
+// const initializeMqttClients = async (io) => {
+//     try {
+//         const allDeviceCredentials = await getAllDeviceCredentials();
+//         allDeviceCredentials.forEach(({ userId,userName,email,mobileNumber,companyName,industryType, deviceCredentials }) => {
+//             if (deviceCredentials && deviceCredentials.host && deviceCredentials.clientId && deviceCredentials.key && deviceCredentials.cert && deviceCredentials.ca) {
+//                 try {
+//                     setupMqttClient(io, { ...deviceCredentials, userId, userName,email,mobileNumber,companyName,industryType });
+//                 } catch (error) {
+//                     console.error(`Error setting up MQTT client for user ${userId}:`, error);
+//                 }
+//             } else {
+//                 console.log(`No valid device credentials for user ${userId}`);
+//             }
+//         });
+//         console.log('All MQTT clients initialized.');
+//     } catch (error) {
+//         console.error('Error initializing MQTT clients:', error);
+//     }
+// };
+
 // Initialize all MQTT clients at server startup
 const initializeMqttClients = async (io) => {
     try {
         const allDeviceCredentials = await getAllDeviceCredentials();
-        allDeviceCredentials.forEach(({ userId,userName,email,mobileNumber, deviceCredentials }) => {
-            if (deviceCredentials && deviceCredentials.host && deviceCredentials.clientId && deviceCredentials.key && deviceCredentials.cert && deviceCredentials.ca) {
-                try {
-                    setupMqttClient(io, { ...deviceCredentials, userId, userName,email,mobileNumber });
-                } catch (error) {
-                    // console.error(`Error setting up MQTT client for user ${userId}:`, error);
-                }
-            } else {
-                // console.log(`No valid device credentials for user ${userId}`);
-            }
-        });
+        const productIDMap = allDeviceCredentials.reduce((map, { userId, userName, email, mobileNumber, companyName, industryType, productID }) => {
+            map[productID] = { userId, userName, email, mobileNumber, companyName, industryType };
+            return map;
+        }, {});
+
+        setupMqttClient(io, productIDMap);
         console.log('All MQTT clients initialized.');
     } catch (error) {
         console.error('Error initializing MQTT clients:', error);
@@ -120,5 +136,5 @@ app.get('*', (req, res) => {
 server.listen(port, () => {
     console.log(`Server Connected - ${port}`);
 
- //initializeMqttClients(io); // Initialize all MQTT clients at startup
+initializeMqttClients(io); // Initialize all MQTT clients at startup
 });

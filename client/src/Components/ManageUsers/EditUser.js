@@ -372,7 +372,7 @@ const EditUsers = () => {
                         value={userData.longitude || ''}
                       />
                     </div>
-                    <div className="col-12">
+                    {/* <div className="col-12">
                       <h1>Update Device Configurations</h1>
                     </div>
                     <div className="col-12 col-lg-6 col-md-6 mb-3">
@@ -428,7 +428,7 @@ const EditUsers = () => {
                         name='ca'
                         onChange={handleFileChange}
                       />
-                    </div>
+                    </div> */}
                     <div className="mt-4 mb-5 p-2">
                       <button type="submit" className="btn btn-primary mb-2" onClick={handleSaveUser}>Update User</button>
                     </div>

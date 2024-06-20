@@ -16,7 +16,7 @@ const checkSensorData = (data)=>{
 
     //Check if any sensor data field is zero
     for(let field of sensorDataFields){
-        if(data[field]===0){
+        if(data[field]==="N/A"){
             return{
                 success:false,
                 message:`Problem in data: ${field} value is 0`,
@@ -32,49 +32,40 @@ const checkSensorData = (data)=>{
 // Function to handle Mqtt Messages and save the data to MongoDB
 const handleSaveMessage = async (data) => {
     try {
-        // Fetch user information from the database
         const user = await userdb.findById(data.userId);
 
         if (!user) {
             throw new Error('User not found');
         }
 
-       //Validate the sensor data
-       const validationStatus = checkSensorData(data);
+        const validationStatus = checkSensorData(data);
 
-       
-
-        // Create a new document based on the received data
         const newEntry = new IotData({
-            product_id:data.product_id,
-            ph: data.ph || null,
-            TDS: data.tds || null,
-            turbidity: data.turbidity || null,
-            temperature: data.temperature || null,
-            BOD: data.bod || null,
-            COD: data.cod || null,
-            TSS: data.tss || null,
-            ORP: data.orp || null,
-            nitrate: data.nitrate || null,
-            ammonicalNitrogen: data.ammonicalNitrogen || null,
-            DO: data.DO || null,
-            chloride: data.chloride || null,
+            product_id: data.product_id,
+            ph: data.ph !== 'N/A' ? data.ph : null,
+            TDS: data.tds !== 'N/A' ? data.tds : null,
+            turbidity: data.turbidity !== 'N/A' ? data.turbidity : null,
+            temperature: data.temperature !== 'N/A' ? data.temperature : null,
+            BOD: data.bod !== 'N/A' ? data.bod : null,
+            COD: data.cod !== 'N/A' ? data.cod : null,
+            TSS: data.tss !== 'N/A' ? data.tss : null,
+            ORP: data.orp !== 'N/A' ? data.orp : null,
+            nitrate: data.nitrate !== 'N/A' ? data.nitrate : null,
+            ammonicalNitrogen: data.ammonicalNitrogen !== 'N/A' ? data.ammonicalNitrogen : null,
+            DO: data.DO !== 'N/A' ? data.DO : null,
+            chloride: data.chloride !== 'N/A' ? data.chloride : null,
             timestamp: new Date(),
             userId: data.userId,
-            topic:data.topic,
-            companyName:data.compayName,
-            industryType:data.industryType,
-            userName: data.userName, 
-            mobileNumber:data.mobileNumber,
-            email:data.email,
-            validationStatus:validationStatus.success,
-            validationMessage:validationStatus.message
+            topic: data.topic,
+            companyName: data.companyName,
+            industryType: data.industryType,
+            userName: data.userName,
+            mobileNumber: data.mobileNumber,
+            email: data.email,
+            validationStatus: validationStatus.success,
+            validationMessage: validationStatus.message
         });
 
-        // Log the new entry object
-        console.log('New Entry:', newEntry);
-
-        // Save the document to db
         await newEntry.save();
         console.log('Data saved to DB');
 
@@ -92,6 +83,7 @@ const handleSaveMessage = async (data) => {
         };
     }
 };
+
 
 
 const calculateAverage = async (userId, averageType, startTime, endTime, index) => {

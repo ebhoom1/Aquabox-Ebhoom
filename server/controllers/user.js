@@ -27,8 +27,7 @@ const transporter=nodemailer.createTransport({
 
 
 const register = async (req, res) => {
-    const { userName, companyName, modelName, fname, email, mobileNumber, password, cpassword, subscriptionDate, userType, industryType, dataInteval, district, state, address, latitude, longitude, topic, host, clientId } = req.body;
-    const { key, cert, ca } = req.files;
+    const { userName, companyName, modelName, fname, email, mobileNumber, password, cpassword, subscriptionDate, userType, industryType, dataInteval, district, state, address, latitude, longitude,productID } = req.body;
 
     try {
         const preuser = await userdb.findOne({ email: email });
@@ -47,14 +46,7 @@ const register = async (req, res) => {
 
             const finalUser = new userdb({
                 userName, companyName, modelName, fname, email, mobileNumber, password, cpassword, subscriptionDate, endSubscriptionDate: formattedEndSubscriptionDate, userType, industryType, dataInteval, district, state, address, latitude, longitude,
-                deviceCredentials: {
-                    topic,
-                    host,
-                    clientId,
-                    key: key[0].buffer,
-                    cert: cert[0].buffer,
-                    ca: ca[0].buffer
-                }
+                productID
             });
 
             const storeData = await finalUser.save();
@@ -65,7 +57,6 @@ const register = async (req, res) => {
         return res.status(400).json(error);
     }
 };
-
 
 
 // user login
@@ -379,18 +370,22 @@ const getDeviceCredentidals = async(userId)=>{
         throw error;
     }
 }
-const getAllDeviceCredentials = async(req,res)=>{
+const getAllDeviceCredentials = async () => {
     try {
-        const users =await userdb.find({});
-        return users.map(user=>({
-            userId:user._id,
-            userName:user.userName,
-            deviceCredentials:user.deviceCredentials
+        const users = await userdb.find({});
+        return users.map(user => ({
+            userId: user._id,
+            userName: user.userName,
+            email: user.email,
+            mobileNumber: user.mobileNumber,
+            companyName: user.companyName,
+            industryType: user.industryType,
+            productID: user.productID
         }));
-        
     } catch (error) {
         console.error('Error fetching all device credentials:', error);
         throw error;
     }
-}
+};
+
 module.exports={register,login,validuser,logout,sendPasswordLink,forgotPassword,changePassword, getAllUsers, editUser, deleteUser,getAUser,changeCurrentPassword,getDeviceCredentidals,getAllDeviceCredentials,getAUserByUserName}
