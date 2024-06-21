@@ -4,6 +4,7 @@ const bcrypt=require('bcryptjs');
 const nodemailer=require('nodemailer');
 const jwt=require('jsonwebtoken');
 const authenticate = require('../middleware/authenticate');
+const { API_URL } = require('../../client/src/utils/apiConfig');
 
 
 
@@ -156,7 +157,7 @@ const sendPasswordLink= async (req,res)=>{
                 from:process.env.EMAIl,
                 to:email,
                 subject:"Sending Email for Password Reset",
-                text:`This Link Valid for 2 Minutes http://localhost:3000/reset-password/${userfind._id}/${setusertoken.verifytoken}`
+                text:`This Link Valid for 2 Minutes ${API_URL}/reset-password/${userfind._id}/${setusertoken.verifytoken}`
 
             }
             transporter.sendMail(mailOptions,(error,info)=>{
