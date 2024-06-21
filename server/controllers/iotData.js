@@ -3,7 +3,7 @@ const PDFDocument = require('pdfkit');
 const IotData = require('../models/iotData')
 const userdb = require('../models/user');
 const IotDataAverage = require(`../models/averageData`);
-
+const moment = require('moment');
 
 
 //Function to check sensor data for zero values
@@ -55,13 +55,13 @@ const handleSaveMessage = async (data) => {
             DO: data.DO !== 'N/A' ? data.DO : null,
             chloride: data.chloride !== 'N/A' ? data.chloride : null,
             timestamp: new Date(),
-            userId: data.userId,
+            userId: data.userId || 'N/A',
             topic: data.topic,
-            companyName: data.companyName,
-            industryType: data.industryType,
-            userName: data.userName,
-            mobileNumber: data.mobileNumber,
-            email: data.email,
+            companyName: data.companyName || 'N/A',
+            industryType: data.industryType || 'N/A',
+            userName: data.userName || 'N/A',
+            mobileNumber: data.mobileNumber || 'N/A',
+            email: data.email || 'N/A',
             validationStatus: validationStatus.success,
             validationMessage: validationStatus.message
         });
@@ -281,38 +281,62 @@ const getAverageIotData = async(req,res)=>{
 }
 
 const downloadIotData = async (req, res) => {
-    const { dateFrom, dateTo, industry, company, format } = req.body;
-
     try {
-        const query = {
-            timestamp: { $gte: new Date(dateFrom), $lte: new Date(dateTo) },
-            industry,
-            company
-        };
+        const { userName, industryType, fromDate, toDate, format } = req.query;
 
-        const data = await IotData.find(query);
-
-        if (format === 'csv') {
-            const fields = Object.keys(data[0].toObject());
-            const parser = new Parser({ fields });
-            const csv = parser.parse(data);
-
-            res.header('Content-Type', 'text/csv');
-            res.attachment('iot_data.csv');
-            return res.send(csv);
-        } else if (format === 'pdf') {
-            const doc = new PDFDocument();
-            res.header('Content-Type', 'application/pdf');
-            res.attachment('iot_data.pdf');
-
-            doc.pipe(res);
-            doc.text(JSON.stringify(data, null, 2));
-            doc.end();
-        } else {
-            return res.status(400).json({ message: 'Invalid format specified' });
+        // Validate input
+        if (!userName || !industryType || !fromDate || !toDate) {
+            return res.status(400).send('Missing required query parameters');
         }
+
+       // Find IoT data based on filters
+       const data = await IotData.find({
+        userName,
+        industryType,
+        timestamp: {
+            $gte: from,
+            $lte: to,
+        },
+    });
+    if (format === 'csv') {
+        // Generate CSV
+        const fields = ['userName', 'industryType', 'timestamp', 'product_id', 'ph', 'TDS', 'turbidity', 'temperature', 'BOD', 'COD', 'TSS', 'ORP', 'nitrate', 'ammonicalNitrogen', 'DO', 'chloride', 'PM10', 'PM25', 'NOH', 'NH3', 'WindSpeed', 'WindDir', 'AirTemperature', 'Humidity', 'solarRadiation', 'DB'];
+        const json2csvParser = new Parser({ fields });
+        const csv = json2csvParser.parse(data);
+        
+        res.header('Content-Type', 'text/csv');
+        res.attachment('data.csv');
+        return res.send(csv);
+    } else if (format === 'pdf') {
+        // Generate PDF
+        const doc = new PDFDocument();
+        res.header('Content-Type', 'application/pdf');
+        res.attachment('data.pdf');
+        
+        doc.pipe(res);
+
+        doc.fontSize(20).text('IoT Data Report', { align: 'center' });
+        doc.fontSize(12).text(`User Name: ${userName}`);
+        doc.fontSize(12).text(`Industry Type: ${industryType}`);
+        doc.fontSize(12).text(`Date Range: ${moment(from).format('YYYY/MM/DD')} - ${moment(to).format('YYYY/MM/DD')}`);
+
+        doc.moveDown();
+
+        data.forEach(item => {
+            doc.fontSize(10).text(JSON.stringify(item), {
+                width: 410,
+                align: 'left'
+            });
+            doc.moveDown();
+        });
+
+        doc.end();
+    } else {
+        return res.status(400).send('Invalid format requested');
+    }
     } catch (error) {
-        res.status(500).json({ message: 'Error processing request', error: error.message });
+        console.error('Error fetching or processing data:', error);
+        res.status(500).send('Internal Server Error');
     }
 }
 

@@ -106,8 +106,8 @@ cron.schedule('0 0 * * *', () => {
 const initializeMqttClients = async (io) => {
     try {
         const allDeviceCredentials = await getAllDeviceCredentials();
-        const productIDMap = allDeviceCredentials.reduce((map, { userId, userName, email, mobileNumber, companyName, industryType, productID }) => {
-            map[productID] = { userId, userName, email, mobileNumber, companyName, industryType };
+        const productIDMap = allDeviceCredentials.reduce((map, { userId, userName, email, mobileNumber,  companyName, industryType, productID }) => {
+            map[productID] = { userId, userName, email, mobileNumber,  companyName, industryType };
             return map;
         }, {});
 

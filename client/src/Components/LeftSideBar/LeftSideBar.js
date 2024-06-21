@@ -1,12 +1,49 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUser } from '../../redux/features/user/userSlice';
+
+// NavItem component to handle individual list items
+const NavItem = ({ to, iconClass, title, subtitle }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+  };
+
+  return (
+    <li className="nav-item">
+      <Link
+        className="nav-link"
+        to={to}
+        style={{ backgroundColor: isHovered ? '#c8d425' : 'inherit' }}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        <i className={`menu-icon ${iconClass}`}></i>
+        <span className="menu-title"style={{
+            display: 'inline-block',
+            transition: 'transform 0.3s ease',
+            transform: isHovered ? 'translateX(10px)' : 'translateX(0)',
+          }}>{title}
+           {subtitle && (
+            <span style={{ display: 'block', fontSize: '1em' }}>{subtitle}</span>
+          )}
+          </span>
+      </Link>
+    </li>
+  );
+};
 
 const LeftSideBar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { userType, loading, error, userData } = useSelector((state) => state.user);
+  const [showDashboardSubMenu, setShowDashboardSubMenu] = useState(false);
 
   const validateUser = async () => {
     try {
@@ -25,130 +62,97 @@ const LeftSideBar = () => {
     validateUser();
   }
 
-  // Define menu items based on userType
+  const handleDashboardClick = () => {
+    setShowDashboardSubMenu(!showDashboardSubMenu);
+  };
+
   const getMenuItems = () => {
     if (userType === 'admin') {
       return (
         <>
-          <li className={`nav-item`}>
-            <Link className="nav-link" to="/manage-users">
+          <li className="nav-item">
+            <a href="#" className="nav-link" onClick={handleDashboardClick}>
               <i className="menu-icon typcn typcn-document-text"></i>
-              <span className="menu-title">Manage Users</span>
-            </Link>
+              <span className="menu-title">Dashboard Components</span>
+            </a>
+            {showDashboardSubMenu && (
+              <ul className="nav">
+                <NavItem
+                  to="/water"
+                  iconClass="typcn typcn-document-text"
+                  title="Effluent/Water Dashboard"
+                />
+                <NavItem
+                  to="/ambient-air"
+                  iconClass="typcn typcn-document-text"
+                  title="Ambient Air Dashboard"
+                />
+                <NavItem
+                  to="/noise"
+                  iconClass="typcn typcn-document-text"
+                  title="Noise Dashboard"
+                />
+              </ul>
+            )}
           </li>
-          <li className={`nav-item`}>
-            <Link className="nav-link" to="/users-log">
-              <i className="menu-icon typcn typcn-document-text"></i>
-              <span className="menu-title">Users Log</span>
-            </Link>
-          </li>
-          <li className={`nav-item`}>
-            <Link className="nav-link" to="/calibration">
-              <i className="menu-icon typcn typcn-document-text"></i>
-              <span className="menu-title">Calibration</span>
-            </Link>
-          </li>
-          <li className={`nav-item`}>
-            <Link className="nav-link" to="/calibration-exceed-value">
-              <i className="menu-icon typcn typcn-document-text"></i>
-              <span className="menu-title">Parameter Threshold <br/>exceedance value</span>
-            </Link>
-          </li>
-          <li className={`nav-item`}>
-            <Link className="nav-link" to="/notification">
-              <i className="menu-icon typcn typcn-document-text"></i>
-              <span className="menu-title">Notification</span>
-            </Link>
-          </li>
-          <li className={`nav-item`}>
-            <Link className="nav-link" to="/account">
-              <i className="menu-icon typcn typcn-document-text"></i>
-              <span className="menu-title">Account</span>
-            </Link>
-          </li>
-          <li className={`nav-item`}>
-            <Link className="nav-link" to="/report">
-              <i className="menu-icon typcn typcn-document-text"></i>
-              <span className="menu-title">Report</span>
-            </Link>
-          </li>
-          <li className={`nav-item`}>
-            <Link className="nav-link" to="/subscribe-data">
-              <i className="menu-icon typcn typcn-document-text"></i>
-              <span className="menu-title">Subscribe</span>
-            </Link>
-          </li>
-          <li className={`nav-item`}>
-            <Link className="nav-link" to="/list-of-support-analyser-make-and-model">
-              <i className="menu-icon typcn typcn-document-text"></i>
-              <span className="menu-title">List of supported analyser<br /> make and model</span>
-            </Link>
-          </li>
-          <li className={`nav-item`}>
-            <Link className="nav-link" to="/water">
-              <i className="menu-icon typcn typcn-document-text"></i>
-              <span className="menu-title">Effluent/Water Dashboard</span>
-            </Link>
-          </li>
-          <li className={`nav-item`}>
-            <Link className="nav-link" to="/ambient-air">
-              <i className="menu-icon typcn typcn-document-text"></i>
-              <span className="menu-title">Ambient Air Dashboard</span>
-            </Link>
-          </li>
-          <li className={`nav-item`}>
-            <Link className="nav-link" to="/noise">
-              <i className="menu-icon typcn typcn-document-text"></i>
-              <span className="menu-title">Noise Dashboard</span>
-            </Link>
-          </li>
+          <NavItem to="/manage-users" iconClass="typcn typcn-document-text" title="Quantity" />
+          <NavItem to="/manage-users" iconClass="typcn typcn-document-text" title="Energy" />
+          <NavItem to="/manage-users" iconClass="typcn typcn-document-text" title="Manage Users" />
+          <NavItem to="/users-log" iconClass="typcn typcn-document-text" title="Users Log" />
+          <NavItem to="/calibration" iconClass="typcn typcn-document-text" title="Calibration" />
+          <NavItem
+            to="/calibration-exceed-value"
+            iconClass="typcn typcn-document-text"
+            title="Parameter Threshold "
+             subtitle="exceedance value"
+          />
+          <NavItem to="/notification" iconClass="typcn typcn-document-text" title="Notification" />
+          <NavItem to="/account" iconClass="typcn typcn-document-text" title="Account" />
+          <NavItem to="/report" iconClass="typcn typcn-document-text" title="Report" />
+          <NavItem to="/subscribe-data" iconClass="typcn typcn-document-text" title="Subscribe" />
+          <NavItem
+            to="/list-of-support-analyser-make-and-model"
+            iconClass="typcn typcn-document-text"
+            title="List of supported analyser "
+            subtitle="make and model"
+          />
         </>
       );
     } else {
       return (
         <>
-          <li className={`nav-item`}>
-            <Link className="nav-link" to="/account">
+        <li className="nav-item">
+            <a href="#" className="nav-link" onClick={handleDashboardClick}>
               <i className="menu-icon typcn typcn-document-text"></i>
-              <span className="menu-title">Account</span>
-            </Link>
+              <span className="menu-title">Quality</span>
+            </a>
+            {showDashboardSubMenu && (
+              <ul className="nav flex-column sub-menu">
+                <NavItem to="/water" iconClass="typcn typcn-document-text" title="Effluent/Water Dashboard" />
+                <NavItem to="/ambient-air" iconClass="typcn typcn-document-text" title="Ambient Air Dashboard" />
+                <NavItem to="/noise" iconClass="typcn typcn-document-text" title="Noise Dashboard" />
+              </ul>
+            )}
           </li>
-          <li className={`nav-item`}>
-            <Link className="nav-link" to="/report">
-              <i className="menu-icon typcn typcn-document-text"></i>
-              <span className="menu-title">Report</span>
-            </Link>
+          <NavItem to="/manage-users" iconClass="typcn typcn-document-text" title="Quantity" />
+          <NavItem to="/manage-users" iconClass="typcn typcn-document-text" title="Energy" />
+          <NavItem to="/account" iconClass="typcn typcn-document-text" title="Account" />
+          <NavItem to="/report" iconClass="typcn typcn-document-text" title="Report" />
+          <NavItem to="/transactions" iconClass="typcn typcn-document-text" title="Payments" />
+          <li className="nav-item">
+            <NavItem
+              to="/list-of-support-analyser-make-and-model"
+              iconClass="typcn typcn-document-text"
+              title="List of supported analyser "
+              subtitle="make and model"
+            />
+            {/* <ul className="nav flex-column sub-menu">
+              <NavItem to="/water" iconClass="typcn typcn-document-text" title="Effluent/Water Dashboard" />
+              <NavItem to="/ambient-air" iconClass="typcn typcn-document-text" title="Ambient Air Dashboard" />
+              <NavItem to="/noise" iconClass="typcn typcn-document-text" title="Noise Dashboard" />
+            </ul> */}
           </li>
-          <li className={`nav-item`}>
-            <Link className="nav-link" to="/transactions">
-              <i className="menu-icon typcn typcn-document-text"></i>
-              <span className="menu-title">Payments</span>
-            </Link>
-          </li>
-          <li className={`nav-item`}>
-            <Link className="nav-link" to="/list-of-support-analyser-make-and-model">
-              <i className="menu-icon typcn typcn-document-text"></i>
-              <span className="menu-title">List of support analyser<br /> make and model</span>
-            </Link>
-          </li>
-          <li className={`nav-item`}>
-            <Link className="nav-link" to="/water">
-              <i className="menu-icon typcn typcn-document-text"></i>
-              <span className="menu-title">Effluent/Water Dashboard</span>
-            </Link>
-          </li>
-          <li className={`nav-item`}>
-            <Link className="nav-link" to="/ambient-air">
-              <i className="menu-icon typcn typcn-document-text"></i>
-              <span className="menu-title">Ambient Air Dashboard</span>
-            </Link>
-          </li>
-          <li className={`nav-item`}>
-            <Link className="nav-link" to="/noise">
-              <i className="menu-icon typcn typcn-document-text"></i>
-              <span className="menu-title">Noise Dashboard</span>
-            </Link>
-          </li>
+          
         </>
       );
     }
@@ -162,7 +166,7 @@ const LeftSideBar = () => {
   }
 
   return (
-    <nav className="sidebar sidebar-offcanvas"  id="sidebar">
+    <nav className="sidebar sidebar-offcanvas" id="sidebar">
       <ul className="nav">
         <li className="nav-item nav-profile">
           <a href="#" className="nav-link">

@@ -1,6 +1,7 @@
 const mqtt = require('mqtt');
 const path = require('path');
 const fs = require('fs');
+const moment = require('moment');
 const iotData = require('../controllers/iotData');
 const calibrationExceed = require('../controllers/calibrationExceed');
 
@@ -42,7 +43,12 @@ const setupMqttClient = (io, productIDMap) => {
 
             if (topic === 'ebhoomPub' && productIDMap[product_id]) {
                 const userDetails = productIDMap[product_id];
+                console.log('User Details:', userDetails);  // Debugging line
                 Object.assign(data, userDetails);
+                console.log('Merged Data:', data);  // Debugging line
+                
+                 // Add formatted timestamp
+                 data.timestamp = moment().format('YYYY/MM/DD');
 
                 await iotData.handleSaveMessage(data);
                 await calibrationExceed.handleExceedValues(data);

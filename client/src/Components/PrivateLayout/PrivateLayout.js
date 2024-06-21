@@ -13,6 +13,7 @@ const PrivateLayout = () => {
   const { userData, loading, error } = useSelector((state) => state.user);
   const [isDropdownOpenNotification, setIsDropdownOpenNotification] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isDashboardSubmenuOpen, setIsDashboardSubmenuOpen] = useState(false);
   const [onlineStatus, setOnlineStatus] = useState(navigator.onLine ? 'Online' : 'Offline');
   const [notifications, setNotifications] = useState([]);
 
@@ -81,6 +82,11 @@ const PrivateLayout = () => {
 
   const closeDropdown = () => {
     setIsDropdownOpen(false);
+    setIsDashboardSubmenuOpen(false); // Close the dashboard submenu as well
+  };
+
+  const toggleDashboardSubmenu = () => {
+    setIsDashboardSubmenuOpen(!isDashboardSubmenuOpen);
   };
 
   const getDropdownItems = () => {
@@ -88,6 +94,18 @@ const PrivateLayout = () => {
     if (userType === 'admin') {
       return (
         <>
+         <li>
+            <a href="#" onClick={toggleDashboardSubmenu}>
+              Quality
+            </a>
+            {isDashboardSubmenuOpen && (
+              <ul className="dropdown-submenu">
+                <li><Link to="/water" onClick={closeDropdown}>Effluent/Water Dashboard</Link></li>
+                <li><Link to="/ambient-air" onClick={closeDropdown}>Ambient Air Dashboard</Link></li>
+                <li><Link to="/noise" onClick={closeDropdown}>Noise Dashboard</Link></li>
+              </ul>
+            )}
+          </li>
           <li><Link to="/manage-users" onClick={closeDropdown}>Manage Users</Link></li>
           <li><Link to="/users-log" onClick={closeDropdown}>Users Log</Link></li>
           <li><Link to="/calibration" onClick={closeDropdown}>Calibration</Link></li>
@@ -95,27 +113,34 @@ const PrivateLayout = () => {
           <li><Link to="/account" onClick={closeDropdown}>Account</Link></li>
           <li><Link to="/report" onClick={closeDropdown}>Report</Link></li>
           <li><Link to="/subscribe-data" onClick={closeDropdown}>Subscribe</Link></li>
-          <li><Link to="/support-analyzer" onClick={closeDropdown}>List of support analyzer make and model</Link></li>
-          <li><Link to="/water" onClick={closeDropdown}>Effluent/Water Dashboard</Link></li>
-          <li><Link to="/ambient-air" onClick={closeDropdown}>Ambient Air Dashboard</Link></li>
-          <li><Link to="/noise" onClick={closeDropdown}>Noise Dashboard</Link></li>
+          <li><Link to="/support-analyzer" onClick={closeDropdown}>List of support analyzer <br/>make and model</Link></li>
+         
         </>
       );
     } else {
       return (
         <>
+        <li>
+            <a href="#" onClick={toggleDashboardSubmenu}>
+              Dashboard Components
+            </a>
+            {isDashboardSubmenuOpen && (
+              <ul className="dropdown-submenu">
+                <li><Link to="/water" onClick={closeDropdown}>Effluent/Water Dashboard</Link></li>
+                <li><Link to="/ambient-air" onClick={closeDropdown}>Ambient Air Dashboard</Link></li>
+                <li><Link to="/noise" onClick={closeDropdown}>Noise Dashboard</Link></li>
+              </ul>
+            )}
+          </li>
           <li><Link to="/account" onClick={closeDropdown}>Account</Link></li>
           <li><Link to="/report" onClick={closeDropdown}>Report</Link></li>
           <li><Link to="/transactions" onClick={closeDropdown}>Payment</Link></li>
           <li><Link to="/support-analyzer" onClick={closeDropdown}>List of support analyzer make and model</Link></li>
-          <li><Link to="/water" onClick={closeDropdown}>Effluent/Water Dashboard</Link></li>
-          <li><Link to="/ambient-air" onClick={closeDropdown}>Ambient Air Dashboard</Link></li>
-          <li><Link to="/noise" onClick={closeDropdown}>Noise Dashboard</Link></li>
+          
         </>
       );
     }
   };
-  
 
   if (loading) {
     return <div>Loading...</div>;
@@ -165,7 +190,6 @@ const PrivateLayout = () => {
                         <h5 className="notification-message-h5">{notification.subject}</h5>
                         <p className="notification-message-p">{notification.message}</p>
                         <p className="notification-message-p">{notification.dateOfNotificationAdded}</p>
-                        
                       </div>
                     </a>
                   ))}

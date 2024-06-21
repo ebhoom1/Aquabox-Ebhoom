@@ -109,8 +109,8 @@ const iotDataSchema = new mongoose.Schema({
     },
    
     timestamp: {
-         type: Date, 
-         default: Date.now
+        type: String,  // Change to String if storing formatted date as string
+        default: () => moment().format('YYYY/MM/DD')
     }
 });
 
