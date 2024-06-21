@@ -3,7 +3,7 @@ import axios from 'axios';
 import { LOCAL_API_URL,API_URL } from "../../../utils/apiConfig";
 
 
-const url = 'http://localhost:5555';
+
 
 
 
@@ -24,7 +24,7 @@ export const fetchIotDataByUserName = createAsyncThunk(
     'iotData/fetchIotDataByUserName',
     async(userName, { rejectWithValue }) => {
         try {
-            const response = await axios.get(`${url}/api/get-IoT-Data-by-userName/${userName}`);
+            const response = await axios.get(`${API_URL}/api/get-IoT-Data-by-userName/${userName}`);
             const data = response.data.data;
 
             if (!data || data.length === 0) {

@@ -66,7 +66,7 @@ const CalibrationExceedValue = () => {
                         </Link>
                     </div>
                     <div className="col-md-12">
-                        <h2>Previous Calibration Data</h2>
+                        <h2>Previous Parameter Threshold exceedance  Values  </h2>
                         <div className="table-responsive">
                             <table className="table table-bordered">
                                 <thead>
