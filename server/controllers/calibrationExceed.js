@@ -258,7 +258,8 @@ const handleExceedValues = async (data) => {
             }
 
             const exceedParameters = [
-                { parameter: 'ph', value: data.ph, threshold: industryThresholds.ph },
+                { parameter: 'ph', value: data.ph, threshold: industryThresholds.phBelow },
+                { parameter: 'ph', value: data.ph, threshold: industryThresholds.phAbove },
                 { parameter: 'turbidity', value: data.turbidity, threshold: industryThresholds.turbidity },
                 { parameter: 'ORP', value: data.orp, threshold: industryThresholds.ORP },
                 { parameter: 'TDS', value: data.tds, threshold: industryThresholds.TDS },

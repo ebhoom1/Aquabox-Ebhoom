@@ -51,7 +51,7 @@ const LeftSideBar = () => {
           <li className={`nav-item`}>
             <Link className="nav-link" to="/calibration-exceed-value">
               <i className="menu-icon typcn typcn-document-text"></i>
-              <span className="menu-title">Calibration Exceed value</span>
+              <span className="menu-title">Parameter Threshold <br/>exceedance value</span>
             </Link>
           </li>
           <li className={`nav-item`}>

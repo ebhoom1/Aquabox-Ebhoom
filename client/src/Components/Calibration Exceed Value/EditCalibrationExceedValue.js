@@ -165,8 +165,8 @@ const EditCalibrationExceedValue = () => {
                     <div className="col-12">
                       <h1>Calibration Edited by</h1>
                     </div>
-                    <div className="col-12 col-lg-6 col-md-6 mb-3">
-                      <label htmlFor="date">Date of Calibration Exceed Value Added</label>
+                    <div className="col-12 col-lg-6 col-md-6 mb-5">
+                      <label htmlFor="date">Date of Parameter Threshold exceedance  Value Added</label>
                       <input
                         type="date"
                         className="form-control"
@@ -176,7 +176,7 @@ const EditCalibrationExceedValue = () => {
                         onChange={handleChange}
                       />
                     </div>
-                    <div className="col-12 col-lg-6 col-md-6 mb-3">
+                    <div className="col-12 col-lg-6 col-md-6 mb-5">
                       <label htmlFor="adminName">Admin User Name</label>
                       <input
                         type="text"
@@ -187,8 +187,8 @@ const EditCalibrationExceedValue = () => {
                        
                       />
                     </div>
-                    <div className="col-12">
-                      <h1>Add Calibration Exceed Values Details</h1>
+                    <div className="col-12 mb-5">
+                      <h1>Add Parameter Threshold exceedance  Values Details</h1>
                     </div>
                     <div className="col-12 col-lg-6 col-md-6 mb-3">
                       <label htmlFor="userName">User ID</label>
@@ -234,13 +234,18 @@ const EditCalibrationExceedValue = () => {
                         <h1>Values</h1>
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
-                          <label htmlFor="exampleFormControlInput5">pH</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="pH" name='ph' value={calibrationExceedValueData.ph} onChange={handleChange}   
+                          <label htmlFor="exampleFormControlInput5">pH - Above</label>
+                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="pH" name='phAbove' value={calibrationExceedValueData.phAbove} onChange={handleChange}   
+                        />   
+                      </div>
+                      <div className="col-12 col-lg-6 col-md-6 mb-3">
+                          <label htmlFor="exampleFormControlInput5">pH - Below</label>
+                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="pH" name='phBelow' value={calibrationExceedValueData.phBelow} onChange={handleChange}   
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">TDS</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="TDS" name='TDS' value={calibrationExceedValueData.tds} onChange={handleChange}  
+                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="TDS" name='TDS' value={calibrationExceedValueData.TDS} onChange={handleChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">

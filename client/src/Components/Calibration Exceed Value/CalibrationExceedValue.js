@@ -17,14 +17,14 @@ const CalibrationExceedValue = () => {
         }
     }, [allCalibrationExceedValues]);
     const handleDelete = async (calibrationExceedvalueId) => {
-        const shouldDelete = window.confirm('Are you sure you want to delete this calibration Exceed Value?');
+        const shouldDelete = window.confirm('Are you sure you want to delete this Parameter Threshold exceedance  Value?');
         if (shouldDelete) {
             try {
                 await dispatch(deleteCalibrationExceedValue(calibrationExceedvalueId)).unwrap();
                 toast.success('Deleted Successfully');
                 dispatch(fetchAllCalibrationExceedValues());
             } catch (error) {
-                toast.error('Error deleting calibration exceed value');
+                toast.error('Error deleting Parameter Threshold exceedance  value');
             }
         }
     };
@@ -43,7 +43,7 @@ const CalibrationExceedValue = () => {
                 <div className="row page-title-header">
                     <div className="col-12">
                         <div className="page-header">
-                            <h4 className="page-title">Calibration Exceed Values Dashboard</h4>
+                            <h4 className="page-title">Parameter Threshold exceedance  Values Dashboard</h4>
                             <p></p>
                             <div className="quick-link-wrapper w-100 d-md-flex flex-md-wrap">
                                 <ul className="quick-links ml-auto"></ul>
@@ -58,7 +58,7 @@ const CalibrationExceedValue = () => {
                                 <div className="card-body">
                                     <div className="row">
                                         <div className="col-12">
-                                            <h3 className="mb-3">Add New Calibration Exceed Values</h3>
+                                            <h3 className="mb-3">Add New Parameter Threshold exceedance  Values</h3>
                                         </div>
                                     </div>
                                 </div>
@@ -77,7 +77,8 @@ const CalibrationExceedValue = () => {
                                         <th>User ID</th>
                                         <th>Product ID</th>
                                         <th>Industry Type</th>
-                                        <th>pH</th>
+                                        <th>pH - Above</th>
+                                        <th>pH - Below</th>
                                         <th>TDS</th>
                                         <th>Turbidity</th>
                                         <th>Temperature</th>
@@ -112,7 +113,8 @@ const CalibrationExceedValue = () => {
                                             <td>{value.userName}</td>
                                             <td>{value.product_id}</td>
                                             <td>{value.industryType}</td>
-                                            <td>{value.ph}</td>
+                                            <td>{value.phAbove}</td>
+                                            <td>{value.phBelow}</td>
                                             <td>{value.TDS}</td>
                                             <td>{value.turbidity}</td>
                                             <td>{value.temperature}</td>

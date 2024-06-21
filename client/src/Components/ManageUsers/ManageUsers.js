@@ -86,108 +86,81 @@ const AddUsers = () => {
   const dispatch = useDispatch();
   const {loading,error} = useSelector((state)=>state.userLog);
 
-const [formData, setFormData]=useState({
-  userName:"",
-  companyName:"",
-  modelName:"",
-  fname:"",
-  email:"",
-  mobileNumber:"",
-  password:"",
-  cpassword:"",
-  subscriptionDate:"",
-  userType:"",
-  industryType:"",
-  dataInteval:"",
-  district:"",
-  state:"",
-  address:"",
-  latitude:"",
-  longitude:"",
-  deviceCredentials:{
-    host:"",
-    clientId:"",
-    key:"",
-    cert:"",
-    ca:"",
-  }
-  
-})
-
-
-
-const handleInputChange = event =>{
-  const{name,value}=event.target;
-  setFormData({
-    ...formData,
-    [name]:value,
+  const [formData, setFormData] = useState({
+    userName: "",
+    companyName: "",
+    modelName: "",
+    fname: "",
+    email: "",
+    mobileNumber: "",
+    password: "",
+    cpassword: "",
+    subscriptionDate: "",
+    userType: "",
+    industryType: "",
+    dataInteval: "", // Corrected typo: dataInteval -> dataInterval
+    district: "",
+    state: "",
+    address: "",
+    latitude: "",
+    longitude: "",
+    productID: ""
   });
-}
-const handleFileChange = (e, field) => {
-  const file = e.target.files[0];
-  setFormData((prevFormData) => ({
-    ...prevFormData,
-    deviceCredentials: {
-      ...prevFormData.deviceCredentials,
-      [field]: file,
-    },
-  }));
-};
 
-const handleSubmit = async (event) => {
-  event.preventDefault();
-  
-  const formDataToSend = new FormData();
-  for (const key in formData) {
+
+
+
+
+  const handleInputChange = event => {
+    const { name, value } = event.target;
+    setFormData(prevFormData => ({
+      ...prevFormData,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async event => {
+    event.preventDefault();
+
+    const formDataToSend = new FormData();
+    for (const key in formData) {
       if (formData.hasOwnProperty(key)) {
-          if (key === 'deviceCredentials') {
-              formDataToSend.append('key', formData.deviceCredentials.key);
-              formDataToSend.append('cert', formData.deviceCredentials.cert);
-              formDataToSend.append('ca', formData.deviceCredentials.ca);
-          } else {
-              formDataToSend.append(key, formData[key]);
-          }
+        formDataToSend.append(key, formData[key]);
       }
-  }
+    }
 
-  try {
-    await dispatch(addUser(formDataToSend)).unwrap();
-    toast.success('The User is added Successfully', {
-      position: 'top-center'
-    });
-    setFormData({
-      userName: "",
-      companyName: "",
-      modelName: "",
-      fname: "",
-      email: "",
-      mobileNumber: "",
-      password: "",
-      cpassword: "",
-      subscriptionDate: "",
-      userType: "",
-      industryType: "",
-      dataInteval: "",
-      district: "",
-      state: "",
-      address: "",
-      latitude: "",
-      longitude: "",
-      deviceCredentials: {
-        host: "",
-        clientId: "",
-        key: "",
-        cert: "",
-        ca: "",
-      }
-    });
-  } catch (error) {
-      console.log("catch error AddUser:",error);
-      toast.error('Error In Occured Please try again', {
-          position: 'top-center'
+    try {
+      await dispatch(addUser(formDataToSend)).unwrap();
+      toast.success('The User is added successfully', {
+        position: 'top-center'
       });
-  }
-};
+      setFormData({
+        userName: "",
+        companyName: "",
+        modelName: "",
+        fname: "",
+        email: "",
+        mobileNumber: "",
+        password: "",
+        cpassword: "",
+        subscriptionDate: "",
+        userType: "",
+        industryType: "",
+        dataInterval: "",
+        district: "",
+        state: "",
+        address: "",
+        latitude: "",
+        longitude: "",
+        productID: ""
+      });
+    } catch (error) {
+      console.log("Error in AddUser:", error);
+      toast.error('An error occurred. Please try again.', {
+        position: 'top-center'
+      });
+    }
+  };
 if (loading) {
   return <div>Loading...</div>;
 }
@@ -291,6 +264,20 @@ if (error) {
                             id="modelName" 
                             name='modelName'
                             value={formData.modelName}
+                            onChange={handleInputChange}
+                            placeholder="Enter Model Name"
+                            />
+                            
+                          </div>
+
+                          <div className="col-12 col-lg-6 col-md-6 mb-3">
+                            <label htmlFor="exampleFormControlInput3">Product ID</label>
+                            <input 
+                            type="text" 
+                            className="form-control" 
+                            id="productID" 
+                            name='productID'
+                            value={formData.productID}
                             onChange={handleInputChange}
                             placeholder="Enter Model Name"
                             />
@@ -459,66 +446,7 @@ if (error) {
                           </div>
                           
                           
-                          <div className="col-12">
-                            <h1>Add Device Configurations</h1>
-                            
-                          </div>
-                          <div className="col-12 col-lg-6 col-md-6 mb-3">
-                            <label htmlFor="exampleFormControlInput6">Client ID</label>
-                            <input 
-                            type="text" 
-                            className="form-control" 
-                            id="clientId" 
-                            name='clientId'
-                            value={formData.clientId}
-                            onChange={handleInputChange}
-                            placeholder="Enter clientId" 
-                            />
-                          
-                          </div>
-                          <div className="col-12 col-lg-6 col-md-6 mb-3">
-                            <label htmlFor="exampleFormControlInput6">Host </label>
-                            <input 
-                            type="text" 
-                            className="form-control" 
-                            id="host" 
-                            name='host'
-                            value={formData.host}
-                            onChange={handleInputChange}
-                            placeholder="Enter host" 
-                            />
-                          
-                          </div>
-                          <div className="col-12 col-lg-6 col-md-6 mb-3">
-                            <label htmlFor="exampleFormControlInput6">Key</label>
-                            <input 
-                            type="file" 
-                            className="form-control" 
-                            id="key" 
-                            name='key'
-                            onChange={(e) => setFormData({ ...formData, deviceCredentials: { ...formData.deviceCredentials, key: e.target.files[0] } })}                          />                          
-                          </div>
-                          <div className="col-12 col-lg-6 col-md-6 mb-3">
-                            <label htmlFor="exampleFormControlInput6">Certificate</label>
-                            <input 
-                            type="file" 
-                            className="form-control" 
-                            id="cert" 
-                            name='cert'
-                            onChange={(e) => setFormData({ ...formData, deviceCredentials: { ...formData.deviceCredentials, cert: e.target.files[0] } })}                            
-                            />
-                          
-                          </div>
-                          <div className="col-12 col-lg-6 col-md-6 mb-3">
-                            <label htmlFor="exampleFormControlInput6">CA</label>
-                            <input 
-                            type="file" 
-                            className="form-control" 
-                            id="ca" 
-                            name="ca"
-                            onChange={(e) => setFormData({ ...formData, deviceCredentials: { ...formData.deviceCredentials, ca: e.target.files[0] } })}                          />
-                          </div>
-                          
+                         
                           
                           <div className="mt-4 mb-5 p-2">
                             <button 

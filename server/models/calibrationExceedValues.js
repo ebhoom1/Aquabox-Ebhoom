@@ -4,8 +4,11 @@ const calibrationExceedValueSchema = new mongoose.Schema({
     product_id: {
         type: String,
     },
-    ph: {
+    phBelow: {
         type: String,
+    },
+    phAbove:{
+        type:String,
     },
     TDS: {
         type: String,

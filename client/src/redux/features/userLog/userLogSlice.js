@@ -43,7 +43,7 @@ export const addUser = createAsyncThunk(
     try {
       const response = await axios.post(`${API_URL}/api/register`, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'application/json',
         },
       });
       return response.data.storeData;

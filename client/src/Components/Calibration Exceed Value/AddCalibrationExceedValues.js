@@ -41,9 +41,16 @@ const AddCalibrationExceedValues = () => {
   const handleSubmit = async (e) => {
       e.preventDefault();
       try {
-          await dispatch(addCalibrationExceedValue(formData)).unwrap();
-          toast.success("Calibration Exceed Value Added Successfully!");
-          setTimeout(()=>(navigate('/calibration-exceed-value')),500)
+          if(formData.userName === ''){
+            toast.warning("Please add the UserName")
+          }else if(formData.industryType === ""){
+            toast.warning("Please add the Industry Type")
+          }else{
+            await dispatch(addCalibrationExceedValue(formData)).unwrap();
+            toast.success("Parameter Threshold exceedance  Value Added Successfully!");
+            setTimeout(()=>(navigate('/calibration-exceed-value')),500)
+          }
+        
       } catch (error) {
           toast.error(`Error: ${error.message}`);
       }
@@ -142,7 +149,7 @@ const AddCalibrationExceedValues = () => {
       <div className="row page-title-header">
         <div className="col-12">
           <div className="page-header">
-            <h4 className="page-title">Add Calibration Exceed Values </h4>
+            <h4 className="page-title">Add Parameter Thershold Exceedance Values </h4>
             <div className="quick-link-wrapper w-100 d-md-flex flex-md-wrap">
               
             </div>
@@ -162,7 +169,7 @@ const AddCalibrationExceedValues = () => {
                   <div className="row">
                    
                       <div className="col-12">
-                        <h1>Calibration exceed Value Added by</h1>
+                        <h1>Parameter Threshold exceedance  Value Added by</h1>
                       </div>
 
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
@@ -172,7 +179,7 @@ const AddCalibrationExceedValues = () => {
                       </div>
 
                       <div className="col-12 col-lg-6 col-md-6 mb-3 mt-3">
-                        <label htmlFor="exampleFormControlInput4">Date of Calibration exceed value  Added</label>
+                        <label htmlFor="exampleFormControlInput4">Date of Parameter Threshold exceedance  value  Added</label>
                         <input type="date" 
                         className="form-control" 
                         id="dateOfCalibrationExceedValueAdde" 
@@ -191,7 +198,7 @@ const AddCalibrationExceedValues = () => {
                       </div>
                       
                       <div className="col-12">
-                        <h1>Add Calibration Exceed Values Details</h1>
+                        <h1>Add Parameter Threshold exceedance  Values Details</h1>
                          {/* <h1>Update User</h1> */}
                       </div>
 
@@ -241,8 +248,13 @@ const AddCalibrationExceedValues = () => {
                          {/* <h1>Update User</h1> */}
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
-                          <label htmlFor="exampleFormControlInput5">pH</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="pH" name='ph' value={formData.ph} onChange={handleInputChange}   
+                          <label htmlFor="exampleFormControlInput5">pH - Above</label>
+                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="pH" name='phAbove' value={formData.phAbove} onChange={handleInputChange}   
+                        />   
+                      </div>
+                      <div className="col-12 col-lg-6 col-md-6 mb-3">
+                          <label htmlFor="exampleFormControlInput5">pH - Below</label>
+                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="pH" name='phBelow' value={formData.phBelow} onChange={handleInputChange}   
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
