@@ -143,8 +143,6 @@ const Report = () => {
                         <th>Company Name</th>
                         <th>Industry Type</th>
                         <th>Engineer Name</th>
-                        <th>User Remark Comment</th>
-                        <th>Admin Remark Comment</th>
                         <th>Verified/Declined</th>
                         <th>View</th>
                         {userType === 'admin' && <th>Edit</th>}
@@ -162,8 +160,6 @@ const Report = () => {
                           <td>{entry.companyName}</td>
                           <td>{entry.industryType}</td>
                           <td>{entry.engineerName}</td>
-                          <td>{entry.userRemark}</td>
-                          <td>{entry.adminRemark}</td>
                           <td>{entry.reportApproved ? 'Verified' : 'Declined'}</td>
                           <td>
                             <button type="button" className="btn btn-primary"onClick={() => handleView(entry.userName)}>

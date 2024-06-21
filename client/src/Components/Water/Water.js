@@ -209,7 +209,7 @@ validateUser();
                {latestData && (
                 <>
                   <h5>Analyser Health : </h5>
-                  {latestData.validationStatus ? (
+                  {userIotData.validationStatus ? (
                     <h5 style={{color:"green"}}>Good</h5>
                   ) : (
                     <h5  style={{color:"red"}}>Problem</h5>
@@ -255,7 +255,7 @@ validateUser();
                     </form>
                     
             
-            <h1>{latestData.userName}</h1>
+            <h1>{userIotData.userName}</h1>
            
             </div>
           </div>

@@ -30,14 +30,7 @@ const EditUsers = () => {
     state: '',
     address: '',
     latitude: '',
-    longitude: '',
-    deviceCredentials: {
-      host: '',
-      clientId: '',
-      key: '',
-      cert: '',
-      ca: '',
-    },
+    longitude: ''
   });
 
   useEffect(() => {
@@ -50,54 +43,20 @@ const EditUsers = () => {
     }
   }, [selectedUser]);
 
-
-
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (['host', 'clientId', 'key', 'cert', 'ca'].includes(name)) {
-      setUserData((prevData) => ({
-        ...prevData,
-        deviceCredentials: {
-          ...prevData.deviceCredentials,
-          [name]: value,
-        },
-      }));
-    } else {
-      setUserData((prevData) => ({
-        ...prevData,
-        [name]: value,
-      }));
-    }
-  };
-
-  const handleFileChange = (e) => {
-    const { name, files } = e.target;
     setUserData((prevData) => ({
       ...prevData,
-      deviceCredentials: {
-        ...prevData.deviceCredentials,
-        [name]: files[0],
-      },
+      [name]: value,
     }));
   };
 
   const handleSaveUser = async (e) => {
     e.preventDefault();
     try {
-      const formData = new FormData();
-      for (const key in userData) {
-        if (key === 'deviceCredentials') {
-          for (const credKey in userData.deviceCredentials) {
-            formData.append(credKey, userData.deviceCredentials[credKey]);
-          }
-        } else {
-          formData.append(key, userData[key]);
-        }
-      }
-
-      const response = await axios.patch(`${API_URL}/api/edituser/${userId}`, formData, {
+      const response = await axios.patch(`${API_URL}/api/edituser/${userId}`, userData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'application/json',
         },
       });
 
@@ -114,12 +73,12 @@ const EditUsers = () => {
     }
   };
 
-  
-  const handleCancel =async()=>{
-    setTimeout(()=>{
+  const handleCancel = async () => {
+    setTimeout(() => {
       navigate("/manage-users");
-    },500)
+    }, 500);
   }
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -372,63 +331,7 @@ const EditUsers = () => {
                         value={userData.longitude || ''}
                       />
                     </div>
-                    {/* <div className="col-12">
-                      <h1>Update Device Configurations</h1>
-                    </div>
-                    <div className="col-12 col-lg-6 col-md-6 mb-3">
-                      <label htmlFor="clientId">Client ID</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        id="clientId"
-                        placeholder="Enter Client ID"
-                        name='clientId'
-                        onChange={handleChange}
-                        value={userData.deviceCredentials.clientId || ''}
-                      />
-                    </div>
-                    <div className="col-12 col-lg-6 col-md-6 mb-3">
-                      <label htmlFor="host">Host</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        id="host"
-                        placeholder="Enter Host"
-                        name='host'
-                        onChange={handleChange}
-                        value={userData.deviceCredentials.host || ''}
-                      />
-                    </div>
-                    <div className="col-12 col-lg-6 col-md-6 mb-3">
-                      <label htmlFor="key">Key</label>
-                      <input
-                        type="file"
-                        className="form-control"
-                        id="key"
-                        name='key'
-                        onChange={handleFileChange}
-                      />
-                    </div>
-                    <div className="col-12 col-lg-6 col-md-6 mb-3">
-                      <label htmlFor="cert">Certificate</label>
-                      <input
-                        type="file"
-                        className="form-control"
-                        id="cert"
-                        name='cert'
-                        onChange={handleFileChange}
-                      />
-                    </div>
-                    <div className="col-12 col-lg-6 col-md-6 mb-3">
-                      <label htmlFor="ca">CA</label>
-                      <input
-                        type="file"
-                        className="form-control"
-                        id="ca"
-                        name='ca'
-                        onChange={handleFileChange}
-                      />
-                    </div> */}
+
                     <div className="mt-4 mb-5 p-2">
                       <button type="submit" className="btn btn-primary mb-2" onClick={handleSaveUser}>Update User</button>
                     </div>

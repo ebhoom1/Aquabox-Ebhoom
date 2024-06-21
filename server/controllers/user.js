@@ -242,9 +242,10 @@ const getAllUsers= async(req,res)=>{
 const editUser= async(req,res)=>{
 
     try{
-        const userId =req.params.userId;
+        const {userId} =req.params;
         const updateFields= req.body;
 
+        
         const updatedUser = await userdb.findByIdAndUpdate(userId,updateFields, { new: true });
         
         if(!updatedUser){

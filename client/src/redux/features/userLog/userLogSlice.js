@@ -59,7 +59,7 @@ export const updateUser = createAsyncThunk(
     try {
       const response = await axios.patch(`${API_URL}/api/edituser/${userId}`, userData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'application/json',
         },
       });
       return response.data.user;
