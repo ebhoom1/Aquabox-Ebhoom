@@ -95,8 +95,8 @@ const LeftSideBar = () => {
               </ul>
             )}
           </li>
-          <NavItem to="/manage-users" iconClass="typcn typcn-document-text" title="Quantity" />
-          <NavItem to="/manage-users" iconClass="typcn typcn-document-text" title="Energy" />
+          <NavItem to="/quantity" iconClass="typcn typcn-document-text" title="Quantity" />
+          <NavItem to="/energy" iconClass="typcn typcn-document-text" title="Energy" />
           <NavItem to="/manage-users" iconClass="typcn typcn-document-text" title="Manage Users" />
           <NavItem to="/users-log" iconClass="typcn typcn-document-text" title="Users Log" />
           <NavItem to="/calibration" iconClass="typcn typcn-document-text" title="Calibration" />
@@ -134,8 +134,8 @@ const LeftSideBar = () => {
               </ul>
             )}
           </li>
-          <NavItem to="/manage-users" iconClass="typcn typcn-document-text" title="Quantity" />
-          <NavItem to="/manage-users" iconClass="typcn typcn-document-text" title="Energy" />
+          <NavItem to="/quantity" iconClass="typcn typcn-document-text" title="Quantity" />
+          <NavItem to="/energy" iconClass="typcn typcn-document-text" title="Energy" />
           <NavItem to="/account" iconClass="typcn typcn-document-text" title="Account" />
           <NavItem to="/report" iconClass="typcn typcn-document-text" title="Report" />
           <NavItem to="/transactions" iconClass="typcn typcn-document-text" title="Payments" />

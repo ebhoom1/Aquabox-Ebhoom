@@ -43,6 +43,8 @@ import EditReport from './Components/Reports/EditReport';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import Transaction from './Components/Transactions/Transaction';
 import DownloadIoTdata from './Components/Download/DownloadIoTdata';
+import Quantity from './Components/Quantity/Quantity';
+import Energy from './Components/Energy/Energy';
 
 
 
@@ -114,6 +116,8 @@ function App() {
               <Route path= '/subscribe-data' element={<Subscribe/>}/>
               <Route path ="/transactions" element={<Transaction/>}/>
               <Route path="/download-IoT-Data" element={<DownloadIoTdata/>}/>
+              <Route path ='/quantity' element={<Quantity/>}/>
+              <Route path = '/energy' element={<Energy/>}/>
 
 
             </>
@@ -130,6 +134,8 @@ function App() {
               <Route path="view-report/:userName" element={<ViewReport />}/>
               <Route path="list-of-support-analyser-make-and-model" element={<ListOfSupportAnalyserMakeAndModel />} />
               <Route path="/download-IoT-Data" element={<DownloadIoTdata/>}/>
+              <Route path ='/quantity' element={<Quantity/>}/>
+              <Route path = '/energy' element={<Energy/>}/>
 
             </>
           )}
