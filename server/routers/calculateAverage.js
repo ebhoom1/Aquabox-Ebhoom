@@ -3,7 +3,7 @@ const { calculateAndSaveAverages,
         getAllIotData,
         getIotDataByUserName,
         getLatestIoTData,
-        getAverageIotData,
+        getIotDataByTimeInterval,
         downloadIotData
         
 } = require('../controllers/iotData');
@@ -30,7 +30,7 @@ router.get('/calculate-averages', async (req, res) => {
 });
 
 //Route to find the Average IOT Data By userId
-router.get('/get-average-data/:userName',getAverageIotData)
+router.get('/get-average-data/:userName/:interval',getIotDataByTimeInterval)
 
 //Route to download the Iot VAlue
 router.post('/downloadIotData',downloadIotData)

@@ -253,32 +253,74 @@ const getIotDataByUserName = async (req,res)=>{
     }
 }
 
+const getIotDataByTimeInterval = async (req,res) =>{
+    const {userName, interval} = req.params;
+    const now = new Date();
 
+    let startTime;
 
-const getAverageIotData = async(req,res)=>{
-    try {
-        const {userName} = req.params;
+    switch(interval) {
+        case 'today':
+            startTime = moment().startOf('day').toDate();
+            break;
+        case 'week':
+            startTime = moment().subtract(7,'days').toDate();
+            break;
+        case 'month':
+            startTime = moment().subtract(1,'month').toDate();
+            break;
+        case '6months':
+            startTime = moment().subtract(6,'months').toDate();
+            break;
+        case 'year':
+            startTime = moment().subtract(1, 'year').toDate();
+            break;
+        default:
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid interval specified'
+            });       
+
+    }
+    try{
+        const data =await IotData.find({
+            userName,
+            timeStamp:{$gte: startTime, $lt:now}
+        });
         
-        const userIoTdata = await IotDataAverage.find({userName})
-
-        if(!userIoTdata){
-            res.status(404).json({message:'User Not found'})
-        }
-        res.status(200).json({
-            status:200,
-            success:true,
-            message:'Fetched Iot average value',
-            userIoTdata
+      if(data.length === 0){
+            return res.status(404).json({
+                success: false,
+                message: 'No data found for the specified interval'
+            })
+      }
+        const fields = ['ph', 'TDS', 'turbidity', 'temperature', 'BOD', 'COD', 'TSS', 'ORP', 'nitrate', 'ammonicalNitrogen', 'DO', 'chloride',];
+        const averages = fields.reduce((acc, field) => {
+            acc[field] = data.reduce((sum, item) => sum + parseFloat(item[field] || 0), 0) / data.length;
+            return acc;
+        }, {});
+        const intervalData = new IotDataAverage ({
+            userName,
+            interval,
+            ...averages
         })
-    } catch (error) {
+        await intervalData.save();
+       
+        res.status(200).json({
+            success: true,
+            data: intervalData
+        });
+    }catch(error){
+        console.error(`Error fetching IoT data for ${interval} interval:`, error);
         res.status(500).json({
-            status: 500,
             success: false,
-            message: `Error in Fetching IoT Data of User`,
-            error: error.message,
-          });
+            message: 'Error fetching IoT data',
+            error: error.message
+        });
     }
 }
+
+
 
 const downloadIotData = async (req, res) => {
     try {
@@ -340,6 +382,6 @@ const downloadIotData = async (req, res) => {
     }
 }
 
-module.exports ={handleSaveMessage,calculateAndSaveAverages,getAllIotData, getLatestIoTData,getIotDataByUserName,getAverageIotData,
+module.exports ={handleSaveMessage,calculateAndSaveAverages,getAllIotData, getLatestIoTData,getIotDataByUserName,getIotDataByTimeInterval,
     downloadIotData
  }

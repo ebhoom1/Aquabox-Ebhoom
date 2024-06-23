@@ -4,7 +4,6 @@ import {useDispatch,useSelector} from 'react-redux';
 import { fetchUser } from "../../redux/features/user/userSlice";
 import {fetchIotDataByUserName,fetchAverageIotData} from "../../redux/features/iotData/iotDataSlice"
 import { Link } from 'react-router-dom';
-import WaterPopup from "./WaterPopup";
 import CalibrationPopup from "../Calibration/CalibrationPopup";
 import CalibrationExceeded from "../Calibration/CalibrationExceeded";
 import { ToastContainer, toast } from "react-toastify";
@@ -13,27 +12,16 @@ import { ToastContainer, toast } from "react-toastify";
 const Water = () => {
   const dispatch =useDispatch();
   const {userData,userType} =useSelector((state)=>state.user);
-  const {latestData,averageData,userIotData,loading,error} = useSelector((state)=>state.iotData)
+  const {latestData,userIotData,loading,error} = useSelector((state)=>state.iotData)
   const [showPopup,setShowPopup]=useState(false);
   const [selectedCard, setSelectedCard]=useState(null);
   const[showCalibrationPopup,setShowCalibrationPopup]=useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
 
-//  // Sample data for demonstration, replace with your actual data
-//  const weekData = [{ name: "Mon", value: 30 }, { name: "Tue", value: 40 }, { name: "Wed", value: 50 }];
-//  const monthData = [{ name: "Week 1", value: 100 }, { name: "Week 2", value: 200 }, { name: "Week 3", value: 150 }];
-//  const dayData=[{ name: "9:00 am", value: 30 }, { name: "10:00am", value: 33 }, { name: "11:00am", value: 40 }, { name: "12:00pm", value: 41 }, { name: "1:00pm", value: 70 },{ name: "2:00pm", value: 54 },{ name: "3:00pm", value: 31 },{ name: "4:00pm", value: 31.2 }];
-//  const sixMonthData=[{ name: "Jan-June", value: 30 }, { name: "July-December", value: 40 }];
-//  const yearData=[{ name: "2021", value: 20 }, { name: "2022", value: 90 }, { name: "2023", value: 30 }, { name: "2024", value: 50 }];
 
 
-// Sample data for demonstration, replace with your actual data
-const [weekData, setWeekData] = useState([]);
-const [monthData, setMonthData] = useState([]);
-const [dayData, setDayData] = useState([]);
-const [sixMonthData, setSixMonthData] = useState([]);
-const [yearData, setYearData] = useState([]);
+
 
 
  const validateUser = async () => {
@@ -48,7 +36,6 @@ validateUser();
     if (userData) {
       if (userType === 'user') {
         dispatch(fetchIotDataByUserName(userData.validUserOne.userName));
-        dispatch(fetchAverageIotData(userData.validUserOne.userName));
         // const interval = setInterval(() => {
         //   dispatch(fetchIotDataByUserName(userData.validUserOne.userName));
         //   dispatch(fetchAverageIotData(userData.validUserOne.userName));
@@ -58,17 +45,7 @@ validateUser();
     }
   }, [userData, userType, dispatch]);
 
-  useEffect(() => {
-    if (averageData) {
-      console.log('Average Data:', averageData);
-      setWeekData(averageData.filter(item => item.averageType === 'week'));
-      console.log("average data for week :",averageData.filter(item => item.averageType === 'year'))
-      setMonthData(averageData.filter(item => item.averageType === 'month'));
-      setDayData(averageData.filter(item => item.averageType === 'day'));
-      setSixMonthData(averageData.filter(item => item.averageType === 'sixmonth'));
-      setYearData(averageData.filter(item => item.averageType === 'year'));
-    }
-  }, [averageData]);
+
 
   const handleCardClick = (card) => {
     setSelectedCard(card);
@@ -91,7 +68,6 @@ validateUser();
   const handleSearch = (e) => {
     e.preventDefault();
     dispatch(fetchIotDataByUserName(searchQuery));
-    dispatch(fetchAverageIotData(searchQuery));
   };
   const water=[
     {
@@ -282,8 +258,8 @@ validateUser();
 
                 <div className="col-12">
                   <h5 className="text-dark">Average</h5>
-                  <p className="mb-0">Last Week: {weekData.length > 0 ? weekData[0][item.name] : 'N/A'} </p>
-                  <p>Last Month:{weekData.length > 0 ? weekData[0][item.name] : 'N/A'} </p>
+                  <p className="mb-0">Last Week:  </p>
+                  <p>Last Month: </p>
                 </div>
               </div>
             </div>
@@ -304,18 +280,7 @@ validateUser();
         
         />
       )}
-      {/* Render Popup if showPopup is true */}
-      {showPopup && selectedCard && (
-        <WaterPopup
-        title={selectedCard.title}
-        weekData={weekData} // Pass actual week data here
-        monthData={monthData} // Pass actual month data here
-        dayData={dayData}
-        sixMonthData={sixMonthData}
-        yearData={yearData}
-        onClose={handleClosePopup}
-        />
-      )}
+      
         
       <CalibrationExceeded/>
 
