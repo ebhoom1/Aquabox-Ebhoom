@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate, Outlet } from 'react-router-dom';
 import { fetchUser, logoutUser } from './../../redux/features/user/userSlice';
+import { fetchIotDataByUserName } from './../../redux/features/iotData/iotDataSlice'; 
 import axios from 'axios';
 import LeftSideBar from '../LeftSideBar/LeftSideBar';
 import './index.css';
@@ -16,6 +17,8 @@ const PrivateLayout = () => {
   const [isDashboardSubmenuOpen, setIsDashboardSubmenuOpen] = useState(false);
   const [onlineStatus, setOnlineStatus] = useState(navigator.onLine ? 'Online' : 'Offline');
   const [notifications, setNotifications] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
 
   useEffect(() => {
     const validateUser = async () => {
@@ -88,7 +91,15 @@ const PrivateLayout = () => {
   const toggleDashboardSubmenu = () => {
     setIsDashboardSubmenuOpen(!isDashboardSubmenuOpen);
   };
-
+  const handleSearch = async (event) => {
+    event.preventDefault();
+    try {
+      const response = await dispatch(fetchIotDataByUserName(searchTerm)).unwrap();
+      setSearchResults(response);
+    } catch (error) {
+      console.error('Error fetching IoT data:', error);
+    }
+  };
   const getDropdownItems = () => {
     const { userType } = userData.validUserOne;
     if (userType === 'admin') {
@@ -106,6 +117,9 @@ const PrivateLayout = () => {
               </ul>
             )}
           </li>
+          <li><Link to="/quantity" onClick={closeDropdown}>Quantity</Link></li>
+          <li><Link to="/energy" onClick={closeDropdown}>Energy</Link></li>
+          <li><Link to="/live-video" onClick={closeDropdown}>Live Emission Video</Link></li>
           <li><Link to="/manage-users" onClick={closeDropdown}>Manage Users</Link></li>
           <li><Link to="/users-log" onClick={closeDropdown}>Users Log</Link></li>
           <li><Link to="/calibration" onClick={closeDropdown}>Calibration</Link></li>
@@ -132,6 +146,9 @@ const PrivateLayout = () => {
               </ul>
             )}
           </li>
+          <li><Link to="/quantity" onClick={closeDropdown}>Quantity</Link></li>
+          <li><Link to="/energy" onClick={closeDropdown}>Energy</Link></li>
+          <li><Link to="/live-video" onClick={closeDropdown}>Live Emission Video</Link></li>
           <li><Link to="/account" onClick={closeDropdown}>Account</Link></li>
           <li><Link to="/report" onClick={closeDropdown}>Report</Link></li>
           <li><Link to="/transactions" onClick={closeDropdown}>Payment</Link></li>
@@ -175,6 +192,22 @@ const PrivateLayout = () => {
                 )}
               </div>
             </li>
+          </ul>
+          <ul className="navbar-nav">
+            <li className="nav-item font-weight-semibold d-none d-lg-block">
+          {userData.validUserOne.userType === 'admin' && (
+            <form className="form-inline  my-2 my-lg-0" onSubmit={handleSearch} >
+              <input
+                 className="form-control mr-sm-2"
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search user data..."
+              />
+              <button className="btn btn-outline-primary my-2 my-sm-0" type="submit">Search</button>
+            </form>
+          )}
+          </li>
           </ul>
           <ul className="navbar-nav ml-auto">
             <li className="nav-item dropdown">
@@ -229,7 +262,7 @@ const PrivateLayout = () => {
       </nav>
       <div className="container-fluid page-body-wrapper">
         <LeftSideBar />
-        <Outlet />
+        <Outlet context={{ searchResults }} />
       </div>
     </div>
   );

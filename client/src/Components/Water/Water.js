@@ -2,7 +2,7 @@
 import React, { createContext, useEffect, useState } from "react";
 import {useDispatch,useSelector} from 'react-redux';
 import { fetchUser } from "../../redux/features/user/userSlice";
-import {fetchIotDataByUserName,fetchAverageIotData} from "../../redux/features/iotData/iotDataSlice"
+import {fetchIotDataByUserName,} from "../../redux/features/iotData/iotDataSlice"
 import { Link } from 'react-router-dom';
 import CalibrationPopup from "../Calibration/CalibrationPopup";
 import CalibrationExceeded from "../Calibration/CalibrationExceeded";
