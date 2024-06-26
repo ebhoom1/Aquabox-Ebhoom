@@ -54,7 +54,21 @@ const handleSaveMessage = async (data) => {
             ammonicalNitrogen: data.ammonicalNitrogen !== 'N/A' ? data.ammonicalNitrogen : null,
             DO: data.DO !== 'N/A' ? data.DO : null,
             chloride: data.chloride !== 'N/A' ? data.chloride : null,
-            timestamp: new Date(),
+            PM10: data.PM10 !== 'N/A' ? data.PM10 : null,
+            PM25: data.PM25 !== 'N/A' ? data.PM25 : null,
+            NOH: data.NOH !== 'N/A' ? data.NOH : null,
+            NH3: data.NH3 !== 'N/A' ? data.NH3 : null,
+            WindSpeed: data.WindSpeed !== 'N/A' ? data.WindSpeed : null,
+            WindDir: data.WindDir !== 'N/A' ? data.WindDir : null,
+            AirTemperature: data.AirTemperature !== 'N/A' ? data.AirTemperature : null,
+            Humidity: data.Humidity !== 'N/A' ? data.Humidity : null,
+            solarRadiation: data.solarRadiation !== 'N/A' ? data.solarRadiation : null,
+            DB: data.DB !== 'N/A' ? data.DB : null,
+            inflow: data.inflow !== 'N/A' ? data.inflow : null,
+            finalflow: data.finalflow !== 'N/A' ? data.finalflow : null,
+            energy: data.energy !== 'N/A' ? data.energy : null,
+            date: data.date !== 'N/A' ? data.date : null,
+            time: data.time !== 'N/A' ? data.time : null,
             userId: data.userId || 'N/A',
             topic: data.topic,
             companyName: data.companyName || 'N/A',
@@ -63,8 +77,10 @@ const handleSaveMessage = async (data) => {
             mobileNumber: data.mobileNumber || 'N/A',
             email: data.email || 'N/A',
             validationStatus: validationStatus.success,
-            validationMessage: validationStatus.message
+            validationMessage: validationStatus.message,
+            timestamp: new Date()
         });
+        
 
         await newEntry.save();
         console.log('Data saved to DB');

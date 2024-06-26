@@ -73,7 +73,7 @@ const LeftSideBar = () => {
           <li className="nav-item">
             <a href="#" className="nav-link" onClick={handleDashboardClick}>
               <i className="menu-icon typcn typcn-document-text"></i>
-              <span className="menu-title">Dashboard Components</span>
+              <span className="menu-title">Quality</span>
             </a>
             {showDashboardSubMenu && (
               <ul className="nav">

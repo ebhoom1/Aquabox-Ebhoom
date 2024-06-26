@@ -15,7 +15,8 @@ const calibrationExceedValuesRoute = require('./routers/calibrationExceedValues'
 const calculateAverageRoute = require('./routers/calculateAverage');
 const reportRoutes=require('./routers/report');
 const paymentRoutes = require('./routers/payment');
-const liveVideoRoutes = require('./routers/liveVideo')
+const liveVideoRoutes = require('./routers/liveVideo');
+const saveWaterParamsRoutes =require('./routers/saveWaterParams');
 
 
  
@@ -63,6 +64,8 @@ app.use('/api', calibrationExceedValuesRoute);
 app.use('/api', calculateAverageRoute);
 app.use('/api', reportRoutes);
 app.use('/api', paymentRoutes);
+app.use('/api', liveVideoRoutes);
+app.use('/api', saveWaterParamsRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -136,6 +139,5 @@ app.get('*', (req, res) => {
 // Start the server and set up Socket.IO
 server.listen(port, () => {
     console.log(`Server Connected - ${port}`);
-
 initializeMqttClients(io); // Initialize all MQTT clients at startup
 });

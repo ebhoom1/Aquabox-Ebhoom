@@ -1,7 +1,7 @@
-const { required } = require('joi');
 const mongoose = require('mongoose');
+const moment = require('moment');
 
-const iotDataSchema = new mongoose.Schema({
+const saveWaterParamsSchema = new mongoose.Schema({
    product_id:{
     type:String,
    },
@@ -72,15 +72,6 @@ const iotDataSchema = new mongoose.Schema({
     DB:{
         type:String,
     },
-    inflow:{
-        type:String,
-    },
-    finalflow:{
-        type:String,
-    },
-    energy:{
-        type:String
-    },
     date:{
         type:String,
     },
@@ -108,14 +99,6 @@ const iotDataSchema = new mongoose.Schema({
     email:{
         type:String
     },
-    validationStatus:{
-        type:String,
-        required: true
-    },
-    validationMessage:{
-        type:String,
-        required: true
-    },
    
     timestamp: {
         type: Date,  // Store as Date type
@@ -123,6 +106,6 @@ const iotDataSchema = new mongoose.Schema({
     }
 });
 
-const IotData = mongoose.model('IotData', iotDataSchema);
+const WaterParams = mongoose.model('WaterParams', saveWaterParamsSchema);
 
-module.exports = IotData;
+module.exports = WaterParams;
