@@ -33,7 +33,7 @@ router.get('/calculate-averages', async (req, res) => {
 router.get('/get-average-data/:userName/:interval',getIotDataByTimeInterval)
 
 //Route to download the Iot VAlue
-router.post('/downloadIotData',downloadIotData)
+router.get('/downloadIotData',downloadIotData)
 
 
 

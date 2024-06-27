@@ -201,3 +201,6 @@
 .dropdown-container-notification::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+.form-control {
+  width: 300px;
+}

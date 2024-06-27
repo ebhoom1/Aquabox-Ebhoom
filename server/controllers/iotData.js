@@ -39,6 +39,7 @@ const handleSaveMessage = async (data) => {
         }
 
         const validationStatus = checkSensorData(data);
+        const formattedDate = moment().format('DD/MM/YYYY');
 
         const newEntry = new IotData({
             product_id: data.product_id,
@@ -67,12 +68,12 @@ const handleSaveMessage = async (data) => {
             inflow: data.inflow !== 'N/A' ? data.inflow : null,
             finalflow: data.finalflow !== 'N/A' ? data.finalflow : null,
             energy: data.energy !== 'N/A' ? data.energy : null,
-            date: data.date !== 'N/A' ? data.date : null,
+            date: formattedDate,
             time: data.time !== 'N/A' ? data.time : null,
             userId: data.userId || 'N/A',
             topic: data.topic,
-            companyName: data.companyName || 'N/A',
-            industryType: data.industryType || 'N/A',
+            companyName: data.companyName,
+            industryType: data.industryType,
             userName: data.userName || 'N/A',
             mobileNumber: data.mobileNumber || 'N/A',
             email: data.email || 'N/A',
@@ -81,9 +82,8 @@ const handleSaveMessage = async (data) => {
             timestamp: new Date()
         });
         
-
         await newEntry.save();
-        console.log('Data saved to DB');
+        console.log('Data saved to DB: NewEntry:',newEntry);
 
         return {
             success: true,
@@ -99,6 +99,7 @@ const handleSaveMessage = async (data) => {
         };
     }
 };
+
 
 
 
@@ -340,63 +341,67 @@ const getIotDataByTimeInterval = async (req,res) =>{
 
 const downloadIotData = async (req, res) => {
     try {
-        const { userName, industryType, fromDate, toDate, format } = req.query;
+        const { fromDate, toDate, industryName, companyName, format } = req.query;
 
         // Validate input
-        if (!userName || !industryType || !fromDate || !toDate) {
+        if (!fromDate || !toDate || !industryName || !companyName) {
             return res.status(400).send('Missing required query parameters');
         }
 
-       // Find IoT data based on filters
-       const data = await IotData.find({
-        userName,
-        industryType,
-        timestamp: {
-            $gte: from,
-            $lte: to,
-        },
-    });
-    if (format === 'csv') {
-        // Generate CSV
-        const fields = ['userName', 'industryType', 'timestamp', 'product_id', 'ph', 'TDS', 'turbidity', 'temperature', 'BOD', 'COD', 'TSS', 'ORP', 'nitrate', 'ammonicalNitrogen', 'DO', 'chloride', 'PM10', 'PM25', 'NOH', 'NH3', 'WindSpeed', 'WindDir', 'AirTemperature', 'Humidity', 'solarRadiation', 'DB'];
-        const json2csvParser = new Parser({ fields });
-        const csv = json2csvParser.parse(data);
-        
-        res.header('Content-Type', 'text/csv');
-        res.attachment('data.csv');
-        return res.send(csv);
-    } else if (format === 'pdf') {
-        // Generate PDF
-        const doc = new PDFDocument();
-        res.header('Content-Type', 'application/pdf');
-        res.attachment('data.pdf');
-        
-        doc.pipe(res);
+        // Find IoT data based on filters
+        const data = await IotData.find({
+            industryType: industryName,
+            companyName: companyName,
+            date: {
+                $gte: fromDate,
+                $lte: toDate,
+            },
+        }).lean();
 
-        doc.fontSize(20).text('IoT Data Report', { align: 'center' });
-        doc.fontSize(12).text(`User Name: ${userName}`);
-        doc.fontSize(12).text(`Industry Type: ${industryType}`);
-        doc.fontSize(12).text(`Date Range: ${moment(from).format('YYYY/MM/DD')} - ${moment(to).format('YYYY/MM/DD')}`);
+        if (data.length === 0) {
+            return res.status(404).send('No data found for the specified criteria');
+        }
 
-        doc.moveDown();
+        if (format === 'csv') {
+            // Generate CSV
+            const fields = ['userName', 'industryType', 'companyName', 'date', 'product_id', 'ph', 'TDS', 'turbidity', 'temperature', 'BOD', 'COD', 'TSS', 'ORP', 'nitrate', 'ammonicalNitrogen', 'DO', 'chloride', 'PM10', 'PM25', 'NOH', 'NH3', 'WindSpeed', 'WindDir', 'AirTemperature', 'Humidity', 'solarRadiation', 'DB', 'inflow', 'finalflow', 'energy'];
+            const json2csvParser = new Parser({ fields });
+            const csv = json2csvParser.parse(data);
 
-        data.forEach(item => {
-            doc.fontSize(10).text(JSON.stringify(item), {
-                width: 410,
-                align: 'left'
-            });
+            res.header('Content-Type', 'text/csv');
+            res.attachment('data.csv');
+            return res.send(csv);
+        } else if (format === 'pdf') {
+            // Generate PDF
+            const doc = new PDFDocument();
+            res.header('Content-Type', 'application/pdf');
+            res.attachment('data.pdf');
+
+            doc.pipe(res);
+
+            doc.fontSize(20).text('IoT Data Report', { align: 'center' });
+            doc.fontSize(12).text(`Industry Type: ${industryName}`);
+            doc.fontSize(12).text(`Company Name: ${companyName}`);
+            doc.fontSize(12).text(`Date Range: ${fromDate} - ${toDate}`);
             doc.moveDown();
-        });
 
-        doc.end();
-    } else {
-        return res.status(400).send('Invalid format requested');
-    }
+            data.forEach(item => {
+                doc.fontSize(10).text(JSON.stringify(item), {
+                    width: 410,
+                    align: 'left'
+                });
+                doc.moveDown();
+            });
+
+            doc.end();
+        } else {
+            return res.status(400).send('Invalid format requested');
+        }
     } catch (error) {
         console.error('Error fetching or processing data:', error);
         res.status(500).send('Internal Server Error');
     }
-}
+};
 
 module.exports ={handleSaveMessage,calculateAndSaveAverages,getAllIotData, getLatestIoTData,getIotDataByUserName,getIotDataByTimeInterval,
     downloadIotData

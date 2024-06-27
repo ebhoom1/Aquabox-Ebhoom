@@ -313,7 +313,7 @@ const sendNotification = async (parameter, value, user) => {
         console.log(`Sending notification with message: ${message}`); // Debugging statement
 
         //Send email notification
-        //await sendEmail(user.email, 'Calibration Exceed Notification', message);
+       // await sendEmail(user.email, 'Calibration Exceed Notification', message);
 
         // Send SMS notification
         // if (user.mobileNumber) {
@@ -321,7 +321,7 @@ const sendNotification = async (parameter, value, user) => {
         // }
 
         // Add notification to the database
-        // await createNotification(message, user._id, user.userName, currentDate, currentTime);
+        //await createNotification(message, user._id, user.userName, currentDate, currentTime);
     } catch (error) {
         console.error(`Error sending notification:`, error);
     }

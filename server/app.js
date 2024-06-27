@@ -39,7 +39,7 @@ DB();
 
 // Middleware
 app.use(cors({
-    origin:['http://localhost:3000','http://13.202.11.195:5555','http://13.232.163.105:5555'] ,
+    origin:['http://localhost:3000','http://localhost:3001','http://13.202.11.195:5555','http://13.232.163.105:5555'] ,
     credentials: true
 }));
 app.use(cookieParser());
@@ -140,4 +140,4 @@ app.get('*', (req, res) => {
 server.listen(port, () => {
     console.log(`Server Connected - ${port}`);
 initializeMqttClients(io); // Initialize all MQTT clients at startup
-});
+});  

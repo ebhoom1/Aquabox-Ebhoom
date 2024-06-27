@@ -96,7 +96,7 @@ const iotDataSchema = new mongoose.Schema({
     userName: {
          type: String
     },
-    comapanyName:{
+    companyName:{
         type:String
     },
     industryType:{

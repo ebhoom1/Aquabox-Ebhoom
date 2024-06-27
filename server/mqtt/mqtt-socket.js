@@ -43,12 +43,11 @@ const setupMqttClient = (io, productIDMap) => {
 
             if (topic === 'ebhoomPub' && productIDMap[product_id]) {
                 const userDetails = productIDMap[product_id];
-                console.log('User Details:', userDetails);  // Debugging line
+                
                 Object.assign(data, userDetails);
-                console.log('Merged Data:', data);  // Debugging line
                 
                  // Add formatted timestamp
-                 data.timestamp = moment().format('YYYY/MM/DD');
+                 data.timestamp = moment().format('DD/MM/YYYY');
 
                 await iotData.handleSaveMessage(data);
                 await calibrationExceed.handleExceedValues(data);

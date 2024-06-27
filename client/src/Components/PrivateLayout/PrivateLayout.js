@@ -196,13 +196,14 @@ const PrivateLayout = () => {
           <ul className="navbar-nav">
             <li className="nav-item font-weight-semibold d-none d-lg-block">
           {userData.validUserOne.userType === 'admin' && (
-            <form className="form-inline  my-2 my-lg-0" onSubmit={handleSearch} >
+            <form className="form-inline  my-2 my-lg-0 " onSubmit={handleSearch} >
               <input
-                 className="form-control mr-sm-2"
+                 className="form-control mr-sm-2 "
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search user data..."
+                style={{width:"300px"}}
               />
               <button className="btn btn-outline-primary my-2 my-sm-0" type="submit">Search</button>
             </form>
