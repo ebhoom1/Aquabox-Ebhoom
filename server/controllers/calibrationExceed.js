@@ -234,27 +234,34 @@ const getExceedDataByUserName = async(req,res)=>{
 } 
   
 
-const handleExceedValues = async (data) => {
-    try {
-        // console.log(`Handling exceed values for data:`, data); // Debugging statement
+const handleExceedValues = async (req, res) => {
+    const data = req.body;
 
+    try {
         const user = await userdb.findById(data.userId);
-        // console.log(`User found:`, user); // Debugging statement
 
         if (!user) {
-            throw new Error('User not found');
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
         }
 
         if (user.userType === 'user') {
             if (!user.industryType) {
-                throw new Error(`User with ID ${user._id} has no industry type specified.`);
+                return res.status(400).json({
+                    success: false,
+                    message: `User with ID ${user._id} has no industry type specified.`
+                });
             }
 
             const industryThresholds = await CalibrationExceedValues.findOne({ industryType: user.industryType });
-            console.log(`Industry thresholds found:`, industryThresholds); // Debugging statement
 
             if (!industryThresholds) {
-                throw new Error(`No thresholds found for industry type: ${user.industryType}`);
+                return res.status(404).json({
+                    success: false,
+                    message: `No thresholds found for industry type: ${user.industryType}`
+                });
             }
 
             const exceedParameters = [
@@ -267,37 +274,27 @@ const handleExceedValues = async (data) => {
                 { parameter: 'BOD', value: data.bod, threshold: industryThresholds.BOD },
                 { parameter: 'COD', value: data.cod, threshold: industryThresholds.COD },
                 { parameter: 'TSS', value: data.tss, threshold: industryThresholds.TSS },
-                // { parameter: 'nitrate', value: data.nitrate, threshold: industryThresholds.nitrate },
-                // { parameter: 'ammonicalNitrogen', value: data.ammonicalNitrogen, threshold: industryThresholds.ammonicalNitrogen },
-                // { parameter: 'DO', value: data.do, threshold: industryThresholds.DO },
-                // { parameter: 'chloride', value: data.chloride, threshold: industryThresholds.chloride },
-                // { parameter: 'PM10', value: data.PM10, threshold: industryThresholds.PM10 },
-                // { parameter: 'PM25', value: data.PM25, threshold: industryThresholds.PM25 },
-                // { parameter: 'NOH', value: data.noh, threshold: industryThresholds.NOH },
-                // { parameter: 'NH3', value: data.NH3, threshold: industryThresholds.NH3 },
-                // { parameter: 'WindSpeed', value: data.WindSpeed, threshold: industryThresholds.WindSpeed },
-                // { parameter: 'WindDir', value: data.WindDir, threshold: industryThresholds.WindDir },
-                // { parameter: 'AirTemperature', value: data.AirTemperature, threshold: industryThresholds.AirTemperature },
-                // { parameter: 'Humidity', value: data.Humidity, threshold: industryThresholds.Humidity },
-                // { parameter: 'solarRadiation', value: data.solarRadiation, threshold: industryThresholds.solarRadiation },
-                // { parameter: 'DB', value: data.db, threshold: industryThresholds.DB }
             ];
 
             for (const { parameter, value, threshold } of exceedParameters) {
                 if (value >= threshold) {
-                    console.log(`Exceed value detected: ${parameter} with value ${value} exceeding threshold ${threshold}`); // Debugging statement
                     await saveExceedValue(parameter, value, user);
                     await sendNotification(parameter, value, user);
-                } else {
-                    console.log(`Value within limits: ${parameter} with value ${value}, threshold ${threshold}`); // Debugging statement
                 }
             }
-        } else {
-            console.log(`User type is admin, skipping exceed value checks.`); // Debugging statement
         }
 
+        res.status(200).json({
+            success: true,
+            message: 'Exceed values handled successfully'
+        });
     } catch (error) {
         console.error(`Error handling exceed values:`, error);
+        res.status(500).json({
+            success: false,
+            message: 'Error handling exceed values',
+            error: error.message
+        });
     }
 };
    
@@ -357,7 +354,7 @@ const saveExceedValue = async (parameter, value, user) => {
         });
 
         // Save the document to DB
-        // await newEntry.save();
+         await newEntry.save();
          console.log(`Exceed value saved successfully`); // Debugging statement
 
         return {

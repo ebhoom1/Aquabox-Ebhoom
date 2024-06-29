@@ -1,8 +1,11 @@
 const express =require('express')
 
-const {addComment,getAllExceedData,editComments, getAUserExceedData,getExceedDataByUserName} =require('../controllers/calibrationExceed')
+const {addComment,getAllExceedData,editComments, getAUserExceedData,getExceedDataByUserName,handleExceedValues} =require('../controllers/calibrationExceed')
 
 const router =express.Router()
+
+// Define the route for handleExceedValues
+router.post('/handleExceedValues', handleExceedValues);
 
 router.post('/add-comments/:id',addComment);
 

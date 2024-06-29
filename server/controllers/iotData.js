@@ -30,12 +30,18 @@ const checkSensorData = (data)=>{
     }
 }
 // Function to handle Mqtt Messages and save the data to MongoDB
-const handleSaveMessage = async (data) => {
+// Function to handle Mqtt Messages and save the data to MongoDB
+const handleSaveMessage = async (req, res) => {
+    const data = req.body;
+
     try {
         const user = await userdb.findById(data.userId);
 
         if (!user) {
-            throw new Error('User not found');
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
         }
 
         const validationStatus = checkSensorData(data);
@@ -84,20 +90,21 @@ const handleSaveMessage = async (data) => {
         
         await newEntry.save();
 
-        return {
+        res.status(200).json({
             success: true,
             message: "New Entry data saved successfully",
             newEntry
-        };
+        });
     } catch (error) {
         console.error('Error saving data to MongoDB:', error);
-        return {
+        res.status(500).json({
             success: false,
             message: "Error saving data to MongoDB",
             error: error.message
-        };
+        });
     }
 };
+
 
 
 const getAllIotData =async (req,res)=>{
