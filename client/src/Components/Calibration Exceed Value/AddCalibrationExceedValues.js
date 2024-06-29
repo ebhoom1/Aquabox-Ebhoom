@@ -178,7 +178,7 @@ const AddCalibrationExceedValues = () => {
                         />   
                       </div>
 
-                      <div className="col-12 col-lg-6 col-md-6 mb-3 mt-3">
+                      <div className="col-12 col-lg-6 col-md-6 mb-3 ">
                         <label htmlFor="exampleFormControlInput4">Date of Parameter Threshold exceedance  value  Added</label>
                         <input type="date" 
                         className="input-field" 

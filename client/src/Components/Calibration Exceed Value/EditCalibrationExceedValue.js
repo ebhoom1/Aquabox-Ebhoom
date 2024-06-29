@@ -188,7 +188,7 @@ const EditCalibrationExceedValue = () => {
                       />
                     </div>
                     <div className="col-12 mb-5">
-                      <h1>Add Parameter Threshold exceedance  Values Details</h1>
+                      <h1>Edit Parameter Threshold exceedance  Values Details</h1>
                     </div>
                     <div className="col-12 col-lg-6 col-md-6 mb-3">
                       <label htmlFor="userName">User ID</label>
