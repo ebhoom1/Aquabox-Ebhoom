@@ -207,7 +207,7 @@ const Water = () => {
             isOpen={showPopup}
             onRequestClose={handleClosePopup}
             parameter={selectedParameter}
-            userName={searchedUserName || userData?.validUserOne?.userName}
+            userName={searchedUserName || 'N/A'}
           />
         )}
       </div>

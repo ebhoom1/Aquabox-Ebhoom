@@ -29,7 +29,7 @@ const checkSensorData = (data)=>{
         message: "All sensor data values are valid"
     }
 }
-// Function to handle Mqtt Messages and save the data to MongoDB
+
 // Function to handle Mqtt Messages and save the data to MongoDB
 const handleSaveMessage = async (req, res) => {
     const data = req.body;

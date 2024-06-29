@@ -53,7 +53,7 @@ const WaterGraphPopup = ({ isOpen, onRequestClose, parameter, userName }) => {
                 labels = data.map(entry => moment(entry.timestamp).format('ddd'));
                 break;
             case 'month':
-                labels = data.map(entry => moment(entry.timestamp).format('DD MMM'));
+                labels = data.map(entry => moment(entry.timestamp).format(' MMM'));
                 break;
             case 'sixmonths':
                 labels = data.map(entry => moment(entry.timestamp).format('MMM YYYY'));
