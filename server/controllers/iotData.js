@@ -1,10 +1,13 @@
 const { Parser } = require('json2csv');
 const PDFDocument = require('pdfkit');
+const moment = require('moment');
+const cron = require('node-cron');
+
+
 const IotData = require('../models/iotData')
 const userdb = require('../models/user');
 const IotDataAverage = require(`../models/averageData`);
-const moment = require('moment');
-
+const DifferenceData = require(`../models/differeneceData`);
 
 //Function to check sensor data for zero values
 const checkSensorData = (data)=>{
@@ -300,8 +303,9 @@ const getAverageDataByUserName = async (req, res) => {
         });
     }
 };
+//End of Averages //
 
-
+//Download Entire IOT Data
 
 const downloadIotData = async (req, res) => {
     try {
@@ -367,6 +371,80 @@ const downloadIotData = async (req, res) => {
     }
 };
 
+//inflow, finalflow,Energy
+
+const calculateAndSaveDailyDifferences = async () =>{
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+    const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+
+    try {
+        const initialData = await IotData.findOne({timestamp:{$gte:startOfDay}}).sort({timestamp:1});
+        const finalData = await IotData.findOne({timestamp:{$lte:endOfDay}}).sort({timestamp: -1});
+
+        if (!initialData || !finalData) {
+            console.log('No data found for the specified date range');
+            return;
+        }
+
+        const inflowDifference = finalData.inflow -initialData.inflow;
+        const finalflowDifference = finalData.finalflow - initialData.finalflow;
+        const energyDifference = finalData.energy - intialData.energy;
+
+        const differenceEntry = new DifferenceData({
+            date:moment(startOfDay).format('DD/MM/YYYY'),
+            day: moment(startOfDay).format('dddd'),
+            userName: initialData.userName,
+            productId: initialData.product_id,
+            initialInflow:initialData.inflow,
+            finalInflow:finalData.inflow,
+            inflowDifference:inflowDifference,
+            initialFinalflow:initialData.finalflow,
+            finalFinalflow:finalData.finalflow,
+            finalflowDifference:finalflowDifference,
+            initialEnergy:initialData.energy,
+            finalEnergy:finalData.energy,
+            energyDifference:energyDifference
+        })
+
+        await differenceEntry.save()
+        console.log(`Difference entry saved for ${moment(startOfDay).format('DD/MM/YYYY')}`);
+    } catch (error) {
+        console.error('Error calculating and saving daily differences:', error);
+    }
+}
+
+const getDifferenceDataByUserName = async (req,res)=>{
+    const {userName} =req.params;
+
+    try{
+        const differenceData = await DifferenceData.find({userName});
+        if(differenceData.length === 0){
+            return res.status(404).json({
+                status:404,
+                success:false,
+                message:'No difference data found for the specified userID'
+            });
+        }
+
+        res.status(200).json({
+            status:200,
+            success:true,
+            message:`Difference data for userName ${userName} fetched successfully`,
+            data:differenceData
+        })
+    }catch(error){
+        console.error(`Error Fetching difference data by userName:`, error);
+        res.status(500).json({
+            status: 500,
+            success: false,
+            message: `Error fetching difference data by userName`,
+            error: error.message
+        });
+    }
+}
+
+
 module.exports ={handleSaveMessage,calculateAndSaveAverages,getAllIotData, getLatestIoTData,getIotDataByUserName,
-    downloadIotData,calculateAndSaveAverages,getAverageDataByUserName
+    downloadIotData,calculateAndSaveAverages,getAverageDataByUserName,calculateAndSaveDailyDifferences,getDifferenceDataByUserName
  }

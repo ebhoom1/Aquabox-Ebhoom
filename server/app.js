@@ -19,7 +19,7 @@ const liveVideoRoutes = require('./routers/liveVideo');
 const saveWaterParamsRoutes =require('./routers/saveWaterParams');
 
 
- 
+const {calculateAndSaveDailyDifferences} = require('./controllers/iotData');
 const { getAllDeviceCredentials } = require('./controllers/user');
 const setupMqttClient = require('./mqtt/mqtt-socket');
 const http = require('http');
@@ -83,6 +83,11 @@ cron.schedule('0 * * * *', async () => {
 cron.schedule('0 0 * * *', () => {
     deleteOldNotifications();
     console.log('Old notifications deleted.');
+});
+// Schedule the calculation inflow,finalflow,energy 
+cron.schedule('59 23 * * *', async () => {
+    await calculateAndSaveDailyDifferences();
+    console.log('Daily differences calculated and saved');
 });
 
 // // Initialize all MQTT clients at server startup

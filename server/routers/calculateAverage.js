@@ -5,7 +5,8 @@ const {
         getLatestIoTData,
         getAverageDataByUserName,
         downloadIotData,
-        handleSaveMessage
+        handleSaveMessage,
+        getDifferenceDataByUserName
         
 } = require('../controllers/iotData');
 
@@ -28,10 +29,13 @@ router.get('/latest-iot-data/:userName',getLatestIoTData);
 // Route to get average data by userName and interval
 router.get('/averageData/:userName', getAverageDataByUserName);
 
-
+// Add the route for fetching difference data by userName
+router.get('/differenceData/:userName', getDifferenceDataByUserName);
 
 //Route to download the Iot VAlue
-router.get('/downloadIotData',downloadIotData)
+router.get('/downloadIotData',downloadIotData);
+
+
 
 
 
