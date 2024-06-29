@@ -141,27 +141,27 @@ const CalibrationExceededReport = () => {
                   <form className="row g-3">
                     <div className="col-md-6">
                       <label htmlFor="dateFrom" className="form-label"><strong>From Date:</strong></label>
-                      <input type="text" className="form-control" id="dateFrom" value={dateFrom} readOnly />
+                      <input type="text" className="input-field" id="dateFrom" value={dateFrom} readOnly />
                     </div>
                     <div className="col-md-6">
                       <label htmlFor="dateTo" className="form-label"><strong>To Date:</strong></label>
-                      <input type="text" className="form-control" id="dateTo" value={dateTo} readOnly />
+                      <input type="text" className="input-field" id="dateTo" value={dateTo} readOnly />
                     </div>
                     <div className="col-md-6">
                       <label htmlFor="industry" className="form-label"><strong>Industry:</strong></label>
-                      <input type="text" className="form-control" id="industry" value={industry} readOnly />
+                      <input type="text" className="input-field" id="industry" value={industry} readOnly />
                     </div>
                     <div className="col-md-6">
                       <label htmlFor="company" className="form-label"><strong>Company:</strong></label>
-                      <input type="text" className="form-control" id="company" value={company} readOnly />
+                      <input type="text" className="input-field" id="company" value={company} readOnly />
                     </div>
                     <div className="col-md-6">
                       <label htmlFor="userName" className="form-label"><strong>User Name:</strong></label>
-                      <input type="text" className="form-control" id="userName" value={userName} readOnly />
+                      <input type="text" className="input-field" id="userName" value={userName} readOnly />
                     </div>
                     <div className="col-md-6">
                       <label htmlFor="engineerName" className="form-label"><strong>Engineer Name:</strong></label>
-                      <input type="text" className="form-control" id="engineerName" value={engineerName} onChange={(e) => setEngineerName(e.target.value)} />
+                      <input type="text" className="input-field" id="engineerName" value={engineerName} onChange={(e) => setEngineerName(e.target.value)} />
                     </div>
                   </form>
                 </div>

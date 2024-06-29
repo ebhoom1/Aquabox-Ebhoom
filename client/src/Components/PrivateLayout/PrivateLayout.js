@@ -198,7 +198,7 @@ const PrivateLayout = () => {
           {userData.validUserOne.userType === 'admin' && (
             <form className="form-inline  my-2 my-lg-0 " onSubmit={handleSearch} >
               <input
-                 className="form-control mr-sm-2 "
+                className="form-control mr-sm-2 "
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}

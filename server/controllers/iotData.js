@@ -83,7 +83,6 @@ const handleSaveMessage = async (data) => {
         });
         
         await newEntry.save();
-        console.log('Data saved to DB: NewEntry:',newEntry);
 
         return {
             success: true,
@@ -97,91 +96,6 @@ const handleSaveMessage = async (data) => {
             message: "Error saving data to MongoDB",
             error: error.message
         };
-    }
-};
-
-
-
-
-const calculateAverage = async (userId, averageType, startTime, endTime, index) => {
-    const data = await IotData.find({
-        userId: userId,
-        timestamp: {
-            $gte: startTime,
-            $lt: endTime
-        }
-    });
-
-    if (data.length === 0) {
-        return;
-    }
-
-    const fields = ['ph', 'TDS', 'turbidity', 'temperature', 
-                    'BOD', 'COD', 'TSS', 'ORP', 'nitrate',
-                     'ammonicalNitrogen', 'DO', 'chloride', 
-                    'PM10', 'PM25', 'NOH', 'NH3', 'WindSpeed',
-                    'WindDir', 'AirTemperature', 'Humidity', 
-                    'solarRadiation', 'DB'];
-
-    const averages = fields.reduce((acc, field) => {
-        acc[field] = data.reduce((sum, item) => sum + parseFloat(item[field] || 0), 0) / data.length;
-        return acc;
-    }, {});
-
-    const getName = (averageType, index) => {
-        const namesMap = {
-            hour: [],
-            day: [
-                "12:00 am", "1:00 am", "2:00 am", "3:00 am", "4:00 am", 
-                "5:00 am", "6:00 am", "7:00 am", "8:00 am", "9:00 am", 
-                "10:00 am", "11:00 am", "12:00 pm"
-            ],
-            week: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-            month: ["1st week", "2nd week", "3rd week", "4th week"],
-            sixmonth: ["Jan-June", "July-December"],
-            year: []
-        };
-
-        if (averageType === 'year') {
-            const currentYear = new Date().getFullYear();
-            const startYear = currentYear - index;
-            return `${startYear}`;
-        } else if (averageType === 'hour') {
-            return `Hour ${index}`;
-        }
-
-        return namesMap[averageType][index % namesMap[averageType].length];
-    };
-
-    const averageEntry = new IotDataAverage({
-        userId: userId,
-        userName: data[0].userName,
-        averageType: averageType,
-        name: getName(averageType, index),
-        ...averages
-    });
-
-    await averageEntry.save();
-};
-
-const calculateAndSaveAverages = async () => {
-    const users = await IotData.distinct('userId');
-
-    for (let userId of users) {
-        const now = new Date();
-        const intervals = [
-            { type: 'hour', startTime: new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours() - 1), endTime: now },
-            { type: 'day', startTime: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1), endTime: now },
-            { type: 'week', startTime: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7), endTime: now },
-            { type: 'month', startTime: new Date(now.getFullYear(), now.getMonth() - 1), endTime: now },
-            { type: 'sixmonth', startTime: new Date(now.getFullYear(), now.getMonth() - 6), endTime: now },
-            { type: 'year', startTime: new Date(now.getFullYear() - 1), endTime: now }
-        ];
-
-        for (let i = 0; i < intervals.length; i++) {
-            const { type, startTime, endTime } = intervals[i];
-            await calculateAverage(userId, type, startTime, endTime, i);
-        }
     }
 };
 
@@ -270,72 +184,115 @@ const getIotDataByUserName = async (req,res)=>{
     }
 }
 
-const getIotDataByTimeInterval = async (req,res) =>{
-    const {userName, interval} = req.params;
+// The Graph printing Taking average and using in the graph//
+
+const calculateAverages = async (userId, userName, startTime, endTime, interval) => {
+    console.log(`Calculating averages for ${interval}: ${startTime} to ${endTime}`);
+    const data = await IotData.find({
+        userId: userId,
+        timestamp: {
+            $gte: startTime,
+            $lt: endTime
+        }
+    });
+    console.log(`Data length for ${interval}:`, data.length);
+    if (data.length === 0) {
+        console.log(`No data found for interval ${interval}`);
+        return;
+    }
+
+    const fields = ['ph', 'TDS', 'turbidity', 'temperature', 'BOD', 'COD', 'TSS', 'ORP', 'nitrate', 'ammonicalNitrogen', 'DO', 'chloride', 'PM10', 'PM25', 'NOH', 'NH3', 'WindSpeed', 'WindDir', 'AirTemperature', 'Humidity', 'solarRadiation', 'DB', 'inflow', 'finalflow', 'energy'];
+
+    const averages = fields.reduce((acc, field) => {
+        acc[field] = data.reduce((sum, item) => sum + parseFloat(item[field] || 0), 0) / data.length;
+        return acc;
+    }, {});
+
+    console.log(`Averages calculated for ${interval}:`, averages);
+
+    const averageEntry = new IotDataAverage({
+        userName: userName,
+        interval: interval,
+        dateAndTime: moment().format('DD/MM/YYYY HH:mm'),
+        ...averages,
+        timestamp: new Date()
+    });
+
+    await averageEntry.save();
+    console.log(`Average entry saved for ${interval}:`, averageEntry);
+};
+
+const calculateAllAverages = async (userId, userName) => {
     const now = new Date();
 
-    let startTime;
+    console.log(`Calculating all averages for user ${userName} (${userId})`);
+    await calculateAverages(userId, userName, new Date(now.getTime() - 60 * 60 * 1000), now, 'hour');
 
-    switch(interval) {
-        case 'today':
-            startTime = moment().startOf('day').toDate();
-            break;
-        case 'week':
-            startTime = moment().subtract(7,'days').toDate();
-            break;
-        case 'month':
-            startTime = moment().subtract(1,'month').toDate();
-            break;
-        case '6months':
-            startTime = moment().subtract(6,'months').toDate();
-            break;
-        case 'year':
-            startTime = moment().subtract(1, 'year').toDate();
-            break;
-        default:
-            return res.status(400).json({
-                success: false,
-                message: 'Invalid interval specified'
-            });       
+    // Calculate daily average using 24-hour data
+    const dailyStartTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+    const dailyEndTime = new Date(dailyStartTime.getTime() + 24 * 60 * 60 * 1000);
+    await calculateAverages(userId, userName, dailyStartTime, dailyEndTime, 'day');
 
+    // Calculate weekly average using 7-day data
+    const weeklyStartTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7, 0, 0, 0);
+    const weeklyEndTime = now;
+    await calculateAverages(userId, userName, weeklyStartTime, weeklyEndTime, 'week');
+
+    // Calculate monthly average using 4-week data
+    const monthlyStartTime = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+    const monthlyEndTime = now;
+    await calculateAverages(userId, userName, monthlyStartTime, monthlyEndTime, 'month');
+
+    // Calculate six-month average
+    const sixMonthStartTime = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate());
+    const sixMonthEndTime = now;
+    await calculateAverages(userId, userName, sixMonthStartTime, sixMonthEndTime, 'sixmonths');
+
+    // Calculate yearly average
+    const yearlyStartTime = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+    const yearlyEndTime = now;
+    await calculateAverages(userId, userName, yearlyStartTime, yearlyEndTime, 'year');
+};
+
+const calculateAndSaveAverages = async () => {
+    const users = await IotData.distinct('userId');
+
+    for (let userId of users) {
+        const userData = await userdb.findById(userId);
+        await calculateAllAverages(userId, userData.userName);
     }
-    try{
-        const data =await IotData.find({
-            userName,
-            timeStamp:{$gte: startTime, $lt:now}
-        });
-        
-      if(data.length === 0){
+};
+
+const getAverageDataByUserName = async (req, res) => {
+    const { userName } = req.params;
+    const { interval } = req.query;
+
+    try {
+        const averageData = await IotDataAverage.find({ userName, interval });
+        if (averageData.length === 0) {
             return res.status(404).json({
+                status: 404,
                 success: false,
-                message: 'No data found for the specified interval'
-            })
-      }
-        const fields = ['ph', 'TDS', 'turbidity', 'temperature', 'BOD', 'COD', 'TSS', 'ORP', 'nitrate', 'ammonicalNitrogen', 'DO', 'chloride',];
-        const averages = fields.reduce((acc, field) => {
-            acc[field] = data.reduce((sum, item) => sum + parseFloat(item[field] || 0), 0) / data.length;
-            return acc;
-        }, {});
-        const intervalData = new IotDataAverage ({
-            userName,
-            interval,
-            ...averages
-        })
-        await intervalData.save();
-       
+                message: 'No average data found for the specified userName and interval'
+            });
+        }
+
         res.status(200).json({
+            status: 200,
             success: true,
-            data: intervalData
+            message: `Average data for userName ${userName} and interval ${interval} fetched successfully`,
+            data: averageData
         });
-    }catch(error){
-        console.error(`Error fetching IoT data for ${interval} interval:`, error);
+    } catch (error) {
+        console.error(`Error Fetching average data by userName:`, error);
         res.status(500).json({
+            status: 500,
             success: false,
-            message: 'Error fetching IoT data',
+            message: `Error Fetching average data by userName and interval`,
             error: error.message
         });
     }
-}
+};
 
 
 
@@ -403,6 +360,6 @@ const downloadIotData = async (req, res) => {
     }
 };
 
-module.exports ={handleSaveMessage,calculateAndSaveAverages,getAllIotData, getLatestIoTData,getIotDataByUserName,getIotDataByTimeInterval,
-    downloadIotData
+module.exports ={handleSaveMessage,calculateAndSaveAverages,getAllIotData, getLatestIoTData,getIotDataByUserName,
+    downloadIotData,calculateAndSaveAverages,getAverageDataByUserName
  }

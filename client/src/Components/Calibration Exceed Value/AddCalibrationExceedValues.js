@@ -174,14 +174,14 @@ const AddCalibrationExceedValues = () => {
 
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">Admin User ID</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" name='adminUserName' value= { userData.validUserOne && userData.validUserOne.userName}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" name='adminUserName' value= { userData.validUserOne && userData.validUserOne.userName}  
                         />   
                       </div>
 
                       <div className="col-12 col-lg-6 col-md-6 mb-3 mt-3">
                         <label htmlFor="exampleFormControlInput4">Date of Parameter Threshold exceedance  value  Added</label>
                         <input type="date" 
-                        className="form-control" 
+                        className="input-field" 
                         id="dateOfCalibrationExceedValueAdde" 
                         name='date'
                         value={formData.dateOfCalibrationExceedValueAdded}
@@ -193,7 +193,7 @@ const AddCalibrationExceedValues = () => {
                       
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">Admin User Name</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="User Name" name='adminName' value= { userData.validUserOne && userData.validUserOne.fname}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="User Name" name='adminName' value= { userData.validUserOne && userData.validUserOne.fname}  
                         />   
                       </div>
                       
@@ -204,7 +204,7 @@ const AddCalibrationExceedValues = () => {
 
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                         <label htmlFor="exampleFormControlInput5">User ID</label>
-                        <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="User ID" name='userName' value={formData.userName}  onChange={handleInputChange}
+                        <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="User ID" name='userName' value={formData.userName}  onChange={handleInputChange}
                         />
                         
                       </div>
@@ -217,7 +217,7 @@ const AddCalibrationExceedValues = () => {
                         <label htmlFor="exampleFormControlInput5">Product ID</label>
                         <input 
                         type="text" 
-                        className="form-control" 
+                        className="input-field" 
                         id="product_id"
                         name='product_id'
                         value={formData.product_id}
@@ -249,117 +249,117 @@ const AddCalibrationExceedValues = () => {
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">pH - Above</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="pH" name='phAbove' value={formData.phAbove} onChange={handleInputChange}   
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="pH" name='phAbove' value={formData.phAbove} onChange={handleInputChange}   
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">pH - Below</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="pH" name='phBelow' value={formData.phBelow} onChange={handleInputChange}   
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="pH" name='phBelow' value={formData.phBelow} onChange={handleInputChange}   
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">TDS</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="TDS" name='TDS' value={formData.TDS} onChange={handleInputChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="TDS" name='TDS' value={formData.TDS} onChange={handleInputChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">Turbidity</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Turbidity" name='turbidity' value={formData.turbidity} onChange={handleInputChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="Turbidity" name='turbidity' value={formData.turbidity} onChange={handleInputChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">Temprature</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Temprature" name='temperature' value={formData.temperature} onChange={handleInputChange} 
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="Temprature" name='temperature' value={formData.temperature} onChange={handleInputChange} 
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">BOD</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="BOD" name='BOD' value={formData.BOD} onChange={handleInputChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="BOD" name='BOD' value={formData.BOD} onChange={handleInputChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">COD</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="COD" name='COD' value={formData.COD} onChange={handleInputChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="COD" name='COD' value={formData.COD} onChange={handleInputChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">TSS</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="TSS" name='TSS' value={formData.TSS} onChange={handleInputChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="TSS" name='TSS' value={formData.TSS} onChange={handleInputChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">ORP</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="ORP" name='ORP' value={formData.ORP} onChange={handleInputChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="ORP" name='ORP' value={formData.ORP} onChange={handleInputChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">Nitrate</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Nitrate" name='nitrate' value={formData.nitrate} onChange={handleInputChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="Nitrate" name='nitrate' value={formData.nitrate} onChange={handleInputChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">Ammonical Nitrogen</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Ammonical Nitrogen" name='ammonicalNitrogen' value={formData.ammonicalNitrogen} onChange={handleInputChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="Ammonical Nitrogen" name='ammonicalNitrogen' value={formData.ammonicalNitrogen} onChange={handleInputChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">DO</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="DO" name='DO' value={formData.DO} onChange={handleInputChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="DO" name='DO' value={formData.DO} onChange={handleInputChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">Chloride</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Chloride" name='chloride' value={formData.chloride} onChange={handleInputChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="Chloride" name='chloride' value={formData.chloride} onChange={handleInputChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">PM 10</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="PM 10" name='PM10' value={formData.PM10} onChange={handleInputChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="PM 10" name='PM10' value={formData.PM10} onChange={handleInputChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">PM 2.5</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="PM 2.5" name='PM25' value={formData.PM25} onChange={handleInputChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="PM 2.5" name='PM25' value={formData.PM25} onChange={handleInputChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">NOH</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="NOH" name='NOH' value={formData.NOH} onChange={handleInputChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="NOH" name='NOH' value={formData.NOH} onChange={handleInputChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">NH3</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="NH3" name='NH3' value={formData.NH3} onChange={handleInputChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="NH3" name='NH3' value={formData.NH3} onChange={handleInputChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">Wind Speed</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Wind Speed" name='WindSpeed' value={formData.WindSpeed} onChange={handleInputChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="Wind Speed" name='WindSpeed' value={formData.WindSpeed} onChange={handleInputChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">Wind Direction</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Wind Direction" name='WindDir' value={formData.WindDir} onChange={handleInputChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="Wind Direction" name='WindDir' value={formData.WindDir} onChange={handleInputChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">Air Temperature</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Air Temperature" name='AirTemperature' value={formData.AirTemperature} onChange={handleInputChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="Air Temperature" name='AirTemperature' value={formData.AirTemperature} onChange={handleInputChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">Humidity</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Humidity" name='Humidity' value={formData.Humidity} onChange={handleInputChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="Humidity" name='Humidity' value={formData.Humidity} onChange={handleInputChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">Solar Radiation</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Solar Radiation" name='solarRadiation' value={formData.solarRadiation} onChange={handleInputChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="Solar Radiation" name='solarRadiation' value={formData.solarRadiation} onChange={handleInputChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">DB</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="DB" name='DB' value={formData.DB} onChange={handleInputChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="DB" name='DB' value={formData.DB} onChange={handleInputChange}  
                         />   
                       </div>
                      

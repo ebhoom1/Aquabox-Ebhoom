@@ -35,11 +35,11 @@ export const fetchIotDataByUserName = createAsyncThunk(
     }
 );
 
-export const fetchIotDataByTimeInterval = createAsyncThunk(
-    'iotData/fetchIotDataByTimeInterval',
+export const fetchAverageDataByUserName = createAsyncThunk(
+    'iotData/fetchAverageDataByUserName',
     async ({ userName, interval }, { rejectWithValue }) => {
         try {
-            const response = await axios.get(`${API_URL}/get-average-data/${userName}/${interval}`);
+            const response = await axios.get(`${API_URL}/api/averageData/${userName}?interval=${interval}`);
             return response.data.data;
         } catch (error) {
             return rejectWithValue(error.response.data);
@@ -52,7 +52,6 @@ const iotDataSlice = createSlice({
     initialState: {
         latestData: {},
         userIotData: {},
-        timeIntervalData: {},
         loading: false,
         error: null,
     },
@@ -83,18 +82,18 @@ const iotDataSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload;
             })
-            .addCase(fetchIotDataByTimeInterval.pending, (state) => {
+            .addCase(fetchAverageDataByUserName.pending, (state) => {
                 state.loading = true;
-                state.error = null;
             })
-            .addCase(fetchIotDataByTimeInterval.fulfilled, (state, action) => {
+            .addCase(fetchAverageDataByUserName.fulfilled, (state, action) => {
                 state.loading = false;
-                state.timeIntervalData = action.payload;
+                state.averageData = action.payload;
             })
-            .addCase(fetchIotDataByTimeInterval.rejected, (state, action) => {
+            .addCase(fetchAverageDataByUserName.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload;
             });
+           
     }
 });
 

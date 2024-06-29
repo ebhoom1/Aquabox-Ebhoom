@@ -169,7 +169,7 @@ const EditCalibrationExceedValue = () => {
                       <label htmlFor="date">Date of Parameter Threshold exceedance  Value Added</label>
                       <input
                         type="date"
-                        className="form-control"
+                        className="input-field"
                         id="date"
                         name='date'
                         value={calibrationExceedValueData.date}
@@ -180,7 +180,7 @@ const EditCalibrationExceedValue = () => {
                       <label htmlFor="adminName">Admin User Name</label>
                       <input
                         type="text"
-                        className="form-control"
+                        className="input-field"
                         id="adminName"
                         name='adminName'
                         value={userData?.validUserOne?.userName || ''}
@@ -194,7 +194,7 @@ const EditCalibrationExceedValue = () => {
                       <label htmlFor="userName">User ID</label>
                       <input
                         type="text"
-                        className="form-control"
+                        className="input-field"
                         id="userName"
                         name='userName'
                         value={calibrationExceedValueData.userName}
@@ -205,7 +205,7 @@ const EditCalibrationExceedValue = () => {
                         <label htmlFor="exampleFormControlInput5">Product ID</label>
                         <input 
                         type="text" 
-                        className="form-control" 
+                        className="input-field" 
                         id="product_id"
                         name='product_id'
                         value={calibrationExceedValueData.product_id}
@@ -235,117 +235,117 @@ const EditCalibrationExceedValue = () => {
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">pH - Above</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="pH" name='phAbove' value={calibrationExceedValueData.phAbove} onChange={handleChange}   
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="pH" name='phAbove' value={calibrationExceedValueData.phAbove} onChange={handleChange}   
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">pH - Below</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="pH" name='phBelow' value={calibrationExceedValueData.phBelow} onChange={handleChange}   
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="pH" name='phBelow' value={calibrationExceedValueData.phBelow} onChange={handleChange}   
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">TDS</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="TDS" name='TDS' value={calibrationExceedValueData.TDS} onChange={handleChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="TDS" name='TDS' value={calibrationExceedValueData.TDS} onChange={handleChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">Turbidity</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Turbidity" name='turbidity' value={calibrationExceedValueData.turbidity} onChange={handleChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="Turbidity" name='turbidity' value={calibrationExceedValueData.turbidity} onChange={handleChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">Temprature</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Temprature" name='temperature' value={calibrationExceedValueData.temperature} onChange={handleChange} 
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="Temprature" name='temperature' value={calibrationExceedValueData.temperature} onChange={handleChange} 
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">BOD</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="BOD" name='BOD' value={calibrationExceedValueData.BOD} onChange={handleChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="BOD" name='BOD' value={calibrationExceedValueData.BOD} onChange={handleChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">COD</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="COD" name='COD' value={calibrationExceedValueData.COD} onChange={handleChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="COD" name='COD' value={calibrationExceedValueData.COD} onChange={handleChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">TSS</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="TSS" name='TSS' value={calibrationExceedValueData.TSS} onChange={handleChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="TSS" name='TSS' value={calibrationExceedValueData.TSS} onChange={handleChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">ORP</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="ORP" name='ORP' value={calibrationExceedValueData.ORP} onChange={handleChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="ORP" name='ORP' value={calibrationExceedValueData.ORP} onChange={handleChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">Nitrate</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Nitrate" name='nitrate' value={calibrationExceedValueData.nitrate} onChange={handleChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="Nitrate" name='nitrate' value={calibrationExceedValueData.nitrate} onChange={handleChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">Ammonical Nitrogen</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Ammonical Nitrogen" name='ammonicalNitrogen' value={calibrationExceedValueData.ammonicalNitrogen} onChange={handleChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="Ammonical Nitrogen" name='ammonicalNitrogen' value={calibrationExceedValueData.ammonicalNitrogen} onChange={handleChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">DO</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="DO" name='DO' value={calibrationExceedValueData.DO} onChange={handleChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="DO" name='DO' value={calibrationExceedValueData.DO} onChange={handleChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">Chloride</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Chloride" name='chloride' value={calibrationExceedValueData.chloride} onChange={handleChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="Chloride" name='chloride' value={calibrationExceedValueData.chloride} onChange={handleChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">PM 10</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="PM 10" name='PM10' value={calibrationExceedValueData.PM10} onChange={handleChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="PM 10" name='PM10' value={calibrationExceedValueData.PM10} onChange={handleChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">PM 2.5</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="PM 2.5" name='PM25' value={calibrationExceedValueData.PM25} onChange={handleChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="PM 2.5" name='PM25' value={calibrationExceedValueData.PM25} onChange={handleChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">NOH</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="NOH" name='NOH' value={calibrationExceedValueData.NOH} onChange={handleChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="NOH" name='NOH' value={calibrationExceedValueData.NOH} onChange={handleChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">NH3</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="NH3" name='NH3' value={calibrationExceedValueData.NH3} onChange={handleChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="NH3" name='NH3' value={calibrationExceedValueData.NH3} onChange={handleChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">Wind Speed</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Wind Speed" name='WindSpeed' value={calibrationExceedValueData.WindSpeed} onChange={handleChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="Wind Speed" name='WindSpeed' value={calibrationExceedValueData.WindSpeed} onChange={handleChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">Wind Direction</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Wind Direction" name='WindDir' value={calibrationExceedValueData.WindDir} onChange={handleChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="Wind Direction" name='WindDir' value={calibrationExceedValueData.WindDir} onChange={handleChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">Air Temperature</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Air Temperature" name='AirTemperature' value={calibrationExceedValueData.AirTemperature} onChange={handleChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="Air Temperature" name='AirTemperature' value={calibrationExceedValueData.AirTemperature} onChange={handleChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">Humidity</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Humidity" name='Humidity' value={calibrationExceedValueData.Humidity} onChange={handleChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="Humidity" name='Humidity' value={calibrationExceedValueData.Humidity} onChange={handleChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">Solar Radiation</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Solar Radiation" name='solarRadiation' value={calibrationExceedValueData.solarRadiation} onChange={handleChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="Solar Radiation" name='solarRadiation' value={calibrationExceedValueData.solarRadiation} onChange={handleChange}  
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">DB</label>
-                          <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="DB" name='DB' value={calibrationExceedValueData.DB} onChange={handleChange}  
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="DB" name='DB' value={calibrationExceedValueData.DB} onChange={handleChange}  
                         />   
                       </div>
                     <div className="mt-4 mb-5 p-2">

@@ -124,7 +124,7 @@ const EditUsers = () => {
                       <label htmlFor="userName">User ID</label>
                       <input
                         type="text"
-                        className="form-control"
+                        className="input-field"
                         id="userName"
                         placeholder="Enter User "
                         name='userName'
@@ -137,7 +137,7 @@ const EditUsers = () => {
                       <label htmlFor="companyName">Company Name</label>
                       <input
                         type="text"
-                        className="form-control"
+                        className="input-field"
                         id="companyName"
                         placeholder="Enter Company Name"
                         name='companyName'
@@ -150,7 +150,7 @@ const EditUsers = () => {
                       <label htmlFor="fname">First Name</label>
                       <input
                         type="text"
-                        className="form-control"
+                        className="input-field"
                         id="fname"
                         placeholder="Enter First Name"
                         name='fname'
@@ -163,7 +163,7 @@ const EditUsers = () => {
                       <label htmlFor="email">Email</label>
                       <input
                         type="email"
-                        className="form-control"
+                        className="input-field"
                         id="email"
                         placeholder="Enter Email"
                         name='email'
@@ -175,7 +175,7 @@ const EditUsers = () => {
                       <label htmlFor="mobileNumber">Mobile Number</label>
                       <input
                         type="number"
-                        className="form-control"
+                        className="input-field"
                         id="mobileNumber"
                         name='mobileNumber'
                         onChange={handleChange}
@@ -186,7 +186,7 @@ const EditUsers = () => {
                       <label htmlFor="modelName">Model Name</label>
                       <input
                         type="text"
-                        className="form-control"
+                        className="input-field"
                         id="modelName"
                         placeholder="Enter ModelName"
                         name='modelName'
@@ -199,7 +199,7 @@ const EditUsers = () => {
                       <label htmlFor="subscriptionDate">Date of Subscription</label>
                       <input
                         type="date"
-                        className="form-control"
+                        className="input-field"
                         id="subscriptionDate"
                         name='subscriptionDate'
                         onChange={handleChange}
@@ -211,7 +211,7 @@ const EditUsers = () => {
                       <label htmlFor="userType">User Type</label>
                       <input
                         type="text"
-                        className="form-control"
+                        className="input-field"
                         id="userType"
                         name='userType'
                         onChange={handleChange}
@@ -273,7 +273,7 @@ const EditUsers = () => {
                       <label htmlFor="district">District</label>
                       <input
                         type="text"
-                        className="form-control"
+                        className="input-field"
                         id="district"
                         placeholder="Enter District"
                         name='district'
@@ -286,7 +286,7 @@ const EditUsers = () => {
                       <label htmlFor="state">State</label>
                       <input
                         type="text"
-                        className="form-control"
+                        className="input-field"
                         id="state"
                         placeholder="Enter State"
                         name='state'
@@ -298,7 +298,7 @@ const EditUsers = () => {
                       <label htmlFor="address">Address</label>
                       <textarea
                         type="text"
-                        className="form-control"
+                        className="input-field"
                         id="address"
                         placeholder="Enter Address"
                         name='address'
@@ -311,7 +311,7 @@ const EditUsers = () => {
                       <label htmlFor="latitude">Latitude</label>
                       <input
                         type="text"
-                        className="form-control"
+                        className="input-field"
                         id="latitude"
                         placeholder="Enter Latitude"
                         name='latitude'
@@ -323,7 +323,7 @@ const EditUsers = () => {
                       <label htmlFor="longitude">Longitude</label>
                       <input
                         type="text"
-                        className="form-control"
+                        className="input-field"
                         id="longitude"
                         placeholder="Enter Longitude"
                         name='longitude'

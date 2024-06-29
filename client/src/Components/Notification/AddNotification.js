@@ -137,7 +137,7 @@ const AddNotification = () => {
   
                             <div className="col-12 col-lg-6 col-md-6 mb-3">
                               <label htmlFor="exampleFormControlInput5">User ID</label>
-                              <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Equipment Name" name='userName' value= { validUserData && validUserData.userName}
+                              <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="Equipment Name" name='userName' value= { validUserData && validUserData.userName}
                               />
                               
                             </div>
@@ -145,7 +145,7 @@ const AddNotification = () => {
                             <div className="col-12 col-lg-6 col-md-6 mb-3">
                               <label htmlFor="exampleFormControlInput4">Date of Notification Added</label>
                               <input type="date" 
-                              className="form-control" 
+                              className="input-field" 
                               id="date" 
                               name='date'
                               value={notificationData.dateOfCalibrationAdded}
@@ -158,7 +158,7 @@ const AddNotification = () => {
                             <div className="col-12 col-lg-6 col-md-6 mb-3">
                               <label htmlFor="exampleFormControlInput4">Time of Notification Added</label>
                               <input type="text" 
-                              className="form-control" 
+                              className="input-field" 
                               id="time" 
                               name='time'
                               value={notificationData.timeOfCalibrationAdded}
@@ -169,7 +169,7 @@ const AddNotification = () => {
                             </div>
                             <div className="col-12 col-lg-6 col-md-6 mb-3">
                                 <label htmlFor="exampleFormControlInput5">User Name</label>
-                                <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="User Name" name='fname' value= { validUserData && validUserData.fname}  
+                                <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="User Name" name='fname' value= { validUserData && validUserData.fname}  
                               />
                                
                             </div>
@@ -182,7 +182,7 @@ const AddNotification = () => {
                               <label htmlFor="exampleFormControlInput5">Add Notification Message</label>
                               <textarea 
                                 type="text"
-                                className="form-control"
+                                className="input-field"
                                 id="exampleFormControlInput5"
                                 placeholder="Notification Message"
                                 name='message'

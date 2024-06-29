@@ -104,7 +104,7 @@ const CalibrationExceeded = () => {
                 <div className="mb-3">
                   <input
                     type="text"
-                    className="form-control"
+                    className="input-field"
                     placeholder="Search by user name"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}

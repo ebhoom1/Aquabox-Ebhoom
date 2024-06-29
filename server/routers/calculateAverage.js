@@ -1,9 +1,9 @@
 const express = require('express');
-const { calculateAndSaveAverages,
+const { 
         getAllIotData,
         getIotDataByUserName,
         getLatestIoTData,
-        getIotDataByTimeInterval,
+        getAverageDataByUserName,
         downloadIotData
         
 } = require('../controllers/iotData');
@@ -19,18 +19,12 @@ router.get('/get-IoT-Data-by-userName/:userName',getIotDataByUserName);
 //Route for getting the latest IoT Data
 router.get('/latest-iot-data/:userName',getLatestIoTData);
   
-// Route to trigger calculateAndSaveAverages
-router.get('/calculate-averages', async (req, res) => {
-    try {
-        await calculateAndSaveAverages();
-        res.status(200).json({ message: 'Averages calculated and saved successfully' });
-    } catch (error) {
-        res.status(500).json({ message: 'Error calculating averages', error: error.message });
-    }
-});
 
-//Route to find the Average IOT Data By userId
-router.get('/get-average-data/:userName/:interval',getIotDataByTimeInterval)
+
+// Route to get average data by userName and interval
+router.get('/averageData/:userName', getAverageDataByUserName);
+
+
 
 //Route to download the Iot VAlue
 router.get('/downloadIotData',downloadIotData)

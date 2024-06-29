@@ -1,3 +1,4 @@
+
 import React, { useState,useEffect } from 'react'
 import { Link,useNavigate } from 'react-router-dom';
 import { useDispatch,useSelector } from 'react-redux';
@@ -189,7 +190,7 @@ if (error) {
                             <label htmlFor="exampleFormControlInput1">user ID</label>
                             <input 
                              type="text"
-                             className="form-control" 
+                             className="input-field" 
                              id="userName" 
                              name='userName'
                              value={formData.userName}
@@ -203,7 +204,7 @@ if (error) {
                             <label htmlFor="exampleFormControlInput2">Company Name</label>
                             <input 
                             type="text" 
-                            className="form-control" 
+                            className="input-field" 
                             id="companyName" 
                             name='companyName'
                             value={formData.companyName}
@@ -218,7 +219,7 @@ if (error) {
                             <label htmlFor="exampleFormControlInput3">First Name</label>
                             <input 
                             type="text" 
-                            className="form-control" 
+                            className="input-field" 
                             id="fname"
                             name='fname'
                             value={formData.fname}
@@ -234,7 +235,7 @@ if (error) {
                             <label htmlFor="exampleFormControlInput3">Email</label>
                             <input 
                             type="email" 
-                            className="form-control" 
+                            className="input-field" 
                             id="email" 
                             name='email'
                             value={formData.email}
@@ -247,7 +248,7 @@ if (error) {
                             <label htmlFor="exampleFormControlInput3">Mobile Number</label>
                             <input 
                             type="number" 
-                            className="form-control" 
+                            className="input-field" 
                             id="mobileNumber" 
                             name='mobileNumber'
                             value={formData.mobileNumber}
@@ -260,7 +261,7 @@ if (error) {
                             <label htmlFor="exampleFormControlInput3">Model Name</label>
                             <input 
                             type="text" 
-                            className="form-control" 
+                            className="input-field" 
                             id="modelName" 
                             name='modelName'
                             value={formData.modelName}
@@ -274,7 +275,7 @@ if (error) {
                             <label htmlFor="exampleFormControlInput3">Product ID</label>
                             <input 
                             type="text" 
-                            className="form-control" 
+                            className="input-field" 
                             id="productID" 
                             name='productID'
                             value={formData.productID}
@@ -288,7 +289,7 @@ if (error) {
                             <label htmlFor="exampleFormControlInput3">Password</label>
                             <input 
                             type="password" 
-                            className="form-control" 
+                            className="input-field" 
                             id="password"
                             name='password'
                             value={formData.pasword}
@@ -301,7 +302,7 @@ if (error) {
                             <label htmlFor="exampleFormControlInput3">Confirm Password</label>
                             <input 
                             type="password" 
-                            className="form-control" 
+                            className="input-field" 
                             id="cpassword"
                             name='cpassword'
                             value={formData.cpassword}
@@ -314,7 +315,7 @@ if (error) {
                             <label htmlFor="exampleFormControlInput4">Date of Subscription</label>
                             <input 
                             type="date" 
-                            className="form-control" 
+                            className="input-field" 
                             id="subscriptionDate"
                             name='subscriptionDate'
                             value={formData.subscriptionDate}
@@ -382,7 +383,7 @@ if (error) {
                             <label htmlFor="exampleFormControlInput5">District</label>
                             <input 
                             type="text" 
-                            className="form-control" 
+                            className="input-field" 
                             id="district" 
                             name='district'
                             value={formData.district}
@@ -396,7 +397,7 @@ if (error) {
                             <label htmlFor="exampleFormControlInput6">State</label>
                             <input 
                             type="text" 
-                            className="form-control" 
+                            className="input-field" 
                             id="state"
                             name='state'
                             value={formData.state}
@@ -409,7 +410,7 @@ if (error) {
                             <label htmlFor="exampleFormControlInput6">Address</label>
                             <textarea 
                             type="text" 
-                            className="form-control" 
+                            className="input-field" 
                             id="address"
                             name='address'
                             value={formData.address}
@@ -422,7 +423,7 @@ if (error) {
                             <label htmlFor="exampleFormControlInput6">Latitude</label>
                             <input 
                             type="text" 
-                            className="form-control" 
+                            className="input-field" 
                             id="latitude"
                             name='latitude'
                             value={formData.latitude}
@@ -435,7 +436,7 @@ if (error) {
                             <label htmlFor="exampleFormControlInput6">Longitude</label>
                             <input 
                             type="text" 
-                            className="form-control" 
+                            className="input-field" 
                             id="longitude" 
                             name='longitude'
                             value={formData.longitude}
@@ -512,7 +513,7 @@ const handleSubmit =async(e)=>{
                         <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput7">user ID</label>
                           <input type="text" 
-                          className="form-control"
+                          className="input-field"
                           id="exampleFormControlInput7"
                           placeholder="Enter user ID" 
                           value={userName}

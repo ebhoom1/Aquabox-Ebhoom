@@ -4,7 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import './index.css';
 import App from './App';
 import store from './redux/store/store';
-import { Provider } from 'react-redux';
+import { Provider } from 'react-redux'; 
 // Register service worker
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

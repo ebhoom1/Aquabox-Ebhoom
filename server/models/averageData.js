@@ -9,6 +9,9 @@ const IotDataAverageSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    dateAndTime: {
+        type: String,
+    },
     ph: {
         type: Number,
         required: true,
@@ -57,42 +60,53 @@ const IotDataAverageSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
-    PM10:{
-        type:String,
+    PM10: {
+        type: String,
     },
-    PM25:{
-        type:String,
+    PM25: {
+        type: String,
     },
-    NOH:{
-        type:String,
+    NOH: {
+        type: String,
     },
-    NH3:{
-        type:String,
+    NH3: {
+        type: String,
     },
-    WindSpeed:{
-        type:String,
+    WindSpeed: {
+        type: String,
     },
-    WindDir:{
-        type:String,
+    WindDir: {
+        type: String,
     },
-    AirTemperature:{
-        type:String,
+    AirTemperature: {
+        type: String,
     },
-    Humidity:{
-        type:String,
+    Humidity: {
+        type: String,
     },
-    solarRadiation:{
-        type:String,
+    solarRadiation: {
+        type: String,
     },
-    DB:{
-        type:String,
+    DB: {
+        type: String,
+    },
+    inflow: {
+        type: Number, // Changed to Number to match the requirement
+        required: true,
+    },
+    finalflow: {
+        type: Number, // Changed to Number to match the requirement
+        required: true,
+    },
+    energy: {
+        type: Number, // Changed to Number to match the requirement
+        required: true,
     },
     timestamp: {
         type: Date,
         default: Date.now,
     },
 });
-
 
 const IotDataAverage = mongoose.model('IotDataAverage', IotDataAverageSchema);
 

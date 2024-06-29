@@ -73,13 +73,13 @@ const EditCalibration = () => {
                     </div>
                     <div className="col-12 col-lg-6 col-md-6 mb-3">
                       <label htmlFor="exampleFormControlInput5">User ID</label>
-                      <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="User ID" name='adminID' value={calibrationData.adminID}  onChange={handleChange}/>
+                      <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="User ID" name='adminID' value={calibrationData.adminID}  onChange={handleChange}/>
                     </div>
                     <div className="col-12 col-lg-6 col-md-6 mb-3">
                       <label htmlFor="exampleFormControlInput4">Date of Calibration Added</label>
                       <input
                         type="date"
-                        className="form-control"
+                        className="input-field"
                         id="date"
                         name="dateOfCalibrationAdded"
                         value={calibrationData.dateOfCalibrationAdded}
@@ -91,7 +91,7 @@ const EditCalibration = () => {
                       <label htmlFor="exampleFormControlInput4">Time of Calibration Added</label>
                       <input
                         type="text"
-                        className="form-control"
+                        className="input-field"
                         id="time"
                         name="timeOfCalibrationAdded"
                         value={calibrationData.timeOfCalibrationAdded}
@@ -101,7 +101,7 @@ const EditCalibration = () => {
                     </div>
                     <div className="col-12 col-lg-6 col-md-6 mb-3">
                       <label htmlFor="exampleFormControlInput5">User Name</label>
-                      <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="User Name" name='adminName' value={calibrationData.adminName} onChange={handleChange}  />
+                      <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="User Name" name='adminName' value={calibrationData.adminName} onChange={handleChange}  />
                     </div>
                     <div className="col-12">
                       <h1>Edit Calibration Details</h1>
@@ -110,7 +110,7 @@ const EditCalibration = () => {
                       <label htmlFor="exampleFormControlInput5">User ID</label>
                       <input
                         type="text"
-                        className="form-control"
+                        className="input-field"
                         id="userName"
                         placeholder="Enter User ID"
                         name='userName'
@@ -122,7 +122,7 @@ const EditCalibration = () => {
                       <label htmlFor="exampleFormControlInput4">Date of Calibration</label>
                       <input
                         type="date"
-                        className="form-control"
+                        className="input-field"
                         id="date"
                         name='date'
                         onChange={handleChange}
@@ -134,7 +134,7 @@ const EditCalibration = () => {
                       <label htmlFor="exampleFormControlInput5">Equipment Name</label>
                       <input
                         type="text"
-                        className="form-control"
+                        className="input-field"
                         id="equipmentName"
                         name='equipmentName'
                         onChange={handleChange}
@@ -148,7 +148,7 @@ const EditCalibration = () => {
                     <div className="col-12 col-lg-6 col-md-6 mb-3">
                       <label htmlFor="exampleFormControlInput6">Before</label>
                       <textarea
-                        className="form-control"
+                        className="input-field"
                         id="before"
                         name='before'
                         onChange={handleChange}
@@ -159,7 +159,7 @@ const EditCalibration = () => {
                     <div className="col-12 col-lg-6 col-md-6 mb-3">
                       <label htmlFor="exampleFormControlInput6">After</label>
                       <textarea
-                        className="form-control"
+                        className="input-field"
                         id="after"
                         name='after'
                         onChange={handleChange}
@@ -171,7 +171,7 @@ const EditCalibration = () => {
                       <label htmlFor="exampleFormControlInput6">Technician</label>
                       <input
                         type="text"
-                        className="form-control"
+                        className="input-field"
                         id="technician"
                         name='technician'
                         onChange={handleChange}
@@ -182,7 +182,7 @@ const EditCalibration = () => {
                     <div className="col-12 col-lg-6 col-md-6 mb-3">
                       <label htmlFor="exampleFormControlInput6">Notes</label>
                       <textarea
-                        className="form-control"
+                        className="input-field"
                         id="notes"
                         name='notes'
                         onChange={handleChange}

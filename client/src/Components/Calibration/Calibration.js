@@ -122,13 +122,13 @@ if(error){
 
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
                                             <label htmlFor="exampleFormControlInput5">User ID</label>
-                                            <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="Equipment Name" name='userName' value={userData.validUserOne && userData.validUserOne.userName} onChange={handleInputChange} />
+                                            <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="Equipment Name" name='userName' value={userData.validUserOne && userData.validUserOne.userName} onChange={handleInputChange} />
                                         </div>
 
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
                             <label htmlFor="exampleFormControlInput4">Date of Calibration Added</label>
                             <input type="date" 
-                            className="form-control" 
+                            className="input-field" 
                             id="date" 
                             name='date'
                             value={calibrationData.dateOfCalibrationAdded}
@@ -140,11 +140,11 @@ if(error){
                           
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
                               <label htmlFor="exampleFormControlInput4">Time of Calibration Added</label>
-                              <input type="text" className="form-control" id="time" name='time' value={calibrationData.timeOfCalibrationAdded} onChange={handleInputChange} placeholder="time of Calibration" />
+                              <input type="text" className="input-field" id="time" name='time' value={calibrationData.timeOfCalibrationAdded} onChange={handleInputChange} placeholder="time of Calibration" />
                           </div>
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
                               <label htmlFor="exampleFormControlInput5">User Name</label>
-                              <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="User Name" name='fname' value= { userData.validUserOne && userData.validUserOne.fname} onChange={handleInputChange} 
+                              <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="User Name" name='fname' value= { userData.validUserOne && userData.validUserOne.fname} onChange={handleInputChange} 
                             />   
                           </div>
                           
@@ -155,7 +155,7 @@ if(error){
 
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
                             <label htmlFor="exampleFormControlInput5">User ID</label>
-                            <input type="text" className="form-control" id="exampleFormControlInput5" placeholder="User ID" name='userName' value= {CalibrationData.userName}  onChange={handleInputChange}
+                            <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="User ID" name='userName' value= {CalibrationData.userName}  onChange={handleInputChange}
                             />
                             
                           </div>
@@ -163,7 +163,7 @@ if(error){
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
                             <label htmlFor="exampleFormControlInput4">Date of Calibration</label>
                             <input type="date" 
-                            className="form-control" 
+                            className="input-field" 
                             id="date" 
                             name='date'
                             value={calibrationData.date}
@@ -179,7 +179,7 @@ if(error){
                             <label htmlFor="exampleFormControlInput5">Model Name</label>
                             <input 
                             type="text" 
-                            className="form-control" 
+                            className="input-field" 
                             id="ModelName"
                             name='equipmentName'
                             value={calibrationData.equipmentName}
@@ -196,7 +196,7 @@ if(error){
                             <label htmlFor="exampleFormControlInput6">Before</label>
                             <textarea 
                             type="text" 
-                            className="form-control" 
+                            className="input-field" 
                             id="before"
                             name='before' 
                             value={calibrationData.before}
@@ -209,7 +209,7 @@ if(error){
                             <label htmlFor="exampleFormControlInput6">After</label>
                             <textarea 
                             type="text" 
-                            className="form-control" 
+                            className="input-field" 
                             id="after"
                             name='after'
                             value={calibrationData.after}
@@ -224,7 +224,7 @@ if(error){
                             <label htmlFor="exampleFormControlInput6">Technician</label>
                             <input 
                             type="text" 
-                            className="form-control" 
+                            className="input-field" 
                             id="technician"
                             name='technician' 
                             value={calibrationData.technician}
@@ -237,7 +237,7 @@ if(error){
                             <label htmlFor="exampleFormControlInput6">Notes</label>
                             <textarea 
                             type="text" 
-                            className="form-control" 
+                            className="input-field" 
                             id="notes"
                             name='notes'
                             value={calibrationData.notes}
