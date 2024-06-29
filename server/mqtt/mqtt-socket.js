@@ -2,6 +2,7 @@ const mqtt = require('mqtt');
 const path = require('path');
 const fs = require('fs');
 const moment = require('moment');
+const axios = require('axios'); 
 const iotData = require('../controllers/iotData');
 const calibrationExceed = require('../controllers/calibrationExceed');
 
@@ -51,7 +52,13 @@ const setupMqttClient = (io, productIDMap) => {
 
                 await iotData.handleSaveMessage(data);
                 await calibrationExceed.handleExceedValues(data);
-                
+                 // Send the data to saveWaterParams API
+                 try {
+                    await axios.post('http://localhost:5555/api/save-water-params', data);
+                    console.log('Data sent to save-water-params API');
+                } catch (apiError) {
+                    console.error('Error sending data to save-water-params API:', apiError);
+                }
                 io.to(product_id.toString()).emit('data', data);
             }
         } catch (error) {

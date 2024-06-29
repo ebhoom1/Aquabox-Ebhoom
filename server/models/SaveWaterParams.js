@@ -8,7 +8,7 @@ const saveWaterParamsSchema = new mongoose.Schema({
     ph:{
         type:String,
     },
-    TDS:{
+    tds:{
         type:String,
 
     },
@@ -18,16 +18,16 @@ const saveWaterParamsSchema = new mongoose.Schema({
     temperature:{
         type:String,
     },
-    BOD:{
+    bod:{
         type:String,
     },
-    COD:{
+    cod:{
         type:String,
     },
-    TSS:{
+    tss:{
         type:String,
     },
-    ORP:{
+    orp:{
         type:String,
     },
     nitrate:{
@@ -87,7 +87,7 @@ const saveWaterParamsSchema = new mongoose.Schema({
     userName: {
          type: String
     },
-    comapanyName:{
+    companyName:{
         type:String
     },
     industryType:{

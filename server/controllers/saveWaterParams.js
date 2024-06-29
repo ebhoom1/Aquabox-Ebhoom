@@ -2,13 +2,13 @@ const WaterParams = require('../models/SaveWaterParams');
 
 const AddWaterParams = async(req,res)=>{
     try {
-        const { product_id, ph, TDS, turbidity, temperature, BOD, COD,
-            TSS, ORP, nitrate, ammonicalNitrogen, DO, chloride, PM10, PM25, NOH, NH3, WindSpeed,
-            WindDir, AirTemperature, Humidity, solarRadiation, DB, date, userName,industryType } = req.body;
+        const { product_id, ph, tds, turbidity, temperature, bod, cod,
+            tss, orp, nitrate, ammonicalNitrogen, DO, chloride, PM10, PM25, NOH, NH3, WindSpeed,
+            WindDir, AirTemperature, Humidity, solarRadiation, DB, date, userName,industryType,mobileNumber,email,companyName } = req.body;
             
-        const newWaterParams = new WaterParams({ product_id, ph, TDS, turbidity, temperature, BOD, COD,
-            TSS, ORP, nitrate, ammonicalNitrogen, DO, chloride, PM10, PM25, NOH, NH3, WindSpeed,
-            WindDir, AirTemperature, Humidity, solarRadiation, DB, date, userName,industryType })
+        const newWaterParams = new WaterParams({ product_id, ph, tds, turbidity, temperature, bod, cod,
+            tss, orp, nitrate, ammonicalNitrogen, DO, chloride, PM10, PM25, NOH, NH3, WindSpeed,
+            WindDir, AirTemperature, Humidity, solarRadiation, DB, date, userName,industryType,mobileNumber,email,companyName })
 
         
         await newWaterParams.save()
