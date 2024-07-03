@@ -47,6 +47,7 @@ import Quantity from './Components/Quantity/Quantity';
 import Energy from './Components/Energy/Energy';
 import LiveVideo from './Components/LiveVideo/LiveVideo';
 import Error from './Components/Error/Error';
+import InstallPrompt from './Components/InstallPrompt/InstallPrompt'
 
 
 
@@ -76,6 +77,7 @@ function App() {
     
   }, [dispatch,navigate]);
   return (
+    <>
     <Routes>
       <Route path="/" element={<PublicLayout />}>
         <Route index element={<SignIn />} />
@@ -151,6 +153,8 @@ function App() {
         </Route>
       )}
     </Routes>
+        <InstallPrompt /> {/* Add the InstallPrompt component */}
+        </>
   );
 }
 

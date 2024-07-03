@@ -1,10 +1,12 @@
+// client/src/index.js
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import './index.css';
 import App from './App';
 import store from './redux/store/store';
-import { Provider } from 'react-redux'; 
+import { Provider } from 'react-redux';
+
 // Register service worker
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -17,7 +19,7 @@ if ('serviceWorker' in navigator) {
         console.log('ServiceWorker registration failed: ', error);
       });
   });
-}
+};
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

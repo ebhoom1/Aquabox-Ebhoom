@@ -44,10 +44,11 @@ const setupMqttClient = (io) => {
             const { product_id } = data;
 
             if (topic === 'ebhoomPub') {
+                // User details will be provide by us use that inside this  
                 const userDetails = await userdb.findOne({ productID: product_id });
                 if (userDetails) {
                     Object.assign(data, {
-                        userId: userDetails._id,
+                        userId: userDetails._id, 
                         userName: userDetails.userName,
                         email: userDetails.email,
                         mobileNumber: userDetails.mobileNumber,
@@ -61,7 +62,7 @@ const setupMqttClient = (io) => {
                     console.log('Received data:', data);
 
                     
-
+                    //add your api Here 
                     // Send POST request
                     await axios.post('http://localhost:5555/api/handleSaveMessage', data);
                     console.log('Data successfully posted to handleSaveMessage');
