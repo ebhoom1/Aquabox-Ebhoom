@@ -9,35 +9,64 @@ const userdb = require('../models/user');
 const IotDataAverage = require(`../models/averageData`);
 const DifferenceData = require(`../models/differeneceData`);
 
-//Function to check sensor data for zero values
-const checkSensorData = (data)=>{
-    //List of Sensor data fields to check
+// Function to check sensor data for zero values
+const checkSensorData = (data) => {
+    // List of Sensor data fields to check
     const sensorDataFields = [
-        'ph', 'tds', 'turbidity', 'temperature', 'bod', 'cod', 
+        'ph', 'tds', 'turbidity', 'temperature', 'bod', 'cod',
         'tss', 'orp', 'nitrate', 'ammonicalNitrogen', 'DO', 'chloride'
     ];
 
-    //Check if any sensor data field is zero
-    for(let field of sensorDataFields){
-        if(data[field]==="N/A"){
-            return{
-                success:false,
-                message:`Problem in data: ${field} value is 0`,
-                problemField:field
-            }
+    // Check if any sensor data field is zero
+    for (let field of sensorDataFields) {
+        if (data[field] === "N/A") {
+            return {
+                success: false,
+                message: `Problem in data: ${field} value is 0`,
+                problemField: field
+            };
         }
     }
     return {
         success: true,
         message: "All sensor data values are valid"
+    };
+};
+// Function to check if required fields are missing
+const checkRequiredFields = (data, requiredFields) => {
+    const missingFields = requiredFields.filter(field => !data[field]);
+    if (missingFields.length > 0) {
+        return {
+            success: false,
+            message: `Missing required fields: ${missingFields.join(', ')}`,
+            missingFields
+        };
     }
-}
+    return {
+        success: true,
+        message: "All required fields are present"
+    };
+};
 
 // Function to handle Mqtt Messages and save the data to MongoDB
 const handleSaveMessage = async (req, res) => {
     const data = req.body;
 
     try {
+         // Check required fields
+         const requiredFields = ['userName', 'companyName', 'industryType', 'mobileNumber', 'email', 'product_id', 'energy', 'time'];
+         const validationStatus = checkRequiredFields(data, requiredFields);
+         if (!validationStatus.success) {
+             console.error(validationStatus.message);
+             return res.status(400).json(validationStatus);
+         }
+        // Check sensor data
+        const sensorValidationStatus = checkSensorData(data);
+        if (!sensorValidationStatus.success) {
+            console.error(sensorValidationStatus.message);
+            return res.status(400).json(sensorValidationStatus);
+        }
+
         const formattedDate = moment().format('DD/MM/YYYY');
 
         const newEntry = new IotData({
@@ -78,7 +107,7 @@ const handleSaveMessage = async (req, res) => {
             email: data.email || 'N/A',
             timestamp: new Date()
         });
-        
+
         await newEntry.save();
 
         res.status(200).json({

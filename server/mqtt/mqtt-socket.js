@@ -10,45 +10,6 @@ const KEY = path.resolve(__dirname, './creds/ebhoom-v1-device-private.pem.key');
 const CERT = path.resolve(__dirname, './creds/ebhoom-v1-device-certificate.pem.crt');
 const CAfile = path.resolve(__dirname, './creds/ebhoom-v1-device-AmazonRootCA1.pem');
 
-// Function to check if required fields are missing
-const checkRequiredFields = (data, requiredFields) => {
-    const missingFields = requiredFields.filter(field => !data[field]);
-    if (missingFields.length > 0) {
-        return {
-            success: false,
-            message: `Missing required fields: ${missingFields.join(', ')}`,
-            missingFields
-        };
-    }
-    return {
-        success: true,
-        message: "All required fields are present"
-    };
-};
-
-// Function to check sensor data for zero values
-const checkSensorData = (data) => {
-    const sensorDataFields = [
-        'ph', 'tds', 'turbidity', 'temperature', 'bod', 'cod',
-        'tss', 'orp', 'nitrate', 'ammonicalNitrogen', 'DO', 'chloride', 'inflow',
-        'finalflow', 'energy', 'PM10', 'PM25', 'NOH', 'NH3', 'WindSpeed', 'WindDir',
-        'AirTemperature', 'Humidity', 'solarRadiation', 'DB'
-    ];
-
-    for (let field of sensorDataFields) {
-        if (data[field] === "N/A") {
-            return {
-                success: false,
-                message: `Problem in data: ${field} value is 0`,
-                problemField: field
-            };
-        }
-    }
-    return {
-        success: true,
-        message: "All sensor data values are valid"
-    };
-};
 
 // Function to set up MQTT client for each device
 const setupMqttClient = (io) => {
@@ -99,22 +60,7 @@ const setupMqttClient = (io) => {
 
                     console.log('Received data:', data);
 
-                    // Check required fields
-                    const requiredFields = ['userName', 'companyName', 'industryType', 'mobileNumber', 'email', 'product_id', 'energy', 'time'];
-                    const validationStatus = checkRequiredFields(data, requiredFields);
-                    if (!validationStatus.success) {
-                        console.error(validationStatus.message);
-                        return;
-                    }
-
-                    // Check sensor data
-                    const sensorValidationStatus = checkSensorData(data);
-                    if (!sensorValidationStatus.success) {
-                        console.error(sensorValidationStatus.message);
-                        return;
-                    }
-
-                    console.log('Data to be posted:', data);
+                    
 
                     // Send POST request
                     await axios.post('http://localhost:5555/api/handleSaveMessage', data);
