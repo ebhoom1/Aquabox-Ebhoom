@@ -19,6 +19,8 @@ const PrivateLayout = () => {
   const [notifications, setNotifications] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [submittedSearchTerm, setSubmittedSearchTerm] = useState('');
+  const [searchStatus, setSearchStatus] = useState('');
 
   useEffect(() => {
     const validateUser = async () => {
@@ -91,21 +93,27 @@ const PrivateLayout = () => {
   const toggleDashboardSubmenu = () => {
     setIsDashboardSubmenuOpen(!isDashboardSubmenuOpen);
   };
+
   const handleSearch = async (event) => {
     event.preventDefault();
+    setSubmittedSearchTerm(searchTerm);
+    setSearchStatus('loading');
     try {
       const response = await dispatch(fetchIotDataByUserName(searchTerm)).unwrap();
       setSearchResults(response);
+      setSearchStatus('success');
     } catch (error) {
-      console.error('Error fetching IoT data:', error);
+      console.error('Error fetching IoT data:', error); // Log the error object to the console
+      setSearchStatus('error');
     }
   };
+
   const getDropdownItems = () => {
     const { userType } = userData.validUserOne;
     if (userType === 'admin') {
       return (
         <>
-         <li>
+          <li>
             <a href="#" onClick={toggleDashboardSubmenu}>
               Quality
             </a>
@@ -128,13 +136,12 @@ const PrivateLayout = () => {
           <li><Link to="/report" onClick={closeDropdown}>Report</Link></li>
           <li><Link to="/subscribe-data" onClick={closeDropdown}>Subscribe</Link></li>
           <li><Link to="/support-analyzer" onClick={closeDropdown}>List of support analyzer <br/>make and model</Link></li>
-         
         </>
       );
     } else {
       return (
         <>
-        <li>
+          <li>
             <a href="#" onClick={toggleDashboardSubmenu}>
               Dashboard Components
             </a>
@@ -153,7 +160,6 @@ const PrivateLayout = () => {
           <li><Link to="/report" onClick={closeDropdown}>Report</Link></li>
           <li><Link to="/transactions" onClick={closeDropdown}>Payment</Link></li>
           <li><Link to="/support-analyzer" onClick={closeDropdown}>List of support analyzer make and model</Link></li>
-          
         </>
       );
     }
@@ -195,20 +201,22 @@ const PrivateLayout = () => {
           </ul>
           <ul className="navbar-nav">
             <li className="nav-item font-weight-semibold d-none d-lg-block">
-          {userData.validUserOne.userType === 'admin' && (
-            <form className="form-inline  my-2 my-lg-0 " onSubmit={handleSearch} >
-              <input
-                className="form-control mr-sm-2 "
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search user data..."
-                style={{width:"300px"}}
-              />
-              <button className="btn btn-outline-primary my-2 my-sm-0" type="submit">Search</button>
-            </form>
-          )}
-          </li>
+              {userData.validUserOne.userType === 'admin' && (
+                <form className="form-inline my-2 my-lg-0" onSubmit={handleSearch}>
+                  <input
+                    className={`form-control mr-sm-2 ${searchStatus === 'error' ? 'is-invalid' : searchStatus === 'success' ? 'is-valid' : ''}`}
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search user data..."
+                    style={{ width: "300px" }}
+                  />
+                  <button className="btn btn-outline-primary my-2 my-sm-0" type="submit">Search</button>
+                  {searchStatus === 'error' && <div className="invalid-feedback">No result found</div>}
+                  {searchStatus === 'success' && <div className="valid-feedback">Success</div>}
+                </form>
+              )}
+            </li>
           </ul>
           <ul className="navbar-nav ml-auto">
             <li className="nav-item dropdown">
@@ -263,7 +271,7 @@ const PrivateLayout = () => {
       </nav>
       <div className="container-fluid page-body-wrapper">
         <LeftSideBar />
-        <Outlet context={{ searchResults }} />
+        <Outlet context={{ searchTerm: submittedSearchTerm, searchStatus, handleSearch }} />
       </div>
     </div>
   );

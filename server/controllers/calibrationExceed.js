@@ -307,7 +307,7 @@ const sendNotification = async (parameter, value, user) => {
         const currentDate = moment().format('DD/MM/YYYY');
         const currentTime = moment().format('HH:mm:ss');
 
-        console.log(`Sending notification with message: ${message}`); // Debugging statement
+     //   console.log(`Sending notification with message: ${message}`); // Debugging statement
 
         //Send email notification
        // await sendEmail(user.email, 'Calibration Exceed Notification', message);
@@ -355,7 +355,7 @@ const saveExceedValue = async (parameter, value, user) => {
 
         // Save the document to DB
          await newEntry.save();
-         console.log(`Exceed value saved successfully`); // Debugging statement
+        //  console.log(`Exceed value saved successfully`); // Debugging statement
 
         return {
             success: true,

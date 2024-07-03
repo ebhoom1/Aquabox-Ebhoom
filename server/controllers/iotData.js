@@ -38,16 +38,6 @@ const handleSaveMessage = async (req, res) => {
     const data = req.body;
 
     try {
-        const user = await userdb.findById(data.userId);
-
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: 'User not found'
-            });
-        }
-
-        const validationStatus = checkSensorData(data);
         const formattedDate = moment().format('DD/MM/YYYY');
 
         const newEntry = new IotData({
@@ -86,8 +76,6 @@ const handleSaveMessage = async (req, res) => {
             userName: data.userName || 'N/A',
             mobileNumber: data.mobileNumber || 'N/A',
             email: data.email || 'N/A',
-            validationStatus: validationStatus.success,
-            validationMessage: validationStatus.message,
             timestamp: new Date()
         });
         
@@ -107,7 +95,6 @@ const handleSaveMessage = async (req, res) => {
         });
     }
 };
-
 
 
 const getAllIotData =async (req,res)=>{
@@ -195,7 +182,6 @@ const getIotDataByUserName = async (req,res)=>{
 }
 
 // The Graph printing Taking average and using in the graph//
-
 const calculateAverages = async (userId, userName, startTime, endTime, interval) => {
     console.log(`Calculating averages for ${interval}: ${startTime} to ${endTime}`);
     const data = await IotData.find({
@@ -214,7 +200,7 @@ const calculateAverages = async (userId, userName, startTime, endTime, interval)
     const fields = ['ph', 'TDS', 'turbidity', 'temperature', 'BOD', 'COD', 'TSS', 'ORP', 'nitrate', 'ammonicalNitrogen', 'DO', 'chloride', 'PM10', 'PM25', 'NOH', 'NH3', 'WindSpeed', 'WindDir', 'AirTemperature', 'Humidity', 'solarRadiation', 'DB', 'inflow', 'finalflow', 'energy'];
 
     const averages = fields.reduce((acc, field) => {
-        acc[field] = data.reduce((sum, item) => sum + parseFloat(item[field] || 0), 0) / data.length;
+        acc[field] = parseFloat((data.reduce((sum, item) => sum + parseFloat(item[field] || 0), 0) / data.length).toFixed(2));
         return acc;
     }, {});
 
@@ -222,6 +208,7 @@ const calculateAverages = async (userId, userName, startTime, endTime, interval)
 
     const averageEntry = new IotDataAverage({
         userName: userName,
+        product_id: data[0].product_id,  // Assuming all data entries have the same product_id
         interval: interval,
         dateAndTime: moment().format('DD/MM/YYYY HH:mm'),
         ...averages,
@@ -232,45 +219,65 @@ const calculateAverages = async (userId, userName, startTime, endTime, interval)
     console.log(`Average entry saved for ${interval}:`, averageEntry);
 };
 
-const calculateAllAverages = async (userId, userName) => {
-    const now = new Date();
+const scheduleAveragesCalculation = () => {
+    cron.schedule('0 * * * *', async () => { // Every hour
+        const users = await IotData.distinct('userId');
+        for (let userId of users) {
+            const userData = await userdb.findById(userId);
+            await calculateAverages(userId, userData.userName, new Date(Date.now() - 60 * 60 * 1000), new Date(), 'hour');
+        }
+    });
 
-    console.log(`Calculating all averages for user ${userName} (${userId})`);
-    await calculateAverages(userId, userName, new Date(now.getTime() - 60 * 60 * 1000), now, 'hour');
+    cron.schedule('0 0 * * *', async () => { // Every day
+        const users = await IotData.distinct('userId');
+        for (let userId of users) {
+            const userData = await userdb.findById(userId);
+            const now = new Date();
+            const dailyStartTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+            const dailyEndTime = new Date(dailyStartTime.getTime() + 24 * 60 * 60 * 1000);
+            await calculateAverages(userId, userData.userName, dailyStartTime, dailyEndTime, 'day');
+        }
+    });
 
-    // Calculate daily average using 24-hour data
-    const dailyStartTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
-    const dailyEndTime = new Date(dailyStartTime.getTime() + 24 * 60 * 60 * 1000);
-    await calculateAverages(userId, userName, dailyStartTime, dailyEndTime, 'day');
+    cron.schedule('0 0 * * 1', async () => { // Every week (Monday)
+        const users = await IotData.distinct('userId');
+        for (let userId of users) {
+            const userData = await userdb.findById(userId);
+            const now = new Date();
+            const weeklyStartTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7, 0, 0, 0);
+            await calculateAverages(userId, userData.userName, weeklyStartTime, now, 'week');
+        }
+    });
 
-    // Calculate weekly average using 7-day data
-    const weeklyStartTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7, 0, 0, 0);
-    const weeklyEndTime = now;
-    await calculateAverages(userId, userName, weeklyStartTime, weeklyEndTime, 'week');
+    cron.schedule('0 0 1 * *', async () => { // Every month (1st day)
+        const users = await IotData.distinct('userId');
+        for (let userId of users) {
+            const userData = await userdb.findById(userId);
+            const now = new Date();
+            const monthlyStartTime = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+            await calculateAverages(userId, userData.userName, monthlyStartTime, now, 'month');
+        }
+    });
 
-    // Calculate monthly average using 4-week data
-    const monthlyStartTime = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
-    const monthlyEndTime = now;
-    await calculateAverages(userId, userName, monthlyStartTime, monthlyEndTime, 'month');
+    cron.schedule('0 0 1 */6 *', async () => { // Every 6 months (1st day of every 6th month)
+        const users = await IotData.distinct('userId');
+        for (let userId of users) {
+            const userData = await userdb.findById(userId);
+            const now = new Date();
+            const sixMonthStartTime = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate());
+            await calculateAverages(userId, userData.userName, sixMonthStartTime, now, 'sixmonths');
+        }
+    });
 
-    // Calculate six-month average
-    const sixMonthStartTime = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate());
-    const sixMonthEndTime = now;
-    await calculateAverages(userId, userName, sixMonthStartTime, sixMonthEndTime, 'sixmonths');
-
-    // Calculate yearly average
-    const yearlyStartTime = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
-    const yearlyEndTime = now;
-    await calculateAverages(userId, userName, yearlyStartTime, yearlyEndTime, 'year');
-};
-
-const calculateAndSaveAverages = async () => {
-    const users = await IotData.distinct('userId');
-
-    for (let userId of users) {
-        const userData = await userdb.findById(userId);
-        await calculateAllAverages(userId, userData.userName);
-    }
+    cron.schedule('0 0 1 1 *', async () => { // Every year (1st day of January)
+        const users = await IotData.distinct('userId');
+        for (let userId of users) {
+            const userData = await userdb.findById(userId);
+            const now = new Date();
+            const yearlyStartTime = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+            await calculateAverages(userId, userData.userName, yearlyStartTime, now, 'year');
+        }
+    });
 };
 
 const getAverageDataByUserName = async (req, res) => {
@@ -303,6 +310,8 @@ const getAverageDataByUserName = async (req, res) => {
         });
     }
 };
+
+scheduleAveragesCalculation();
 //End of Averages //
 
 //Download Entire IOT Data
@@ -373,67 +382,99 @@ const downloadIotData = async (req, res) => {
 
 //inflow, finalflow,Energy
 
-const calculateAndSaveDailyDifferences = async () =>{
+
+
+const calculateAndSaveDailyDifferences = async () => {
     const now = new Date();
-    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
-    const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0); // 8:20 PM
+    const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 0); // 8:22 PM
+
+    // console.log(`Start of day: ${startOfDay}`);
+    // console.log(`End of day: ${endOfDay}`);
 
     try {
-        const initialData = await IotData.findOne({timestamp:{$gte:startOfDay}}).sort({timestamp:1});
-        const finalData = await IotData.findOne({timestamp:{$lte:endOfDay}}).sort({timestamp: -1});
+        const initialData = await IotData.findOne({ timestamp: { $gte: startOfDay } }).sort({ timestamp: 1 });
+        const finalData = await IotData.findOne({ timestamp: { $lte: endOfDay } }).sort({ timestamp: -1 });
 
-        if (!initialData || !finalData) {
-            console.log('No data found for the specified date range');
+        // console.log(`Initial data: ${JSON.stringify(initialData, null, 2)}`);
+        // console.log(`Final data: ${JSON.stringify(finalData, null, 2)}`);
+
+        if (!initialData) {
+            // console.log('No initial data found for the specified date range');
             return;
         }
 
-        const inflowDifference = finalData.inflow -initialData.inflow;
+        if (!finalData) {
+            // console.log('No final data found for the specified date range');
+            return;
+        }
+
+        // Ensure all required fields are present
+        const requiredFields = ['inflow', 'finalflow', 'energy'];
+        for (const field of requiredFields) {
+            if (typeof initialData[field] === 'undefined' || typeof finalData[field] === 'undefined') {
+                // console.log(`Missing field ${field} in initial or final data`);
+                return;
+            }
+        }
+
+        const inflowDifference = finalData.inflow - initialData.inflow;
         const finalflowDifference = finalData.finalflow - initialData.finalflow;
-        const energyDifference = finalData.energy - intialData.energy;
+        const energyDifference = finalData.energy - initialData.energy;
 
         const differenceEntry = new DifferenceData({
-            date:moment(startOfDay).format('DD/MM/YYYY'),
+            date: moment(startOfDay).format('DD/MM/YYYY'),
             day: moment(startOfDay).format('dddd'),
             userName: initialData.userName,
             productId: initialData.product_id,
-            initialInflow:initialData.inflow,
-            finalInflow:finalData.inflow,
-            inflowDifference:inflowDifference,
-            initialFinalflow:initialData.finalflow,
-            finalFinalflow:finalData.finalflow,
-            finalflowDifference:finalflowDifference,
-            initialEnergy:initialData.energy,
-            finalEnergy:finalData.energy,
-            energyDifference:energyDifference
-        })
+            initialInflow: initialData.inflow,
+            finalInflow: finalData.inflow,
+            inflowDifference: inflowDifference,
+            initialFinalflow: initialData.finalflow,
+            finalFinalflow: finalData.finalflow,
+            finalflowDifference: finalflowDifference,
+            initialEnergy: initialData.energy,
+            finalEnergy: finalData.energy,
+            energyDifference: energyDifference
+        });
 
-        await differenceEntry.save()
-        console.log(`Difference entry saved for ${moment(startOfDay).format('DD/MM/YYYY')}`);
+        await differenceEntry.save();
+        // console.log(`Difference entry saved for ${moment(startOfDay).format('DD/MM/YYYY')}`);
     } catch (error) {
         console.error('Error calculating and saving daily differences:', error);
     }
-}
+};
 
-const getDifferenceDataByUserName = async (req,res)=>{
-    const {userName} =req.params;
+// Test function to run the calculation
+const testCalculateAndSaveDailyDifferences = async () => {
+    await calculateAndSaveDailyDifferences();
+};
 
-    try{
-        const differenceData = await DifferenceData.find({userName});
-        if(differenceData.length === 0){
+// Call the test function
+testCalculateAndSaveDailyDifferences();
+
+
+
+const getDifferenceDataByUserName = async (req, res) => {
+    const { userName } = req.params;
+
+    try {
+        const differenceData = await DifferenceData.find({ userName });
+        if (differenceData.length === 0) {
             return res.status(404).json({
-                status:404,
-                success:false,
-                message:'No difference data found for the specified userID'
+                status: 404,
+                success: false,
+                message: 'No difference data found for the specified userID'
             });
         }
 
         res.status(200).json({
-            status:200,
-            success:true,
-            message:`Difference data for userName ${userName} fetched successfully`,
-            data:differenceData
-        })
-    }catch(error){
+            status: 200,
+            success: true,
+            message: `Difference data for userName ${userName} fetched successfully`,
+            data: differenceData
+        });
+    } catch (error) {
         console.error(`Error Fetching difference data by userName:`, error);
         res.status(500).json({
             status: 500,
@@ -442,9 +483,13 @@ const getDifferenceDataByUserName = async (req,res)=>{
             error: error.message
         });
     }
-}
+};
 
 
-module.exports ={handleSaveMessage,calculateAndSaveAverages,getAllIotData, getLatestIoTData,getIotDataByUserName,
-    downloadIotData,calculateAndSaveAverages,getAverageDataByUserName,calculateAndSaveDailyDifferences,getDifferenceDataByUserName
+module.exports ={handleSaveMessage, scheduleAveragesCalculation,getAllIotData, getLatestIoTData,getIotDataByUserName,
+    downloadIotData,getAverageDataByUserName,calculateAndSaveDailyDifferences,getDifferenceDataByUserName
  }
+
+
+  // const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+    // const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { fetchUser } from "../../redux/features/user/userSlice";
-import { fetchAverageDataByUserName, fetchIotDataByUserName,fetchDifferenceDataByUserName } from "../../redux/features/iotData/iotDataSlice";
+import { fetchAverageDataByUserName, fetchDifferenceDataByUserName } from "../../redux/features/iotData/iotDataSlice";
 import { useDispatch, useSelector } from 'react-redux';
 import {
   CartesianGrid,
@@ -13,45 +13,36 @@ import {
   Bar,
 } from "recharts";
 import { ToastContainer } from 'react-toastify';
+import { useOutletContext } from 'react-router-dom';
 
 const Quantity = () => {
   const dispatch = useDispatch();
   const { userData, userType } = useSelector((state) => state.user);
   const { averageData, differenceData, loading, error } = useSelector((state) => state.iotData);
-  const [searchQuery, setSearchQuery] = useState("");
   const [searchResult, setSearchResult] = useState(null);
   const [searchError, setSearchError] = useState("");
   const [interval, setInterval] = useState("year");
-
-  const validateUser = async () => {
-    const response = await dispatch(fetchUser()).unwrap();
-  };
-
-  if (!userData) {
-    validateUser();
-  }
+  const { searchTerm, handleSearch } = useOutletContext();
 
   useEffect(() => {
-    if (userData && userType === 'user') {
-      dispatch(fetchAverageDataByUserName({ userName: userData.validUserOne.userName, interval }));
-      dispatch(fetchDifferenceDataByUserName(userData.validUserOne.userName))
-    }
-  }, [userData, userType, interval, dispatch]);
+    const fetchData = async (userName) => {
+      try {
+        await dispatch(fetchAverageDataByUserName({ userName, interval })).unwrap();
+        await dispatch(fetchDifferenceDataByUserName(userName)).unwrap();
+        setSearchResult(userName);
+        setSearchError("");
+      } catch (error) {
+        setSearchResult(null);
+        setSearchError("No result found for this userID");
+      }
+    };
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    try {
-      const result = await dispatch(fetchIotDataByUserName(searchQuery)).unwrap();
-      setSearchResult(searchQuery);
-      setSearchError("");
-      dispatch(fetchAverageDataByUserName({ userName: searchQuery, interval }));
-      dispatch(fetchDifferenceDataByUserName(searchQuery))
-
-    } catch (err) {
-      setSearchResult(null);
-      setSearchError("No result");
+    if (searchTerm) {
+      fetchData(searchTerm);
+    } else if (userData && userType === 'user') {
+      fetchData(userData.validUserOne.userName);
     }
-  };
+  }, [searchTerm, userData, userType, interval, dispatch]);
 
   const handleIntervalChange = (newInterval) => {
     setInterval(newInterval);
@@ -77,47 +68,29 @@ const Quantity = () => {
     }
     return tickItem;
   };
+
   const getDatesHeaders = () => {
     if (!differenceData || differenceData.length === 0) return [];
     return Object.keys(differenceData[0]).filter(key => key.startsWith('date'));
   };
+
   return (
     <div className="main-panel">
       <div className="content-wrapper">
-        {/* Page Title Header Starts */}
         <div className="row page-title-header">
           <div className="col-12">
             <div className="page-header">
               <h4 className="page-title">Quantity Dashboard</h4>
-              <div className="quick-link-wrapper w-100 d-md-flex flex-md-wrap">
-                
-              </div>
             </div>
           </div>
         </div>
+
         <div className="card mb-4">
           <div className="card-body">
-            <h1>Find Users</h1>
-            <form className="form-inline my-2 my-lg-0" onSubmit={handleSearch}>
-              <input
-                className="form-control mr-sm-2"
-                type="search"
-                placeholder="Search"
-                aria-label="Search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <button className="btn btn-outline-primary my-2 my-sm-0" type="submit">
-                Search
-              </button>
-            </form>
-            <h1>{searchResult ? searchResult : searchError}</h1>
+            <h1>{searchResult ? `User: ${searchResult}` : searchError}</h1>
           </div>
         </div>
 
-       
-
-        {/* Water Flow Table */}
         <div className="card">
           <div className="card-body">
             <div className="row mt-5">
@@ -162,22 +135,21 @@ const Quantity = () => {
           </div>
         </div>
 
-        {/* FL-Inlet raw sewage */}
         <div className="card mb-4 mt-4">
           <div className="card-body">
             <div className="row mt-5">
               <div className="col-md-12">
                 <h2 className="m-3">Total FL Sewage Graph</h2>
                 <div className="btn-group" role="group">
-              <button type="button" className="btn btn-primary" onClick={() => handleIntervalChange('hour')}>Hour</button>
-              <button type="button" className="btn btn-primary" onClick={() => handleIntervalChange('day')}>Day</button>
-              <button type="button" className="btn btn-primary" onClick={() => handleIntervalChange('week')}>Week</button>
-              <button type="button" className="btn btn-primary" onClick={() => handleIntervalChange('month')}>Month</button>
-              <button type="button" className="btn btn-primary" onClick={() => handleIntervalChange('sixmonth')}>Six Months</button>
-              <button type="button" className="btn btn-primary" onClick={() => handleIntervalChange('year')}>Year</button>
-            </div>
+                  <button type="button" className="btn btn-primary" onClick={() => handleIntervalChange('hour')}>Hour</button>
+                  <button type="button" className="btn btn-primary" onClick={() => handleIntervalChange('day')}>Day</button>
+                  <button type="button" className="btn btn-primary" onClick={() => handleIntervalChange('week')}>Week</button>
+                  <button type="button" className="btn btn-primary" onClick={() => handleIntervalChange('month')}>Month</button>
+                  <button type="button" className="btn btn-primary" onClick={() => handleIntervalChange('sixmonth')}>Six Months</button>
+                  <button type="button" className="btn btn-primary" onClick={() => handleIntervalChange('year')}>Year</button>
+                </div>
                 <ResponsiveContainer width="100%" height={400}>
-                  <BarChart data={averageData}>
+                  <BarChart data={searchResult ? averageData : []}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="timestamp" tickFormatter={formatXAxis} />
                     <YAxis />
@@ -198,12 +170,7 @@ const Quantity = () => {
               AquaBox Control and Monitor System
             </span>
             <span className="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">
-              {" "}
-              ©{" "}
-              <a href="" target="_blank">
-                Ebhoom Solutions LLP
-              </a>{" "}
-              2022
+              © <a href="" target="_blank">EnviRobotics</a> 2022
             </span>
           </div>
         </footer>

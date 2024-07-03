@@ -46,6 +46,8 @@ import DownloadIoTdata from './Components/Download/DownloadIoTdata';
 import Quantity from './Components/Quantity/Quantity';
 import Energy from './Components/Energy/Energy';
 import LiveVideo from './Components/LiveVideo/LiveVideo';
+import Error from './Components/Error/Error';
+
 
 
 
@@ -85,6 +87,7 @@ function App() {
         <Route path="faq" element={<Faq />} />
         <Route path="terms" element={<Terms />} />
         <Route path="/download-IoT-Data" element={<DownloadIoTdata/>}/>
+        <Route path = "*" element={<Error/>}/>
       </Route>
 
       {!loading && userData && (
@@ -120,6 +123,8 @@ function App() {
               <Route path ='/quantity' element={<Quantity/>}/>
               <Route path = '/energy' element={<Energy/>}/>
               <Route path = '/live-video' element ={<LiveVideo/>}/>
+              <Route path = "*" element={<Error/>}/>
+
 
 
 
@@ -139,6 +144,7 @@ function App() {
               <Route path="/download-IoT-Data" element={<DownloadIoTdata/>}/>
               <Route path ='/quantity' element={<Quantity/>}/>
               <Route path = '/energy' element={<Energy/>}/>
+              <Route path = "*" element={<Error/>}/>
 
             </>
           )}

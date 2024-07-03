@@ -10,18 +10,17 @@ const DB = require('./config/DB');
 const userRoutes = require('./routers/user');
 const calibrationRoutes = require('./routers/calibration');
 const notificationRoutes = require('./routers/notification');
-const calibrationExceedRoutes= require('./routers/calibrationExceed');
+const calibrationExceedRoutes = require('./routers/calibrationExceed');
 const calibrationExceedValuesRoute = require('./routers/calibrationExceedValues');
 const calculateAverageRoute = require('./routers/calculateAverage');
-const reportRoutes=require('./routers/report');
+const reportRoutes = require('./routers/report');
 const paymentRoutes = require('./routers/payment');
 const liveVideoRoutes = require('./routers/liveVideo');
-const saveWaterParamsRoutes =require('./routers/saveWaterParams');
+const saveWaterParamsRoutes = require('./routers/saveWaterParams');
 
-
-const {calculateAndSaveDailyDifferences} = require('./controllers/iotData');
+const { calculateAndSaveDailyDifferences } = require('./controllers/iotData');
 const { getAllDeviceCredentials } = require('./controllers/user');
-const setupMqttClient = require('./mqtt/mqtt-socket');
+const { initializeMqttClients } = require('./mqtt/mqtt-socket'); // Updated import
 const http = require('http');
 const socketIO = require('socket.io');
 const app = express();
@@ -35,11 +34,9 @@ const { deleteOldNotifications } = require('./controllers/notification');
 // Database connection
 DB();
 
-
-
 // Middleware
 app.use(cors({
-    origin:['http://localhost:3000','http://localhost:3001','http://13.202.11.195:5555','http://13.232.163.105:5555'] ,
+    origin: ['http://localhost:3000', 'http://localhost:3001', 'http://13.202.11.195:5555', 'http://13.232.163.105:5555'],
     credentials: true
 }));
 app.use(cookieParser());
@@ -73,7 +70,6 @@ app.use((err, req, res, next) => {
     res.status(500).send('Something broke!');
 });
 
-
 // Schedule the averages calculation every hour
 cron.schedule('0 * * * *', async () => {
     await calculateAndSaveAverages();
@@ -84,48 +80,17 @@ cron.schedule('0 0 * * *', () => {
     deleteOldNotifications();
     console.log('Old notifications deleted.');
 });
-// Schedule the calculation inflow,finalflow,energy 
+// Schedule the calculation inflow, finalflow, energy
 cron.schedule('59 23 * * *', async () => {
     await calculateAndSaveDailyDifferences();
     console.log('Daily differences calculated and saved');
 });
 
-// // Initialize all MQTT clients at server startup
-// const initializeMqttClients = async (io) => {
-//     try {
-//         const allDeviceCredentials = await getAllDeviceCredentials();
-//         allDeviceCredentials.forEach(({ userId,userName,email,mobileNumber,companyName,industryType, deviceCredentials }) => {
-//             if (deviceCredentials && deviceCredentials.host && deviceCredentials.clientId && deviceCredentials.key && deviceCredentials.cert && deviceCredentials.ca) {
-//                 try {
-//                     setupMqttClient(io, { ...deviceCredentials, userId, userName,email,mobileNumber,companyName,industryType });
-//                 } catch (error) {
-//                     console.error(`Error setting up MQTT client for user ${userId}:`, error);
-//                 }
-//             } else {
-//                 console.log(`No valid device credentials for user ${userId}`);
-//             }
-//         });
-//         console.log('All MQTT clients initialized.');
-//     } catch (error) {
-//         console.error('Error initializing MQTT clients:', error);
-//     }
-// };
-
 // Initialize all MQTT clients at server startup
-const initializeMqttClients = async (io) => {
-    try {
-        const allDeviceCredentials = await getAllDeviceCredentials();
-        const productIDMap = allDeviceCredentials.reduce((map, { userId, userName, email, mobileNumber,  companyName, industryType, productID }) => {
-            map[productID] = { userId, userName, email, mobileNumber,  companyName, industryType };
-            return map;
-        }, {});
-
-        setupMqttClient(io, productIDMap);
-        console.log('All MQTT clients initialized.');
-    } catch (error) {
-        console.error('Error initializing MQTT clients:', error);
-    }
-};
+server.listen(port, () => {
+    console.log(`Server Connected - ${port}`);
+    initializeMqttClients(io, getAllDeviceCredentials); // Initialize all MQTT clients at startup
+});
 
 // Handle Socket.IO connections
 io.on('connection', (socket) => {
@@ -138,11 +103,4 @@ io.on('connection', (socket) => {
 // All other requests should be handled by React app
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
-  });
-    
-
-// Start the server and set up Socket.IO
-server.listen(port, () => {
-    console.log(`Server Connected - ${port}`);
-initializeMqttClients(io); // Initialize all MQTT clients at startup
-});  
+});

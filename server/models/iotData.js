@@ -73,49 +73,32 @@ const iotDataSchema = new mongoose.Schema({
         type:String,
     },
     inflow:{
-        type:String,
+        type:Number,
     },
     finalflow:{
-        type:String,
+        type:Number,
     },
     energy:{
-        type:String
+        type:Number,
+       required: true
     },
     date:{
         type:String,
+         required: true
     },
     time:{
         type:String
+        , required: true
     },
-    userId: {
-         type: String 
-    },
-    topic:{
-        type:String,
-    },
-    userName: {
-         type: String
-    },
-    companyName:{
-        type:String
-    },
-    industryType:{
-        type:String
-    },
-    mobileNumber:{
-        type:String,
-    },
-    email:{
-        type:String
-    },
-    validationStatus:{
-        type:String,
-        required: true
-    },
-    validationMessage:{
-        type:String,
-        required: true
-    },
+    userId: { type: String, required: true },
+    topic: { type: String },
+    userName: { type: String, required: true },
+    companyName: { type: String, required: true },
+    industryType: { type: String, required: true },
+    mobileNumber: { type: String, required: true },
+    email: { type: String, required: true },
+    validationStatus: { type: String, required: true },
+    validationMessage: { type: String, required: true },
    
     timestamp: {
         type: Date,  // Store as Date type

@@ -7,32 +7,37 @@ import CalibrationPopup from "../Calibration/CalibrationPopup";
 import CalibrationExceeded from "../Calibration/CalibrationExceeded";
 import { ToastContainer } from "react-toastify";
 import WaterGraphPopup from './WaterGraphPopup';
+import { useOutletContext } from 'react-router-dom';
 
 const Water = () => {
   const dispatch = useDispatch();
   const { userData, userType } = useSelector((state) => state.user);
-  const { latestData, userIotData } = useSelector((state) => state.iotData);
+  const { latestData, userIotData, error } = useSelector((state) => state.iotData);
   const [showPopup, setShowPopup] = useState(false);
   const [selectedParameter, setSelectedParameter] = useState(null);
   const [showCalibrationPopup, setShowCalibrationPopup] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchedUserName, setSearchedUserName] = useState("");
-
-  const validateUser = async () => {
-    const response = await dispatch(fetchUser()).unwrap();
-  };
-
-  if (!userData) {
-    validateUser();
-  }
+  const { searchTerm, searchStatus, handleSearch } = useOutletContext();
+  const [searchResult, setSearchResult] = useState(null);
+  const [searchError, setSearchError] = useState("");
 
   useEffect(() => {
-    if (userData) {
-      if (userType === 'user') {
-        dispatch(fetchIotDataByUserName(userData.validUserOne.userName));
+    const fetchData = async (userName) => {
+      try {
+        const result = await dispatch(fetchIotDataByUserName(userName)).unwrap();
+        setSearchResult(result);
+        setSearchError("");
+      } catch (err) {
+        setSearchResult(null);
+        setSearchError(err.message || 'No Result found for this userID');
       }
+    };
+
+    if (searchTerm) {
+      fetchData(searchTerm);
+    } else if (userData && userType === 'user') {
+      fetchData(userData.validUserOne.userName);
     }
-  }, [userData, userType, dispatch]);
+  }, [searchTerm, userData, userType, dispatch]);
 
   const handleCardClick = (parameter) => {
     setSelectedParameter(parameter);
@@ -46,90 +51,31 @@ const Water = () => {
 
   const handleOpenCalibrationPopup = () => {
     setShowCalibrationPopup(true);
-  }
+  };
 
   const handleCloseCalibrationPopup = () => {
     setShowCalibrationPopup(false);
-  }
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    dispatch(fetchIotDataByUserName(searchQuery));
-    setSearchedUserName(searchQuery);
   };
 
   const waterParameters = [
-    {
-      parameter: "Ph",
-      value: 'pH',
-      name: 'ph'
-    },
-    {
-      parameter: "TDS",
-      value: 'mg/l',
-      name: 'TDS'
-    },
-    {
-      parameter: "Turbidity",
-      value: 'NTU',
-      name: 'turbidity'
-    },
-    {
-      parameter: "Temperature",
-      value: '℃',
-      name: 'temperature'
-    },
-    {
-      parameter: "BOD",
-      value: 'mg/l',
-      name: 'BOD'
-    },
-    {
-      parameter: "COD",
-      value: 'mg/l',
-      name: 'COD'
-    },
-    {
-      parameter: "TSS",
-      value: 'mg/l',
-      name: 'TSS'
-    },
-    {
-      parameter: "ORP",
-      value: 'mV',
-      name: 'ORP'
-    },
-    {
-      parameter: "Nitrate",
-      value: 'mg/l',
-      name: 'nitrate'
-    },
-    {
-      parameter: "Ammonical Nitrogen",
-      value: 'mg/l',
-      name: 'ammonicalNitrogen'
-    },
-    {
-      parameter: "DO",
-      value: 'mg/l',
-      name: 'DO'
-    },
-    {
-      parameter: "Chloride",
-      value: 'mmol/l',
-      name: 'chloride'
-    },
-    {
-      parameter: "Colour",
-      value: 'color',
-      name: 'color'
-    },
+    { parameter: "Ph", value: 'pH', name: 'ph' },
+    { parameter: "TDS", value: 'mg/l', name: 'TDS' },
+    { parameter: "Turbidity", value: 'NTU', name: 'turbidity' },
+    { parameter: "Temperature", value: '℃', name: 'temperature' },
+    { parameter: "BOD", value: 'mg/l', name: 'BOD' },
+    { parameter: "COD", value: 'mg/l', name: 'COD' },
+    { parameter: "TSS", value: 'mg/l', name: 'TSS' },
+    { parameter: "ORP", value: 'mV', name: 'ORP' },
+    { parameter: "Nitrate", value: 'mg/l', name: 'nitrate' },
+    { parameter: "Ammonical Nitrogen", value: 'mg/l', name: 'ammonicalNitrogen' },
+    { parameter: "DO", value: 'mg/l', name: 'DO' },
+    { parameter: "Chloride", value: 'mmol/l', name: 'chloride' },
+    { parameter: "Colour", value: 'color', name: 'color' },
   ];
 
   return (
     <div className="main-panel">
       <div className="content-wrapper">
-        {/* <!-- Page Title Header Starts--> */}
         <div className="row page-title-header">
           <div className="col-12">
             <div className="page-header">
@@ -165,25 +111,10 @@ const Water = () => {
             </div>
           </div>
         </div>
-        {/* <!-- Page Title Header Ends--> */}
-        {userData?.validUserOne && userData.validUserOne.userType === 'admin' && (
-          <div className="card">
+        {searchError && (
+          <div className="card mb-4">
             <div className="card-body">
-              <h1>Find Users</h1>
-              <form className="form-inline my-2 my-lg-0" onSubmit={handleSearch}>
-                <input
-                  className="form-control mr-sm-2"
-                  type="search"
-                  placeholder="Search"
-                  aria-label="Search"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                <button className="btn btn-outline-primary my-2 my-sm-0" type="submit">
-                  Search
-                </button>
-              </form>
-              <h1>{userIotData.userName}</h1>
+              <h1>{searchError}</h1>
             </div>
           </div>
         )}
@@ -195,7 +126,12 @@ const Water = () => {
               <div className="card" onClick={() => handleCardClick(item.name)}>
                 <div className="card-body">
                   <h3 className="mb-3">{item.parameter}</h3>
-                  <h6><strong>{userIotData[item.name] || 'N/A'}</strong> {item.value}</h6>
+                  <h6>
+                    <strong>
+                      {searchStatus === 'success' && searchResult ? searchResult[item.name] || 'N/A' : 'No Result found for this userID'}
+                    </strong> 
+                    {item.value}
+                  </h6>
                 </div>
               </div>
               <ToastContainer />
@@ -207,12 +143,11 @@ const Water = () => {
             isOpen={showPopup}
             onRequestClose={handleClosePopup}
             parameter={selectedParameter}
-            userName={searchedUserName || userData?.validUserOne?.userName}
+            userName={searchTerm || userData?.validUserOne?.userName}
           />
         )}
       </div>
 
-      {/* Render Calibration Popup if showCalibrationPopup is true */}
       {showCalibrationPopup && (
         <CalibrationPopup
           userName={userData.validUserOne.userName}
