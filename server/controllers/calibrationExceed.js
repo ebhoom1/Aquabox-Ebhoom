@@ -244,7 +244,7 @@ const handleExceedValues = async () => {
             return;
         }
 
-        const user = await userdb.findOne({ _id: latestData.userId });
+        const user = await userdb.findOne({ userName: latestData.userName});
 
         if (!user) {
             console.error('User not found');
@@ -253,7 +253,7 @@ const handleExceedValues = async () => {
 
         if (user.userType === 'user') {
             if (!user.industryType) {
-                console.error(`User with ID ${user._id} has no industry type specified.`);
+                console.error(`User with ID ${user.userName} has no industry type specified.`);
                 return;
             }
 
@@ -265,8 +265,7 @@ const handleExceedValues = async () => {
             }
 
             const exceedParameters = [
-                { parameter: 'ph', value: latestData.ph, threshold: industryThresholds.phAbove },
-                { parameter: 'ph', value: latestData.ph, threshold: industryThresholds.phBelow },
+                { parameter: 'ph', value: latestData.ph, aboveThreshold: industryThresholds.phAbove, belowThreshold: industryThresholds.phBelow },
                 { parameter: 'turbidity', value: latestData.turbidity, threshold: industryThresholds.turbidity },
                 { parameter: 'ORP', value: latestData.orp, threshold: industryThresholds.ORP },
                 { parameter: 'TDS', value: latestData.tds, threshold: industryThresholds.TDS },
@@ -276,8 +275,8 @@ const handleExceedValues = async () => {
                 { parameter: 'TSS', value: latestData.tss, threshold: industryThresholds.TSS },
             ];
 
-            for (const { parameter, value, threshold } of exceedParameters) {
-                if (value >= threshold) {
+            for (const { parameter, value, aboveThreshold, belowThreshold, threshold } of exceedParameters) {
+                if ((aboveThreshold && value >= aboveThreshold) || (belowThreshold && value <= belowThreshold) || (threshold && value >= threshold)) {
                     await saveExceedValue(parameter, value, user);
                     await sendNotification(parameter, value, user);
                 }

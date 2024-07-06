@@ -7,19 +7,15 @@ import Header from './Components/Header/Header';
 import Footer from './Components/Footer/Footer';
 import PrivateLayout from './Components/PrivateLayout/PrivateLayout';
 import Water from './Components/Water/Water';
-import Attendance from './Components/Attendance/Attendence';
 import ManageUsers from './Components/ManageUsers/ManageUsers';
 import UsersLog from './Components/UsersLog/UsersLog';
 import Account from './Components/Account/Account';
 import PublicLayout from './Components/PublicLayout/PublicLayout';
 import ResetPassword from './Components/ResetPassword/ResetPassword';
 import ResetPasswordEmail from './Components/ResetPassword/ResetPasswordEmail';
-import ResetPasswordOtp from './Components/ResetPassword/ResetPasswordOtp';
 import Faq from './Components/Faq/Faq';
 import Terms from './Components/Terms/Terms';
 import SignIn from './Components/SignIn/SignIn';
-import SignUp from './Components/SignUp/SignUp';
-import SignUpConfirmation from './Components/SignUp/SignUpConfirmation';
 import AmbientAir from './Components/AmbientAir/AmbientAir';
 import Noise from './Components/Noise/Noise';
 import ValidateData from './Components/ValidateData/ValidateData';
@@ -82,9 +78,6 @@ function App() {
     <Routes>
       <Route path="/" element={<PublicLayout />}>
         <Route index element={<SignIn />} />
-        <Route path="signup" element={<SignUp />} />
-        <Route path="signup-confirmation" element={<SignUpConfirmation />} />
-        <Route path="reset-password-otp" element={<ResetPasswordOtp />} />
         <Route path="reset-password/:id/:token" element={<ResetPassword />} />
         <Route path="reset-password-email" element={<ResetPasswordEmail />} />
         <Route path="faq" element={<Faq />} />
@@ -102,7 +95,6 @@ function App() {
               <Route path="ambient-air" element={<AmbientAir />} />
               <Route path="noise" element={<Noise />} />
               <Route path="account" element={<Account />} />
-              <Route path="attendance-report" element={<Attendance />} />
               <Route path="manage-users" element={<ManageUsers />} />
               <Route path="edit-user/:userId" element={<EditUsers />} />
               <Route path="users-log" element={<UsersLog />} />
