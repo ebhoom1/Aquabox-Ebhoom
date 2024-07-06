@@ -3,8 +3,7 @@ const PDFDocument = require('pdfkit');
 const moment = require('moment');
 const cron = require('node-cron');
 
-
-const IotData = require('../models/iotData')
+const IotData = require('../models/iotData');
 const userdb = require('../models/user');
 const IotDataAverage = require(`../models/averageData`);
 const DifferenceData = require(`../models/differeneceData`);
@@ -32,6 +31,7 @@ const checkSensorData = (data) => {
         message: "All sensor data values are valid"
     };
 };
+
 // Function to check if required fields are missing
 const checkRequiredFields = (data, requiredFields) => {
     const missingFields = requiredFields.filter(field => !data[field]);
@@ -53,13 +53,14 @@ const handleSaveMessage = async (req, res) => {
     const data = req.body;
 
     try {
-         // Check required fields
-         const requiredFields = ['userName', 'companyName', 'industryType', 'mobileNumber', 'email', 'product_id', 'energy', 'time'];
-         const validationStatus = checkRequiredFields(data, requiredFields);
-         if (!validationStatus.success) {
-             console.error(validationStatus.message);
-             return res.status(400).json(validationStatus);
-         }
+        // Check required fields
+        const requiredFields = ['userName', 'companyName', 'industryType', 'mobileNumber', 'email', 'product_id',];
+        const validationStatus = checkRequiredFields(data, requiredFields);
+        if (!validationStatus.success) {
+            console.error(validationStatus.message);
+            return res.status(400).json(validationStatus);
+        }
+        
         // Check sensor data
         const sensorValidationStatus = checkSensorData(data);
         if (!sensorValidationStatus.success) {
@@ -70,7 +71,7 @@ const handleSaveMessage = async (req, res) => {
         const formattedDate = moment().format('DD/MM/YYYY');
 
         const newEntry = new IotData({
-            product_id: data.product_id,
+            productID: data.product_id,
             ph: data.ph !== 'N/A' ? data.ph : null,
             TDS: data.tds !== 'N/A' ? data.tds : null,
             turbidity: data.turbidity !== 'N/A' ? data.turbidity : null,
@@ -97,7 +98,7 @@ const handleSaveMessage = async (req, res) => {
             finalflow: data.finalflow !== 'N/A' ? data.finalflow : null,
             energy: data.energy !== 'N/A' ? data.energy : null,
             date: formattedDate,
-            time: data.time !== 'N/A' ? data.time : null,
+            time: data.time !== 'N/A' ? data.time : moment().format('HH:mm:ss'), // Set default time
             userId: data.userId || 'N/A',
             topic: data.topic,
             companyName: data.companyName,
@@ -105,7 +106,9 @@ const handleSaveMessage = async (req, res) => {
             userName: data.userName || 'N/A',
             mobileNumber: data.mobileNumber || 'N/A',
             email: data.email || 'N/A',
-            timestamp: new Date()
+            timestamp: new Date(),
+            validationMessage: data.validationMessage || 'Validated', // Default value
+            validationStatus: data.validationStatus || 'Valid', // Default value
         });
 
         await newEntry.save();

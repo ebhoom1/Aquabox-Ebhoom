@@ -2,6 +2,7 @@ const mongoose=require('mongoose');
 const validator=require('validator');
 const bcrypt=require('bcryptjs');
 const jwt=require('jsonwebtoken');
+const moment =require('moment')
 
 const keysecret=process.env.SECRET_KEY
 
@@ -101,6 +102,11 @@ const userSchema=new mongoose.Schema({
     ],
     verifytoken:{
         type:String,
+    },
+    
+    timestamp: {
+        type: Date,  // Store as Date type
+        default: () => moment().toDate()
     }
 })
 

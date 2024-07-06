@@ -234,46 +234,46 @@ const getExceedDataByUserName = async(req,res)=>{
 } 
   
 
-const handleExceedValues = async (req, res) => {
-    const data = req.body;
-
+const handleExceedValues = async () => {
     try {
-        const user = await userdb.findById(data.userId);
+        // Fetch the latest IotData entry
+        const latestData = await IotData.findOne().sort({ timestamp: -1 });
+
+        if (!latestData) {
+            console.error('No IotData found');
+            return;
+        }
+
+        const user = await userdb.findOne({ _id: latestData.userId });
 
         if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: 'User not found'
-            });
+            console.error('User not found');
+            return;
         }
 
         if (user.userType === 'user') {
             if (!user.industryType) {
-                return res.status(400).json({
-                    success: false,
-                    message: `User with ID ${user._id} has no industry type specified.`
-                });
+                console.error(`User with ID ${user._id} has no industry type specified.`);
+                return;
             }
 
             const industryThresholds = await CalibrationExceedValues.findOne({ industryType: user.industryType });
 
             if (!industryThresholds) {
-                return res.status(404).json({
-                    success: false,
-                    message: `No thresholds found for industry type: ${user.industryType}`
-                });
+                console.error(`No thresholds found for industry type: ${user.industryType}`);
+                return;
             }
 
             const exceedParameters = [
-                { parameter: 'ph', value: data.ph, threshold: industryThresholds.phBelow },
-                { parameter: 'ph', value: data.ph, threshold: industryThresholds.phAbove },
-                { parameter: 'turbidity', value: data.turbidity, threshold: industryThresholds.turbidity },
-                { parameter: 'ORP', value: data.orp, threshold: industryThresholds.ORP },
-                { parameter: 'TDS', value: data.tds, threshold: industryThresholds.TDS },
-                { parameter: 'temperature', value: data.temperature, threshold: industryThresholds.temperature },
-                { parameter: 'BOD', value: data.bod, threshold: industryThresholds.BOD },
-                { parameter: 'COD', value: data.cod, threshold: industryThresholds.COD },
-                { parameter: 'TSS', value: data.tss, threshold: industryThresholds.TSS },
+                { parameter: 'ph', value: latestData.ph, threshold: industryThresholds.phAbove },
+                { parameter: 'ph', value: latestData.ph, threshold: industryThresholds.phBelow },
+                { parameter: 'turbidity', value: latestData.turbidity, threshold: industryThresholds.turbidity },
+                { parameter: 'ORP', value: latestData.orp, threshold: industryThresholds.ORP },
+                { parameter: 'TDS', value: latestData.tds, threshold: industryThresholds.TDS },
+                { parameter: 'temperature', value: latestData.temperature, threshold: industryThresholds.temperature },
+                { parameter: 'BOD', value: latestData.bod, threshold: industryThresholds.BOD },
+                { parameter: 'COD', value: latestData.cod, threshold: industryThresholds.COD },
+                { parameter: 'TSS', value: latestData.tss, threshold: industryThresholds.TSS },
             ];
 
             for (const { parameter, value, threshold } of exceedParameters) {
@@ -284,20 +284,12 @@ const handleExceedValues = async (req, res) => {
             }
         }
 
-        res.status(200).json({
-            success: true,
-            message: 'Exceed values handled successfully'
-        });
+        console.log('Exceed values handled successfully');
     } catch (error) {
-        console.error(`Error handling exceed values:`, error);
-        res.status(500).json({
-            success: false,
-            message: 'Error handling exceed values',
-            error: error.message
-        });
+        console.error('Error handling exceed values:', error);
     }
 };
-   
+
     
 
 
@@ -326,7 +318,7 @@ const sendNotification = async (parameter, value, user) => {
 
 const saveExceedValue = async (parameter, value, user) => {
     try {
-        // console.log(`Saving exceed value for parameter: ${parameter}, value: ${value}, user:`, user); // Debugging statement
+       console.log(`Saving exceed value for parameter: ${parameter}, value: ${value}, user:`, user); // Debugging statement
 
         // Format the current date and time
         const currentDate = moment().format('DD/MM/YYYY');
@@ -355,7 +347,7 @@ const saveExceedValue = async (parameter, value, user) => {
 
         // Save the document to DB
          await newEntry.save();
-        //  console.log(`Exceed value saved successfully`); // Debugging statement
+         console.log(`Exceed value saved successfully`); // Debugging statement
 
         return {
             success: true,

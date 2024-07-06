@@ -48,6 +48,7 @@ import Energy from './Components/Energy/Energy';
 import LiveVideo from './Components/LiveVideo/LiveVideo';
 import Error from './Components/Error/Error';
 import InstallPrompt from './Components/InstallPrompt/InstallPrompt'
+import CustomBanner from './Components/InstallPrompt/CustomBanner'
 
 
 
@@ -154,6 +155,7 @@ function App() {
       )}
     </Routes>
         <InstallPrompt /> {/* Add the InstallPrompt component */}
+        <CustomBanner/>
         </>
   );
 }

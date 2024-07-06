@@ -1,15 +1,14 @@
 const mqtt = require('mqtt');
 const path = require('path');
 const fs = require('fs');
-const moment = require('moment');
 const axios = require('axios');
+const moment = require('moment');
 const userdb = require('../models/user');
 
 // Define the paths to the certificates
 const KEY = path.resolve(__dirname, './creds/ebhoom-v1-device-private.pem.key');
 const CERT = path.resolve(__dirname, './creds/ebhoom-v1-device-certificate.pem.crt');
 const CAfile = path.resolve(__dirname, './creds/ebhoom-v1-device-AmazonRootCA1.pem');
-
 
 // Function to set up MQTT client for each device
 const setupMqttClient = (io) => {
@@ -44,7 +43,7 @@ const setupMqttClient = (io) => {
             const { product_id } = data;
 
             if (topic === 'ebhoomPub') {
-                // User details will be provide by us use that inside this  
+                // User details will be provided by us use that inside this  
                 const userDetails = await userdb.findOne({ productID: product_id });
                 if (userDetails) {
                     Object.assign(data, {
@@ -53,24 +52,18 @@ const setupMqttClient = (io) => {
                         email: userDetails.email,
                         mobileNumber: userDetails.mobileNumber,
                         companyName: userDetails.companyName,
-                        industryType: userDetails.industryType
+                        industryType: userDetails.industryType,
+                        timestamp: moment().format('DD/MM/YYYY'),
+                        time: data.time || moment().format('HH:mm:ss') // Set default time if not provided
                     });
-
-                    // Add formatted timestamp
-                    data.timestamp = moment().format('DD/MM/YYYY');
 
                     console.log('Received data:', data);
 
-                    
-                    //add your api Here 
                     // Send POST request
                     await axios.post('http://localhost:5555/api/handleSaveMessage', data);
                     console.log('Data successfully posted to handleSaveMessage');
 
-                    // Send POST request for handling exceed values
-                    await axios.post('http://localhost:5555/api/handleExceedValues', data);
-                    console.log('Data successfully posted to handleExceedValues');
-
+                
                     io.to(product_id.toString()).emit('data', data);
                     console.log('Data posted and emitted:', data);
                 } else {
