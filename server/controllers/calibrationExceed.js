@@ -1,10 +1,12 @@
 const CalibrationExceed = require('../models/calibrationExceed');
 const moment = require('moment');
 const twilio = require('twilio');
+const axios = require('axios');
 const nodemailer = require('nodemailer');
 const userdb = require('../models/user');
 const { createNotification } = require('../controllers/notification');
 const CalibrationExceedValues = require('../models/calibrationExceedValues');
+const IotData = require('../models/iotData')
 
 // Create a new Twilio client
 const accountsid ="AC16116151f40f27195ca7e326ada5cb83"
@@ -12,26 +14,53 @@ const authtoken = "d7ea43981a772f6b6c9bddb41a6a87ff"
 
 const client = new twilio(accountsid, authtoken);
 
-// Function to send SMS notification for exceed calibration
+// // Function to send SMS notification for exceed calibration
+// const sendSMS = async (to, message) => {
+//     try {
+//         // Send SMS
+//         await client.messages.create({
+//             body: message,
+//             from: "+14423428965",
+//             to: to
+//         });
+//         console.log(`SMS sent successfully`);
+//     } catch (error) {
+//         console.error(`Error sending SMS:`, error);
+
+//         if (error.code === 20003) {
+//             console.error(`Authentication error: Check your Twilio credentials.`);
+//         } else {
+//             console.error(`Twilio error:`, error.message);
+//         }
+//     }
+// }
+// Function to send SMS notification for exceed calibration using TextBelt API
+// Function to send SMS notification using Fast2SMS API
 const sendSMS = async (to, message) => {
     try {
-        // Send SMS
-        await client.messages.create({
-            body: message,
-            from: "+14423428965",
-            to: to
+        const response = await axios.post('https://www.fast2sms.com/dev/bulkV2', {
+            route: 'q',
+            message: message,
+            language: 'english',
+            flash: 0,
+            numbers: to,
+        }, {
+            headers: {
+                'authorization': '0J3goAnZwakj9eNfLK8IPz4yOXGlBvHtD5xisrdhVpbuc6WETCrUJGXQjTd7qF2Sv5nZmbgYWBhiyt0u',
+                'Content-Type': 'application/json'
+            }
         });
-        console.log(`SMS sent successfully`);
-    } catch (error) {
-        console.error(`Error sending SMS:`, error);
-
-        if (error.code === 20003) {
-            console.error(`Authentication error: Check your Twilio credentials.`);
+        if (response.data.return) {
+            console.log(`SMS sent successfully: ${response.data}`);
         } else {
-            console.error(`Twilio error:`, error.message);
+            console.error(`Error sending SMS: ${response.data.message}`);
         }
+    } catch (error) {
+        console.error(`Error sending SMS:`, error.response ? error.response.data : error.message);
     }
-}
+};
+
+
 
 // Email config
 const transporter = nodemailer.createTransport({
@@ -207,7 +236,6 @@ const getAUserExceedData = async (req, res) => {
         });
     }
 };
-
   
 const getExceedDataByUserName = async(req,res)=>{
     try {
@@ -233,18 +261,19 @@ const getExceedDataByUserName = async(req,res)=>{
     }
 } 
   
-
 const handleExceedValues = async () => {
     try {
-        // Fetch the latest IotData entry
+        // Fetch the latest IoT data entry
         const latestData = await IotData.findOne().sort({ timestamp: -1 });
-
+        console.log('latestData:', latestData);
         if (!latestData) {
-            console.error('No IotData found');
+            console.error('No IoT data found');
             return;
         }
 
-        const user = await userdb.findOne({ userName: latestData.userName});
+        // Find the user based on the latestData's userName
+        const user = await userdb.findOne({ userName: latestData.userName });
+        console.log('User:', user);
 
         if (!user) {
             console.error('User not found');
@@ -257,29 +286,41 @@ const handleExceedValues = async () => {
                 return;
             }
 
+            // Fetch the industry thresholds
             const industryThresholds = await CalibrationExceedValues.findOne({ industryType: user.industryType });
+            console.log('Industry Thresholds:', industryThresholds);
 
             if (!industryThresholds) {
                 console.error(`No thresholds found for industry type: ${user.industryType}`);
                 return;
             }
 
+            // Define parameters to be checked
             const exceedParameters = [
                 { parameter: 'ph', value: latestData.ph, aboveThreshold: industryThresholds.phAbove, belowThreshold: industryThresholds.phBelow },
                 { parameter: 'turbidity', value: latestData.turbidity, threshold: industryThresholds.turbidity },
-                { parameter: 'ORP', value: latestData.orp, threshold: industryThresholds.ORP },
-                { parameter: 'TDS', value: latestData.tds, threshold: industryThresholds.TDS },
+                { parameter: 'ORP', value: latestData.ORP, threshold: industryThresholds.ORP },
+                { parameter: 'TDS', value: latestData.TDS, threshold: industryThresholds.TDS },
                 { parameter: 'temperature', value: latestData.temperature, threshold: industryThresholds.temperature },
-                { parameter: 'BOD', value: latestData.bod, threshold: industryThresholds.BOD },
-                { parameter: 'COD', value: latestData.cod, threshold: industryThresholds.COD },
-                { parameter: 'TSS', value: latestData.tss, threshold: industryThresholds.TSS },
+                { parameter: 'BOD', value: latestData.BOD, threshold: industryThresholds.BOD },
+                { parameter: 'COD', value: latestData.COD, threshold: industryThresholds.COD },
+                { parameter: 'TSS', value: latestData.TSS, threshold: industryThresholds.TSS },
+                // Add other parameters if needed
             ];
 
+            // Check if any parameter exceeds the threshold
+            const exceedances = [];
             for (const { parameter, value, aboveThreshold, belowThreshold, threshold } of exceedParameters) {
                 if ((aboveThreshold && value >= aboveThreshold) || (belowThreshold && value <= belowThreshold) || (threshold && value >= threshold)) {
-                    await saveExceedValue(parameter, value, user);
-                    await sendNotification(parameter, value, user);
+                    console.log(`Exceed detected for parameter: ${parameter}, value: ${value}, user: ${user.userName}`);
+                    exceedances.push({ parameter, value });
                 }
+            }
+
+            // Save all exceedances and send notifications
+            for (const exceed of exceedances) {
+                await saveExceedValue(exceed.parameter, exceed.value, user);
+                await sendNotification(exceed.parameter, exceed.value, user);
             }
         }
 
@@ -288,65 +329,62 @@ const handleExceedValues = async () => {
         console.error('Error handling exceed values:', error);
     }
 };
-
-    
-
-
+   
 const sendNotification = async (parameter, value, user) => {
     try {
         const message = `Your calibration for ${parameter} exceeds the threshold. The value is ${value} for userId ${user._id} and userName ${user.userName}`;
         const currentDate = moment().format('DD/MM/YYYY');
         const currentTime = moment().format('HH:mm:ss');
 
-     //   console.log(`Sending notification with message: ${message}`); // Debugging statement
-
-        //Send email notification
-       // await sendEmail(user.email, 'Calibration Exceed Notification', message);
-
         // Send SMS notification
-        // if (user.mobileNumber) {
-        //     await sendSMS(user.mobileNumber, message);
-        // }
+        const today = moment().startOf('day');
+        const lastExceedEntry = await CalibrationExceed.findOne({ userName: user.userName }).sort({ timestamp: -1 });
+
+        if (!lastExceedEntry || moment(lastExceedEntry.timestamp).startOf('day').isBefore(today)) {
+            if (user.mobileNumber) {
+                await sendSMS(user.mobileNumber, message);
+            }
+        }
+
+        // Send email notification
+        if (user.email) {
+            await sendEmail(user.email, 'Calibration Exceed Notification', message);
+        }
 
         // Add notification to the database
-        //await createNotification(message, user._id, user.userName, currentDate, currentTime);
+        // await createNotification(message, user._id, user.userName, currentDate, currentTime);
     } catch (error) {
         console.error(`Error sending notification:`, error);
     }
 };
-
+ 
 const saveExceedValue = async (parameter, value, user) => {
     try {
-       console.log(`Saving exceed value for parameter: ${parameter}, value: ${value}, user:`, user); // Debugging statement
+        console.log(`Saving exceed value for parameter: ${parameter}, value: ${value}, user:`, user);
 
-        // Format the current date and time
         const currentDate = moment().format('DD/MM/YYYY');
         const currentTime = moment().format('HH:mm:ss');
 
-        // Generate a serial number
         const lastEntry = await CalibrationExceed.findOne().sort({ sl_No: -1 });
         const newSerialNumber = lastEntry ? lastEntry.sl_No + 1 : 1;
 
-        // Create a new document in the CalibrationExceed collection
         const newEntry = new CalibrationExceed({
-             sl_No: newSerialNumber,
+            sl_No: newSerialNumber,
             parameter,
             value,
-            timestamp: moment().toDate(), // Store current date and time
-            formattedDate: currentDate, // Store formatted date
-            formattedTime: currentTime, // Store formatted time
+            timestamp: moment().toDate(),
+            formattedDate: currentDate,
+            formattedTime: currentTime,
             message: `Value Exceed in ${parameter} of ${value} for userId ${user.userName}`,
-            userId: user._id,
             userName: user.userName,
             industryType: user.industryType,
             companyName: user.companyName,
-            commentByUser:'N/A',
-            commentByAdmin:'N/A',
-        });
+            commentByUser: 'N/A',
+            commentByAdmin: 'N/A',
+        });    
 
-        // Save the document to DB
-         await newEntry.save();
-         console.log(`Exceed value saved successfully`); // Debugging statement
+        await newEntry.save();
+        console.log(`Exceed value saved successfully`);
 
         return {
             success: true,
@@ -354,7 +392,7 @@ const saveExceedValue = async (parameter, value, user) => {
             newEntry
         };
     } catch (error) {
-        console.error(`Error saving exceed value:`, error); // Debugging statement
+        console.error(`Error saving exceed value:`, error);
 
         return {
             success: false,
@@ -362,6 +400,8 @@ const saveExceedValue = async (parameter, value, user) => {
             error: error.message
         };
     }
-}
+};
+
+handleExceedValues();
 
 module.exports = { addComment, getAllExceedData, editComments, getAUserExceedData, handleExceedValues,getExceedDataByUserName }

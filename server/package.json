@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@vonage/server-sdk": "^3.15.0",
     "aws-iot-device-sdk": "^2.2.13",
     "axios": "^1.7.2",
     "bcrypt": "^5.1.1",

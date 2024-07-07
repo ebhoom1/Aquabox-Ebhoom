@@ -89,7 +89,7 @@ cron.schedule('59 23 * * *', async () => {
 // Initialize all MQTT clients at server startup
 server.listen(port, () => {
     console.log(`Server Connected - ${port}`);
-    initializeMqttClients(io, getAllDeviceCredentials); // Initialize all MQTT clients at startup
+     initializeMqttClients(io, getAllDeviceCredentials); // Initialize all MQTT clients at startup
 });
 
 // Handle Socket.IO connections

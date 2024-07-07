@@ -18,7 +18,11 @@ const calibrationExceedSchema = new mongoose.Schema({
     companyName: { type: String },
     userName:{type:String},
     userId:{type:String},
-    timestamp: { type: Date, default: Date.now }
+    timestamp: { type: Date, default: Date.now },
+    lastSmsSent: { type: Date, default: null },
+       
+        
+     
 });
 
 

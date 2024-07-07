@@ -4,7 +4,7 @@ const DifferenceDataSchema = new mongoose.Schema({
     date: { type: String, required: true },
     day: { type: String, required: true },
     userName: { type: String, required: true },
-    productId: { type: String, required: true },
+    product_id: { type: String,  },
     initialInflow: { type: Number, required: true },
     finalInflow: { type: Number, required: true },
     inflowDifference: { type: Number, required: true },

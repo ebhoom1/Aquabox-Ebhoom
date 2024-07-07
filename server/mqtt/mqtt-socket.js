@@ -26,10 +26,10 @@ const setupMqttClient = (io) => {
     const client = mqtt.connect(options);
 
     client.on('connect', () => {
-        console.log('Connected to MQTT broker');
+        // console.log('Connected to MQTT broker');
         client.subscribe('ebhoomPub', (err) => {
             if (!err) {
-                console.log('Subscribed to topic: ebhoomPub');
+                // console.log('Subscribed to topic: ebhoomPub');
             } else {
                 console.error('Subscription error:', err);
             }
