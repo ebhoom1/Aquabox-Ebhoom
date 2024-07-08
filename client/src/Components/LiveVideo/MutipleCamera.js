@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { API_URL } from '../../utils/apiConfig';
 
 
 const MutipleCamera = () => {
@@ -19,7 +20,7 @@ const [videoUrls, setVideoUrls] = useState({});
       const urls = {};
       for (let camera of cameras) {
         try {
-          const response = await axios.get(`/api/get-video-url?id=${camera.id}`);
+          const response = await axios.get(`${API_URL}}/api/get-video-url?id=${camera.id}`);
           urls[camera.id] = response.data.videoUrl;
         } catch (error) {
           console.error(`Failed to fetch video URL for ${camera.name}:`, error);

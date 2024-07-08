@@ -1,6 +1,7 @@
 import React, { useEffect,useState } from 'react'
 import axios from 'axios';
 import MutipleCamera from './MutipleCamera';
+import { API_URL } from '../../utils/apiConfig';
 
 const LiveVideo = () => {
     const [videoUrl, setVideoUrl] = useState('');
@@ -8,7 +9,7 @@ const LiveVideo = () => {
     useEffect(() => {
         const fetchVideoUrl = async () => {
           try {
-            const response = await axios.get('/api/get-video-url');
+            const response = await axios.get(`${API_URL}/api/get-video-url`);
             setVideoUrl(response.data.videoUrl);
           } catch (error) {
             console.error('Failed to fetch video URL:', error);

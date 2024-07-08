@@ -5,7 +5,7 @@ import { toast,ToastContainer } from 'react-toastify';
 import { API_URL } from '../../utils/apiConfig';
 const Notification = () => {
     const [userNotification,setUserNotification] = useState(null)
-    const url ="http://localhost:4444"
+
 
     useEffect(()=>{
         const fetchNotification =async () =>{
