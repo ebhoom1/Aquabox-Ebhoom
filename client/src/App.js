@@ -29,7 +29,7 @@ import AddNotification from './Components/Notification/AddNotification';
 import CalibrationExceeded from './Components/Calibration/CalibrationExceeded';
 import CalibrationExceededReport from './Components/Calibration/CalibrationExceedReport';
 import Report from './Components/Reports/Report';
-import ListOfSupportAnalyserMakeAndModel from './Components/ListOfSupportAnalyserMakeAndModel/ListOfSupportAnalyserMakeAndModel';
+import SupportedAnalyserModels from './Components/SupportedAnalyserModels/SupportedAnalyserModels';
 import Subscribe from './Components/Subscribe/Subscribe';
 import AddCalibrationExceedValues from './Components/Calibration Exceed Value/AddCalibrationExceedValues';
 import CalibrationExceedValue from './Components/Calibration Exceed Value/CalibrationExceedValue';
@@ -111,7 +111,7 @@ function App() {
               <Route path="/report" element={<Report />} />
               <Route path="view-report/:userName" element={<ViewReport />}/>
               <Route path= "edit-report/:userName" element={<EditReport />}/>
-              <Route path="list-of-support-analyser-make-and-model" element={<ListOfSupportAnalyserMakeAndModel />} />
+              <Route path="supportedAnalyserModels" element={<SupportedAnalyserModels />} />
               <Route path= '/subscribe-data' element={<Subscribe/>}/>
               <Route path ="/transactions" element={<Transaction/>}/>
               <Route path="/download-IoT-Data" element={<DownloadIoTdata/>}/>
@@ -135,7 +135,7 @@ function App() {
               <Route path ="/transactions" element={<Transaction/>}/>
               <Route path= "edit-report/:userName" element={<EditReport />}/>
               <Route path="view-report/:userName" element={<ViewReport />}/>
-              <Route path="list-of-support-analyser-make-and-model" element={<ListOfSupportAnalyserMakeAndModel />} />
+              <Route path="supportedAnalyserModels" element={<SupportedAnalyserModels />} />
               <Route path="/download-IoT-Data" element={<DownloadIoTdata/>}/>
               <Route path ='/quantity' element={<Quantity/>}/>
               <Route path = '/energy' element={<Energy/>}/>

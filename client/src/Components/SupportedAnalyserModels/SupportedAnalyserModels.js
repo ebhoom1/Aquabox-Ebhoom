@@ -1,7 +1,7 @@
 import React from 'react'
 import { ToastContainer } from 'react-toastify'
 
-const ListOfSupportAnalyserMakeAndModel = () => {
+const SupportedAnalyserModels = () => {
     return (
         <div className="main-panel">
         <div className="content-wrapper">
@@ -87,4 +87,4 @@ const ListOfSupportAnalyserMakeAndModel = () => {
     )
 }
 
-export default ListOfSupportAnalyserMakeAndModel
+export default SupportedAnalyserModels

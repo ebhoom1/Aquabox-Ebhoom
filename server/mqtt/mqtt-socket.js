@@ -5,13 +5,16 @@ const axios = require('axios');
 const moment = require('moment');
 const userdb = require('../models/user');
 
+const MAX_RETRIES = 5;
+const RETRY_DELAY = 5000; // 5 seconds
+
 // Define the paths to the certificates
 const KEY = path.resolve(__dirname, './creds/ebhoom-v1-device-private.pem.key');
 const CERT = path.resolve(__dirname, './creds/ebhoom-v1-device-certificate.pem.crt');
 const CAfile = path.resolve(__dirname, './creds/ebhoom-v1-device-AmazonRootCA1.pem');
 
 // Function to set up MQTT client for each device
-const setupMqttClient = (io) => {
+const setupMqttClient = (io, retries = 0) => {
     const options = {
         host: "a3gtwu0ec0i4y6-ats.iot.ap-south-1.amazonaws.com",
         protocol: 'mqtts',
@@ -26,10 +29,10 @@ const setupMqttClient = (io) => {
     const client = mqtt.connect(options);
 
     client.on('connect', () => {
-        // console.log('Connected to MQTT broker');
+        console.log('Connected to MQTT broker');
         client.subscribe('ebhoomPub', (err) => {
             if (!err) {
-                // console.log('Subscribed to topic: ebhoomPub');
+                console.log('Subscribed to topic: ebhoomPub');
             } else {
                 console.error('Subscription error:', err);
             }
@@ -38,12 +41,10 @@ const setupMqttClient = (io) => {
 
     client.on('message', async (topic, message) => {
         try {
-            // console.log('Message received:', message.toString());
             const data = JSON.parse(message.toString());
             const { product_id } = data;
 
             if (topic === 'ebhoomPub') {
-                // User details will be provided by us use that inside this  
                 const userDetails = await userdb.findOne({ productID: product_id });
                 if (userDetails) {
                     Object.assign(data, {
@@ -56,15 +57,8 @@ const setupMqttClient = (io) => {
                         time: data.time || moment().format('HH:mm:ss') // Set default time if not provided
                     });
 
-                    // console.log('Received data:', data);
-
-                    // Send POST request
                     await axios.post('http://localhost:5555/api/handleSaveMessage', data);
-                    // console.log('Data successfully posted to handleSaveMessage');
-
-                 
                     io.to(product_id.toString()).emit('data', data);
-                    // console.log('Data posted and emitted:', data);
                 } else {
                     console.error(`No user details found for product_id: ${product_id}`);
                 }
@@ -76,6 +70,10 @@ const setupMqttClient = (io) => {
 
     client.on('error', (err) => {
         console.error('MQTT error:', err);
+        if (err.code === 'ENOTFOUND' && retries < MAX_RETRIES) {
+            console.log(`Retrying connection in ${RETRY_DELAY / 1000} seconds...`);
+            setTimeout(() => setupMqttClient(io, retries + 1), RETRY_DELAY);
+        }
     });
 
     return client;

@@ -114,8 +114,8 @@ const LeftSideBar = () => {
           <NavItem
             to="/list-of-support-analyser-make-and-model"
             iconClass="typcn typcn-document-text"
-            title="List of supported analyser "
-            subtitle="make and model"
+            title="Supported Analyser Models "
+           
           />
         </>
       );
@@ -142,10 +142,10 @@ const LeftSideBar = () => {
           <NavItem to="/transactions" iconClass="typcn typcn-document-text" title="Payments" />
           <li className="nav-item">
             <NavItem
-              to="/list-of-support-analyser-make-and-model"
+              to="/supportedAnalyserModels"
               iconClass="typcn typcn-document-text"
-              title="List of supported analyser "
-              subtitle="make and model"
+              title="Supported Analyser Models "
+            
             />
             {/* <ul className="nav flex-column sub-menu">
               <NavItem to="/water" iconClass="typcn typcn-document-text" title="Effluent/Water Dashboard" />
