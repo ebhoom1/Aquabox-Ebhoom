@@ -322,7 +322,7 @@ const handleExceedValues = async () => {
                 await saveExceedValue(exceed.parameter, exceed.value, user);
                 await sendNotification(exceed.parameter, exceed.value, user);
             }
-        }
+        } 
 
         console.log('Exceed values handled successfully');
     } catch (error) {
@@ -402,6 +402,6 @@ const saveExceedValue = async (parameter, value, user) => {
     }
 };
 
-handleExceedValues();
+
 
 module.exports = { addComment, getAllExceedData, editComments, getAUserExceedData, handleExceedValues,getExceedDataByUserName }

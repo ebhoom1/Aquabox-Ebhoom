@@ -2,11 +2,11 @@ const { Parser } = require('json2csv');
 const PDFDocument = require('pdfkit');
 const moment = require('moment');
 const cron = require('node-cron');
-
 const IotData = require('../models/iotData');
 const userdb = require('../models/user');
 const IotDataAverage = require(`../models/averageData`);
 const DifferenceData = require(`../models/differeneceData`);
+const { handleExceedValues } = require('./calibrationExceed');
 
 // Function to check sensor data for zero values
 const checkSensorData = (data) => {
@@ -71,7 +71,7 @@ const handleSaveMessage = async (req, res) => {
         const formattedDate = moment().format('DD/MM/YYYY');
 
         const newEntry = new IotData({
-            productID: data.product_id,
+            product_id: data.product_id,
             ph: data.ph !== 'N/A' ? data.ph : null,
             TDS: data.tds !== 'N/A' ? data.tds : null,
             turbidity: data.turbidity !== 'N/A' ? data.turbidity : null,
@@ -99,7 +99,6 @@ const handleSaveMessage = async (req, res) => {
             energy: data.energy !== 'N/A' ? data.energy : null,
             date: formattedDate,
             time: data.time !== 'N/A' ? data.time : moment().format('HH:mm:ss'), // Set default time
-            userId: data.userId || 'N/A',
             topic: data.topic,
             companyName: data.companyName,
             industryType: data.industryType,
@@ -112,6 +111,8 @@ const handleSaveMessage = async (req, res) => {
         });
 
         await newEntry.save();
+         // Call handleExceedValues after saving the new IoT data entry
+        //  await handleExceedValues();
 
         res.status(200).json({
             success: true,
@@ -214,10 +215,11 @@ const getIotDataByUserName = async (req,res)=>{
 }
 
 // The Graph printing Taking average and using in the graph//
-const calculateAverages = async (userId, userName, startTime, endTime, interval) => {
+const calculateAverages = async (userName, product_id, startTime, endTime, interval) => {
     console.log(`Calculating averages for ${interval}: ${startTime} to ${endTime}`);
     const data = await IotData.find({
-        userId: userId,
+        userName: userName,
+        product_id: product_id,
         timestamp: {
             $gte: startTime,
             $lt: endTime
@@ -240,7 +242,7 @@ const calculateAverages = async (userId, userName, startTime, endTime, interval)
 
     const averageEntry = new IotDataAverage({
         userName: userName,
-        product_id: data[0].product_id,  // Assuming all data entries have the same product_id
+        product_id: product_id,  // Assuming all data entries have the same product_id
         interval: interval,
         dateAndTime: moment().format('DD/MM/YYYY HH:mm'),
         ...averages,
@@ -252,65 +254,93 @@ const calculateAverages = async (userId, userName, startTime, endTime, interval)
 };
 
 const scheduleAveragesCalculation = () => {
+   
     cron.schedule('0 * * * *', async () => { // Every hour
-        const users = await IotData.distinct('userId');
-        for (let userId of users) {
-            const userData = await userdb.findById(userId);
-            await calculateAverages(userId, userData.userName, new Date(Date.now() - 60 * 60 * 1000), new Date(), 'hour');
+        console.log("Running hourly average calculation...");
+        const users = await IotData.distinct('userName');
+        for (let userName of users) {
+            const productIds = await IotData.distinct('product_id', { userName: userName });
+            for (let product_id of productIds) {
+                const startTime = new Date(Date.now() - 60 * 60 * 1000);
+                const endTime = new Date();
+                await calculateAverages(userName, product_id, startTime, endTime, 'hour');
+            }
         }
     });
 
     cron.schedule('0 0 * * *', async () => { // Every day
-        const users = await IotData.distinct('userId');
-        for (let userId of users) {
-            const userData = await userdb.findById(userId);
-            const now = new Date();
-            const dailyStartTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
-            const dailyEndTime = new Date(dailyStartTime.getTime() + 24 * 60 * 60 * 1000);
-            await calculateAverages(userId, userData.userName, dailyStartTime, dailyEndTime, 'day');
+        console.log("Running daily average calculation...");
+        const users = await IotData.distinct('userName');
+        for (let userName of users) {
+            const productIds = await IotData.distinct('product_id', { userName: userName });
+            for (let product_id of productIds) {
+                const now = new Date();
+                const dailyStartTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+                const dailyEndTime = new Date(dailyStartTime.getTime() + 24 * 60 * 60 * 1000);
+                await calculateAverages(userName, product_id, dailyStartTime, dailyEndTime, 'day');
+            }
         }
     });
 
     cron.schedule('0 0 * * 1', async () => { // Every week (Monday)
-        const users = await IotData.distinct('userId');
-        for (let userId of users) {
-            const userData = await userdb.findById(userId);
-            const now = new Date();
-            const weeklyStartTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7, 0, 0, 0);
-            await calculateAverages(userId, userData.userName, weeklyStartTime, now, 'week');
+        console.log("Running weekly average calculation...");
+        const users = await IotData.distinct('userName');
+        for (let userName of users) {
+            const productIds = await IotData.distinct('product_id', { userName: userName });
+            for (let product_id of productIds) {
+                const now = new Date();
+                const weeklyStartTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7, 0, 0, 0);
+                await calculateAverages(userName, product_id, weeklyStartTime, now, 'week');
+            }
         }
     });
 
     cron.schedule('0 0 1 * *', async () => { // Every month (1st day)
-        const users = await IotData.distinct('userId');
-        for (let userId of users) {
-            const userData = await userdb.findById(userId);
-            const now = new Date();
-            const monthlyStartTime = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
-            await calculateAverages(userId, userData.userName, monthlyStartTime, now, 'month');
+        console.log("Running monthly average calculation...");
+        const users = await IotData.distinct('userName');
+        for (let userName of users) {
+            const productIds = await IotData.distinct('product_id', { userName: userName });
+            for (let product_id of productIds) {
+                const now = new Date();
+                const monthlyStartTime = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+                await calculateAverages(userName, product_id, monthlyStartTime, now, 'month');
+            }
         }
     });
 
     cron.schedule('0 0 1 */6 *', async () => { // Every 6 months (1st day of every 6th month)
-        const users = await IotData.distinct('userId');
-        for (let userId of users) {
-            const userData = await userdb.findById(userId);
-            const now = new Date();
-            const sixMonthStartTime = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate());
-            await calculateAverages(userId, userData.userName, sixMonthStartTime, now, 'sixmonths');
+        console.log("Running 6-monthly average calculation...");
+        const users = await IotData.distinct('userName');
+        for (let userName of users) {
+            const productIds = await IotData.distinct('product_id', { userName: userName });
+            for (let product_id of productIds) {
+                const now = new Date();
+                const sixMonthStartTime = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate());
+                await calculateAverages(userName, product_id, sixMonthStartTime, now, 'sixmonths');
+            }
         }
     });
 
     cron.schedule('0 0 1 1 *', async () => { // Every year (1st day of January)
-        const users = await IotData.distinct('userId');
-        for (let userId of users) {
-            const userData = await userdb.findById(userId);
-            const now = new Date();
-            const yearlyStartTime = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
-            await calculateAverages(userId, userData.userName, yearlyStartTime, now, 'year');
+        console.log("Running yearly average calculation...");
+        const users = await IotData.distinct('userName');
+        for (let userName of users) {
+            const productIds = await IotData.distinct('product_id', { userName: userName });
+            for (let product_id of productIds) {
+                const now = new Date();
+                const yearlyStartTime = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+                await calculateAverages(userName, product_id, yearlyStartTime, now, 'year');
+            }
         }
     });
 };
+
+scheduleAveragesCalculation();
+
+
+
+
+
 
 const getAverageDataByUserName = async (req, res) => {
     const { userName } = req.params;
@@ -343,8 +373,8 @@ const getAverageDataByUserName = async (req, res) => {
     }
 };
 
-scheduleAveragesCalculation();
-//End of Averages //
+
+//End of Averages // 
 
 //Download Entire IOT Data
 
@@ -415,7 +445,6 @@ const downloadIotData = async (req, res) => {
 //inflow, finalflow,Energy
 
 
-
 const calculateAndSaveDailyDifferences = async () => {
     const now = new Date();
     const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0); // 8:20 PM
@@ -477,13 +506,12 @@ const calculateAndSaveDailyDifferences = async () => {
     }
 };
 
-// Test function to run the calculation
-const testCalculateAndSaveDailyDifferences = async () => {
-    await calculateAndSaveDailyDifferences();
-};
 
-// Call the test function
-testCalculateAndSaveDailyDifferences();
+
+// Schedule the task to run once a day at midnight
+cron.schedule('0 0 * * *', calculateAndSaveDailyDifferences);
+
+
 
 
 

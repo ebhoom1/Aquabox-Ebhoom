@@ -38,7 +38,7 @@ const setupMqttClient = (io) => {
 
     client.on('message', async (topic, message) => {
         try {
-            console.log('Message received:', message.toString());
+            // console.log('Message received:', message.toString());
             const data = JSON.parse(message.toString());
             const { product_id } = data;
 
@@ -47,7 +47,6 @@ const setupMqttClient = (io) => {
                 const userDetails = await userdb.findOne({ productID: product_id });
                 if (userDetails) {
                     Object.assign(data, {
-                        userId: userDetails._id, 
                         userName: userDetails.userName,
                         email: userDetails.email,
                         mobileNumber: userDetails.mobileNumber,
@@ -57,15 +56,15 @@ const setupMqttClient = (io) => {
                         time: data.time || moment().format('HH:mm:ss') // Set default time if not provided
                     });
 
-                    console.log('Received data:', data);
+                    // console.log('Received data:', data);
 
                     // Send POST request
                     await axios.post('http://localhost:5555/api/handleSaveMessage', data);
-                    console.log('Data successfully posted to handleSaveMessage');
+                    // console.log('Data successfully posted to handleSaveMessage');
 
-                
+                 
                     io.to(product_id.toString()).emit('data', data);
-                    console.log('Data posted and emitted:', data);
+                    // console.log('Data posted and emitted:', data);
                 } else {
                     console.error(`No user details found for product_id: ${product_id}`);
                 }

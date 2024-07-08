@@ -89,7 +89,6 @@ const iotDataSchema = new mongoose.Schema({
     time:{
         type:String
     },
-    userId: { type: String, required: true },
     topic: { type: String },
     userName: { type: String, required: true },
     companyName: { type: String, required: true },

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAverageDataByUserName } from '../../redux/features/iotData/iotDataSlice';
 import Modal from 'react-modal';
@@ -14,6 +14,8 @@ import {
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import moment from 'moment';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 ChartJS.register(
     CategoryScale,
@@ -26,18 +28,53 @@ ChartJS.register(
 );
 
 const WaterGraphPopup = ({ isOpen, onRequestClose, parameter, userName }) => {
-    const [timeInterval, setTimeInterval] = React.useState('hour');
+    const [timeInterval, setTimeInterval] = useState('hour');
+    const [dataByInterval, setDataByInterval] = useState({});
+    const [loadingByInterval, setLoadingByInterval] = useState({});
+    const [errorByInterval, setErrorByInterval] = useState({});
     const dispatch = useDispatch();
-    const { averageData, loading, error } = useSelector((state) => state.iotData);
 
     useEffect(() => {
         if (userName && parameter) {
-            dispatch(fetchAverageDataByUserName({ userName, interval: timeInterval }));
+            setLoadingByInterval(prevState => ({
+                ...prevState,
+                [timeInterval]: true
+            }));
+            setErrorByInterval(prevState => ({
+                ...prevState,
+                [timeInterval]: null
+            }));
+
+            dispatch(fetchAverageDataByUserName({ userName, interval: timeInterval }))
+                .unwrap()
+                .then((data) => {
+                    setDataByInterval(prevState => ({
+                        ...prevState,
+                        [timeInterval]: data
+                    }));
+                })
+                .catch(() => {
+                    toast.error(`${timeInterval} graph not found`);
+                    setDataByInterval(prevState => ({
+                        ...prevState,
+                        [timeInterval]: []
+                    }));
+                    setErrorByInterval(prevState => ({
+                        ...prevState,
+                        [timeInterval]: `${timeInterval} graph not found`
+                    }));
+                })
+                .finally(() => {
+                    setLoadingByInterval(prevState => ({
+                        ...prevState,
+                        [timeInterval]: false
+                    }));
+                });
         }
     }, [timeInterval, userName, parameter, dispatch]);
 
     const processData = (data, interval) => {
-        if (!Array.isArray(data)) {
+        if (!Array.isArray(data) || data.length === 0) {
             return { labels: [], values: [] };
         }
 
@@ -53,7 +90,7 @@ const WaterGraphPopup = ({ isOpen, onRequestClose, parameter, userName }) => {
                 labels = data.map(entry => moment(entry.timestamp).format('ddd'));
                 break;
             case 'month':
-                labels = data.map(entry => moment(entry.timestamp).format(' MMM'));
+                labels = data.map(entry => moment(entry.timestamp).format('MMM'));
                 break;
             case 'sixmonths':
                 labels = data.map(entry => moment(entry.timestamp).format('MMM YYYY'));
@@ -70,7 +107,7 @@ const WaterGraphPopup = ({ isOpen, onRequestClose, parameter, userName }) => {
         return { labels, values };
     };
 
-    const { labels, values } = processData(averageData, timeInterval);
+    const { labels, values } = processData(dataByInterval[timeInterval], timeInterval);
 
     const chartData = {
         labels,
@@ -109,20 +146,20 @@ const WaterGraphPopup = ({ isOpen, onRequestClose, parameter, userName }) => {
             contentLabel="Data Popup"
             style={customStyles}
         >
-            <h2>{parameter}</h2>
-            <h3>{userName}</h3>
-            <div className="btn-group " role="group" aria-label="Date Range">
-                <button  className="btn btn-primary" onClick={() => setTimeInterval('hour')}>Today</button>
-                <button  className="btn btn-primary" onClick={() => setTimeInterval('day')}>Day</button>
-                <button  className="btn btn-primary" onClick={() => setTimeInterval('week')}>Week</button>
-                <button  className="btn btn-primary" onClick={() => setTimeInterval('month')}>Month</button>
-                <button  className="btn btn-primary" onClick={() => setTimeInterval('sixmonths')}>6 Months</button>
-                <button  className="btn btn-primary" onClick={() => setTimeInterval('year')}>Year</button>
+            <h4>{parameter}</h4>
+           
+            <div className="btn-group" role="group" aria-label="Date Range">
+                <button className="btn btn-primary" onClick={() => setTimeInterval('hour')}>Hour</button>
+                <button className="btn btn-primary" onClick={() => setTimeInterval('day')}>Day</button>
+                <button className="btn btn-primary" onClick={() => setTimeInterval('week')}>Week</button>
+                <button className="btn btn-primary" onClick={() => setTimeInterval('month')}>Month</button>
+                <button className="btn btn-primary" onClick={() => setTimeInterval('sixmonths')}>6 Months</button>
+                <button className="btn btn-primary" onClick={() => setTimeInterval('year')}>Year</button>
             </div>
-            {loading ? (
+            {loadingByInterval[timeInterval] ? (
                 <p>Loading...</p>
-            ) : error ? (
-                <p>{error.message}</p>
+            ) : errorByInterval[timeInterval] ? (
+                <p>{errorByInterval[timeInterval]}</p>
             ) : (
                 <div style={{ width: '100%', height: '100%' }}>
                     <Line data={chartData} />

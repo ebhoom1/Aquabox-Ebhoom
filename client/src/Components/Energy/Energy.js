@@ -11,7 +11,8 @@ import {
   BarChart,
   Bar,
 } from "recharts";
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { useOutletContext } from 'react-router-dom';
 
 const Energy = () => {
@@ -27,10 +28,18 @@ const Energy = () => {
     const fetchData = async (userName) => {
       try {
         await dispatch(fetchAverageDataByUserName({ userName, interval })).unwrap();
+        console.log("Average data fetched:", averageData); // Debugging line
+      } catch (error) {
+        // toast.error(`Average Data for ${interval} is not found`);
+      }
+
+      try {
         await dispatch(fetchDifferenceDataByUserName(userName)).unwrap();
+        console.log("Difference data fetched:", differenceData); // Debugging line
         setSearchResult(userName);
         setSearchError("");
       } catch (error) {
+        toast.error("Difference data is not found");
         setSearchResult(null);
         setSearchError("No result found for this userID");
       }
@@ -46,9 +55,15 @@ const Energy = () => {
   const handleIntervalChange = (newInterval) => {
     setInterval(newInterval);
     if (searchResult) {
-      dispatch(fetchAverageDataByUserName({ userName: searchResult, interval: newInterval }));
+      dispatch(fetchAverageDataByUserName({ userName: searchResult, interval: newInterval }))
+        .unwrap()
+        .then(() => console.log("Average data fetched:", averageData)) // Debugging line
+        .catch(() => toast.error(`Average Data for ${newInterval} is not found`));
     } else if (userData && userType === 'user') {
-      dispatch(fetchAverageDataByUserName({ userName: userData.validUserOne.userName, interval: newInterval }));
+      dispatch(fetchAverageDataByUserName({ userName: userData.validUserOne.userName, interval: newInterval }))
+        .unwrap()
+        .then(() => console.log("Average data fetched:", averageData)) // Debugging line
+        .catch(() => toast.error(`Average Data for ${newInterval} is not found`));
     }
   };
 
@@ -70,7 +85,7 @@ const Energy = () => {
 
   const getDatesHeaders = () => {
     if (!differenceData || differenceData.length === 0) return [];
-    return Object.keys(differenceData[0]).filter(key => key.startsWith('date'));
+    return ['date']; // Assuming these are the date headers
   };
 
   return (
@@ -105,24 +120,27 @@ const Energy = () => {
                         {getDatesHeaders().map((date, index) => (
                           <th key={index}>{date}</th>
                         ))}
+                        <th>initial Energy</th>
+                        <th>final Energy</th>
+                        <th>Energy Difference</th>
                       </tr>
                     </thead>
                     <tbody>
                       {Array.isArray(differenceData) && differenceData.length > 0 ? (
                         differenceData.map((data, index) => (
-                          <React.Fragment key={index}>
-                            <tr>
-                              <td>{index + 1}</td>
-                              <td>FL-Inlet raw sewage,KLD</td>
-                              {getDatesHeaders().map((date, index) => (
-                                <td key={index}>{data[date] ? data[date].inflowDifference : '-'}</td>
-                              ))}
-                            </tr>
-                          </React.Fragment>
+                          <tr key={index}>
+                            <td>{index + 1}</td>
+                            <td>FL-Inlet raw sewage,KLD</td>
+                            <td></td>
+                            <td>{data.date}<br/>{data.day}</td>
+                            <td>{data.initialEnergy}</td>
+                            <td>{data.finalEnergy}</td>
+                            <td>{data.energyDifference}</td>
+                          </tr>
                         ))
                       ) : (
                         <tr>
-                          <td colSpan={getDatesHeaders().length + 3} className="text-center">No data available</td>
+                          <td colSpan={getDatesHeaders().length + 4} className="text-center">No data available</td>
                         </tr>
                       )}
                     </tbody>

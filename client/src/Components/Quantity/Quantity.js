@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { fetchUser } from "../../redux/features/user/userSlice";
 import { fetchAverageDataByUserName, fetchDifferenceDataByUserName } from "../../redux/features/iotData/iotDataSlice";
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -12,7 +11,8 @@ import {
   BarChart,
   Bar,
 } from "recharts";
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { useOutletContext } from 'react-router-dom';
 
 const Quantity = () => {
@@ -28,10 +28,16 @@ const Quantity = () => {
     const fetchData = async (userName) => {
       try {
         await dispatch(fetchAverageDataByUserName({ userName, interval })).unwrap();
+      } catch (error) {
+        toast.error(`Average Data for ${interval} is not found`);
+      }
+
+      try {
         await dispatch(fetchDifferenceDataByUserName(userName)).unwrap();
         setSearchResult(userName);
         setSearchError("");
       } catch (error) {
+        toast.error("Difference data is not found");
         setSearchResult(null);
         setSearchError("No result found for this userID");
       }
@@ -47,9 +53,13 @@ const Quantity = () => {
   const handleIntervalChange = (newInterval) => {
     setInterval(newInterval);
     if (searchResult) {
-      dispatch(fetchAverageDataByUserName({ userName: searchResult, interval: newInterval }));
+      dispatch(fetchAverageDataByUserName({ userName: searchResult, interval: newInterval }))
+        .unwrap()
+        .catch(() => toast.error(`Average Data for ${newInterval} is not found`));
     } else if (userData && userType === 'user') {
-      dispatch(fetchAverageDataByUserName({ userName: userData.validUserOne.userName, interval: newInterval }));
+      dispatch(fetchAverageDataByUserName({ userName: userData.validUserOne.userName, interval: newInterval }))
+        .unwrap()
+        .catch(() => toast.error(`Average Data for ${newInterval} is not found`));
     }
   };
 
@@ -71,7 +81,7 @@ const Quantity = () => {
 
   const getDatesHeaders = () => {
     if (!differenceData || differenceData.length === 0) return [];
-    return Object.keys(differenceData[0]).filter(key => key.startsWith('date'));
+    return ['date']; // Assuming these are the date headers
   };
 
   return (
@@ -105,27 +115,35 @@ const Quantity = () => {
                         {getDatesHeaders().map((date, index) => (
                           <th key={index}>{date}</th>
                         ))}
+                        <th>Inflow Difference</th>
+                        <th>Final Flow Difference</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {Array.isArray(differenceData) && differenceData.map((data, index) => (
-                        <React.Fragment key={index}>
-                          <tr>
-                            <td>{index + 1}</td>
-                            <td>FL-Inlet raw sewage,KLD</td>
-                            {getDatesHeaders().map((date, index) => (
-                              <td key={index}>{data[date] ? data[date].inflowDifference : '-'}</td>
-                            ))}
-                          </tr>
-                          <tr>
-                            <td>{index + 1}</td>
-                            <td>FL-Treated Water,KLD</td>
-                            {getDatesHeaders().map((date, index) => (
-                              <td key={index}>{data[date] ? data[date].finalflowDifference : '-'}</td>
-                            ))}
-                          </tr>
-                        </React.Fragment>
-                      ))}
+                      {Array.isArray(differenceData) && differenceData.length > 0 ? (
+                        differenceData.map((data, index) => (
+                          <React.Fragment key={index}>
+                            <tr>
+                              <td>{index + 1}</td>
+                              <td>FL-Inlet raw sewage,KLD</td>
+                              <td>{data.date}<br/>{data.day}</td>
+                              <td>{data.inflowDifference}</td>
+                              <td></td>
+                            </tr>
+                            <tr>
+                              <td>{index + 1}</td>
+                              <td>FL-Treated Water,KLD</td>
+                              <td>{data.date}<br/>{data.day}</td>
+                              <td></td>
+                              <td>{data.finalflowDifference}</td>
+                            </tr>
+                          </React.Fragment>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={getDatesHeaders().length + 5} className="text-center">No data available</td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -135,7 +153,7 @@ const Quantity = () => {
           </div>
         </div>
 
-        <div className="card mb-4 mt-4">
+        <div className="card mt-4 mb-5">
           <div className="card-body">
             <div className="row mt-5">
               <div className="col-md-12">
