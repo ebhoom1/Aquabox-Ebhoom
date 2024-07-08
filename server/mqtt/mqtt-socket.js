@@ -57,7 +57,7 @@ const setupMqttClient = (io, retries = 0) => {
                         time: data.time || moment().format('HH:mm:ss') // Set default time if not provided
                     });
 
-                    await axios.post('https://ocems.ebhoom.com:5555/api/handleSaveMessage', data);
+                    await axios.post('http://ocems.ebhoom.com:5555/api/handleSaveMessage', data);
                     io.to(product_id.toString()).emit('data', data);
                 } else {
                     console.error(`No user details found for product_id: ${product_id}`);
