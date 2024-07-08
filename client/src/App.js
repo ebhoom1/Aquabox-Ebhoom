@@ -139,7 +139,7 @@ function App() {
               <Route path="/download-IoT-Data" element={<DownloadIoTdata/>}/>
               <Route path ='/quantity' element={<Quantity/>}/>
               <Route path = '/energy' element={<Energy/>}/>
-              <Route path = "*" element={<Error/>}/>
+              <Route path = "/*" element={<Error/>}/>    
 
             </>
           )}
