@@ -112,7 +112,7 @@ const handleSaveMessage = async (req, res) => {
 
         await newEntry.save();
          // Call handleExceedValues after saving the new IoT data entry
-        //  await handleExceedValues();
+          await handleExceedValues();
 
         res.status(200).json({
             success: true,
