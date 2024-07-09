@@ -276,7 +276,7 @@ const scheduleAveragesCalculation = () => {
             for (let product_id of productIds) {
                 const now = new Date();
                 const dailyStartTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
-                const dailyEndTime = new Date(dailyStartTime.getTime() + 24 * 60 * 60 * 1000);
+                const dailyEndTime = new Date(dailyStartTime.getTime() + 24 * 60 * 60 * 1000 - 1);
                 await calculateAverages(userName, product_id, dailyStartTime, dailyEndTime, 'day');
             }
         }
@@ -302,8 +302,9 @@ const scheduleAveragesCalculation = () => {
             const productIds = await IotData.distinct('product_id', { userName: userName });
             for (let product_id of productIds) {
                 const now = new Date();
-                const monthlyStartTime = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
-                await calculateAverages(userName, product_id, monthlyStartTime, now, 'month');
+                const monthlyStartTime = new Date(now.getFullYear(), now.getMonth(), now.getDate()- 30, 0, 0, 0);
+                const monthlyEndTime = new Date();
+                await calculateAverages(userName, product_id, monthlyStartTime, monthlyEndTime, 'month');
             }
         }
     });
@@ -315,8 +316,9 @@ const scheduleAveragesCalculation = () => {
             const productIds = await IotData.distinct('product_id', { userName: userName });
             for (let product_id of productIds) {
                 const now = new Date();
-                const sixMonthStartTime = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate());
-                await calculateAverages(userName, product_id, sixMonthStartTime, now, 'sixmonths');
+                const sixMonthStartTime = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate(), 0, 0, 0);
+                const sixMonthEndTime = new Date();
+                await calculateAverages(userName, product_id, sixMonthStartTime, sixMonthEndTime, 'sixmonths');
             }
         }
     });
@@ -328,8 +330,9 @@ const scheduleAveragesCalculation = () => {
             const productIds = await IotData.distinct('product_id', { userName: userName });
             for (let product_id of productIds) {
                 const now = new Date();
-                const yearlyStartTime = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
-                await calculateAverages(userName, product_id, yearlyStartTime, now, 'year');
+                const yearlyStartTime = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate(), 0, 0, 0);
+                const yearlyEndTime = new Date();
+                await calculateAverages(userName, product_id, yearlyStartTime,yearlyEndTime, 'year');
             }
         }
     });
