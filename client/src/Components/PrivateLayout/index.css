@@ -204,3 +204,38 @@
 .form-control {
   width: 300px;
 }
+
+/* Add this CSS to your existing index.css file */
+
+@media (max-width: 768px) {
+  .search-bar {
+    width: 50% !important;
+  }
+  .sbtn {
+    width: 50% !important;
+    font: inherit;
+  }
+}
+
+.navbar-dropdown.toggle-dropdown {
+  max-height: 400px; /* Set a max-height for the dropdown */
+  overflow-y: auto; /* Enable vertical scrolling */
+  width: 100%; /* Make sure the dropdown takes the full width */
+  position: absolute; /* Ensure it overlaps correctly */
+  background-color: white; /* Set background color to white for visibility */
+  z-index: 1000; /* Ensure it appears above other elements */
+}
+
+.dropdown-list {
+  list-style: none; /* Remove default list styling */
+  padding: 0; /* Remove default padding */
+  margin: 0; /* Remove default margin */
+}
+/* Add this CSS to your existing index.css file */
+
+@media (max-width: 768px) {
+  .dropdown-menu-right.navbar-dropdown.toggle-dropdown {
+    max-height: 70vh; /* Adjust the height as needed */
+    overflow-y: auto; /* Enable vertical scrolling */
+  }
+}

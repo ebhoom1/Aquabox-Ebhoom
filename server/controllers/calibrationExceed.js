@@ -352,7 +352,7 @@ const sendNotification = async (parameter, value, user) => {
         }
 
         // Add notification to the database
-        // await createNotification(message, user._id, user.userName, currentDate, currentTime);
+         await createNotification(message, user._id, user.userName, currentDate, currentTime);
     } catch (error) {
         console.error(`Error sending notification:`, error);
     }

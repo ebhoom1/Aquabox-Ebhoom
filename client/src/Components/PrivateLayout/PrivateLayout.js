@@ -198,10 +198,7 @@ const PrivateLayout = () => {
                 )}
               </div>
             </li>
-          </ul>
-     
-          <ul className="navbar-nav ml-auto">
-          <li className="nav-item ">
+            <li className="nav-item ">
               {userData.validUserOne.userType === 'admin' && (
                 <form className="form-inline my-2 my-lg-0" onSubmit={handleSearch}>
                   <input
@@ -218,6 +215,10 @@ const PrivateLayout = () => {
                 </form>
               )}
             </li>
+          </ul>
+     
+          <ul className="navbar-nav ml-auto">
+          
             <li className="nav-item dropdown">
               <a className="nav-link count-indicator" onClick={toggleDropdownNotification}>
                 <i className="mdi mdi-bell-outline notification-indication"></i>
