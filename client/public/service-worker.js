@@ -2,7 +2,7 @@ import { precacheAndRoute } from 'workbox-precaching';
 
 precacheAndRoute(self.__WB_MANIFEST);
 
-const CACHE_NAME = "my-app-cache";
+const CACHE_NAME = "Ocems Ebhoom";
 const urlsToCache = ["/", "/index.html"];
 
 self.addEventListener("install", (event) => {
