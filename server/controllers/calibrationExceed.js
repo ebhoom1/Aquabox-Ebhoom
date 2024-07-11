@@ -305,6 +305,7 @@ const handleExceedValues = async () => {
                 { parameter: 'BOD', value: latestData.BOD, threshold: industryThresholds.BOD },
                 { parameter: 'COD', value: latestData.COD, threshold: industryThresholds.COD },
                 { parameter: 'TSS', value: latestData.TSS, threshold: industryThresholds.TSS },
+                { parameter: 'PM', value: latestData.PM, threshold: industryThresholds.PM },
                 // Add other parameters if needed
             ];
 

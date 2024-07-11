@@ -86,7 +86,7 @@ const IotDataAverageSchema = new mongoose.Schema({
     },
     NOH: {
         type: Number,
-        get: v => parseFloat(v.toFixed(2))
+        get: v => parseFloat(v.toFixed(2))   
     },
     NH3: {
         type: Number,
