@@ -7,6 +7,7 @@ import axios from 'axios';
 import LeftSideBar from '../LeftSideBar/LeftSideBar';
 import './index.css';
 import { API_URL } from '../../utils/apiConfig';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 const PrivateLayout = () => {
   const dispatch = useDispatch();
@@ -21,6 +22,7 @@ const PrivateLayout = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [submittedSearchTerm, setSubmittedSearchTerm] = useState('');
   const [searchStatus, setSearchStatus] = useState('');
+  const [isSearchVisible, setIsSearchVisible] = useState(false);
 
   useEffect(() => {
     const validateUser = async () => {
@@ -107,7 +109,9 @@ const PrivateLayout = () => {
       setSearchStatus('error');
     }
   };
-
+  const toggleSearchVisibility = () => {
+    setIsSearchVisible(!isSearchVisible);
+  };
   const getDropdownItems = () => {
     const { userType } = userData.validUserOne;
     if (userType === 'admin') {
@@ -198,27 +202,33 @@ const PrivateLayout = () => {
                 )}
               </div>
             </li>
-            <li className="nav-item ">
+            
+          </ul>
+     
+          <ul className="navbar-nav ml-auto">
+          <li className="nav-item">
               {userData.validUserOne.userType === 'admin' && (
                 <form className="form-inline my-2 my-lg-0" onSubmit={handleSearch}>
-                  <input
-                    className={`form-control mr-sm-2 ${searchStatus === 'error' ? 'is-invalid' : searchStatus === 'success' ? 'is-valid' : ''}`}
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Search user data..."
-                    style={{ width: "300px" }}
-                  />
-                  <button className="btn btn-outline-primary my-2 my-sm-0" type="submit">Search</button>
+                  {isSearchVisible ? (
+                    <>
+                      <input
+                        className={`form-control mr-sm-2 ${searchStatus === 'error' ? 'is-invalid' : searchStatus === 'success' ? 'is-valid' : ''}`}
+                        type="text"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder="Search user data..."
+                        style={{ width: "300px" }}
+                      />
+                      <button className="btn btn-search  my-2 my-sm-0" type="submit"><i className="bi bi-search"/></button>
+                    </>
+                  ) : (
+                    <i className="bi bi-search  btn-search" onClick={toggleSearchVisibility}></i>
+                  )}
                   {searchStatus === 'error' && <div className="invalid-feedback">No result found</div>}
                   {searchStatus === 'success' && <div className="valid-feedback">Success</div>}
                 </form>
               )}
             </li>
-          </ul>
-     
-          <ul className="navbar-nav ml-auto">
-          
             <li className="nav-item dropdown">
               <a className="nav-link count-indicator" onClick={toggleDropdownNotification}>
                 <i className="mdi mdi-bell-outline notification-indication"></i>

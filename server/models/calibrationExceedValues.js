@@ -43,6 +43,18 @@ const calibrationExceedValueSchema = new mongoose.Schema({
     chloride: {
         type: String,
     },
+    PM:{
+        type:String,
+    },   
+    SO2:{
+        type:String,
+    },
+    NO2:{
+        type:String
+    },
+    Mercury:{
+        type:String,
+    },
     PM10: {
         type: String,
     },

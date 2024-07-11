@@ -16,7 +16,6 @@ const calculateAverageRoute = require('./routers/calculateAverage');
 const reportRoutes = require('./routers/report');
 const paymentRoutes = require('./routers/payment');
 const liveVideoRoutes = require('./routers/liveVideo');
-const saveWaterParamsRoutes = require('./routers/saveWaterParams');
 
 const { calculateAndSaveDailyDifferences } = require('./controllers/iotData');
 const { getAllDeviceCredentials } = require('./controllers/user');
@@ -62,7 +61,6 @@ app.use('/api', calculateAverageRoute);
 app.use('/api', reportRoutes);
 app.use('/api', paymentRoutes);
 app.use('/api', liveVideoRoutes);
-app.use('/api', saveWaterParamsRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

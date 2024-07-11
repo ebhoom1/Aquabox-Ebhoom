@@ -299,6 +299,26 @@ const EditCalibrationExceedValue = () => {
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
+                          <label htmlFor="exampleFormControlInput5">PM</label>
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="PM" name='PM' value={calibrationExceedValueData.PM} onChange={handleChange}  
+                        />   
+                      </div>
+                      <div className="col-12 col-lg-6 col-md-6 mb-3">
+                          <label htmlFor="exampleFormControlInput5">SO2</label>
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="SO2" name='SO2' value={calibrationExceedValueData.SO2} onChange={handleChange}  
+                        />   
+                      </div>
+                      <div className="col-12 col-lg-6 col-md-6 mb-3">
+                          <label htmlFor="exampleFormControlInput5">NO2</label>
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="NO2" name='NO2' value={calibrationExceedValueData.NO2} onChange={handleChange}  
+                        />   
+                      </div>
+                      <div className="col-12 col-lg-6 col-md-6 mb-3">
+                          <label htmlFor="exampleFormControlInput5">Mercury</label>
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="Mercury" name='Mercury' value={calibrationExceedValueData.Mercury} onChange={handleChange}  
+                        />   
+                      </div>
+                      <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">PM 10</label>
                           <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="PM 10" name='PM10' value={calibrationExceedValueData.PM10} onChange={handleChange}  
                         />   

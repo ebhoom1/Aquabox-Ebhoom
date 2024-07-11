@@ -239,3 +239,7 @@
     overflow-y: auto; /* Enable vertical scrolling */
   }
 }
+.btn-search {
+  font-size: 18px;
+  padding: 8px;
+}

@@ -90,6 +90,10 @@ const CalibrationExceedValue = () => {
                                         <th>Ammonical Nitrogen</th>
                                         <th>DO</th>
                                         <th>Chloride</th>
+                                        <th>PM</th>
+                                        <th>SO2</th>
+                                        <th>NO2</th>
+                                        <th>Mercury</th>
                                         <th>PM 10</th>
                                         <th>PM 2.5</th>
                                         <th>NOH</th>
@@ -126,6 +130,10 @@ const CalibrationExceedValue = () => {
                                             <td>{value.ammonicalNitrogen}</td>
                                             <td>{value.DO}</td>
                                             <td>{value.chloride}</td>
+                                            <td>{value.PM}</td>
+                                            <td>{value.SO2}</td>
+                                            <td>{value.NO2}</td>
+                                            <td>{value.Mercury}</td>
                                             <td>{value.PM10}</td>
                                             <td>{value.PM25}</td>
                                             <td>{value.NOH}</td>

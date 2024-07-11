@@ -57,6 +57,10 @@ const AmbientAir = () => {
   };
 
   const airParameters = [
+    { parameter: "PM ", value: 'µg/m³', name: "PM" },
+    { parameter: "SO2", value: 'µg/m³', name: "SO2" },
+    { parameter: "NO2", value: 'µg/m³', name: "NO2" },
+    { parameter: "Mercury", value: 'µg/m³', name: "Mercury" },
     { parameter: "PM 10", value: 'µg/m³', name: "PM10" },
     { parameter: "PM 2.5", value: 'µg/m³', name: "PM25" },
     { parameter: "NOH", value: 'µg/m³', name: "NOH" },

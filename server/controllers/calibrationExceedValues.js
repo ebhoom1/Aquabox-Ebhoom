@@ -4,7 +4,7 @@ const CalibrationExceedValues = require('../models/calibrationExceedValues');
 const AddCalibrationExceedValues = async (req, res) => {
     try {
         const { product_id, phBelow,phAbove, TDS, turbidity, temperature, BOD, COD,
-            TSS, ORP, nitrate, ammonicalNitrogen, DO, chloride, PM10, PM25, NOH, NH3, WindSpeed,
+            TSS, ORP, nitrate, ammonicalNitrogen, DO, chloride,PM,SO2,NO2,Mercury, PM10, PM25, NOH, NH3, WindSpeed,
             WindDir, AirTemperature, Humidity, solarRadiation, DB, date, adminUserName,userName,adminName,industryType } = req.body;
 
             const preIndustry = await CalibrationExceedValues.findOne({industryType:industryType,});
@@ -19,7 +19,7 @@ const AddCalibrationExceedValues = async (req, res) => {
             
                 const newCalibrationExceedValues = new CalibrationExceedValues({
                     product_id, phBelow,phAbove, TDS, turbidity, temperature, BOD, COD,
-                    TSS, ORP, nitrate, ammonicalNitrogen, DO, chloride, PM10, PM25, NOH, NH3, WindSpeed,
+                    TSS, ORP, nitrate, ammonicalNitrogen, DO, chloride,PM,SO2,NO2,Mercury, PM10, PM25, NOH, NH3, WindSpeed,
                     WindDir, AirTemperature, Humidity, solarRadiation, DB, date, adminUserName, userName, adminName,industryType
                 });
         
