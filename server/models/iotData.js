@@ -92,7 +92,7 @@ const iotDataSchema = new mongoose.Schema({
     },
     energy:{
         type:Number,
-       required: true
+      
     },
     date:{
         type:String,
@@ -107,8 +107,8 @@ const iotDataSchema = new mongoose.Schema({
     industryType: { type: String, required: true },
     mobileNumber: { type: String, required: true },
     email: { type: String, required: true },
-    validationStatus: { type: String, required: true },
-    validationMessage: { type: String, required: true },
+    validationStatus: { type: String,  },
+    validationMessage: { type: String,  },
    
     timestamp: {
         type: Date,  // Store as Date type
