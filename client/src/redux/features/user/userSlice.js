@@ -7,7 +7,11 @@ export const fetchUser = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('userdatatoken');
-      console.log('Sending request to fetch user with token:', token);  // Log the token
+      console.log('Sending request to fetch user with token:', token); 
+      if (!token) {
+        throw new Error('No token found');
+      }
+
       const response = await axios.get(`${API_URL}/api/validuser`, {
         headers: {
           "Content-Type": "application/json",
@@ -17,8 +21,9 @@ export const fetchUser = createAsyncThunk(
       console.log('User data response:', response.data);  // Log the response
       return response.data;
     } catch (error) {
-      console.error('Error fetching user:', error.response.data);  // Log the error
-      return rejectWithValue(error.response.data);
+     
+      console.error('Error logging out:', error.response ? error.response.data : error.message);  // Log the error
+      return rejectWithValue(error.response ? error.response.data : { message: error.message });
     }
   }
 );
@@ -28,7 +33,10 @@ export const logoutUser = createAsyncThunk(
   async (_, { rejectWithValue, dispatch }) => {
     try {
       const token = localStorage.getItem('userdatatoken');
-      console.log('Sending request to logout with token:', token);  // Log the token
+      console.log('Sending request to logout with token:', token); 
+      if (!token) {
+        throw new Error('No token found');
+      } 
       const response = await axios.get(`${API_URL}/api/logout`, {
         headers: {
           'Content-Type': "application/json",
@@ -46,8 +54,8 @@ export const logoutUser = createAsyncThunk(
         return rejectWithValue(response.data);
       }
     } catch (error) {
-      console.error('Error logging out:', error.response.data);  // Log the error
-      return rejectWithValue(error.response.data);
+      console.error('Error logging out:', error.response ? error.response.data : error.message);  // Log the error
+      return rejectWithValue(error.response ? error.response.data : { message: error.message });
     }
   }
 );

@@ -146,7 +146,7 @@ function App() {
         </Route>
       )}
     </Routes>
-        <InstallPrompt /> {/* Add the InstallPrompt component */}
+        <InstallPrompt /> 
         <CustomBanner/>
         </>
   );

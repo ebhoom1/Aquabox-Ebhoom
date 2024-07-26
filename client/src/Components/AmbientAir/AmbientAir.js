@@ -38,6 +38,12 @@ const AmbientAir = () => {
     }
   }, [searchTerm, userData, userType, dispatch]);
 
+  // useEffect(() => {
+  //   if (searchResult) {
+  //     console.log('searchResult:', searchResult);
+  //   }
+  // }, [searchResult]);
+
   const handleCardClick = (card) => {
     setSelectedCard(card);
     setShowPopup(true);
@@ -57,7 +63,7 @@ const AmbientAir = () => {
   };
 
   const airParameters = [
-    { parameter: "PM ", value: 'µg/m³', name: "PM" },
+    { parameter: "PM", value: 'µg/m³', name: "PM" },
     { parameter: "SO2", value: 'µg/m³', name: "SO2" },
     { parameter: "NO2", value: 'µg/m³', name: "NO2" },
     { parameter: "Mercury", value: 'µg/m³', name: "Mercury" },
@@ -83,13 +89,13 @@ const AmbientAir = () => {
               <div className="quick-link-wrapper w-100 d-md-flex flex-md-wrap">
                 <ul className="quick-links ml-auto">
                   {userData?.validUserOne && userData.validUserOne.userType === 'user' && (
-                    <h5>Data Interval: <span className="span-class">{userData.validUserOne.dataInteval}</span></h5>
+                    <h5>Data Interval: <span className="span-class">{userData.validUserOne.dataInterval}</span></h5>
                   )}
                 </ul>
                 <ul className="quick-links ml-auto">
                   {latestData && (
                     <>
-                      <h5>Analyser Health : </h5>
+                      <h5>Analyser Health: </h5>
                       {searchResult?.validationStatus ? (
                         <h5 style={{ color: "green" }}>Good</h5>
                       ) : (
@@ -128,12 +134,11 @@ const AmbientAir = () => {
                     <div className="col-12 mb-3">
                       <h6>
                         <strong className="strong-value">
-                          {searchStatus === 'success' && searchResult ? searchResult[item.name] || 'N/A' : 'No Result found for this userID'}
+                          {searchResult ? searchResult[item.name] || 'N/A' : 'No Result found for this userID'}
                         </strong> 
                         {item.value}
                       </h6>
                     </div>
-                  
                   </div>
                 </div>
               </div>

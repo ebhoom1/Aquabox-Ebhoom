@@ -6,6 +6,12 @@ const InstallPrompt = () => {
   const [modalIsOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
+    // Check if the install prompt has already been shown
+    const installPromptShown = localStorage.getItem('installPromptShown');
+    if (installPromptShown) {
+      return;
+    }
+
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
       window.deferredPrompt = e;
@@ -27,11 +33,15 @@ const InstallPrompt = () => {
       console.log(`User response to the install prompt: ${outcome}`);
       window.deferredPrompt = null;
       setIsOpen(false);
+      // Set the flag in localStorage
+      localStorage.setItem('installPromptShown', 'true');
     }
   };
 
   const closeModal = () => {
     setIsOpen(false);
+    // Set the flag in localStorage
+    localStorage.setItem('installPromptShown', 'true');
   };
 
   return (
