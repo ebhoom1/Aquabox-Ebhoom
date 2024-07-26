@@ -147,7 +147,7 @@ const PrivateLayout = () => {
         <>
           <li>
             <a href="#" onClick={toggleDashboardSubmenu}>
-              Dashboard Components
+              Quality
             </a>
             {isDashboardSubmenuOpen && (
               <ul className="dropdown-submenu">
