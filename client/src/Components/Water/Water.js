@@ -16,7 +16,7 @@ const Water = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [selectedParameter, setSelectedParameter] = useState(null);
   const [showCalibrationPopup, setShowCalibrationPopup] = useState(false);
-  const { searchTerm, searchStatus, handleSearch } = useOutletContext();
+  const { searchTerm, handleSearch } = useOutletContext();
   const [searchResult, setSearchResult] = useState(null);
   const [searchError, setSearchError] = useState("");
 
@@ -38,6 +38,12 @@ const Water = () => {
       fetchData(userData.validUserOne.userName);
     }
   }, [searchTerm, userData, userType, dispatch]);
+
+  // useEffect(() => {
+  //   if (searchResult) {
+  //     console.log('searchResult:', searchResult);
+  //   }
+  // }, [searchResult]);
 
   const handleCardClick = (parameter) => {
     setSelectedParameter(parameter);
@@ -128,7 +134,7 @@ const Water = () => {
                   <h3 className="mb-3">{item.parameter}</h3>
                   <h6>
                     <strong>
-                      {searchStatus === 'success' && searchResult ? searchResult[item.name] || 'N/A' : 'No Result found for this userID'}
+                      {searchResult ? searchResult[item.name] || 'N/A' : 'No Result found for this userID'}
                     </strong> 
                     {item.value}
                   </h6>
@@ -150,7 +156,7 @@ const Water = () => {
 
       {showCalibrationPopup && (
         <CalibrationPopup
-          userName={userData.validUserOne.userName}
+          userName={userData?.validUserOne?.userName}
           onClose={handleCloseCalibrationPopup}
         />
       )}

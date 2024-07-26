@@ -1,7 +1,6 @@
 import './index.css';
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchUser } from "../../redux/features/user/userSlice";
 import { fetchIotDataByUserName } from "../../redux/features/iotData/iotDataSlice";
 import NoiseGraphPopup from './NoiseGraphPopup';
 import CalibrationPopup from '../Calibration/CalibrationPopup';
@@ -15,7 +14,7 @@ const Noise = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
   const [showCalibrationPopup, setShowCalibrationPopup] = useState(false);
-  const { searchTerm, searchStatus, handleSearch } = useOutletContext();
+  const { searchTerm } = useOutletContext();
   const [searchResult, setSearchResult] = useState(null);
   const [searchError, setSearchError] = useState("");
 
@@ -37,6 +36,12 @@ const Noise = () => {
       fetchData(userData.validUserOne.userName);
     }
   }, [searchTerm, userData, userType, dispatch]);
+
+  // useEffect(() => {
+  //   if (searchResult) {
+  //     console.log('searchResult:', searchResult);
+  //   }
+  // }, [searchResult]);
 
   const handleCardClick = (card) => {
     setSelectedCard(card);
@@ -110,7 +115,7 @@ const Noise = () => {
                   <div className="col-12 mb-3">
                     <h6>
                       <strong className="strong-value">
-                        {searchStatus === 'success' && searchResult ? searchResult.db || 'N/A' : 'No Result found for this userID'}
+                        {searchResult ? searchResult.db || 'N/A' : 'No Result found for this userID'}
                       </strong> 
                       dB
                     </h6>

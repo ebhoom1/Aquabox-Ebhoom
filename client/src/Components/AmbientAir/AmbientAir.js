@@ -89,7 +89,7 @@ const AmbientAir = () => {
               <div className="quick-link-wrapper w-100 d-md-flex flex-md-wrap">
                 <ul className="quick-links ml-auto">
                   {userData?.validUserOne && userData.validUserOne.userType === 'user' && (
-                    <h5>Data Interval: <span className="span-class">{userData.validUserOne.dataInterval}</span></h5>
+                    <h5>Data Interval: <span className="span-class">{userData.validUserOne.dataInteval}</span></h5>
                   )}
                 </ul>
                 <ul className="quick-links ml-auto">
