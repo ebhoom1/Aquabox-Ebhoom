@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import { API_URL } from '../../utils/apiConfig';
 import './index.css';
 
@@ -13,8 +13,8 @@ const CalibrationExceeded = () => {
   const [currentEntryId, setCurrentEntryId] = useState(null);
   const [currentComment, setCurrentComment] = useState('');
   const [isEditingAdminComment, setIsEditingAdminComment] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
+  const { searchTerm, isSearchTriggered } = useOutletContext();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,18 +34,19 @@ const CalibrationExceeded = () => {
         } else {
           console.log("User Verified");
           setUserType(userData.validUserOne.userType);
-          console.log("User Type :::::", userData.validUserOne.userType);
           setDataLoaded(true);
 
-          const apiUrl = userData.validUserOne.userType === 'admin'
-            ? `${API_URL}/api/get-all-exceed-data`
-            : `${API_URL}/api/get-user-exceed-data/${userData.validUserOne.userName}`;
+          if (isSearchTriggered) {
+            const apiUrl = userData.validUserOne.userType === 'admin'
+              ? `${API_URL}/api/get-user-exceed-data/${searchTerm}`
+              : `${API_URL}/api/get-user-exceed-data/${userData.validUserOne.userName}`;
 
-          const commentsResponse = await axios.get(apiUrl);
-          if (commentsResponse.data && commentsResponse.data.userExceedData) {
-            setEntries(commentsResponse.data.userExceedData);
-          } else {
-            setEntries([]);
+            const commentsResponse = await axios.get(apiUrl);
+            if (commentsResponse.data && commentsResponse.data.userExceedData) {
+              setEntries(commentsResponse.data.userExceedData);
+            } else {
+              setEntries([]);
+            }
           }
         }
       } catch (error) {
@@ -55,24 +56,7 @@ const CalibrationExceeded = () => {
     };
 
     fetchData();
-  }, [navigate]);
-
-  const handleSearch = async () => {
-    try {
-      const apiUrl = searchQuery
-        ? `${API_URL}/api/get-user-exceed-data/${searchQuery}`
-        : `${API_URL}/api/get-all-exceed-data`;
-
-      const searchResponse = await axios.get(apiUrl);
-      if (searchResponse.data && searchResponse.data.userExceedData) {
-        setEntries(searchResponse.data.userExceedData);
-      } else {
-        setEntries([]);
-      }
-    } catch (error) {
-      toast.error("Failed to search comments");
-    }
-  };
+  }, [navigate, searchTerm, isSearchTriggered]);
 
   const handleEditComment = async (id, commentField) => {
     try {
@@ -92,29 +76,11 @@ const CalibrationExceeded = () => {
   return (
     <>
       <ToastContainer />
-   
-
       <div className="card">
         <div className="card-body">
           <div className="row mt-5">
             <div className="col-md-12">
               <h2>Calibration Exceeded</h2>
-
-              {userType === 'admin' && (
-                <div className="mb-3">
-                  <input
-                    type="text"
-                    className="input-field"
-                    placeholder="Search by user name"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                  <button className="btn btn-primary mt-2" onClick={handleSearch}>
-                    Search
-                  </button>
-                </div>
-              )}
-
               <div className="table-responsive">
                 <table className="table table-bordered">
                   <thead>

@@ -23,6 +23,7 @@ const PrivateLayout = () => {
   const [submittedSearchTerm, setSubmittedSearchTerm] = useState('');
   const [searchStatus, setSearchStatus] = useState('');
   const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const [isSearchTriggered, setIsSearchTriggered] = useState(false);
 
   useEffect(() => {
     const validateUser = async () => {
@@ -100,6 +101,7 @@ const PrivateLayout = () => {
     event.preventDefault();
     setSubmittedSearchTerm(searchTerm);
     setSearchStatus('loading');
+    setIsSearchTriggered(true);
     try {
       const response = await dispatch(fetchIotDataByUserName(searchTerm)).unwrap();
       setSearchResults(response);
@@ -281,7 +283,7 @@ const PrivateLayout = () => {
       </nav>
       <div className="container-fluid page-body-wrapper">
         <LeftSideBar />
-        <Outlet context={{ searchTerm: submittedSearchTerm, searchStatus, handleSearch }} />
+        <Outlet context={{ searchTerm: submittedSearchTerm, searchStatus, handleSearch, isSearchTriggered }} />
       </div>
     </div>
   );
