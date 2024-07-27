@@ -296,18 +296,39 @@ const handleExceedValues = async () => {
             }
 
             // Define parameters to be checked
-            const exceedParameters = [
-                { parameter: 'ph', value: latestData.ph, aboveThreshold: industryThresholds.phAbove, belowThreshold: industryThresholds.phBelow },
-                { parameter: 'turbidity', value: latestData.turbidity, threshold: industryThresholds.turbidity },
-                { parameter: 'ORP', value: latestData.ORP, threshold: industryThresholds.ORP },
-                { parameter: 'TDS', value: latestData.TDS, threshold: industryThresholds.TDS },
-                { parameter: 'temperature', value: latestData.temperature, threshold: industryThresholds.temperature },
-                { parameter: 'BOD', value: latestData.BOD, threshold: industryThresholds.BOD },
-                { parameter: 'COD', value: latestData.COD, threshold: industryThresholds.COD },
-                { parameter: 'TSS', value: latestData.TSS, threshold: industryThresholds.TSS },
-                { parameter: 'PM', value: latestData.PM, threshold: industryThresholds.PM },
-                // Add other parameters if needed
-            ];
+const exceedParameters = [
+    { parameter: 'ph', value: latestData.ph, aboveThreshold: industryThresholds.phAbove, belowThreshold: industryThresholds.phBelow },
+    { parameter: 'turbidity', value: latestData.turbidity, threshold: industryThresholds.turbidity },
+    { parameter: 'ORP', value: latestData.ORP, threshold: industryThresholds.ORP },
+    { parameter: 'TDS', value: latestData.TDS, threshold: industryThresholds.TDS },
+    { parameter: 'temperature', value: latestData.temperature, threshold: industryThresholds.temperature },
+    { parameter: 'BOD', value: latestData.BOD, threshold: industryThresholds.BOD },
+    { parameter: 'COD', value: latestData.COD, threshold: industryThresholds.COD },
+    { parameter: 'TSS', value: latestData.TSS, threshold: industryThresholds.TSS },
+    { parameter: 'PM', value: latestData.PM, threshold: industryThresholds.PM },
+    { parameter: 'nitrate', value: latestData.nitrate, threshold: industryThresholds.nitrate },
+    { parameter: 'ammonicalNitrogen', value: latestData.ammonicalNitrogen, threshold: industryThresholds.ammonicalNitrogen },
+    { parameter: 'DO', value: latestData.DO, threshold: industryThresholds.DO },
+    { parameter: 'chloride', value: latestData.chloride, threshold: industryThresholds.chloride },
+    { parameter: 'SO2', value: latestData.SO2, threshold: industryThresholds.SO2 },
+    { parameter: 'NO2', value: latestData.NO2, threshold: industryThresholds.NO2 },
+    { parameter: 'Mercury', value: latestData.Mercury, threshold: industryThresholds.Mercury },
+    { parameter: 'PM10', value: latestData.PM10, threshold: industryThresholds.PM10 },
+    { parameter: 'PM25', value: latestData.PM25, threshold: industryThresholds.PM25 },
+    { parameter: 'NOH', value: latestData.NOH, threshold: industryThresholds.NOH },
+    { parameter: 'NH3', value: latestData.NH3, threshold: industryThresholds.NH3 },
+    { parameter: 'WindSpeed', value: latestData.WindSpeed, threshold: industryThresholds.WindSpeed },
+    { parameter: 'WindDir', value: latestData.WindDir, threshold: industryThresholds.WindDir },
+    { parameter: 'AirTemperature', value: latestData.AirTemperature, threshold: industryThresholds.AirTemperature },
+    { parameter: 'Humidity', value: latestData.Humidity, threshold: industryThresholds.Humidity },
+    { parameter: 'solarRadiation', value: latestData.solarRadiation, threshold: industryThresholds.solarRadiation },
+    { parameter: 'DB', value: latestData.DB, threshold: industryThresholds.DB },
+    { parameter: 'inflow', value: latestData.inflow, threshold: industryThresholds.inflow },
+    { parameter: 'finalflow', value: latestData.finalflow, threshold: industryThresholds.finalflow },
+    { parameter: 'energy', value: latestData.energy, threshold: industryThresholds.energy },
+    // Add other parameters if needed
+  ];
+  
 
             // Check if any parameter exceeds the threshold
             const exceedances = [];
