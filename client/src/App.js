@@ -83,7 +83,7 @@ function App() {
         <Route path="faq" element={<Faq />} />
         <Route path="terms" element={<Terms />} />
         <Route path="/download-IoT-Data" element={<DownloadIoTdata/>}/>
-        <Route path = "*" element={<Error/>}/>
+        {/* <Route path = "*" element={<Error/>}/> */}
       </Route>
 
       {!loading && userData && (
