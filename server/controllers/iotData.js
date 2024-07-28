@@ -387,7 +387,11 @@ const getAverageDataByUserName = async (req, res) => {
 
 const downloadIotData = async (req, res) => {
     try {
-        const { fromDate, toDate, industryName, companyName, format } = req.query;
+        let { fromDate, toDate, industryName, companyName, format } = req.query;
+
+        // Decode the URL-encoded parameters
+        industryName = decodeURIComponent(industryName);
+        companyName = decodeURIComponent(companyName);
 
         // Validate input
         if (!fromDate || !toDate || !industryName || !companyName) {
@@ -410,7 +414,7 @@ const downloadIotData = async (req, res) => {
 
         if (format === 'csv') {
             // Generate CSV
-            const fields = ['userName', 'industryType', 'companyName', 'date', 'product_id', 'ph', 'TDS', 'turbidity', 'temperature', 'BOD', 'COD', 'TSS', 'ORP', 'nitrate', 'ammonicalNitrogen', 'DO', 'chloride', 'PM10', 'PM25', 'NOH', 'NH3', 'WindSpeed', 'WindDir', 'AirTemperature', 'Humidity', 'solarRadiation', 'DB', 'inflow', 'finalflow', 'energy'];
+            const fields = ['userName', 'industryType', 'companyName', 'date', 'product_id', 'ph', 'TDS', 'turbidity', 'temperature', 'BOD', 'COD', 'TSS', 'ORP', 'nitrate', 'ammonicalNitrogen', 'DO', 'chloride','PM', 'PM10', 'PM25', 'NOH', 'NH3', 'WindSpeed', 'WindDir', 'AirTemperature', 'Humidity', 'solarRadiation', 'DB', 'inflow', 'finalflow', 'energy'];
             const json2csvParser = new Parser({ fields });
             const csv = json2csvParser.parse(data);
 
@@ -448,6 +452,8 @@ const downloadIotData = async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 };
+
+
 
 //inflow, finalflow,Energy
 
