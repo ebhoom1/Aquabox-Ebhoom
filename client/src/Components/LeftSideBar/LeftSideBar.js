@@ -112,7 +112,7 @@ const LeftSideBar = () => {
           <NavItem to="/report" iconClass="typcn typcn-document-text" title="Report" />
           <NavItem to="/subscribe-data" iconClass="typcn typcn-document-text" title="Subscribe" />
           <NavItem
-            to="/list-of-support-analyser-make-and-model"
+            to="/supportedAnalyserModels"
             iconClass="typcn typcn-document-text"
             title="Supported Analyser Models "
            

@@ -118,7 +118,7 @@ function App() {
               <Route path ='/quantity' element={<Quantity/>}/>
               <Route path = '/energy' element={<Energy/>}/>
               <Route path = '/live-video' element ={<LiveVideo/>}/>
-              <Route path = "*" element={<Error/>}/>
+              {/* <Route path = "/*" element={<Error/>}/> */}
 
 
 
@@ -135,11 +135,11 @@ function App() {
               <Route path ="/transactions" element={<Transaction/>}/>
               <Route path= "edit-report/:userName" element={<EditReport />}/>
               <Route path="view-report/:userName" element={<ViewReport />}/>
-              <Route path="supportedAnalyserModels" element={<SupportedAnalyserModels />} />
+              <Route path="/supportedAnalyserModels" element={<SupportedAnalyserModels />} />
               <Route path="/download-IoT-Data" element={<DownloadIoTdata/>}/>
               <Route path ='/quantity' element={<Quantity/>}/>
               <Route path = '/energy' element={<Energy/>}/>
-              <Route path = "/*" element={<Error/>}/>    
+              {/* <Route path = "/*" element={<Error/>}/>     */}
 
             </>
           )}

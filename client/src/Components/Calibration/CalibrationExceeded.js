@@ -80,7 +80,7 @@ const CalibrationExceeded = () => {
         <div className="card-body">
           <div className="row mt-5">
             <div className="col-md-12">
-              <h2>Calibration Exceeded</h2>
+              <h2>Parameter Threshold Exceedance</h2>
               <div className="table-responsive">
                 <table className="table table-bordered">
                   <thead>
