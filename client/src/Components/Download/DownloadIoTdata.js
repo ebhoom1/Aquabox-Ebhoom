@@ -80,6 +80,7 @@ const DownloadIoTdata = () => {
         { category: "Thermal Power Station" },
         { category: "Caustic Soda" },
         { category: "Pharmaceuticals" },
+        { category: "Chemical" },
         { category: "Dye and Dye Stuff" },
         { category: "Refinery" },
         { category: "Copper Smelter" },
