@@ -18,16 +18,16 @@ const CalibrationExceededReport = () => {
       try {
         const response = await axios.get(`${API_URL}/api/user-exceed-data`, {
           params: {
-            userName: userName,
-            industryType: industry,
-            companyName: company,
-            fromDate: dateFrom,
-            toDate: dateTo
+            userName: userName.trim(),
+            industryType: industry.trim(),
+            companyName: company.trim(),
+            fromDate: dateFrom.trim(),
+            toDate: dateTo.trim()
           }
         });
 
         console.log("API Response:", response.data); // Debugging log
-        setEntries(response.data.comments ||[]);
+        setEntries(response.data.comments || []);
       } catch (error) {
         console.error('Error fetching exceed data:', error);
       }
@@ -45,23 +45,22 @@ const CalibrationExceededReport = () => {
     }
     try {
       const reportData = {
-        userName,
-        industryType: industry,
-        companyName: company,
-        fromDate: dateFrom,
-        toDate: dateTo,
-        engineerName,
+        userName: userName.trim(),
+        industryType: industry.trim(),
+        companyName: company.trim(),
+        fromDate: dateFrom.trim(),
+        toDate: dateTo.trim(),
+        engineerName: engineerName.trim(),
         reportApproved,
       };
-  
+
       const response = await axios.post(`${API_URL}/api/create-report`, reportData);
-  
+
       if (response.status === 201) {
-        window.confirm(`Are your sure  ${reportApproved ? 'approve' : 'denied'} the Report`)
-        toast.success(`Calibration exceed Report ${reportApproved ? 'approved' : 'denied'}`);
+        window.confirm(`Are you sure you want to ${reportApproved ? 'approve' : 'deny'} the report?`);
+        toast.success(`Calibration exceed report ${reportApproved ? 'approved' : 'denied'}`);
         if (!reportApproved) {
-          setTimeout(()=>{navigate("/users-log");},1000)
-          
+          setTimeout(() => { navigate("/users-log"); }, 1000);
         }
       } else {
         toast.error('Error creating report');
@@ -71,10 +70,11 @@ const CalibrationExceededReport = () => {
       toast.error('Error creating report');
     }
   };
-  
+
   const handleVerified = () => handleReport(true);
 
   const handleDenied = () => handleReport(false);
+
   return (
     <div className="main-panel">
       <div className="content-wrapper">
@@ -107,7 +107,6 @@ const CalibrationExceededReport = () => {
                   <p><strong>User Name:</strong> {userName}</p>
                 </div>
                 
-                       
                 <div className="table-responsive">
                   <table className="table table-bordered">
                     <thead>
@@ -130,14 +129,14 @@ const CalibrationExceededReport = () => {
                           <td>{item.formattedDate}</td>
                           <td>{item.formattedTime}</td>
                           <td>{item.commentByUser || 'N/A'}</td>
-                          <td>{item.commentByAdmin || 'N/A' }</td>
+                          <td>{item.commentByAdmin || 'N/A'}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
                 <div className="mt-4">
-                <h3>Report</h3>
+                  <h3>Report</h3>
                   <form className="row g-3">
                     <div className="col-md-6">
                       <label htmlFor="dateFrom" className="form-label"><strong>From Date:</strong></label>

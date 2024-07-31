@@ -42,6 +42,14 @@ const iotDataSchema = new mongoose.Schema({
     chloride:{
         type:String,
     }, 
+    Flow:{
+        type:String,
+    },
+    CO:{
+        type:String,
+    },
+    NOX:{type:String},
+    Pressure:{type:String},
     PM:{
         type:String,
     },   

@@ -63,6 +63,10 @@ const AmbientAir = () => {
   };
 
   const airParameters = [
+    { parameter: "Flow", value: 'm/s', name: "Flow" },
+    { parameter: "CO", value: 'µg/Nm³', name: "CO" },
+    { parameter: "NOX", value: 'µg/Nm³', name: "NOX" },
+    { parameter: "Pressure", value: 'Pa', name: "Pressure" },
     { parameter: "PM", value: 'µg/m³', name: "PM" },
     { parameter: "SO2", value: 'µg/m³', name: "SO2" },
     { parameter: "NO2", value: 'µg/m³', name: "NO2" },

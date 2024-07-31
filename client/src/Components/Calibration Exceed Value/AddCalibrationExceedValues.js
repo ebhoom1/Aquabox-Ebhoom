@@ -313,6 +313,26 @@ const AddCalibrationExceedValues = () => {
                         />   
                       </div>
                       <div className="col-12 col-lg-6 col-md-6 mb-3">
+                          <label htmlFor="exampleFormControlInput5">Flow</label>
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="Flow" name='Flow' value={formData.Flow} onChange={handleInputChange}  
+                        />   
+                      </div>
+                      <div className="col-12 col-lg-6 col-md-6 mb-3">
+                          <label htmlFor="exampleFormControlInput5">CO</label>
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="CO" name='CO' value={formData.CO} onChange={handleInputChange}  
+                        />   
+                      </div>
+                      <div className="col-12 col-lg-6 col-md-6 mb-3">
+                          <label htmlFor="exampleFormControlInput5">NOX</label>
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="NOX" name='NOX' value={formData.Flow} onChange={handleInputChange}  
+                        />   
+                      </div>
+                      <div className="col-12 col-lg-6 col-md-6 mb-3">
+                          <label htmlFor="exampleFormControlInput5">Pressure</label>
+                          <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="Pressure" name='Pressure' value={formData.Flow} onChange={handleInputChange}  
+                        />   
+                      </div>
+                      <div className="col-12 col-lg-6 col-md-6 mb-3">
                           <label htmlFor="exampleFormControlInput5">PM</label>
                           <input type="text" className="input-field" id="exampleFormControlInput5" placeholder="PM" name='PM' value={formData.PM} onChange={handleInputChange}  
                         />   
