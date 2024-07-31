@@ -47,6 +47,9 @@ const AddUsers = () => {
       category:"Pharmaceuticals"
     },
     {
+      category:"Chemical"
+    },
+    {
       category:"Dye and Dye Stuff"
     },
     {

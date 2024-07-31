@@ -239,6 +239,7 @@ const EditUsers = () => {
                         <option value="Thermal Power Station">Thermal Power Station</option>
                         <option value="Caustic Soda">Caustic Soda</option>
                         <option value="Pharmaceuticals">Pharmaceuticals</option>
+                        <option value="Chemical">Chemical</option>
                         <option value="Dye and Dye Stuff">Dye and Dye Stuff</option>
                         <option value="Refinery">Refinery</option>
                         <option value="Copper Smelter">Copper Smelter</option>
