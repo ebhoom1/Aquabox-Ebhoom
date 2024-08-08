@@ -99,3 +99,10 @@
   
   }
   
+
+  .spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 60vh; /* Adjust the height as needed to center the spinner vertically */
+  }
