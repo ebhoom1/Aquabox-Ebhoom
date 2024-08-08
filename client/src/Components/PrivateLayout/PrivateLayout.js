@@ -218,7 +218,7 @@ const PrivateLayout = () => {
                         type="text"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value.toUpperCase())}
-                        placeholder="Search user data..."
+                        placeholder="Search user data..."         
                         style={{ width: "300px" }}
                       />
                       <button className="btn btn-search  my-2 my-sm-0" type="submit"><i className="bi bi-search"/></button>
