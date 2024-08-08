@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchUser } from "../../redux/features/user/userSlice";
 import { fetchIotDataByUserName } from "../../redux/features/iotData/iotDataSlice";
 import AirGraphPopup from "./AirGraphPopup";
 import './index.css';
@@ -9,7 +8,6 @@ import CalibrationExceeded from '../Calibration/CalibrationExceeded';
 import { useOutletContext } from 'react-router-dom';
 import { Oval } from 'react-loader-spinner';
 
-
 const AmbientAir = () => {
   const dispatch = useDispatch();
   const { userData, userType } = useSelector((state) => state.user);
@@ -17,36 +15,36 @@ const AmbientAir = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
   const [showCalibrationPopup, setShowCalibrationPopup] = useState(false);
-  const { searchTerm, searchStatus, handleSearch } = useOutletContext();
+  const { searchTerm } = useOutletContext();
   const [searchResult, setSearchResult] = useState(null);
   const [searchError, setSearchError] = useState("");
   const [currentUserName, setCurrentUserName] = useState("KSPCB001");
   const [companyName, setCompanyName] = useState("");
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async (userName) => {
-      setLoading(true);
-      try {
-        const result = await dispatch(fetchIotDataByUserName(userName)).unwrap();
-        setSearchResult(result);
-        setCompanyName(result?.companyName || "Unknown Company");
-        setSearchError("");
-      } catch (err) {
-        setSearchResult(null);
-        setCompanyName("Unknown Company");
-        setSearchError(err.message || 'No Result found for this userID');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchData = async (userName) => {
+    setLoading(true);
+    try {
+      const result = await dispatch(fetchIotDataByUserName(userName)).unwrap();
+      setSearchResult(result);
+      setCompanyName(result?.companyName || "Unknown Company");
+      setSearchError("");
+    } catch (err) {
+      setSearchResult(null);
+      setCompanyName("Unknown Company");
+      setSearchError(err.message || 'No Result found for this userID');
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     if (searchTerm) {
       fetchData(searchTerm);
-    } else if (userData && userType === 'user') {
-      fetchData(userData.validUserOne.userName);
+    } else {
+      fetchData(currentUserName);
     }
-  }, [searchTerm, userData, userType, dispatch]);
+  }, [searchTerm, currentUserName, dispatch]);
 
   const handleCardClick = (card) => {
     setSelectedCard(card);
@@ -66,34 +64,11 @@ const AmbientAir = () => {
     setShowCalibrationPopup(false);
   };
 
-  const fetchUserData = async (userId) => {
-    setLoading(true);
-    try {
-      const result = await dispatch(fetchIotDataByUserName(userId)).unwrap();
-      if (result) {
-        setSearchResult(result);
-        setCompanyName(result?.companyName || "Unknown Company");
-        setSearchError("");
-        setCurrentUserName(userId);
-      } else {
-        setSearchResult(null);
-        setCompanyName("Unknown Company");
-        setSearchError('No Result found for this userID');
-      }
-    } catch (error) {
-      setSearchResult(null);
-      setCompanyName("Unknown Company");
-      setSearchError('No Result found for this userID');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleNextUser = () => {
     const userIdNumber = parseInt(currentUserName.replace(/[^\d]/g, ''), 10);
     if (!isNaN(userIdNumber)) {
       const newUserId = `KSPCB${String(userIdNumber + 1).padStart(3, '0')}`;
-      fetchUserData(newUserId);
+      setCurrentUserName(newUserId);
     }
   };
 
@@ -101,7 +76,7 @@ const AmbientAir = () => {
     const userIdNumber = parseInt(currentUserName.replace(/[^\d]/g, ''), 10);
     if (!isNaN(userIdNumber) && userIdNumber > 1) {
       const newUserId = `KSPCB${String(userIdNumber - 1).padStart(3, '0')}`;
-      fetchUserData(newUserId);
+      setCurrentUserName(newUserId);
     }
   };
 
@@ -135,7 +110,6 @@ const AmbientAir = () => {
               <h4 className="page-title">Ambient Air DASHBOARD</h4>
               <button className="btn btn-primary" onClick={handleNextUser} disabled={loading}>Next</button>
             </div>
-            <p></p>
             <div className="quick-link-wrapper w-100 d-md-flex flex-md-wrap">
               <ul className="quick-links ml-auto">
                 {userData?.validUserOne && userData.validUserOne.userType === 'user' && (
@@ -178,7 +152,6 @@ const AmbientAir = () => {
           </div>
         </div>
 
-       
         {loading && (
           <div className="spinner-container">
             <Oval
@@ -186,6 +159,9 @@ const AmbientAir = () => {
               width={60}
               color="#236A80"
               ariaLabel="Fetching details"
+              secondaryColor="#e0e0e0"
+              strokeWidth={2}
+              strokeWidthSecondary={2}
             />
           </div>
         )}
@@ -225,27 +201,27 @@ const AmbientAir = () => {
 
         {showCalibrationPopup && (
           <CalibrationPopup
+            userName={userData?.validUserOne?.userName}
             onClose={handleCloseCalibrationPopup}
           />
         )}
+        <CalibrationExceeded />
+        <footer className="footer">
+          <div className="container-fluid clearfix">
+            <span className="text-muted d-block text-center text-sm-left d-sm-inline-block">
+              Ebhoom Control and Monitor System
+            </span>
+            <span className="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">
+              {" "}
+              ©{" "}
+              <a href="" target="_blank">
+                Ebhoom Solutions LLP
+              </a>{" "}
+              2023
+            </span>
+          </div>
+        </footer>
       </div>
-
-      <CalibrationExceeded />
-
-      <footer className="footer">
-        <div className="container-fluid clearfix">
-          <span className="text-muted d-block text-center text-sm-left d-sm-inline-block">
-            Ebhoom Control and Monitor System
-          </span>
-          <span className="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">
-            ©
-            <a href="" target="_blank">
-              Ebhoom Solutions LLP
-            </a>
-            2023
-          </span>
-        </div>
-      </footer>
     </div>
   );
 };

@@ -41,10 +41,10 @@ const Noise = () => {
 
     if (searchTerm) {
       fetchData(searchTerm);
-    } else if (userData && userType === 'user') {
-      fetchData(userData.validUserOne.userName);
+    } else {
+      fetchData(currentUserName);
     }
-  }, [searchTerm, userData, userType, dispatch]);
+  }, [searchTerm, currentUserName, dispatch]);
 
   const handleCardClick = (card) => {
     setSelectedCard(card);
@@ -199,7 +199,7 @@ const Noise = () => {
             isOpen={showPopup}
             onRequestClose={handleClosePopup}
             parameter={selectedCard.title}
-            userName={searchTerm || userData?.validUserOne?.userName}
+            userName={currentUserName}
           />
         )}
 

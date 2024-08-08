@@ -1,61 +1,58 @@
 import React, { useEffect, useState } from "react";
-import axios from 'axios';
-import { useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
-import CalibrationPopup from "../Calibration/CalibrationPopup";
-import CalibrationExceeded from "../Calibration/CalibrationExceeded";
-import { ToastContainer } from "react-toastify";
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchIotDataByUserName } from "../../redux/features/iotData/iotDataSlice";
 import WaterGraphPopup from './WaterGraphPopup';
+import CalibrationPopup from '../Calibration/CalibrationPopup';
+import CalibrationExceeded from '../Calibration/CalibrationExceeded';
 import { useOutletContext } from 'react-router-dom';
 import { Oval } from 'react-loader-spinner';
 
-const API_URL = "http://ocems.ebhoom.com:5555";
-
 const Water = () => {
+  const dispatch = useDispatch();
   const { userData, userType } = useSelector((state) => state.user);
-  const { latestData, userIotData, error } = useSelector((state) => state.iotData);
+  const { latestData, error } = useSelector((state) => state.iotData);
   const [showPopup, setShowPopup] = useState(false);
-  const [selectedParameter, setSelectedParameter] = useState(null);
+  const [selectedCard, setSelectedCard] = useState(null);
   const [showCalibrationPopup, setShowCalibrationPopup] = useState(false);
-  const { searchTerm, handleSearch } = useOutletContext();
+  const { searchTerm } = useOutletContext();
   const [searchResult, setSearchResult] = useState(null);
   const [searchError, setSearchError] = useState("");
   const [currentUserName, setCurrentUserName] = useState("KSPCB001");
   const [companyName, setCompanyName] = useState("");
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async (userName) => {
-      setLoading(true);
-      try {
-        const response = await axios.get(`${API_URL}/api/get-IoT-Data-by-userName/${userName}`);
-        setSearchResult(response.data);
-        setCompanyName(response.data?.companyName || "Unknown Company");
-        setSearchError("");
-      } catch (err) {
-        setSearchResult(null);
-        setCompanyName("Unknown Company");
-        setSearchError(err.message || 'No Result found for this userID');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchData = async (userName) => {
+    setLoading(true);
+    try {
+      const result = await dispatch(fetchIotDataByUserName(userName)).unwrap();
+      setSearchResult(result);
+      setCompanyName(result?.companyName || "Unknown Company");
+      setSearchError("");
+    } catch (err) {
+      setSearchResult(null);
+      setCompanyName("Unknown Company");
+      setSearchError(err.message || 'No Result found for this userID');
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     if (searchTerm) {
       fetchData(searchTerm);
     } else {
       fetchData(currentUserName);
     }
-  }, [searchTerm, currentUserName]);
+  }, [searchTerm, currentUserName, dispatch]);
 
-  const handleCardClick = (parameter) => {
-    setSelectedParameter(parameter);
+  const handleCardClick = (card) => {
+    setSelectedCard(card);
     setShowPopup(true);
   };
 
   const handleClosePopup = () => {
     setShowPopup(false);
-    setSelectedParameter(null);
+    setSelectedCard(null);
   };
 
   const handleOpenCalibrationPopup = () => {
@@ -66,34 +63,11 @@ const Water = () => {
     setShowCalibrationPopup(false);
   };
 
-  const fetchUserData = async (userId) => {
-    setLoading(true);
-    try {
-      const response = await axios.get(`${API_URL}/api/get-IoT-Data-by-userName/${userId}`);
-      if (response.data) {
-        setSearchResult(response.data);
-        setCompanyName(response.data?.companyName || "Unknown Company");
-        setSearchError("");
-        setCurrentUserName(userId);
-      } else {
-        setSearchResult(null);
-        setCompanyName("Unknown Company");
-        setSearchError('No Result found for this userID');
-      }
-    } catch (error) {
-      setSearchResult(null);
-      setCompanyName("Unknown Company");
-      setSearchError('No Result found for this userID');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleNextUser = () => {
     const userIdNumber = parseInt(currentUserName.replace(/[^\d]/g, ''), 10);
     if (!isNaN(userIdNumber)) {
       const newUserId = `KSPCB${String(userIdNumber + 1).padStart(3, '0')}`;
-      fetchUserData(newUserId);
+      setCurrentUserName(newUserId);
     }
   };
 
@@ -101,7 +75,7 @@ const Water = () => {
     const userIdNumber = parseInt(currentUserName.replace(/[^\d]/g, ''), 10);
     if (!isNaN(userIdNumber) && userIdNumber > 1) {
       const newUserId = `KSPCB${String(userIdNumber - 1).padStart(3, '0')}`;
-      fetchUserData(newUserId);
+      setCurrentUserName(newUserId);
     }
   };
 
@@ -131,7 +105,6 @@ const Water = () => {
               <h4 className="page-title">EFFLUENT/WATER DASHBOARD</h4>
               <button className="btn btn-primary" onClick={handleNextUser} disabled={loading}>Next</button>
             </div>
-            <p></p>
             <div className="quick-link-wrapper w-100 d-md-flex flex-md-wrap">
               <ul className="quick-links ml-auto">
                 {userData?.validUserOne && userData.validUserOne.userType === 'user' && (
@@ -142,7 +115,7 @@ const Water = () => {
                 {latestData && (
                   <>
                     <h5>Analyser Health : </h5>
-                    {userIotData.validationStatus ? (
+                    {searchResult?.validationStatus ? (
                       <h5 style={{ color: "green" }}>Good</h5>
                     ) : (
                       <h5 style={{ color: "red" }}>Problem</h5>
@@ -155,9 +128,6 @@ const Water = () => {
                   <button type="submit" onClick={handleOpenCalibrationPopup} className="btn btn-primary mb-2 mt-2"> Calibration </button>
                 </ul>
               )}
-              <ul className="quick-links ml-auto">
-                <Link to={"/download-IoT-Data"}><button type="submit" className="btn btn-primary mb-2 mt-2"> Download </button></Link>
-              </ul>
             </div>
           </div>
         </div>
@@ -194,56 +164,61 @@ const Water = () => {
         <div className="row">
           {!loading && waterParameters.map((item, index) => (
             <div className="col-12 col-md-4 grid-margin" key={index}>
-              <div className="card" onClick={() => handleCardClick(item.name)}>
+              <div className="card" onClick={() => handleCardClick({ title: item.parameter })}>
                 <div className="card-body">
-                  <h3 className="mb-3">{item.parameter}</h3>
-                  <h6>
-                    <strong>
-                      {searchResult ? searchResult[item.name] || 'N/A' : 'No Result found for this userID'}
-                    </strong> 
-                    {item.value}
-                  </h6>
+                  <div className="row">
+                    <div className="col-12">
+                      <h3 className="mb-3">{item.parameter}</h3>
+                    </div>
+                    <div className="col-12 mb-3">
+                      <h6>
+                        <strong className="strong-value">
+                          {searchResult ? searchResult[item.name] || 'N/A' : 'No Result found for this userID'}
+                        </strong> 
+                        {item.value}
+                      </h6>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <ToastContainer />
             </div>
           ))}
         </div>
 
-        {showPopup && (
+        {showPopup && selectedCard && (
           <WaterGraphPopup
             isOpen={showPopup}
             onRequestClose={handleClosePopup}
-            parameter={selectedParameter}
+            parameter={selectedCard.title}
             userName={currentUserName}
           />
         )}
-      </div>
 
-      {showCalibrationPopup && (
-        <CalibrationPopup
-          userName={userData?.validUserOne?.userName}
-          onClose={handleCloseCalibrationPopup}
-        />
-      )}
-      <CalibrationExceeded />
-      <footer className="footer">
-        <div className="container-fluid clearfix">
-          <span className="text-muted d-block text-center text-sm-left d-sm-inline-block">
-            Ebhoom Control and Monitor System
-          </span>
-          <span className="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">
-            {" "}
-            ©{" "}
-            <a href="" target="_blank">
-              Ebhoom Solutions LLP
-            </a>{" "}
-            2023
-          </span>
-        </div>
-      </footer>
+        {showCalibrationPopup && (
+          <CalibrationPopup
+            userName={userData?.validUserOne?.userName}
+            onClose={handleCloseCalibrationPopup}
+          />
+        )}
+        <CalibrationExceeded />
+        <footer className="footer">
+          <div className="container-fluid clearfix">
+            <span className="text-muted d-block text-center text-sm-left d-sm-inline-block">
+              Ebhoom Control and Monitor System
+            </span>
+            <span className="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">
+              {" "}
+              ©{" "}
+              <a href="" target="_blank">
+                Ebhoom Solutions LLP
+              </a>{" "}
+              2023
+            </span>
+          </div>
+        </footer>
+      </div>
     </div>
   );
-}
+};
 
 export default Water;
