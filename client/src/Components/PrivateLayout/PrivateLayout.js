@@ -217,7 +217,7 @@ const PrivateLayout = () => {
                         className={`form-control mr-sm-2 ${searchStatus === 'error' ? 'is-invalid' : searchStatus === 'success' ? 'is-valid' : ''}`}
                         type="text"
                         value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onChange={(e) => setSearchTerm(e.target.value.toUpperCase())}
                         placeholder="Search user data..."
                         style={{ width: "300px" }}
                       />
