@@ -45,3 +45,10 @@
 
     margin-top: 20px;
   }
+
+  /* index.css */
+
+.user-list-container {
+  max-height: 300px;
+  overflow-y: auto;
+}

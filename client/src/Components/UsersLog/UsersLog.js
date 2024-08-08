@@ -1,24 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { useDispatch,useSelector } from "react-redux";
-import { fetchUsers,setFilteredUsers } from "../../redux/features/userLog/userLogSlice";
-import DownloadData from "../ValidateData/ValidateData";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUsers, setFilteredUsers } from "../../redux/features/userLog/userLogSlice";
 import KeralaMap from './KeralaMap';
-import { ToastContainer } from "react-toastify";
-import './index.css';
 import ValidateData from "../ValidateData/ValidateData";
+import { useNavigate } from "react-router-dom";
+import './index.css';
 
 const UsersLog = () => {
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { users, filteredUsers, loading, error } = useSelector((state) => state.userLog);
   const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(()=>{
+  useEffect(() => {
     dispatch(fetchUsers());
-  },[]);
-
-
+  }, [dispatch]);
 
   const handleSearch = (event) => {
     const query = event.target.value.toLowerCase();
@@ -26,6 +24,11 @@ const UsersLog = () => {
     const filtered = users.filter(user => user.userName.toLowerCase().includes(query));
     dispatch(setFilteredUsers(filtered));
   };
+
+  const handleUserClick = (userName) => {
+    navigate('/ambient-air', { state: { userName } });
+  };
+
   return (
     <div className="main-panel">
       <div className="content-wrapper">
@@ -48,11 +51,37 @@ const UsersLog = () => {
             <KeralaMap users={users} />
           </div>
         </div>
-         {/* divider */}
-      <div className="p-2"></div>
-      <div className="p-2"></div>
-      {/* divider */}
-      
+
+        {/* Divider */}
+        <div className="p-2"></div>
+        <div className="p-2"></div>
+        {/* Divider */}
+
+        {/* New Box for Listing Users */}
+        <div className="card">
+          <div className="card-body">
+            <h5 className="card-title">User List</h5>
+            {loading && <p>Loading...</p>}
+            {error && <p>Error fetching users: {error}</p>}
+            {!loading && !error && (
+              <div className="user-list-container">
+                <ul className="list-group">
+                  {users.map((user) => (
+                    <li key={user._id} className="list-group-item" onClick={() => handleUserClick(user.userName)}>
+                      {user.userName}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="p-2"></div>
+        <div className="p-2"></div>
+        {/* Divider */}
+
         <ValidateData />
       </div>
       
@@ -73,6 +102,6 @@ const UsersLog = () => {
       </footer>
     </div>
   );
-}
+};
 
 export default UsersLog;

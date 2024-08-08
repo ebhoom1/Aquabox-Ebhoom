@@ -4,12 +4,10 @@ import { fetchIotDataByUserName } from "../../redux/features/iotData/iotDataSlic
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { useNavigate } from "react-router-dom";
 
 const KeralaMap = ({ users }) => {
   const dispatch = useDispatch();
   const userIotData = useSelector((state) => state.iotData.userIotData);
-  const navigate = useNavigate();
 
   const defaultPosition = [10.8505, 76.2711]; // Center position of Kerala
 
@@ -37,11 +35,6 @@ const KeralaMap = ({ users }) => {
     });
   }, [dispatch, users]);
 
-  const handleIconClick = (userName) => {
-    // Navigate to the AirAmbient route and pass the userName as state
-    navigate('/ambient-air', { state: { userName } });
-  };
-
   return (
     <MapContainer center={defaultPosition} zoom={7} style={{ height: "500px", width: "100%" }}>
       <TileLayer
@@ -59,9 +52,6 @@ const KeralaMap = ({ users }) => {
             key={user._id}
             position={[user.latitude, user.longitude]}
             icon={isHealthy ? greenIcon : redIcon}
-            eventHandlers={{
-              click: () => handleIconClick(user.userName)
-            }}
           >
             <Popup>
               <div>
