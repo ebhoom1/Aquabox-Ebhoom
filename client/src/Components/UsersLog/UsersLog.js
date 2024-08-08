@@ -36,13 +36,7 @@ const UsersLog = () => {
           <div className="col-12">
             <div className="page-header">
               <h4 className="page-title">Control and Monitor Dashboard</h4>
-              <div className="quick-link-wrapper w-100 d-md-flex flex-md-wrap">
-                <ul className="quick-links ml-auto">
-                  <li><a href="#">Settings</a></li>
-                  <li><a href="#">Option 1</a></li>
-                  <li><a href="#">option 2</a></li>
-                </ul>
-              </div>
+              
             </div>
           </div>
         </div>
