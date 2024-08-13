@@ -24,7 +24,7 @@ const iotDataSchema = new mongoose.Schema({
     COD:{
         type:String,
     },
-    TSS:{
+    TSS:{ 
         type:String,
     },
     ORP:{

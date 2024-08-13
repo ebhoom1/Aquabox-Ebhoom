@@ -90,7 +90,7 @@ const DownloadIoTdata = () => {
         { category: "STP/ETP" },
         { category: "NWMS/SWMS" },
         { category: "Noise" },
-        { category: "Zinc Smelter" },
+        { category: "Chemical" },
         { category: "Other" },
     ];
 

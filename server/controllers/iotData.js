@@ -394,8 +394,15 @@ const downloadIotData = async (req, res) => {
         let { fromDate, toDate, industryName, companyName, format } = req.query;
 
         // Decode the URL-encoded parameters
-        industryName = decodeURIComponent(industryName);
-        companyName = decodeURIComponent(companyName);
+        industryName = decodeURIComponent(industryName.trim());
+        companyName = decodeURIComponent(companyName.trim());
+
+        // Ensure dates are in the correct format
+        fromDate = moment(fromDate, 'DD-MM-YYYY').format('DD/MM/YYYY');
+        toDate = moment(toDate, 'DD-MM-YYYY').format('DD/MM/YYYY');
+
+        // Log the parameters for debugging
+        console.log("Query Parameters:", { fromDate, toDate, industryName, companyName, format });
 
         // Validate input
         if (!fromDate || !toDate || !industryName || !companyName) {
@@ -413,6 +420,7 @@ const downloadIotData = async (req, res) => {
         }).lean();
 
         if (data.length === 0) {
+            console.log("No data found with criteria:", { fromDate, toDate, industryName, companyName });
             return res.status(404).send('No data found for the specified criteria');
         }
 
@@ -456,6 +464,7 @@ const downloadIotData = async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 };
+
 
 
 
