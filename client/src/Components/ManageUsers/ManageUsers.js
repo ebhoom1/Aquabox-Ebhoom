@@ -102,7 +102,7 @@ const AddUsers = () => {
     subscriptionDate: "",
     userType: "",
     industryType: "",
-    dataInteval: "", // Corrected typo: dataInteval -> dataInterval
+    dataInteval: "", 
     district: "",
     state: "",
     address: "",
@@ -558,7 +558,7 @@ const EditUser =()=>{
   <div className="col-12  mb-3">
     <ul className="list-group">
     {users.map(user => (  
-    <li key={user._id} className="list-group-item">{user.fname}
+    <li key={user._id} className="list-group-item">{user.companyName}
           <div className="FloatRight">
           <Link to={`/edit-user/${user._id}`}><button className="btn btn-primary m-3">Edit</button></Link>
           
