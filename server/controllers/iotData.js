@@ -105,6 +105,9 @@ const handleSaveMessage = async (req, res) => {
             inflow: data.inflow !== 'N/A' ? data.inflow : null,
             finalflow: data.finalflow !== 'N/A' ? data.finalflow : null,
             energy: data.energy !== 'N/A' ? data.energy : null,
+            voltage:data.voltage !== 'N/A' ? data.energy: null,
+            current:data.current !== 'N/A' ? data.current : null,
+            power:data.power !== 'N/A' ? data.power : null,
             date: formattedDate,
             time: data.time !== 'N/A' ? data.time : moment().format('HH:mm:ss'), // Set default time
             topic: data.topic,
