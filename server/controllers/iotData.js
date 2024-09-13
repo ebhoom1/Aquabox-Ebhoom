@@ -105,7 +105,7 @@ const handleSaveMessage = async (req, res) => {
             inflow: data.inflow !== 'N/A' ? data.inflow : null,
             finalflow: data.finalflow !== 'N/A' ? data.finalflow : null,
             energy: data.energy !== 'N/A' ? data.energy : null,
-            voltage:data.voltage !== 'N/A' ? data.energy: null,
+            voltage:data.voltage !== 'N/A' ? data.voltage: null,
             current:data.current !== 'N/A' ? data.current : null,
             power:data.power !== 'N/A' ? data.power : null,
             date: formattedDate,
