@@ -102,14 +102,14 @@ const iotDataSchema = new mongoose.Schema({
         type:Number,
       
     },
-    voltage:{
-        type:Number,
+    voltage: {
+        type: Number,
     },
-    current:{
-        type:Number,
+    current: {
+        type: Number,
     },
-    power:{
-        type:Number,
+    power: {
+        type: Number,
     },
     date:{
         type:String,
