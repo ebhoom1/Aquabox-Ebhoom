@@ -45,6 +45,7 @@ import LiveVideo from './Components/LiveVideo/LiveVideo';
 import Error from './Components/Error/Error';
 import InstallPrompt from './Components/InstallPrompt/InstallPrompt'
 import CustomBanner from './Components/InstallPrompt/CustomBanner'
+import DownloadIoTdataByUserName from './Components/Download/DownloadIoTdataByUserName';
 
 
 
@@ -83,6 +84,7 @@ function App() {
         <Route path="faq" element={<Faq />} />
         <Route path="terms" element={<Terms />} />
         <Route path="/download-IoT-Data" element={<DownloadIoTdata/>}/>
+        <Route path="/download-Iot-Data-By-userName" element={<DownloadIoTdataByUserName/>}/>
         {/* <Route path = "*" element={<Error/>}/> */}
       </Route>
 
@@ -115,6 +117,8 @@ function App() {
               <Route path= '/subscribe-data' element={<Subscribe/>}/>
               <Route path ="/transactions" element={<Transaction/>}/>
               <Route path="/download-IoT-Data" element={<DownloadIoTdata/>}/>
+              <Route path="/download-Iot-Data-By-userName" element={<DownloadIoTdataByUserName/>}/>
+
               <Route path ='/quantity' element={<Quantity/>}/>
               <Route path = '/energy' element={<Energy/>}/>
               <Route path = '/live-video' element ={<LiveVideo/>}/>
@@ -137,6 +141,7 @@ function App() {
               <Route path="view-report/:userName" element={<ViewReport />}/>
               <Route path="/supportedAnalyserModels" element={<SupportedAnalyserModels />} />
               <Route path="/download-IoT-Data" element={<DownloadIoTdata/>}/>
+              <Route path="/download-Iot-Data-By-userName" element={<DownloadIoTdataByUserName/>}/>
               <Route path ='/quantity' element={<Quantity/>}/>
               <Route path = '/energy' element={<Energy/>}/>
               {/* <Route path = "/*" element={<Error/>}/>     */}

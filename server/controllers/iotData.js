@@ -575,9 +575,83 @@ const getDifferenceDataByUserName = async (req, res) => {
     }
 };
 
+const downloadIotDataByUserName = async (req, res) => {
+    try {
+        let { userName, fromDate, toDate, format } = req.query;
+
+        // Decode the URL-encoded parameters
+        userName = decodeURIComponent(userName.trim());
+
+        // Ensure dates are in the correct format
+        fromDate = moment(fromDate, 'DD-MM-YYYY').format('DD/MM/YYYY');
+        toDate = moment(toDate, 'DD-MM-YYYY').format('DD/MM/YYYY');
+
+        // Log the parameters for debugging
+        console.log("Query Parameters:", { fromDate, toDate, userName, format });
+
+        // Validate input
+        if (!fromDate || !toDate || !userName) {
+            return res.status(400).send('Missing required query parameters');
+        }
+
+        // Find IoT data based on filters
+        const data = await IotData.find({
+            userName: userName,
+            date: {
+                $gte: fromDate,
+                $lte: toDate,
+            },
+        }).lean();
+
+        if (data.length === 0) {
+            console.log("No data found with criteria:", { fromDate, toDate, userName });
+            return res.status(404).send('No data found for the specified criteria');
+        }
+
+        if (format === 'csv') {
+            // Generate CSV
+            const fields = ['userName', 'industryType', 'companyName', 'date', 'product_id', 'ph', 'TDS', 'turbidity', 'temperature', 'BOD', 'COD', 'TSS', 'ORP', 'nitrate', 'ammonicalNitrogen', 'DO', 'chloride', 'PM', 'PM10', 'PM25', 'NOH', 'NH3', 'WindSpeed', 'WindDir', 'AirTemperature', 'Humidity', 'solarRadiation', 'DB', 'inflow', 'finalflow', 'energy'];
+            const json2csvParser = new Parser({ fields });
+            const csv = json2csvParser.parse(data);
+
+            res.header('Content-Type', 'text/csv');
+            res.attachment('data.csv');
+            return res.send(csv);
+        } else if (format === 'pdf') {
+            // Generate PDF
+            const doc = new PDFDocument();
+            res.header('Content-Type', 'application/pdf');
+            res.attachment('data.pdf');
+
+            doc.pipe(res);
+
+            doc.fontSize(20).text('IoT Data Report', { align: 'center' });
+            doc.fontSize(12).text(`User Name: ${userName}`);
+            doc.fontSize(12).text(`Date Range: ${fromDate} - ${toDate}`);
+            doc.moveDown();
+
+            data.forEach(item => {
+                doc.fontSize(10).text(JSON.stringify(item), {
+                    width: 410,
+                    align: 'left'
+                });
+                doc.moveDown();
+            });
+
+            doc.end();
+        } else {
+            return res.status(400).send('Invalid format requested');
+        }
+    } catch (error) {
+        console.error('Error fetching or processing data:', error);
+        res.status(500).send('Internal Server Error');
+    }
+};
+
+
 
 module.exports ={handleSaveMessage, scheduleAveragesCalculation,getAllIotData, getLatestIoTData,getIotDataByUserName,
-    downloadIotData,getAverageDataByUserName,calculateAndSaveDailyDifferences,getDifferenceDataByUserName
+    downloadIotData,getAverageDataByUserName,calculateAndSaveDailyDifferences,getDifferenceDataByUserName,downloadIotDataByUserName
  }
 
 

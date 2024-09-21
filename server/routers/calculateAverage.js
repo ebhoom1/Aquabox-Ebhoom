@@ -6,7 +6,8 @@ const {
         getAverageDataByUserName,
         downloadIotData,
         handleSaveMessage,
-        getDifferenceDataByUserName
+        getDifferenceDataByUserName,
+        downloadIotDataByUserName,
         
 } = require('../controllers/iotData');
 
@@ -35,6 +36,8 @@ router.get('/differenceData/:userName', getDifferenceDataByUserName);
 //Route to download the Iot VAlue
 router.get('/downloadIotData',downloadIotData);
 
+
+router.get('/downloadIotDataByUserName',downloadIotDataByUserName)
 
 
 
