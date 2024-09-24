@@ -29,10 +29,10 @@ const setupMqttClient = (io, retries = 0) => {
     const client = mqtt.connect(options);
 
     client.on('connect', () => {
-        console.log('Connected to MQTT broker');
+         console.log('Connected to MQTT broker');
         client.subscribe('ebhoomPub', (err) => {
             if (!err) {
-                console.log('Subscribed to topic: ebhoomPub');
+                 console.log('Subscribed to topic: ebhoomPub');
             } else {
                 console.error('Subscription error:', err);
             }
@@ -41,6 +41,9 @@ const setupMqttClient = (io, retries = 0) => {
 
     client.on('message', async (topic, message) => {
         try {
+            console.log('Received message on topic:', topic);
+        console.log('Message:', message.toString());
+
             const data = JSON.parse(message.toString());
             const { product_id } = data;
 
@@ -59,6 +62,7 @@ const setupMqttClient = (io, retries = 0) => {
 
                     await axios.post('http://ocems.ebhoom.com:5555/api/handleSaveMessage', data);
                     io.to(product_id.toString()).emit('data', data);
+                    console.log('Data entered',data)
                 } else {
                     console.error(`No user details found for product_id: ${product_id}`);
                 }

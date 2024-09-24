@@ -110,6 +110,8 @@ const LeftSideBar = () => {
           <NavItem to="/notification" iconClass="typcn typcn-document-text" title="Notification" />
           <NavItem to="/account" iconClass="typcn typcn-document-text" title="Account" />
           <NavItem to="/report" iconClass="typcn typcn-document-text" title="Report" />
+          <NavItem to="/chat" iconClass="typcn typcn-document-text" title="Chat" />
+
           <NavItem to="/subscribe-data" iconClass="typcn typcn-document-text" title="Subscribe" />
           <NavItem
             to="/supportedAnalyserModels"
@@ -139,6 +141,7 @@ const LeftSideBar = () => {
           <NavItem to="/energy" iconClass="typcn typcn-document-text" title="Energy" />
           <NavItem to="/account" iconClass="typcn typcn-document-text" title="Account" />
           <NavItem to="/report" iconClass="typcn typcn-document-text" title="Report" />
+          <NavItem to="/chat" iconClass="typcn typcn-document-text" title="chat" />
           <NavItem to="/transactions" iconClass="typcn typcn-document-text" title="Payments" />
           <li className="nav-item">
             <NavItem

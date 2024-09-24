@@ -46,6 +46,7 @@ import Error from './Components/Error/Error';
 import InstallPrompt from './Components/InstallPrompt/InstallPrompt'
 import CustomBanner from './Components/InstallPrompt/CustomBanner'
 import DownloadIoTdataByUserName from './Components/Download/DownloadIoTdataByUserName';
+import ChatApp from './Components/Chat/ChatApp';
 
 
 
@@ -122,6 +123,8 @@ function App() {
               <Route path ='/quantity' element={<Quantity/>}/>
               <Route path = '/energy' element={<Energy/>}/>
               <Route path = '/live-video' element ={<LiveVideo/>}/>
+              <Route path = '/chat' element ={<ChatApp/>}/>
+
               {/* <Route path = "/*" element={<Error/>}/> */}
 
 
@@ -144,6 +147,8 @@ function App() {
               <Route path="/download-Iot-Data-By-userName" element={<DownloadIoTdataByUserName/>}/>
               <Route path ='/quantity' element={<Quantity/>}/>
               <Route path = '/energy' element={<Energy/>}/>
+              <Route path = '/chat' element ={<ChatApp/>}/>
+
               {/* <Route path = "/*" element={<Error/>}/>     */}
 
             </>
@@ -151,8 +156,8 @@ function App() {
         </Route>
       )}
     </Routes>
-        <InstallPrompt /> 
         <CustomBanner/>
+        <InstallPrompt/>
         </>
   );
 }
