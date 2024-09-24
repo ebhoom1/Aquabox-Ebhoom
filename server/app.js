@@ -33,7 +33,7 @@ const server = http.createServer(app);
 
 const io = socketIO(server, {
     cors: {
-        origin: ['http://localhost:3000','http://ocems.ebhoom.com:5555',], // Include other origins as needed
+        origin: ['http://ocems.ebhoom.com:5555','http://ocems.ebhoom.com','http://localhost:3000'], // Include other origins as needed
         methods: ["GET", "POST"],
         credentials: true
     }
