@@ -18,7 +18,7 @@ const AmbientAir = () => {
   const { searchTerm } = useOutletContext();
   const [searchResult, setSearchResult] = useState(null);
   const [searchError, setSearchError] = useState("");
-  const [currentUserName, setCurrentUserName] = useState("KSPCB001");
+  const [currentUserName, setCurrentUserName] = useState(userType === 'admin' ? "KSPCB001" : userData?.validUserOne?.userName);
   const [companyName, setCompanyName] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -106,9 +106,17 @@ const AmbientAir = () => {
         <div className="row page-title-header">
           <div className="col-12">
             <div className="page-header d-flex justify-content-between">
-              <button className="btn btn-primary" onClick={handlePrevUser} disabled={loading}>Prev</button>
-              <h4 className="page-title">Ambient Air DASHBOARD</h4>
-              <button className="btn btn-primary" onClick={handleNextUser} disabled={loading}>Next</button>
+              {userType === 'admin' ? (
+                <>
+                  <button className="btn btn-primary" onClick={handlePrevUser} disabled={loading}>Prev</button>
+                  <h4 className="page-title">Ambient Air DASHBOARD</h4>
+                  <button className="btn btn-primary" onClick={handleNextUser} disabled={loading}>Next</button>
+                </>
+              ) : (
+                <div className="mx-auto">
+                  <h4 className="page-title">Ambient Air DASHBOARD</h4>
+                </div>
+              )}
             </div>
             <div className="quick-link-wrapper w-100 d-md-flex flex-md-wrap">
               <ul className="quick-links ml-auto">
