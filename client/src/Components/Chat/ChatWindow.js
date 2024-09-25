@@ -16,7 +16,7 @@ const ChatWindow = ({ currentChat, socket }) => {
             params: { from: currentChat.userId, to: currentChat.id }
           });
           setMessages(response.data);  // Assuming the response data is the array of messages
-          scrollToBottom();  // Scroll to bottom when messages are initially fetched
+        //   scrollToBottom();  // Scroll to bottom when messages are initially fetched
         } catch (error) {
           console.error('Error fetching messages:', error);
         }

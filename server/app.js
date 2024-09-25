@@ -109,19 +109,19 @@ io.on('connection', (socket) => {
 // Schedule the averages calculation every hour
 cron.schedule('0 * * * *', async () => {
     await calculateAndSaveAverages();
-    console.log('Averages calculated and saved.');
+    // console.log('Averages calculated and saved.');
 });
 
 // Schedule the task to delete old notifications every day at midnight
 cron.schedule('0 0 * * *', () => {
     deleteOldNotifications();
-    console.log('Old notifications deleted.');
+    // console.log('Old notifications deleted.');
 });
 
 // Schedule the calculation of inflow, final flow, energy
 cron.schedule('59 23 * * *', async () => {
     await calculateAndSaveDailyDifferences();
-    console.log('Daily differences calculated and saved');
+    // console.log('Daily differences calculated and saved');
 });
 
 // Initialize all MQTT clients at server startup
