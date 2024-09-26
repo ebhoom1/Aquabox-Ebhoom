@@ -6,22 +6,35 @@ import { API_URL } from '../../utils/apiConfig';
 const ViewReport = () => {
   const { userName } = useParams();
   const [report, setReport] = useState(null);
+  const [loading, setLoading] = useState(true); // To manage the loading state
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     const fetchReport = async () => {
       try {
         const response = await axios.get(`${API_URL}/api/get-a-report/${userName}`);
-        setReport(response.data.reports[0]); // Assuming the response contains an array of reports
+        if (response.data.reports && response.data.reports.length > 0) {
+          setReport(response.data.reports[0]);
+        } else {
+          setErrorMessage('No report generated for this user.');
+        }
       } catch (error) {
         console.error('Error fetching report:', error);
+        setErrorMessage('An error occurred while fetching the report.');
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchReport();
   }, [userName]);
 
-  if (!report) {
+  if (loading) {
     return <div>Loading...</div>;
+  }
+
+  if (errorMessage) {
+    return <div>{errorMessage}</div>;
   }
 
   return (
@@ -30,7 +43,7 @@ const ViewReport = () => {
         <div className="row page-title-header">
           <div className="col-12">
             <div className="page-header">
-              <h4 className="page-title">Report  Dashboard</h4>
+              <h4 className="page-title">Report Dashboard</h4>
               <div className="quick-link-wrapper w-100 d-md-flex flex-md-wrap">
                 <ul className="quick-links ml-auto">
                   <li><a href="#">Settings</a></li>
@@ -85,8 +98,6 @@ const ViewReport = () => {
                     </tbody>
                   </table>
                 </div>
-
-                
               </div>
             </div>
           </div>
@@ -104,6 +115,6 @@ const ViewReport = () => {
       </footer>
     </div>
   );
-}
+};
 
 export default ViewReport;
