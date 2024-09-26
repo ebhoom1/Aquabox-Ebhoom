@@ -208,4 +208,67 @@
     padding: 10px;
     max-width: 80%;
   }
+  .chat-input-box {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: #f1f1f1;
+    border-radius: 10px;
+  }
   
+  .chat-input {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    outline: none;
+  }
+  
+  .share-icon, .send-icon {
+    font-size: 24px;
+    margin-left: 10px;
+    cursor: pointer;
+  }
+  
+  .share-icon:hover, .send-icon:hover {
+    color: #007bff;
+  }
+  .file-preview {
+    padding: 10px;
+    background: #ffff;
+    border: 1px solid #ccc;
+  }
+  
+  .file-preview-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .file-preview-item input {
+    margin-left: 10px;
+    flex-grow: 1;
+  }
+  
+  .file-preview button {
+    margin-right: 10px;
+  }
+  
+  .add-file-button{
+    padding: 5px;
+    color: #fff;
+    border-radius: 4px;
+    background-color: #007bff;
+  }
+  .send-files-button{
+    padding: 5px;
+    color: #fff;
+    border-radius: 4px;
+    background-color: green;
+  }
+  .cancel-files-button{
+    padding: 5px;
+    color: #fff;
+    border-radius: 4px;
+    background-color: red;
+  }

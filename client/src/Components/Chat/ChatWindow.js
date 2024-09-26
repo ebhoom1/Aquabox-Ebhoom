@@ -1,11 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { API_URL } from '../../utils/apiConfig';
+import {FaPaperPlane, FaPaperclip, FaPlus, FaTrash, FaTimes } from 'react-icons/fa'; // Import icons for send and share
 
 const ChatWindow = ({ currentChat, socket }) => {
   const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = useState([]);
-  const messagesEndRef = useRef(null);  // Create a ref for scrolling
+  const [selectedFiles, setSelectedFiles] = useState([]); // For holding the file list
+  const [fileDescriptions, setFileDescriptions] = useState({}); // Holds descriptions for each file
+  const messagesEndRef = useRef(null); // Create a ref for scrolling
+  const fileInputRef = useRef(null); // Create a ref for the file input
 
   // Join the room when a chat is selected
   useEffect(() => {
@@ -24,7 +28,7 @@ const ChatWindow = ({ currentChat, socket }) => {
       };
       fetchMessages();
     }
-  }, [currentChat, socket]);  // Depend on currentChat and socket to re-fetch messages when chat changes
+  }, [currentChat, socket]); // Depend on currentChat and socket to re-fetch messages when chat changes
 
   useEffect(() => {
     const handleNewMessage = (message) => {
@@ -51,8 +55,60 @@ const ChatWindow = ({ currentChat, socket }) => {
 
       setNewMessage(""); // Clear the input after sending the message
     }
+
+    if (selectedFiles.length > 0) {
+      // Upload selected files with descriptions
+      selectedFiles.forEach(file => {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('description', fileDescriptions[file.name] || '');
+
+        axios.post(`${API_URL}/api/uploadFile`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        })
+          .then(response => {
+            // Emit the file message to the server
+            socket.emit('chatMessage', {
+              from: currentChat.userId,
+              to: currentChat.id,
+              message: `File: ${response.data.fileUrl}, Description: ${fileDescriptions[file.name] || 'No description'}`
+            });
+          })
+          .catch(error => {
+            console.error('File upload error:', error);
+          });
+      });
+
+      // Clear file selection after sending
+      setSelectedFiles([]);
+      setFileDescriptions({});
+    }
+  };
+  const sendFiles = () => {
+    // Similar implementation to send files as described before.
   };
 
+  const handleFileShare = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    setSelectedFiles(prevFiles => [...prevFiles, ...files]);
+    e.target.value = null; // Reset file input
+  };
+
+  const handleDeleteFile = (fileName) => {
+    setSelectedFiles(prevFiles => prevFiles.filter(file => file.name !== fileName));
+    const newDescriptions = { ...fileDescriptions };
+    delete newDescriptions[fileName];
+    setFileDescriptions(newDescriptions);
+  };
+
+  const cancelSendFiles = () => {
+    setSelectedFiles([]);
+    setFileDescriptions({});
+  };
   return (
     <div className="chat-main">
       <div className="chat-header">
@@ -68,15 +124,65 @@ const ChatWindow = ({ currentChat, socket }) => {
         )) : <div className="no-messages">No messages yet</div>}
         <div ref={messagesEndRef} />
       </div>
+      <div className="file-preview-section">
+        {selectedFiles.length > 0 && (
+          <div className="file-preview">
+            {selectedFiles.map((file, index) => (
+              <div key={index} className="file-preview-item">
+                <FaTrash onClick={() => handleDeleteFile(file.name)} />
+                {file.name}
+                <input
+                  type="text"
+                  placeholder="Add a description"
+                  value={fileDescriptions[file.name] || ''}
+                  onChange={(e) => setFileDescriptions(prev => ({ ...prev, [file.name]: e.target.value }))}
+                />
+              </div>
+            ))}
+            
+            <button onClick={() => fileInputRef.current.click()} className="add-file-button"><FaPlus /> Add more files</button>
+            <button onClick={sendMessage} className="send-files-button"><FaPaperPlane /> Send Files</button>
+            <button onClick={cancelSendFiles}className='cancel-files-button'><FaTimes /> Cancel</button>
+
+          </div>
+        )}
+        </div>
+      {/* File Preview Section
+      {selectedFiles.length > 0 && (
+        <div className="file-preview">
+          {selectedFiles.map((file, index) => (
+            <div key={index} className="file-preview-item">
+              <FaTrash onClick={() => handleDeleteFile(file.name)} />
+              {file.name}
+              <input type="text" placeholder="Add a description" value={fileDescriptions[file.name] || ''}
+                onChange={(e) => setFileDescriptions(prev => ({ ...prev, [file.name]: e.target.value }))}
+              />
+            </div>
+          ))}
+          <button onClick={sendFiles}>Send</button>
+          <button onClick={cancelSendFiles}><FaTimes /> Cancel</button>
+        </div>
+      )} */}
+
       {currentChat && (
         <div className="chat-input-box">
-          <input 
-            type="text" 
-            placeholder="Type here..." 
+          <input
+            type="text"
+            placeholder="Type here..."
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
+            className="chat-input"
           />
-          <button onClick={sendMessage}>Send</button>
+          <FaPaperclip className="share-icon" onClick={handleFileShare} title="Share a file" />
+          <FaPaperPlane className="send-icon" onClick={sendMessage} title="Send message" />
+
+          <input
+            type="file"
+            ref={fileInputRef}
+            style={{ display: 'none' }}
+            multiple
+            onChange={handleFileChange}
+          />
         </div>
       )}
     </div>
