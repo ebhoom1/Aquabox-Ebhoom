@@ -7,59 +7,49 @@ const ChatWindow = ({ currentChat, socket }) => {
   const [messages, setMessages] = useState([]);
   const messagesEndRef = useRef(null);  // Create a ref for scrolling
 
-  // Fetch messages whenever the currentChat changes
+  // Join the room when a chat is selected
   useEffect(() => {
     if (currentChat) {
+      socket.emit('joinRoom', { userId: currentChat.userId }); // Join the room based on the selected chat
+
       const fetchMessages = async () => {
         try {
           const response = await axios.get(`${API_URL}/api/messages`, {
             params: { from: currentChat.userId, to: currentChat.id }
           });
-          setMessages(response.data);  // Assuming the response data is the array of messages
-        //   scrollToBottom();  // Scroll to bottom when messages are initially fetched
+          setMessages(response.data);
         } catch (error) {
           console.error('Error fetching messages:', error);
         }
       };
-      setInterval(()=>{
-        fetchMessages();
-        
-      },100)
+      fetchMessages();
     }
-  }, [currentChat]);  // Depend on currentChat to re-fetch messages when it changes
+  }, [currentChat, socket]);  // Depend on currentChat and socket to re-fetch messages when chat changes
 
   useEffect(() => {
     const handleNewMessage = (message) => {
       if (currentChat && (message.from === currentChat.userId || message.from === currentChat.id)) {
-        setMessages(prev => [...prev, message]);
+        setMessages(prev => [...prev, message]); // Add the message only when received from the server
       }
     };
 
-    socket.on('newChatMessage', handleNewMessage);
+    socket.on('newChatMessage', handleNewMessage); // Listen for real-time messages
 
     return () => {
-      socket.off('newChatMessage', handleNewMessage);
+      socket.off('newChatMessage', handleNewMessage); // Clean up listener
     };
   }, [currentChat, socket]);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
   const sendMessage = () => {
     if (newMessage.trim()) {
+      // Emit the message to the server
       socket.emit('chatMessage', {
         from: currentChat.userId,
         to: currentChat.id,
         message: newMessage
       });
 
-      setMessages(prevMessages => [
-        ...prevMessages,
-        { from: currentChat.userId, message: newMessage }
-      ]);
-
-      setNewMessage("");
+      setNewMessage(""); // Clear the input after sending the message
     }
   };
 
@@ -94,7 +84,3 @@ const ChatWindow = ({ currentChat, socket }) => {
 };
 
 export default ChatWindow;
-
-
-
-
