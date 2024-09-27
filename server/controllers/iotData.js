@@ -48,6 +48,7 @@ const checkRequiredFields = (data, requiredFields) => {
     };
 };
 
+
 // Function to handle Mqtt Messages and save the data to MongoDB
 const handleSaveMessage = async (req, res) => {
     const data = req.body;
@@ -88,6 +89,7 @@ const handleSaveMessage = async (req, res) => {
             CO:data.CO !== 'N/A' ? data.CO : null,
             NOX:data.NOX !== 'N/A' ? data.NOX :null,
             Pressure:data.Pressure !== 'N/A' ? data.Pressure :null,
+            Flouride:data.Flouride !== 'N/A' ? data.Flouride : null,
             PM: data.PM !== 'N/A' ? data.PM : null,
             SO2:data.SO2 !== 'N/A' ? data.SO2 : null,
             NO2:data.NO2 !== 'N/A' ? data.NO2 : null,
@@ -243,7 +245,7 @@ const calculateAverages = async (userName, product_id, startTime, endTime, inter
         return;
     }
 
-    const fields = ['ph', 'TDS', 'turbidity', 'temperature', 'BOD', 'COD', 'TSS', 'ORP', 'nitrate', 'ammonicalNitrogen', 'DO', 'chloride', 'PM10', 'PM25', 'NOH', 'NH3', 'WindSpeed', 'WindDir', 'AirTemperature', 'Humidity', 'solarRadiation', 'DB', 'inflow', 'finalflow', 'energy'];
+    const fields = ['ph', 'TDS', 'turbidity', 'temperature', 'BOD', 'COD', 'TSS', 'ORP', 'nitrate', 'ammonicalNitrogen', 'DO', 'chloride', 'PM', 'PM10', 'PM25', 'NOH', 'NH3', 'WindSpeed', 'WindDir', 'AirTemperature', 'Flouride', 'Humidity', 'solarRadiation', 'DB', 'inflow', 'finalflow', 'energy', 'CO', 'NOX', 'NO2', 'Mercury', 'Pressure', 'voltage', 'current', 'power'];
 
     const averages = fields.reduce((acc, field) => {
         acc[field] = parseFloat((data.reduce((sum, item) => sum + parseFloat(item[field] || 0), 0) / data.length).toFixed(2));
@@ -430,7 +432,7 @@ const downloadIotData = async (req, res) => {
 
         if (format === 'csv') {
             // Generate CSV
-            const fields = ['userName', 'industryType', 'companyName', 'date', 'product_id', 'ph', 'TDS', 'turbidity', 'temperature', 'BOD', 'COD', 'TSS', 'ORP', 'nitrate', 'ammonicalNitrogen', 'DO', 'chloride','PM', 'PM10', 'PM25', 'NOH', 'NH3', 'WindSpeed', 'WindDir', 'AirTemperature', 'Humidity', 'solarRadiation', 'DB', 'inflow', 'finalflow', 'energy'];
+            const fields = ['userName', 'industryType', 'companyName', 'date', 'product_id', 'ph', 'TDS', 'turbidity', 'temperature', 'BOD', 'COD', 'TSS', 'ORP', 'nitrate', 'ammonicalNitrogen', 'DO', 'chloride', 'PM', 'PM10', 'PM25', 'NOH', 'NH3', 'WindSpeed', 'WindDir', 'AirTemperature', 'Flouride', 'Humidity', 'solarRadiation', 'DB', 'inflow', 'finalflow', 'energy', 'CO', 'NOX', 'NO2', 'Mercury', 'Pressure', 'voltage', 'current', 'power'];
             const json2csvParser = new Parser({ fields });
             const csv = json2csvParser.parse(data);
 

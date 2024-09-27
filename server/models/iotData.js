@@ -50,6 +50,7 @@ const iotDataSchema = new mongoose.Schema({
     },
     NOX:{type:String},
     Pressure:{type:String},
+    Flouride:{type:String},
     PM:{
         type:String,
     },   
