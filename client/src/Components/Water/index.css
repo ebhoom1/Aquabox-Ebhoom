@@ -4,3 +4,13 @@
     border-radius: 2px;
     color: red;
 }
+.form-group {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    margin-bottom: 15px; /* Space between form groups */
+  }
+  
+  .form-group label {
+    margin-bottom: 5px; /* Space between label and input */
+  }
+  

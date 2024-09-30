@@ -650,10 +650,43 @@ const downloadIotDataByUserName = async (req, res) => {
     }
 };
 
+const viewDataByDateAndUser = async (req, res) => {
+    const { fromDate, toDate, userName } = req.query;
+
+    try {
+        // Assuming date is stored as 'DD-MM-YYYY' strings in MongoDB and no time zone adjustment is needed
+        const formattedFromDate = moment(fromDate, 'DD-MM-YYYY').format('DD-MM-YYYY'); 
+        const formattedToDate = moment(toDate, 'DD-MM-YYYY').format('DD-MM-YYYY');
+
+        console.log("Formatted Dates:", { formattedFromDate, formattedToDate });
+
+        const data = await IotData.find({
+            userName: userName,
+            date: {
+                $gte: formattedFromDate,
+                $lte: formattedToDate
+            }
+        }).lean();
+
+        if (data.length === 0) {
+            console.log("No data found with criteria:", { fromDate, toDate, userName });
+            return res.status(404).send('No data found for the specified criteria');
+        }
+
+        res.status(200).json(data);
+    } catch (error) {
+        console.error('Failed to view data:', error);
+        res.status(500).json({ message: "Failed to process request" });
+    }
+};
+
+
+
 
 
 module.exports ={handleSaveMessage, scheduleAveragesCalculation,getAllIotData, getLatestIoTData,getIotDataByUserName,
-    downloadIotData,getAverageDataByUserName,calculateAndSaveDailyDifferences,getDifferenceDataByUserName,downloadIotDataByUserName
+    downloadIotData,getAverageDataByUserName,calculateAndSaveDailyDifferences,getDifferenceDataByUserName,downloadIotDataByUserName,
+    viewDataByDateAndUser
  }
 
 

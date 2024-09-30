@@ -6,6 +6,7 @@ import CalibrationPopup from '../Calibration/CalibrationPopup';
 import CalibrationExceeded from '../Calibration/CalibrationExceeded';
 import { useOutletContext } from 'react-router-dom';
 import { Oval } from 'react-loader-spinner';
+import DailyHistoryModal from './DailyHistoryModal'; 
 
 const Water = () => {
   const dispatch = useDispatch();
@@ -20,6 +21,7 @@ const Water = () => {
   const [currentUserName, setCurrentUserName] = useState(userType === 'admin' ? "KSPCB001" : userData?.validUserOne?.userName);
   const [companyName, setCompanyName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
 
   const fetchData = async (userName) => {
     setLoading(true);
@@ -38,6 +40,18 @@ const Water = () => {
     }
   };
 
+  const fetchHistoryData = async (fromDate, toDate) => {
+    // Logic to fetch history data based on the date range
+    console.log('Fetching data from:', fromDate, 'to:', toDate);
+    // Example API call:
+    // const data = await dispatch(fetchHistoryDataByDate({ fromDate, toDate })).unwrap();
+  };
+  const downloadHistoryData = (fromDate, toDate) => {
+    // Logic to download history data based on the date range
+    console.log('Downloading data from:', fromDate, 'to:', toDate);
+    // Example API call:
+    // downloadData({ fromDate, toDate });
+  };
   useEffect(() => {
     if (searchTerm) {
       fetchData(searchTerm);
@@ -132,6 +146,12 @@ const Water = () => {
                   </>
                 )}
               </ul>
+              <ul className="quick-links ml-auto">
+                <button className="btn btn-primary" onClick={() => setShowHistoryModal(true)}>
+                  Daily History
+                </button>
+              </ul>
+
               {userData?.validUserOne && userData.validUserOne.userType === 'user' && (
                 <ul className="quick-links ml-auto">
                   <button type="submit" onClick={handleOpenCalibrationPopup} className="btn btn-primary mb-2 mt-2"> Calibration </button>
@@ -226,6 +246,13 @@ const Water = () => {
           </div>
         </footer>
       </div>
+       {/* Include the Daily History Modal */}
+       <DailyHistoryModal
+        isOpen={showHistoryModal}
+        onRequestClose={() => setShowHistoryModal(false)}
+        fetchData={fetchHistoryData}
+        downloadData={downloadHistoryData}
+      />
     </div>
   );
 };
