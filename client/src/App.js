@@ -1,5 +1,5 @@
 import './App.css';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUser } from './redux/features/user/userSlice';
@@ -49,17 +49,19 @@ import DownloadIoTdataByUserName from './Components/Download/DownloadIoTdataByUs
 import ChatApp from './Components/Chat/ChatApp';
 
 
-
-
 function App() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const { userData, loading, userType } = useSelector((state) => state.user);
 
-  useEffect(() => {
-    
-      dispatch(fetchUser())
+  // List of routes that do not require user validation
+  const publicRoutes = ['/download-IoT-Data', '/download-Iot-Data-By-userName'];
 
+  useEffect(() => {
+    // Only perform user validation for routes that are not in the publicRoutes array
+    if (!publicRoutes.includes(location.pathname)) {
+      dispatch(fetchUser())
         .unwrap()
         .then((responseData) => {
           if (responseData.status === 401 || !responseData.validUserOne) {
@@ -73,92 +75,84 @@ function App() {
           console.error("Error Validating User:", error);
           navigate('/');
         });
-    
-  }, [dispatch,navigate]);
+    }
+  }, [dispatch, navigate, location.pathname]);
+
   return (
     <>
-    <Routes>
-      <Route path="/" element={<PublicLayout />}>
-        <Route index element={<SignIn />} />
-        <Route path="reset-password/:id/:token" element={<ResetPassword />} />
-        <Route path="reset-password-email" element={<ResetPasswordEmail />} />
-        <Route path="faq" element={<Faq />} />
-        <Route path="terms" element={<Terms />} />
-        <Route path="/download-IoT-Data" element={<DownloadIoTdata/>}/>
-        <Route path="/download-Iot-Data-By-userName" element={<DownloadIoTdataByUserName/>}/>
-        {/* <Route path = "*" element={<Error/>}/> */}
-      </Route>
-
-      {!loading && userData && (
-       
-        <Route path="/" element={<PrivateLayout />}>
-          {userType === "admin" && (
-            <>
-              <Route path="water" element={<Water />} />
-              <Route path="ambient-air" element={<AmbientAir />} />
-              <Route path="noise" element={<Noise />} />
-              <Route path="account" element={<Account />} />
-              <Route path="manage-users" element={<ManageUsers />} />
-              <Route path="edit-user/:userId" element={<EditUsers />} />
-              <Route path="users-log" element={<UsersLog />} />
-              <Route path="calibration-new" element={<Calibration />} />
-              <Route path="calibration" element={<CalibrationData />} />
-              <Route path="edit-calibration/:userName" element={<EditCalibration />} />
-              <Route path="notification" element={<Notification />} />
-              <Route path="notification-new" element={<AddNotification />} />
-              <Route path="calibration-exceeded" element={<CalibrationExceeded />} />
-              <Route path="calibration-exceeded-report" element={<CalibrationExceededReport />} />
-              <Route path= "add-calibration-exceed-value" element={<AddCalibrationExceedValues/>}/>
-              <Route path= "calibration-exceed-value" element={<CalibrationExceedValue/>}/>
-              <Route path= "edit-calibration-exceed-value/:userName" element={<EditCalibrationExceedValue/>}/>
-              <Route path="/report" element={<Report />} />
-              <Route path="view-report/:userName" element={<ViewReport />}/>
-              <Route path= "edit-report/:userName" element={<EditReport />}/>
-              <Route path="supportedAnalyserModels" element={<SupportedAnalyserModels />} />
-              <Route path= '/subscribe-data' element={<Subscribe/>}/>
-              <Route path ="/transactions" element={<Transaction/>}/>
-              <Route path="/download-IoT-Data" element={<DownloadIoTdata/>}/>
-              <Route path="/download-Iot-Data-By-userName" element={<DownloadIoTdataByUserName/>}/>
-
-              <Route path ='/quantity' element={<Quantity/>}/>
-              <Route path = '/energy' element={<Energy/>}/>
-              <Route path = '/live-video' element ={<LiveVideo/>}/>
-              <Route path = '/chat' element ={<ChatApp/>}/>
-
-              {/* <Route path = "/*" element={<Error/>}/> */}
-
-
-
-
-            </>
-          )}
-          {userType === "user" && (
-            <>
-              <Route path="water" element={<Water />} />
-              <Route path="ambient-air" element={<AmbientAir />} />
-              <Route path="noise" element={<Noise />} />
-              <Route path="account" element={<Account />} />
-              <Route path="/report" element={<Report />} />
-              <Route path ="/transactions" element={<Transaction/>}/>
-              <Route path= "edit-report/:userName" element={<EditReport />}/>
-              <Route path="view-report/:userName" element={<ViewReport />}/>
-              <Route path="/supportedAnalyserModels" element={<SupportedAnalyserModels />} />
-              <Route path="/download-IoT-Data" element={<DownloadIoTdata/>}/>
-              <Route path="/download-Iot-Data-By-userName" element={<DownloadIoTdataByUserName/>}/>
-              <Route path ='/quantity' element={<Quantity/>}/>
-              <Route path = '/energy' element={<Energy/>}/>
-              <Route path = '/chat' element ={<ChatApp/>}/>
-
-              {/* <Route path = "/*" element={<Error/>}/>     */}
-
-            </>
-          )}
+      <Routes>
+        <Route path="/" element={<PublicLayout />}>
+          <Route index element={<SignIn />} />
+          <Route path="reset-password/:id/:token" element={<ResetPassword />} />
+          <Route path="reset-password-email" element={<ResetPasswordEmail />} />
+          <Route path="faq" element={<Faq />} />
+          <Route path="terms" element={<Terms />} />
+          <Route path="/download-IoT-Data" element={<DownloadIoTdata />} />
+          <Route path="/download-Iot-Data-By-userName" element={<DownloadIoTdataByUserName />} />
+          {/* <Route path = "*" element={<Error/>}/> */}
         </Route>
-      )}
-    </Routes>
-        <CustomBanner/>
-        <InstallPrompt/>
-        </>
+
+        {!loading && userData && (
+          <Route path="/" element={<PrivateLayout />}>
+            {userType === "admin" && (
+              <>
+                <Route path="water" element={<Water />} />
+                <Route path="ambient-air" element={<AmbientAir />} />
+                <Route path="noise" element={<Noise />} />
+                <Route path="account" element={<Account />} />
+                <Route path="manage-users" element={<ManageUsers />} />
+                <Route path="edit-user/:userId" element={<EditUsers />} />
+                <Route path="users-log" element={<UsersLog />} />
+                <Route path="calibration-new" element={<Calibration />} />
+                <Route path="calibration" element={<CalibrationData />} />
+                <Route path="edit-calibration/:userName" element={<EditCalibration />} />
+                <Route path="notification" element={<Notification />} />
+                <Route path="notification-new" element={<AddNotification />} />
+                <Route path="calibration-exceeded" element={<CalibrationExceeded />} />
+                <Route path="calibration-exceeded-report" element={<CalibrationExceededReport />} />
+                <Route path="add-calibration-exceed-value" element={<AddCalibrationExceedValues />} />
+                <Route path="calibration-exceed-value" element={<CalibrationExceedValue />} />
+                <Route path="edit-calibration-exceed-value/:userName" element={<EditCalibrationExceedValue />} />
+                <Route path="/report" element={<Report />} />
+                <Route path="view-report/:userName" element={<ViewReport />} />
+                <Route path="edit-report/:userName" element={<EditReport />} />
+                <Route path="supportedAnalyserModels" element={<SupportedAnalyserModels />} />
+                <Route path="/subscribe-data" element={<Subscribe />} />
+                <Route path="/transactions" element={<Transaction />} />
+                <Route path="/download-IoT-Data" element={<DownloadIoTdata />} />
+                <Route path="/download-Iot-Data-By-userName" element={<DownloadIoTdataByUserName />} />
+                <Route path="/quantity" element={<Quantity />} />
+                <Route path="/energy" element={<Energy />} />
+                <Route path="/live-video" element={<LiveVideo />} />
+                <Route path="/chat" element={<ChatApp />} />
+                {/* <Route path = "/*" element={<Error/>}/> */}
+              </>
+            )}
+            {userType === "user" && (
+              <>
+                <Route path="water" element={<Water />} />
+                <Route path="ambient-air" element={<AmbientAir />} />
+                <Route path="noise" element={<Noise />} />
+                <Route path="account" element={<Account />} />
+                <Route path="/report" element={<Report />} />
+                <Route path="/transactions" element={<Transaction />} />
+                <Route path="edit-report/:userName" element={<EditReport />} />
+                <Route path="view-report/:userName" element={<ViewReport />} />
+                <Route path="/supportedAnalyserModels" element={<SupportedAnalyserModels />} />
+                <Route path="/download-IoT-Data" element={<DownloadIoTdata />} />
+                <Route path="/download-Iot-Data-By-userName" element={<DownloadIoTdataByUserName />} />
+                <Route path="/quantity" element={<Quantity />} />
+                <Route path="/energy" element={<Energy />} />
+                <Route path="/chat" element={<ChatApp />} />
+                {/* <Route path = "/*" element={<Error/>}/> */}
+              </>
+            )}
+          </Route>
+        )}
+      </Routes>
+      <CustomBanner />
+      <InstallPrompt />
+    </>
   );
 }
 

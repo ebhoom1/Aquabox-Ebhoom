@@ -25,9 +25,10 @@ const Water = () => {
     setLoading(true);
     try {
       const result = await dispatch(fetchIotDataByUserName(userName)).unwrap();
+      
       setSearchResult(result);
-      setCompanyName(result?.companyName || "Unknown Company");
-      setSearchError("");
+       setCompanyName(result?.companyName || "Unknown Company");
+     setSearchError("");
     } catch (err) {
       setSearchResult(null);
       setCompanyName("Unknown Company");
