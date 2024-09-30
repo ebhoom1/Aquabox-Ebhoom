@@ -22,6 +22,7 @@ const ViewComponent = () => {
     'validationMessage', 
     'timestamp', // Ensure this is included
     '__v',
+    'topic',
     'industryType'
   ];
 

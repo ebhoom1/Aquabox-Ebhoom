@@ -667,13 +667,13 @@ const viewDataByDateAndUser = async (req, res) => {
                 $lte: formattedToDate
             }
         }).lean();
-
-        if (data.length === 0) {
-            console.log("No data found with criteria:", { fromDate, toDate, userName });
-            return res.status(404).send('No data found for the specified criteria');
+        
+        if (!data.length) {
+            console.log("No data found with criteria:", { formattedFromDate, formattedToDate, userName });
+            return res.status(404).json({ message: "No data record is saved on these dates for the given user." });
         }
 
-        res.status(200).json(data);
+        res.status(200).json({ data });
     } catch (error) {
         console.error('Failed to view data:', error);
         res.status(500).json({ message: "Failed to process request" });

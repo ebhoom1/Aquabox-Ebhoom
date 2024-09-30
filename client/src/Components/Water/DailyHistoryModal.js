@@ -6,7 +6,7 @@ import axios from 'axios';
 import moment from 'moment';
 import { useSelector } from 'react-redux';
 import { API_URL } from '../../utils/apiConfig';
-import './index.css'
+import './index.css';
 
 Modal.setAppElement('#root'); // Properly set the app element for accessibility
 
@@ -29,12 +29,13 @@ const customStyles = {
   },
 };
 
-const DailyHistoryModal = ({ isOpen, onRequestClose, fetchData, downloadData }) => {
+const DailyHistoryModal = ({ isOpen, onRequestClose }) => {
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [userName, setUserName] = useState('');
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState([]);
+  const [subscriptionDate, setSubscriptionDate] = useState('');
   const [showDownloadOptions, setShowDownloadOptions] = useState(false);
   const navigate = useNavigate();
   const { userType, userData } = useSelector((state) => state.user);
@@ -53,27 +54,40 @@ const DailyHistoryModal = ({ isOpen, onRequestClose, fetchData, downloadData }) 
       fetchUsers();
     } else if (userType === 'user' && userData?.validUserOne?.userName) {
       setUserName(userData.validUserOne.userName);
+      setSubscriptionDate(userData.validUserOne.subscriptionDate);  // Set the subscription date for the user
     }
   }, [userType, userData]);
 
+  const handleUserChange = (selectedUser) => {
+    setUserName(selectedUser.userName);
+    setSubscriptionDate(selectedUser.subscriptionDate);  // Set the subscription date for the selected user (admin case)
+  };
+
   const handleViewClick = async () => {
     if (fromDate && toDate && userName) {
-        const isSameDate = moment(fromDate).isSame(moment(toDate), 'day');
+      const isSameDate = moment(fromDate).isSame(moment(toDate), 'day');
 
-        // Check if both dates are the same for the view functionality
-        if (isSameDate) {
-          alert("Both From Date and To Date must be different to view the data. You can use the same dates for downloading.");
-          return; // Exit if trying to view data with same dates
-        }
+      // Check if both dates are the same for the view functionality
+      if (isSameDate) {
+        alert("Both From Date and To Date must be different to view the data. You can use the same dates for downloading.");
+        return; // Exit if trying to view data with same dates
+      }
+
+      // Check if the date range exceeds 7 days
+      const dateDifference = moment(toDate).diff(moment(fromDate), 'days');
+      if (dateDifference > 7) {
+        alert("You can view only one week's data. If you want to see more, please use the download option.");
+        return; // Exit if the date range is more than 7 days
+      }
+
       setLoading(true);
       try {
         const formattedFromDate = moment(fromDate).format('DD-MM-YYYY');
         const formattedToDate = moment(toDate).format('DD-MM-YYYY');
-        const response = await axios.get(`http://localhost:5555/api/view-data-by-date-user`, {
+        const response = await axios.get(`${API_URL}/api/view-data-by-date-user`, {
           params: { fromDate: formattedFromDate, toDate: formattedToDate, userName },
         });
         const data = response.data.data;
-        console.log(data)
         setLoading(false);
         navigate('/view-data', { state: { data, fromDate: formattedFromDate, toDate: formattedToDate } });
       } catch (error) {
@@ -83,8 +97,7 @@ const DailyHistoryModal = ({ isOpen, onRequestClose, fetchData, downloadData }) 
       }
     }
   };
-  
-  
+
   const handleDownloadClick = async (selectedFormat) => {
     if (!fromDate || !toDate || !userName) {
       alert('Please fill in all fields');
@@ -122,55 +135,55 @@ const DailyHistoryModal = ({ isOpen, onRequestClose, fetchData, downloadData }) 
         </button>
       </div>
       <div className="modal-body">
-  {userType === 'admin' ? (
-    <div className="form-group">
-      <label>User Name</label>
-      <select
-        className="form-control"
-        value={userName}
-        onChange={(e) => setUserName(e.target.value)}
-      >
-        <option value="">Select</option>
-        {users.map((user) => (
-          <option key={user.userName} value={user.userName}>
-            {user.userName}
-          </option>
-        ))}
-      </select>
-    </div>
-  ) : (
-    <div className="form-group">
-      <label>User Name:</label>
-      <input
-        type="text"
-        className="form-control"
-        value={userName}
-        readOnly
-      />
-    </div>
-  )}
-  <div className="form-group">
-    <label>From Date:</label>
-    <input
-      type="date"
-      className="form-control"
-      value={fromDate}
-      onChange={(e) => setFromDate(e.target.value)}
-    />
-  </div>
-  <div className="form-group">
-    <label>To Date:</label>
-    <input
-      type="date"
-      className="form-control"
-      value={toDate}
-      onChange={(e) => setToDate(e.target.value)}
-    />
-  </div>
-</div>
-
+        {userType === 'admin' ? (
+          <div className="form-group">
+            <label>User Name</label>
+            <select
+              className="form-control"
+              value={userName}
+              onChange={(e) => handleUserChange(users.find(user => user.userName === e.target.value))}
+            >
+              <option value="">Select</option>
+              {users.map((user) => (
+                <option key={user.userName} value={user.userName}>
+                  {user.userName}
+                </option>
+              ))}
+            </select>
+          </div>
+        ) : (
+          <div className="form-group">
+            <label>User Name:</label>
+            <input
+              type="text"
+              className="form-control"
+              value={userName}
+              readOnly
+            />
+          </div>
+        )}
+        <div className="form-group">
+          <label>From Date (Subscription Date: {moment(subscriptionDate).format('DD-MM-YYYY')}):</label>
+          <input
+            type="date"
+            className="form-control"
+            value={fromDate}
+            min={subscriptionDate ? moment(subscriptionDate).format('YYYY-MM-DD') : undefined}
+            onChange={(e) => setFromDate(e.target.value)}
+          />
+        </div>
+        <div className="form-group">
+          <label>To Date:</label>
+          <input
+            type="date"
+            className="form-control"
+            value={toDate}
+            onChange={(e) => setToDate(e.target.value)}
+          />
+        </div>
+      </div>
       <div className="modal-footer">
-      <div className="btn-group">
+        <div className="btn-group">
           <button
             className="btn btn-success dropdown-toggle"
             onClick={() => setShowDownloadOptions(!showDownloadOptions)}
@@ -181,7 +194,7 @@ const DailyHistoryModal = ({ isOpen, onRequestClose, fetchData, downloadData }) 
           {showDownloadOptions && (
             <div className="dropdown-menu show">
               <button
-                className="dropdown-item "
+                className="dropdown-item"
                 onClick={() => handleDownloadClick('csv')}
               >
                 Download as CSV
@@ -202,7 +215,6 @@ const DailyHistoryModal = ({ isOpen, onRequestClose, fetchData, downloadData }) 
         >
           {loading ? <Oval height={20} width={20} color="#fff" secondaryColor="#ddd" /> : 'View'}
         </button>
-        
       </div>
     </Modal>
   );
