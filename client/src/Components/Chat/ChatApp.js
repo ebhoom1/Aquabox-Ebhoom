@@ -7,7 +7,7 @@ import { useSelector } from 'react-redux';
 import './chat.css'; // Ensure this path is correct
 import { API_URL } from '../../utils/apiConfig'; // Ensure API_URL is correct
 
-const socket = io(`http://13.233.106.171:5555`, { withCredentials: true });
+const socket = io(`${API_URL}`, { withCredentials: true });
 
 const ChatApp = () => {
   const [chats, setChats] = useState([]);
