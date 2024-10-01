@@ -58,6 +58,9 @@ const userSchema=new mongoose.Schema({
         type:String,
         
     },
+    iotLastEnterDate:{
+        type:String,
+    },
     subscriptionActive: {
         type: Boolean,
         default: false,

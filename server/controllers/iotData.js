@@ -125,6 +125,21 @@ const handleSaveMessage = async (req, res) => {
 
         await newEntry.save();
         console.log('New Ent:',newEntry)
+
+           // Update the user's iotLastEnterDate
+           const userUpdate = await userdb.findOneAndUpdate(
+            { userName: data.userName },
+            { iotLastEnterDate: formattedDate }, // Update with the latest incoming date
+            { new: true } // Return the updated document
+        );
+
+        if (!userUpdate) {
+            console.error('User not found or update failed');
+            return res.status(404).json({ success: false, message: 'User not found or update failed' });
+        }
+
+        console.log('User Updated Successfully:', userUpdate);
+
          // Call handleExceedValues after saving the new IoT data entry
           await handleExceedValues();
 

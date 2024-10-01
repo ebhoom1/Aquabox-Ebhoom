@@ -46,7 +46,8 @@ const register = async (req, res) => {
 
             const finalUser = new userdb({
                 userName, companyName, modelName, fname, email, mobileNumber, password, cpassword, subscriptionDate, endSubscriptionDate: formattedEndSubscriptionDate, userType, industryType, dataInteval, district, state, address, latitude, longitude,
-                productID
+                productID,iotLastEnterDate: subscriptionDate
+
             });
 
             const storeData = await finalUser.save();
