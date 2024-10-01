@@ -110,7 +110,15 @@ const AmbientAir = () => {
     { parameter: "Wind Dir", value: 'deg', name: "WindDir" },
     { parameter: "Temperature", value: '℃', name: "AirTemperature" },
     { parameter: "Humidity", value: '%', name: "Humidity" },
-    { parameter: "Solar Radiation", value: 'w/m²', name: "solarRadiation" }
+    { parameter: "Solar Radiation", value: 'w/m²', name: "solarRadiation" },
+    {parameter:"Flouride",value:'µg/m',name:"Flouride"},
+    {parameter:"Flouride (II)",value:'µg/m',name:"stack_2_Flouride"},
+    { parameter: "PM (II)", value: 'µg/m³', name: "stack_2_PM" },
+    { parameter: "NH3 (II)", value: 'µg/m³', name: "stack_2_NH3" },
+    {parameter:"Flouride (III)",value:'µg/m',name:"stack_3_Flouride"},
+    { parameter: "PM (III)", value: 'µg/m³', name: "stack_3_PM" },
+    { parameter: "NH3 (III)", value: 'µg/m³', name: "stack_3_NH3" },
+    
   ];
 
   return (
@@ -192,29 +200,89 @@ const AmbientAir = () => {
           </div>
         )}
 
-        <div className="row">
-          {!loading && airParameters.map((item, index) => (
-            <div className="col-12 col-md-4 grid-margin" key={index}>
-              <div className="card" onClick={() => handleCardClick({ title: item.parameter })}>
-                <div className="card-body">
-                  <div className="row">
-                    <div className="col-12">
-                      <h3 className="mb-3">{item.parameter}</h3>
-                    </div>
-                    <div className="col-12 mb-3">
-                      <h6>
-                        <strong className="strong-value">
-                          {searchResult ? searchResult[item.name] || 'N/A' : 'No Result found for this userID'}
-                        </strong> 
-                        {item.value}
-                      </h6>
-                    </div>
-                  </div>
-                </div>
-              </div>
+<div className="row">
+  {/* Exclude Stack II and Stack III Parameters */}
+  {!loading && airParameters.filter(param => !param.name.includes("stack_2") && !param.name.includes("stack_3")).map((item, index) => (
+    <div className="col-12 col-md-4 grid-margin" key={index}>
+      <div className="card" onClick={() => handleCardClick({ title: item.parameter })}>
+        <div className="card-body">
+          <div className="row">
+            <div className="col-12">
+              <h3 className="mb-3 ">{item.parameter}</h3>
             </div>
-          ))}
+            <div className="col-12 mb-3">
+              <h6>
+                <strong className="strong-value" style={{color:'#35852a'}}>
+                  {searchResult ? searchResult[item.name] || 'N/A' : 'No Result found for this userID'}
+                </strong> 
+                <span>{item.value}</span>
+              </h6>
+            </div>
+          </div>
         </div>
+      </div>
+    </div>
+  ))}
+</div>
+
+        <div className="row">
+  {/* Heading for Stack II */}
+  <div className="col-12">
+    <h3 className="text-center mt-4">Stack II</h3>
+  </div>
+
+  {/* Stack II Parameters */}
+  {!loading && airParameters.filter(param => param.name.includes("stack_2")).map((item, index) => (
+    <div className="col-12 col-md-4 grid-margin" key={index}>
+      <div className="card" onClick={() => handleCardClick({ title: item.parameter })}>
+        <div className="card-body">
+          <div className="row">
+            <div className="col-12">
+              <h3 className="mb-3">{item.parameter}</h3>
+            </div>
+            <div className="col-12 mb-3">
+              <h6>
+                <strong className="strong-value" style={{color:'#2e8023'}}>
+                  {searchResult ? searchResult[item.name] || 'N/A' : 'No Result found for this userID'}
+                </strong> 
+                <span>{item.value}</span>
+              </h6>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  ))}
+</div>
+<div className="row">
+  {/* Heading for Stack II */}
+  <div className="col-12">
+    <h3 className="text-center mt-4">Stack III</h3>
+  </div>
+
+  {/* Stack II Parameters */}
+  {!loading && airParameters.filter(param => param.name.includes("stack_3")).map((item, index) => (
+    <div className="col-12 col-md-4 grid-margin" key={index}>
+      <div className="card" onClick={() => handleCardClick({ title: item.parameter })}>
+        <div className="card-body">
+          <div className="row">
+            <div className="col-12">
+              <h3 className="mb-3">{item.parameter}</h3>
+            </div>
+            <div className="col-12 mb-3">
+              <h6>
+                <strong className="strong-value" style={{color:'#328023'}}>
+                  {searchResult ? searchResult[item.name] || 'N/A' : 'No Result found for this userID'}
+                </strong> 
+                <span>{item.value}</span>
+              </h6>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  ))}
+</div>
 
         {showPopup && selectedCard && (
           <AirGraphPopup

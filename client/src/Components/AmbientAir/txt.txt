@@ -1,0 +1,25 @@
+<div className="row">
+          {!loading && airParameters.map((item, index) => (
+            <div className="col-12 col-md-4 grid-margin" key={index}>
+              <div className="card" onClick={() => handleCardClick({ title: item.parameter })}>
+                <div className="card-body">
+                  <div className="row">
+                    <div className="col-12">
+                      <h3 className="mb-3 ">{item.parameter}</h3>
+                    </div>
+                    <div className="col-12 mb-3">
+                      <h6>
+                        <strong className="strong-value"style={{color:'#236A80'}}>
+                          {searchResult ? searchResult[item.name] || 'N/A' : 'No Result found for this userID'}
+                        </strong> 
+                        <span >{item.value}</span>
+                      </h6>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        older code need to keep
