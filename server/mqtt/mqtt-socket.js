@@ -60,7 +60,7 @@ const setupMqttClient = (io, retries = 0) => {
                         time: data.time || moment().format('HH:mm:ss') // Set default time if not provided
                     });
   
-                    await axios.post('http://13.233.106.171:5555/api/handleSaveMessage', data);
+                    await axios.post('https://api.ocems.ebhoom.com/api/handleSaveMessage', data);
                     io.to(product_id.toString()).emit('data', data);
                     console.log('Data entered',data)
                 } else {
