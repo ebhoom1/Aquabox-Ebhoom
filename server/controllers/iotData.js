@@ -641,35 +641,35 @@ const downloadIotDataByUserName = async (req, res) => {
         // Decode the URL-encoded parameters
         userName = decodeURIComponent(userName.trim());
 
-        // Ensure dates are in the correct format
-        fromDate = moment(fromDate, 'DD-MM-YYYY').format('DD/MM/YYYY');
-        toDate = moment(toDate, 'DD-MM-YYYY').format('DD/MM/YYYY');
+        // Parse the dates in 'YYYY-MM-DD' format to ensure proper querying
+        const parsedFromDate = moment(fromDate, 'DD-MM-YYYY').startOf('day').toISOString();
+        const parsedToDate = moment(toDate, 'DD-MM-YYYY').endOf('day').toISOString(); // Ensure the whole day is included
 
         // Log the parameters for debugging
-        console.log("Query Parameters:", { fromDate, toDate, userName, format });
+        console.log("Query Parameters:", { parsedFromDate, parsedToDate, userName, format });
 
         // Validate input
-        if (!fromDate || !toDate || !userName) {
+        if (!parsedFromDate || !parsedToDate || !userName) {
             return res.status(400).send('Missing required query parameters');
         }
 
         // Find IoT data based on filters
         const data = await IotData.find({
             userName: userName,
-            date: {
-                $gte: fromDate,
-                $lte: toDate,
+            timestamp: {
+                $gte: parsedFromDate,
+                $lte: parsedToDate,
             },
         }).lean();
 
         if (data.length === 0) {
-            console.log("No data found with criteria:", { fromDate, toDate, userName });
+            console.log("No data found with criteria:", { parsedFromDate, parsedToDate, userName });
             return res.status(404).send('No data found for the specified criteria');
         }
 
         if (format === 'csv') {
             // Generate CSV
-            const fields = ['userName', 'industryType', 'companyName', 'date', 'product_id', 'ph', 'TDS', 'turbidity', 'temperature', 'BOD', 'COD', 'TSS', 'ORP', 'nitrate', 'ammonicalNitrogen', 'DO', 'chloride', 'PM', 'PM10', 'PM25', 'NOH', 'NH3', 'WindSpeed', 'WindDir', 'AirTemperature', 'Humidity', 'solarRadiation', 'DB', 'inflow', 'finalflow', 'energy'];
+            const fields = ['userName', 'industryType', 'companyName', 'date', 'time', 'product_id', 'ph', 'TDS', 'turbidity', 'temperature', 'BOD', 'COD', 'TSS', 'ORP', 'nitrate', 'ammonicalNitrogen', 'DO', 'chloride', 'PM', 'PM10', 'PM25', 'NOH', 'NH3', 'WindSpeed', 'WindDir', 'AirTemperature', 'Humidity', 'solarRadiation', 'DB', 'inflow', 'finalflow', 'energy'];
             const json2csvParser = new Parser({ fields });
             const csv = json2csvParser.parse(data);
 
@@ -706,6 +706,7 @@ const downloadIotDataByUserName = async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 };
+
 
 const viewDataByDateAndUser = async (req, res) => {
     const { fromDate, toDate, userName } = req.query;

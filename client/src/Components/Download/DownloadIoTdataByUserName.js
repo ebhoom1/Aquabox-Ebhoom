@@ -67,7 +67,7 @@ const DownloadIoTdataByUserName = () => {
             .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
             .join('&');
 
-        const requestUrl = `${API_URL}/api/downloadIotDataByUserName?${queryString}`;
+        const requestUrl = `http://localhost:5555/api/downloadIotDataByUserName?${queryString}`;
 
         console.log('Request URL:', requestUrl); // Debug the URL
 
@@ -132,7 +132,6 @@ const DownloadIoTdataByUserName = () => {
                                         value={dateTo}
                                         onChange={(e) => setDateTo(e.target.value)}
                                         required
-                                        min={dateFrom} // Ensure "To Date" cannot be before "From Date"
                                     />
                                 </div>
                                 <div className="col-lg-6 col-md-6 mb-3">
