@@ -34,7 +34,7 @@ const server = http.createServer(app);
 const io = socketIO(server, {
     cors: {
         origin: ['https://ocems.ebhoom.com','https://api.ocems.ebhoom.com','http://localhost:3000'], // Include other origins as needed
-        methods: ["GET", "POST"],
+        methods: ["GET", "POST","PUT","PATCH","DELETE"],
         credentials: true
     }
 });
@@ -46,7 +46,7 @@ DB();
 app.use(cors({
     origin: ['http://localhost:3000', 'http://ocems.ebhoom.com', 'http://ocems.ebhoom.com:5555', 'http://13.233.106.171:5555','https://ocems.ebhoom.com','https://api.ocems.ebhoom.com'],
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT','PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(cookieParser());
