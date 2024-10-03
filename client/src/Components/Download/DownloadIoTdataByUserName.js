@@ -67,7 +67,7 @@ const DownloadIoTdataByUserName = () => {
             .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
             .join('&');
 
-        const requestUrl = `http://localhost:5555/api/downloadIotDataByUserName?${queryString}`;
+        const requestUrl = `${API_URL}/api/downloadIotDataByUserName?${queryString}`;
 
         console.log('Request URL:', requestUrl); // Debug the URL
 

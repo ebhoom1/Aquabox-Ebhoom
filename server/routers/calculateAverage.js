@@ -8,7 +8,8 @@ const {
         handleSaveMessage,
         getDifferenceDataByUserName,
         downloadIotDataByUserName,
-        viewDataByDateAndUser 
+        viewDataByDateAndUser,
+        deleteIotDataByDateAndUser 
         
 } = require('../controllers/iotData');
 
@@ -43,6 +44,9 @@ router.get('/downloadIotDataByUserName',downloadIotDataByUserName)
 
 // Route to view data by date and user
 router.get('/view-data-by-date-user', viewDataByDateAndUser);
+
+//Route to delete many by date
+router.delete('/delete-by-date',deleteIotDataByDateAndUser)
 
 
 module.exports = router;

@@ -641,9 +641,9 @@ const downloadIotDataByUserName = async (req, res) => {
         // Decode the URL-encoded parameters
         userName = decodeURIComponent(userName.trim());
 
-        // Parse the dates in 'YYYY-MM-DD' format to ensure proper querying
-        const parsedFromDate = moment(fromDate, 'DD-MM-YYYY').startOf('day').toISOString();
-        const parsedToDate = moment(toDate, 'DD-MM-YYYY').endOf('day').toISOString(); // Ensure the whole day is included
+        // Parse the dates correctly in 'YYYY-MM-DD' format to ensure proper querying
+        const parsedFromDate = moment(fromDate, 'DD-MM-YYYY').startOf('day').toDate();  // Changed to .toDate() to handle Date type in MongoDB
+        const parsedToDate = moment(toDate, 'DD-MM-YYYY').endOf('day').toDate();        // Changed to .toDate() to handle Date type
 
         // Log the parameters for debugging
         console.log("Query Parameters:", { parsedFromDate, parsedToDate, userName, format });
@@ -653,13 +653,13 @@ const downloadIotDataByUserName = async (req, res) => {
             return res.status(400).send('Missing required query parameters');
         }
 
-        // Find IoT data based on filters
+        // Query data using correct date range
         const data = await IotData.find({
             userName: userName,
             timestamp: {
-                $gte: parsedFromDate,
-                $lte: parsedToDate,
-            },
+                $gte: parsedFromDate,  // Data from the start of fromDate
+                $lte: parsedToDate     // Data until the end of toDate
+            }
         }).lean();
 
         if (data.length === 0) {
@@ -669,7 +669,7 @@ const downloadIotDataByUserName = async (req, res) => {
 
         if (format === 'csv') {
             // Generate CSV
-            const fields = ['userName', 'industryType', 'companyName', 'date', 'time', 'product_id', 'ph', 'TDS', 'turbidity', 'temperature', 'BOD', 'COD', 'TSS', 'ORP', 'nitrate', 'ammonicalNitrogen', 'DO', 'chloride', 'PM', 'PM10', 'PM25', 'NOH', 'NH3', 'WindSpeed', 'WindDir', 'AirTemperature', 'Humidity', 'solarRadiation', 'DB', 'inflow', 'finalflow', 'energy'];
+            const fields = ['userName', 'industryType', 'companyName', 'date', 'time', 'product_id', 'ph', 'TDS', 'turbidity', 'temperature', 'BOD', 'COD', 'TSS', 'ORP', 'nitrate', 'ammonicalNitrogen', 'DO', 'chloride', 'PM', 'PM10', 'PM25', 'NOH', 'NH3', 'WindSpeed', 'WindDir', 'AirTemperature', 'Humidity', 'solarRadiation', 'DB', 'inflow','CO','NOX','SO2','Pressure','Flouride','Flow', 'finalflow', 'energy'];
             const json2csvParser = new Parser({ fields });
             const csv = json2csvParser.parse(data);
 
@@ -708,6 +708,7 @@ const downloadIotDataByUserName = async (req, res) => {
 };
 
 
+
 const viewDataByDateAndUser = async (req, res) => {
     const { fromDate, toDate, userName } = req.query;
 
@@ -739,12 +740,54 @@ const viewDataByDateAndUser = async (req, res) => {
 };
 
 
+const deleteIotDataByDateAndUser = async (req, res) => {
+    try {
+        let { userName, fromDate, toDate } = req.query;
+
+        // Ensure all required parameters are present
+        if (!userName || !fromDate || !toDate) {
+            return res.status(400).send('Missing required query parameters');
+        }
+
+        // Decode the URL-encoded parameters
+        userName = decodeURIComponent(userName.trim());
+
+        // Parse the dates in 'YYYY-MM-DD' format to ensure proper querying
+        const parsedFromDate = moment(fromDate, 'DD-MM-YYYY').startOf('day').toDate();  // Start of the day for fromDate
+        const parsedToDate = moment(toDate, 'DD-MM-YYYY').endOf('day').toDate();        // End of the day for toDate
+
+        // Log the parameters for debugging
+        console.log("Delete Operation Parameters:", { parsedFromDate, parsedToDate, userName });
+
+        // Delete IoT data based on userName and date range
+        const deleteResult = await IotData.deleteMany({
+            userName: userName,
+            timestamp: {
+                $gte: parsedFromDate,  // Data from the start of fromDate
+                $lte: parsedToDate     // Data until the end of toDate
+            }
+        });
+
+        // Check if any data was deleted
+        if (deleteResult.deletedCount === 0) {
+            console.log("No data found to delete with the specified criteria:", { userName, parsedFromDate, parsedToDate });
+            return res.status(404).send('No data found for the specified criteria');
+        }
+
+        // Return success message
+        console.log(`Deleted ${deleteResult.deletedCount} records for user ${userName} between ${fromDate} and ${toDate}`);
+        return res.status(200).send(`Deleted ${deleteResult.deletedCount} records for user ${userName} between ${fromDate} and ${toDate}`);
+    } catch (error) {
+        console.error('Error deleting data:', error);
+        res.status(500).send('Internal Server Error');
+    }
+};
 
 
 
 module.exports ={handleSaveMessage, scheduleAveragesCalculation,getAllIotData, getLatestIoTData,getIotDataByUserName,
     downloadIotData,getAverageDataByUserName,calculateAndSaveDailyDifferences,getDifferenceDataByUserName,downloadIotDataByUserName,
-    viewDataByDateAndUser
+    viewDataByDateAndUser,deleteIotDataByDateAndUser
  }
 
 
