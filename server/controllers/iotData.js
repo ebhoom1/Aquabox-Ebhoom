@@ -132,24 +132,24 @@ const handleSaveMessage = async (req, res) => {
             stack_2_solarRadiation: data.stack_2_solarRadiation !== 'N/A' ? data.stack_2_solarRadiation : null,
         
             // Add stack_2 fields
-            stack_3_flow: data.stack_3_flow !== 'N/A' ? data.stack_3_flow : null,
-            stack_3_CO: data.stack_3_CO !== 'N/A' ? data.stack_3_CO : null,
-            stack_3_NOX: data.stack_3_NOX !== 'N/A' ? data.stack_3_NOX : null,
-            stack_3_Pressure: data.stack_3_Pressure !== 'N/A' ? data.stack_3_Pressure : null,
-            stack_3_Flouride: data.stack_3_Flouride !== 'N/A' ? data.stack_3_Flouride : null,
-            stack_3_PM: data.stack_3_PM !== 'N/A' ? data.stack_3_PM : null,
-            stack_3_SO2: data.stack_3_SO2 !== 'N/A' ? data.stack_3_SO2 : null,
-            stack_3_NO2: data.stack_3_NO2 !== 'N/A' ? data.stack_3_NO2 : null,
-            stack_3_Mercury: data.stack_3_Mercury !== 'N/A' ? data.stack_3_Mercury : null,
-            stack_3_PM10: data.stack_3_PM10 !== 'N/A' ? data.stack_3_PM10 : null,
-            stack_3_PM25: data.stack_3_PM25 !== 'N/A' ? data.stack_3_PM25 : null,
-            stack_3_NOH: data.stack_3_NOH !== 'N/A' ? data.stack_3_NOH : null,
-            stack_3_NH3: data.stack_3_NH3 !== 'N/A' ? data.stack_3_NH3 : null,
-            stack_3_WindSpeed: data.stack_3_WindSpeed !== 'N/A' ? data.stack_3_WindSpeed : null,
-            stack_3_WindDir: data.stack_3_WindDir !== 'N/A' ? data.stack_3_WindDir : null,
-            stack_3_AirTemperature: data.stack_3_AirTemperature !== 'N/A' ? data.stack_3_AirTemperature : null,
-            stack_3_Humidity: data.stack_3_Humidity !== 'N/A' ? data.stack_3_Humidity : null,
-            stack_3_solarRadiation: data.stack_3_solarRadiation !== 'N/A' ? data.stack_3_solarRadiation : null,
+            stack_32_Ammonia_flow: data.stack_32_Ammonia_flow !== 'N/A' ? data.stack_32_Ammonia_flow : null,
+            stack_32_Ammonia_CO: data.stack_32_Ammonia_CO !== 'N/A' ? data.stack_32_Ammonia_CO : null,
+            stack_32_Ammonia_NOX: data.stack_32_Ammonia_NOX !== 'N/A' ? data.stack_32_Ammonia_NOX : null,
+            stack_32_Ammonia_Pressure: data.stack_32_Ammonia_Pressure !== 'N/A' ? data.stack_32_Ammonia_Pressure : null,
+            stack_32_Ammonia_Flouride: data.stack_32_Ammonia_Flouride !== 'N/A' ? data.stack_32_Ammonia_Flouride : null,
+            stack_32_Ammonia_PM: data.stack_32_Ammonia_PM !== 'N/A' ? data.stack_32_Ammonia_PM : null,
+            stack_32_Ammonia_SO2: data.stack_32_Ammonia_SO2 !== 'N/A' ? data.stack_32_Ammonia_SO2 : null,
+            stack_32_Ammonia_NO2: data.stack_32_Ammonia_NO2 !== 'N/A' ? data.stack_32_Ammonia_NO2 : null,
+            stack_32_Ammonia_Mercury: data.stack_32_Ammonia_Mercury !== 'N/A' ? data.stack_32_Ammonia_Mercury : null,
+            stack_32_Ammonia_PM10: data.stack_32_Ammonia_PM10 !== 'N/A' ? data.stack_32_Ammonia_PM10 : null,
+            stack_32_Ammonia_PM25: data.stack_32_Ammonia_PM25 !== 'N/A' ? data.stack_32_Ammonia_PM25 : null,
+            stack_32_Ammonia_NOH: data.stack_32_Ammonia_NOH !== 'N/A' ? data.stack_32_Ammonia_NOH : null,
+            stack_32_Ammonia_NH3: data.stack_32_Ammonia_NH3 !== 'N/A' ? data.stack_32_Ammonia_NH3 : null,
+            stack_32_Ammonia_WindSpeed: data.stack_32_Ammonia_WindSpeed !== 'N/A' ? data.stack_32_Ammonia_WindSpeed : null,
+            stack_32_Ammonia_WindDir: data.stack_32_Ammonia_WindDir !== 'N/A' ? data.stack_32_Ammonia_WindDir : null,
+            stack_32_Ammonia_AirTemperature: data.stack_32_Ammonia_AirTemperature !== 'N/A' ? data.stack_32_Ammonia_AirTemperature : null,
+            stack_32_Ammonia_Humidity: data.stack_32_Ammonia_Humidity !== 'N/A' ? data.stack_32_Ammonia_Humidity : null,
+            stack_32_Ammonia_solarRadiation: data.stack_32_Ammonia_solarRadiation !== 'N/A' ? data.stack_32_Ammonia_solarRadiation : null,
         
             date: formattedDate,
             time: data.time !== 'N/A' ? data.time : moment().format('HH:mm:ss'),
@@ -489,7 +489,28 @@ const downloadIotData = async (req, res) => {
 
         if (format === 'csv') {
             // Generate CSV
-            const fields = ['userName', 'industryType', 'companyName', 'date','time', 'product_id', 'ph', 'TDS', 'turbidity', 'temperature', 'BOD', 'COD', 'TSS', 'ORP', 'nitrate', 'ammonicalNitrogen', 'DO', 'chloride', 'PM', 'PM10', 'PM25', 'NOH', 'NH3', 'WindSpeed', 'WindDir', 'AirTemperature', 'Flouride', 'Humidity', 'solarRadiation', 'DB', 'inflow', 'finalflow', 'energy', 'CO', 'NOX', 'NO2', 'Mercury', 'Pressure', 'voltage', 'current', 'power'];
+            const fields = [
+                'userName', 'industryType', 'companyName', 'date', 'time', 'product_id', 
+                'ph', 'TDS', 'turbidity', 'temperature', 'BOD', 'COD', 'TSS', 'ORP', 
+                'nitrate', 'ammonicalNitrogen', 'DO', 'chloride', 'Flow', 'CO', 'NOX', 
+                'Pressure', 'Flouride', 'PM', 'SO2', 'NO2', 'Mercury', 'PM10', 'PM25', 
+                'NOH', 'NH3', 'WindSpeed', 'WindDir', 'AirTemperature', 'Humidity', 
+                'solarRadiation', 'DB', 'inflow', 'finalflow', 'energy', 'voltage', 
+                'current', 'power', 
+                'stack_2_flow', 'stack_32_Ammonia_flow', 'stack_2_CO', 'stack_2_NOX', 
+                'stack_2_Pressure', 'stack_2_Flouride', 'stack_2_PM', 'stack_2_SO2', 
+                'stack_2_NO2', 'stack_2_Mercury', 'stack_2_PM10', 'stack_2_PM25', 'stack_2_NOH', 
+                'stack_2_NH3', 'stack_2_WindSpeed', 'stack_2_WindDir', 'stack_2_AirTemperature', 
+                'stack_2_Humidity', 'stack_2_solarRadiation', 'stack_32_Ammonia_CO', 
+                'stack_32_Ammonia_NOX', 'stack_32_Ammonia_Pressure', 'stack_32_Ammonia_Flouride', 
+                'stack_32_Ammonia_PM', 'stack_32_Ammonia_SO2', 'stack_32_Ammonia_NO2', 
+                'stack_32_Ammonia_Mercury', 'stack_32_Ammonia_PM10', 'stack_32_Ammonia_PM25', 
+                'stack_32_Ammonia_NOH', 'stack_32_Ammonia_NH3', 'stack_32_Ammonia_WindSpeed', 
+                'stack_32_Ammonia_WindDir', 'stack_32_Ammonia_AirTemperature', 'stack_32_Ammonia_Humidity', 
+                'stack_32_Ammonia_solarRadiation', 'topic', 'mobileNumber', 'email', 
+                'validationStatus', 'validationMessage', 'timestamp'
+              ];
+              
             const json2csvParser = new Parser({ fields });
             const csv = json2csvParser.parse(data);
 

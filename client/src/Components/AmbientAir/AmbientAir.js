@@ -115,9 +115,9 @@ const AmbientAir = () => {
     {parameter:"Flouride (II)",value:'µg/m',name:"stack_2_Flouride"},
     { parameter: "PM (II)", value: 'µg/m³', name: "stack_2_PM" },
     { parameter: "NH3 (II)", value: 'µg/m³', name: "stack_2_NH3" },
-    {parameter:"Flouride (III)",value:'µg/m',name:"stack_3_Flouride"},
-    { parameter: "PM (III)", value: 'µg/m³', name: "stack_3_PM" },
-    { parameter: "NH3 (III)", value: 'µg/m³', name: "stack_3_NH3" },
+    {parameter:"Flouride (III)",value:'µg/m',name:"stack_32_Ammonia_Flouride"},
+    { parameter: "PM (III)", value: 'µg/m³', name: "stack_32_Ammonia_PM" },
+    { parameter: "NH3 (III)", value: 'µg/m³', name: "stack_32_Ammonia_NH3" },
     
   ];
 
@@ -202,7 +202,7 @@ const AmbientAir = () => {
 
 <div className="row">
   {/* Exclude Stack II and Stack III Parameters */}
-  {!loading && airParameters.filter(param => !param.name.includes("stack_2") && !param.name.includes("stack_3")).map((item, index) => (
+  {!loading && airParameters.filter(param => !param.name.includes("stack_2") && !param.name.includes("stack_32_Ammonia")).map((item, index) => (
     <div className="col-12 col-md-4 grid-margin" key={index}>
       <div className="card" onClick={() => handleCardClick({ title: item.parameter })}>
         <div className="card-body">

@@ -115,7 +115,7 @@ const iotDataSchema = new mongoose.Schema({
     stack_2_flow:{
         type:String,
     },
-    stack_3_flow:{
+    stack_32_Ammonia_flow:{
         type:String,
     },
     stack_2_CO:{
@@ -163,49 +163,49 @@ const iotDataSchema = new mongoose.Schema({
     stack_2_solarRadiation:{
         type:String,
     },
-    stack_3_CO:{
+    stack_32_Ammonia_CO:{
         type:String,
     },
-    stack_3_NOX:{type:String},
-    stack_3_Pressure:{type:String},
-    stack_3_Flouride:{type:String},
-    stack_3_PM:{
+    stack_32_Ammonia_NOX:{type:String},
+    stack_32_Ammonia_Pressure:{type:String},
+    stack_32_Ammonia_Flouride:{type:String},
+    stack_32_Ammonia_PM:{
         type:String,
     },   
-    stack_3_SO2:{
+    stack_32_Ammonia_SO2:{
         type:String,
     },
-    stack_3_NO2:{
+    stack_32_Ammonia_NO2:{
         type:String
     },
-    stack_3_Mercury:{
+    stack_32_Ammonia_Mercury:{
         type:String,
     },
-    stack_3_PM10:{
+    stack_32_Ammonia_PM10:{
         type:String,
     },
-    stack_3_PM25:{
+    stack_32_Ammonia_PM25:{
         type:String,
     },
-    stack_3_NOH:{
+    stack_32_Ammonia_NOH:{
         type:String,
     },
-    stack_3_NH3:{
+    stack_32_Ammonia_NH3:{
         type:String,
     },
-    stack_3_WindSpeed:{
+    stack_32_Ammonia_WindSpeed:{
         type:String,
     },
-    stack_3_WindDir:{
+    stack_32_Ammonia_WindDir:{
         type:String,
     },
-    stack_3_AirTemperature:{
+    stack_32_Ammonia_AirTemperature:{
         type:String,
     },
-    stack_3_Humidity:{
+    stack_32_Ammonia_Humidity:{
         type:String,
     },
-    stack_3_solarRadiation:{
+    stack_32_Ammonia_solarRadiation:{
         type:String,
     },
     date:{
