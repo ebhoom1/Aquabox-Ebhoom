@@ -261,7 +261,7 @@ const AmbientAir = () => {
   </div>
 
   {/* Stack II Parameters */}
-  {!loading && airParameters.filter(param => param.name.includes("stack_3")).map((item, index) => (
+  {!loading && airParameters.filter(param => param.name.includes("stack_32_Ammonia")).map((item, index) => (
     <div className="col-12 col-md-4 grid-margin" key={index}>
       <div className="card" onClick={() => handleCardClick({ title: item.parameter })}>
         <div className="card-body">
