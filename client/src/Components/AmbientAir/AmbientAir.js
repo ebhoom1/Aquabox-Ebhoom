@@ -117,7 +117,7 @@ const AmbientAir = () => {
     { parameter: "NH3 (II)", value: 'µg/m³', name: "stack_2_NH3" },
     {parameter:"Flouride (III)",value:'µg/m',name:"stack_32_Ammonia_Flouride"},
     { parameter: "PM (III)", value: 'µg/m³', name: "stack_32_Ammonia_PM" },
-    { parameter: "NH3 (III)", value: 'µg/m³', name: "satck32_Ammonia_NH3" },
+    { parameter: "NH3 (III)", value: 'µg/m³', name: "satck_32_Ammonia_NH3" },
     
   ];
 
