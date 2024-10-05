@@ -117,7 +117,7 @@ const AmbientAir = () => {
     { parameter: "NH3 (II)", value: 'µg/m³', name: "stack_2_NH3" },
     {parameter:"Flouride (III)",value:'µg/m',name:"stack_32_Ammonia_Flouride"},
     { parameter: "PM (III)", value: 'µg/m³', name: "stack_32_Ammonia_PM" },
-    { parameter: "NH3 (III)", value: 'µg/m³', name: "stack_32_Ammonia_NH3" },
+    { parameter: "NH3 (III)", value: 'µg/m³', name: "satck32_Ammonia_NH3" },
     
   ];
 
@@ -135,7 +135,7 @@ const AmbientAir = () => {
                 </>
               ) : (
                 <div className="mx-auto">
-                  <h4 className="page-title">Ambient Air DASHBOARD</h4>
+                  <h4 className="page-title">Emission DASHBOARD</h4>
                 </div>
               )}
             </div>
@@ -257,7 +257,7 @@ const AmbientAir = () => {
 <div className="row">
   {/* Heading for Stack II */}
   <div className="col-12">
-    <h3 className="text-center mt-4">Stack III</h3>
+    <h3 className="text-center mt-4">Stack_32_Ammonia</h3>
   </div>
 
   {/* Stack II Parameters */}
