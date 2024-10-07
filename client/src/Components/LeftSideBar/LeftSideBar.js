@@ -132,7 +132,7 @@ const LeftSideBar = () => {
             {showDashboardSubMenu && (
               <ul className="nav flex-column sub-menu">
                 <NavItem to="/water" iconClass="typcn typcn-document-text" title="Effluent/Water Dashboard" />
-                <NavItem to="/ambient-air" iconClass="typcn typcn-document-text" title="Ambient Air Dashboard" />
+                <NavItem to="/ambient-air" iconClass="typcn typcn-document-text" title="Stack Emission Dashboard" />
                 <NavItem to="/noise" iconClass="typcn typcn-document-text" title="Noise Dashboard" />
               </ul>
             )}

@@ -130,12 +130,12 @@ const AmbientAir = () => {
               {userType === 'admin' ? (
                 <>
                   <button className="btn btn-primary" onClick={handlePrevUser} disabled={loading}>Prev</button>
-                  <h4 className="page-title">Emission DASHBOARD</h4>
+                  <h4 className="page-title">Stack Emission DASHBOARD</h4>
                   <button className="btn btn-primary" onClick={handleNextUser} disabled={loading}>Next</button>
                 </>
               ) : (
                 <div className="mx-auto">
-                  <h4 className="page-title">Emission DASHBOARD</h4>
+                  <h4 className="page-title">Stack Emission DASHBOARD</h4>
                 </div>
               )}
             </div>
