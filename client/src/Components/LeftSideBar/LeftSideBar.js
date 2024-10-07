@@ -85,7 +85,7 @@ const LeftSideBar = () => {
                 <NavItem
                   to="/ambient-air"
                   iconClass="typcn typcn-document-text"
-                  title="Ambient Air Dashboard"
+                  title="Stack Emission Dashboard"
                 />
                 <NavItem
                   to="/noise"
