@@ -1,0 +1,205 @@
+ph: data.ph !== 'N/A' ? data.ph : null,
+            TDS: data.tds !== 'N/A' ? data.tds : null,
+            turbidity: data.turbidity !== 'N/A' ? data.turbidity : null,
+            temperature: data.temperature !== 'N/A' ? data.temperature : null,
+            BOD: data.bod !== 'N/A' ? data.bod : null,
+            COD: data.cod !== 'N/A' ? data.cod : null,
+            TSS: data.tss !== 'N/A' ? data.tss : null,
+            ORP: data.orp !== 'N/A' ? data.orp : null,
+            nitrate: data.nitrate !== 'N/A' ? data.nitrate : null,
+            ammonicalNitrogen: data.ammonicalNitrogen !== 'N/A' ? data.ammonicalNitrogen : null,
+            DO: data.DO !== 'N/A' ? data.DO : null,
+            chloride: data.chloride !== 'N/A' ? data.chloride : null,
+            Flow: data.Flow !== 'N/A' ? data.Flow : null,
+            CO: data.CO !== 'N/A' ? data.CO : null,
+            NOX: data.NOX !== 'N/A' ? data.NOX : null,
+            Pressure: data.Pressure !== 'N/A' ? data.Pressure : null,
+            Flouride: data.Flouride !== 'N/A' ? data.Flouride : null,
+            PM: data.PM !== 'N/A' ? data.PM : null,
+            SO2: data.SO2 !== 'N/A' ? data.SO2 : null,
+            NO2: data.NO2 !== 'N/A' ? data.NO2 : null,
+            Mercury: data.Mercury !== 'N/A' ? data.Mercury : null,
+            PM10: data.PM10 !== 'N/A' ? data.PM10 : null,
+            PM25: data.PM25 !== 'N/A' ? data.PM25 : null,
+            NOH: data.NOH !== 'N/A' ? data.NOH : null,
+            NH3: data.NH3 !== 'N/A' ? data.NH3 : null,
+            WindSpeed: data.WindSpeed !== 'N/A' ? data.WindSpeed : null,
+            WindDir: data.WindDir !== 'N/A' ? data.WindDir : null,
+            AirTemperature: data.AirTemperature !== 'N/A' ? data.AirTemperature : null,
+            Humidity: data.Humidity !== 'N/A' ? data.Humidity : null,
+            solarRadiation: data.solarRadiation !== 'N/A' ? data.solarRadiation : null,
+            DB: data.DB !== 'N/A' ? data.DB : null,
+            inflow: data.inflow !== 'N/A' ? data.inflow : null,
+            finalflow: data.finalflow !== 'N/A' ? data.finalflow : null,
+            energy: data.energy !== 'N/A' ? data.energy : null,
+            voltage: data.voltage !== 'N/A' ? data.voltage : null,
+            current: data.current !== 'N/A' ? data.current : null,
+            power: data.power !== 'N/A' ? data.power : null,
+            
+            // Add stack_1 fields
+            stack_2_flow: data.stack_2_flow !== 'N/A' ? data.stack_2_flow : null,
+            stack_2_CO: data.stack_2_CO !== 'N/A' ? data.stack_2_CO : null,
+            stack_2_NOX: data.stack_2_NOX !== 'N/A' ? data.stack_2_NOX : null,
+            stack_2_Pressure: data.stack_2_Pressure !== 'N/A' ? data.stack_2_Pressure : null,
+            stack_2_Flouride: data.stack_2_Flouride !== 'N/A' ? data.stack_2_Flouride : null,
+            stack_2_PM: data.stack_2_PM !== 'N/A' ? data.stack_2_PM : null,
+            stack_2_SO2: data.stack_2_SO2 !== 'N/A' ? data.stack_2_SO2 : null,
+            stack_2_NO2: data.stack_2_NO2 !== 'N/A' ? data.stack_2_NO2 : null,
+            stack_2_Mercury: data.stack_2_Mercury !== 'N/A' ? data.stack_2_Mercury : null,
+            stack_2_PM10: data.stack_2_PM10 !== 'N/A' ? data.stack_2_PM10 : null,
+            stack_2_PM25: data.stack_2_PM25 !== 'N/A' ? data.stack_2_PM25 : null,
+            stack_2_NOH: data.stack_2_NOH !== 'N/A' ? data.stack_2_NOH : null,
+            stack_2_NH3: data.stack_2_NH3 !== 'N/A' ? data.stack_2_NH3 : null,
+            stack_2_WindSpeed: data.stack_2_WindSpeed !== 'N/A' ? data.stack_2_WindSpeed : null,
+            stack_2_WindDir: data.stack_2_WindDir !== 'N/A' ? data.stack_2_WindDir : null,
+            stack_2_AirTemperature: data.stack_2_AirTemperature !== 'N/A' ? data.stack_2_AirTemperature : null,
+            stack_2_Humidity: data.stack_2_Humidity !== 'N/A' ? data.stack_2_Humidity : null,
+            stack_2_solarRadiation: data.stack_2_solarRadiation !== 'N/A' ? data.stack_2_solarRadiation : null,
+        
+            // Add stack_2 fields
+            STACK_32_Ammonia_flow: data.STACK_32_Ammonia_flow !== 'N/A' ? data.STACK_32_Ammonia_flow : null,
+            STACK_32_Ammonia_CO: data.STACK_32_Ammonia_CO !== 'N/A' ? data.STACK_32_Ammonia_CO : null,
+            STACK_32_Ammonia_NOX: data.STACK_32_Ammonia_NOX !== 'N/A' ? data.STACK_32_Ammonia_NOX : null,
+            STACK_32_Ammonia_Pressure: data.STACK_32_Ammonia_Pressure !== 'N/A' ? data.STACK_32_Ammonia_Pressure : null,
+            STACK_32_Ammonia_Flouride: data.STACK_32_Ammonia_Flouride !== 'N/A' ? data.STACK_32_Ammonia_Flouride : null,
+            STACK_32_Ammonia_PM: data.STACK_32_Ammonia_PM !== 'N/A' ? data.STACK_32_Ammonia_PM : null,
+            STACK_32_Ammonia_SO2: data.STACK_32_Ammonia_SO2 !== 'N/A' ? data.STACK_32_Ammonia_SO2 : null,
+            STACK_32_Ammonia_NO2: data.STACK_32_Ammonia_NO2 !== 'N/A' ? data.STACK_32_Ammonia_NO2 : null,
+            STACK_32_Ammonia_Mercury: data.STACK_32_Ammonia_Mercury !== 'N/A' ? data.STACK_32_Ammonia_Mercury : null,
+            STACK_32_Ammonia_PM10: data.STACK_32_Ammonia_PM10 !== 'N/A' ? data.STACK_32_Ammonia_PM10 : null,
+            STACK_32_Ammonia_PM25: data.STACK_32_Ammonia_PM25 !== 'N/A' ? data.STACK_32_Ammonia_PM25 : null,
+            STACK_32_Ammonia_NOH: data.STACK_32_Ammonia_NOH !== 'N/A' ? data.STACK_32_Ammonia_NOH : null,
+            STACK_32_Ammonia_NH3: data.STACK_32_Ammonia_NH3 !== 'N/A' ? data.STACK_32_Ammonia_NH3 : null,
+            STACK_32_Ammonia_WindSpeed: data.STACK_32_Ammonia_WindSpeed !== 'N/A' ? data.STACK_32_Ammonia_WindSpeed : null,
+            STACK_32_Ammonia_WindDir: data.STACK_32_Ammonia_WindDir !== 'N/A' ? data.STACK_32_Ammonia_WindDir : null,
+            STACK_32_Ammonia_AirTemperature: data.STACK_32_Ammonia_AirTemperature !== 'N/A' ? data.STACK_32_Ammonia_AirTemperature : null,
+            STACK_32_Ammonia_Humidity: data.STACK_32_Ammonia_Humidity !== 'N/A' ? data.STACK_32_Ammonia_Humidity : null,
+            STACK_32_Ammonia_solarRadiation: data.STACK_32_Ammonia_solarRadiation !== 'N/A' ? data.STACK_32_Ammonia_solarRadiation : null,
+        
+
+        client.on('message', async (topic, message) => {
+        try {
+            console.log('Received message on topic:', topic);
+        console.log('Message:', message.toString());
+
+            const data = JSON.parse(message.toString());
+            const { product_id } = data;
+
+            if (topic === 'ebhoomPub') {
+                const userDetails = await userdb.findOne({ productID: product_id });
+                if (userDetails) {
+                    Object.assign(data, {
+                        userName: userDetails.userName,
+                        email: userDetails.email,
+                        mobileNumber: userDetails.mobileNumber,
+                        companyName: userDetails.companyName,
+                        industryType: userDetails.industryType,
+                        timestamp: moment().format('DD/MM/YYYY'),
+                        time: data.time || moment().format('HH:mm:ss') // Set default time if not provided
+                    });
+  
+                    await axios.post('https://api.ocems.ebhoom.com/api/handleSaveMessage', data);
+                    io.to(product_id.toString()).emit('data', data);
+                    console.log('Data entered',data)
+                } else {
+                    console.error(`No user details found for product_id: ${product_id}`);
+                }
+            }
+        } catch (error) {
+            console.error('Error handling message:', error);
+        }
+    });
+
+
+    parameter exceedence handleExceedValues
+
+    // const handleExceedValues = async () => {
+//     try {
+//         // Fetch the latest IoT data entry
+//         const latestData = await IotData.findOne().sort({ timestamp: -1 });
+//         console.log('latestData:', latestData);
+//         if (!latestData) {
+//             console.error('No IoT data found');
+//             return;
+//         }
+
+//         // Find the user based on the latestData's userName
+//         const user = await userdb.findOne({ userName: latestData.userName });
+//         console.log('User:', user);
+
+//         if (!user) {
+//             console.error('User not found');
+//             return;
+//         }
+
+//         if (user.userType === 'user') {
+//             if (!user.industryType) {
+//                 console.error(`User with ID ${user.userName} has no industry type specified.`);
+//                 return;
+//             }
+
+//             // Fetch the industry thresholds
+//             const industryThresholds = await CalibrationExceedValues.findOne({ industryType: user.industryType });
+//             console.log('Industry Thresholds:', industryThresholds);
+
+//             if (!industryThresholds) {
+//                 console.error(`No thresholds found for industry type: ${user.industryType}`);
+//                 return;
+//             }
+
+//             // Define parameters to be checked
+// const exceedParameters = [
+//     { parameter: 'ph', value: latestData.ph, aboveThreshold: industryThresholds.phAbove, belowThreshold: industryThresholds.phBelow },
+//     { parameter: 'turbidity', value: latestData.turbidity, threshold: industryThresholds.turbidity },
+//     { parameter: 'ORP', value: latestData.ORP, threshold: industryThresholds.ORP },
+//     { parameter: 'TDS', value: latestData.TDS, threshold: industryThresholds.TDS },
+//     { parameter: 'temperature', value: latestData.temperature, threshold: industryThresholds.temperature },
+//     { parameter: 'BOD', value: latestData.BOD, threshold: industryThresholds.BOD },
+//     { parameter: 'COD', value: latestData.COD, threshold: industryThresholds.COD },
+//     { parameter: 'TSS', value: latestData.TSS, threshold: industryThresholds.TSS },
+//     { parameter: 'PM', value: latestData.PM, threshold: industryThresholds.PM },
+//     { parameter: 'nitrate', value: latestData.nitrate, threshold: industryThresholds.nitrate },
+//     { parameter: 'ammonicalNitrogen', value: latestData.ammonicalNitrogen, threshold: industryThresholds.ammonicalNitrogen },
+//     { parameter: 'DO', value: latestData.DO, threshold: industryThresholds.DO },
+//     { parameter: 'chloride', value: latestData.chloride, threshold: industryThresholds.chloride },
+//     { parameter: 'SO2', value: latestData.SO2, threshold: industryThresholds.SO2 },
+//     { parameter: 'NO2', value: latestData.NO2, threshold: industryThresholds.NO2 },
+//     { parameter: 'Mercury', value: latestData.Mercury, threshold: industryThresholds.Mercury },
+//     { parameter: 'PM10', value: latestData.PM10, threshold: industryThresholds.PM10 },
+//     { parameter: 'PM25', value: latestData.PM25, threshold: industryThresholds.PM25 },
+//     { parameter: 'NOH', value: latestData.NOH, threshold: industryThresholds.NOH },
+//     { parameter: 'NH3', value: latestData.NH3, threshold: industryThresholds.NH3 },
+//     { parameter: 'WindSpeed', value: latestData.WindSpeed, threshold: industryThresholds.WindSpeed },
+//     { parameter: 'WindDir', value: latestData.WindDir, threshold: industryThresholds.WindDir },
+//     { parameter: 'AirTemperature', value: latestData.AirTemperature, threshold: industryThresholds.AirTemperature },
+//     { parameter: 'Humidity', value: latestData.Humidity, threshold: industryThresholds.Humidity },
+//     { parameter: 'solarRadiation', value: latestData.solarRadiation, threshold: industryThresholds.solarRadiation },
+//     { parameter: 'DB', value: latestData.DB, threshold: industryThresholds.DB },
+//     { parameter: 'inflow', value: latestData.inflow, threshold: industryThresholds.inflow },
+//     { parameter: 'finalflow', value: latestData.finalflow, threshold: industryThresholds.finalflow },
+//     { parameter: 'energy', value: latestData.energy, threshold: industryThresholds.energy },
+//     // Add other parameters if needed
+//   ];
+  
+
+//             // Check if any parameter exceeds the threshold
+//             const exceedances = [];
+//             for (const { parameter, value, aboveThreshold, belowThreshold, threshold } of exceedParameters) {
+//                 if ((aboveThreshold && value >= aboveThreshold) || (belowThreshold && value <= belowThreshold) || (threshold && value >= threshold)) {
+//                     console.log(`Exceed detected for parameter: ${parameter}, value: ${value}, user: ${user.userName}`);
+//                     exceedances.push({ parameter, value });
+//                 }
+//             }
+
+//             // Save all exceedances and send notifications
+//             for (const exceed of exceedances) {
+//                 await saveExceedValue(exceed.parameter, exceed.value, user);
+//                 await sendNotification(exceed.parameter, exceed.value, user);
+//             }
+//         } 
+
+//         console.log('Exceed values handled successfully');
+//     } catch (error) {
+//         console.error('Error handling exceed values:', error);
+//     }
+// };

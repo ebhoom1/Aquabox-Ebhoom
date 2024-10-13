@@ -1,7 +1,7 @@
 import './index.css';
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchIotDataByUserName } from "../../redux/features/iotData/iotDataSlice";
+import { fetchIotDataByUserName } from '../../redux/features/iotData/iotDataSlice';
 import NoiseGraphPopup from './NoiseGraphPopup';
 import CalibrationPopup from '../Calibration/CalibrationPopup';
 import CalibrationExceeded from '../Calibration/CalibrationExceeded';
@@ -23,42 +23,38 @@ const Noise = () => {
   const [companyName, setCompanyName] = useState("");
   const [loading, setLoading] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [selectedStack, setSelectedStack] = useState("all");
+
+  const fetchData = async (userName) => {
+    setLoading(true);
+    try {
+      const result = await dispatch(fetchIotDataByUserName(userName)).unwrap();
+      setSearchResult(result);
+      setCompanyName(result?.companyName || "Unknown Company");
+      setSearchError("");
+    } catch (err) {
+      setSearchResult(null);
+      setCompanyName("Unknown Company");
+      setSearchError(err.message || 'No Result found for this userID');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async (userName) => {
-      setLoading(true);
-      try {
-        const result = await dispatch(fetchIotDataByUserName(userName)).unwrap();
-        setSearchResult(result);
-        setCompanyName(result?.companyName || "Unknown Company");
-        setSearchError("");
-      } catch (err) {
-        setSearchResult(null);
-        setCompanyName("Unknown Company");
-        setSearchError(err.message || 'No Result found for this userID');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchHistoryData = async (fromDate, toDate) => {
-      // Logic to fetch history data based on the date range
-      console.log('Fetching data from:', fromDate, 'to:', toDate);
-      // Example API call:
-      // const data = await dispatch(fetchHistoryDataByDate({ fromDate, toDate })).unwrap();
-    };
-    const downloadHistoryData = (fromDate, toDate) => {
-      // Logic to download history data based on the date range
-      console.log('Downloading data from:', fromDate, 'to:', toDate);
-      // Example API call:
-      // downloadData({ fromDate, toDate });
-    };
     if (searchTerm) {
       fetchData(searchTerm);
     } else {
       fetchData(currentUserName);
     }
   }, [searchTerm, currentUserName, dispatch]);
+
+  // Console log for debugging to check the data structure
+  useEffect(() => {
+    if (searchResult) {
+      console.log("Stack Data:", searchResult.stackData);
+    }
+  }, [searchResult]);
 
   const handleCardClick = (card) => {
     setSelectedCard(card);
@@ -78,34 +74,11 @@ const Noise = () => {
     setShowCalibrationPopup(false);
   };
 
-  const fetchUserData = async (userId) => {
-    setLoading(true);
-    try {
-      const result = await dispatch(fetchIotDataByUserName(userId)).unwrap();
-      if (result) {
-        setSearchResult(result);
-        setCompanyName(result?.companyName || "Unknown Company");
-        setSearchError("");
-        setCurrentUserName(userId);
-      } else {
-        setSearchResult(null);
-        setCompanyName("Unknown Company");
-        setSearchError('No Result found for this userID');
-      }
-    } catch (error) {
-      setSearchResult(null);
-      setCompanyName("Unknown Company");
-      setSearchError('No Result found for this userID');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleNextUser = () => {
     const userIdNumber = parseInt(currentUserName.replace(/[^\d]/g, ''), 10);
     if (!isNaN(userIdNumber)) {
       const newUserId = `KSPCB${String(userIdNumber + 1).padStart(3, '0')}`;
-      fetchUserData(newUserId);
+      setCurrentUserName(newUserId);
     }
   };
 
@@ -113,9 +86,17 @@ const Noise = () => {
     const userIdNumber = parseInt(currentUserName.replace(/[^\d]/g, ''), 10);
     if (!isNaN(userIdNumber) && userIdNumber > 1) {
       const newUserId = `KSPCB${String(userIdNumber - 1).padStart(3, '0')}`;
-      fetchUserData(newUserId);
+      setCurrentUserName(newUserId);
     }
   };
+
+  const handleStackChange = (event) => {
+    setSelectedStack(event.target.value);
+  };
+
+  const noiseParameters = [
+    { parameter: "Noise Level", value: 'dB', name: 'DB' },  // Ensure name matches "DB"
+  ];
 
   return (
     <div className="main-panel">
@@ -135,16 +116,12 @@ const Noise = () => {
                 </div>
               )}
             </div>
-            <div className="quick-link-wrapper w-100 d-md-flex flex-md-wrap">
-              <ul className="quick-links ml-auto">
-                {userData?.validUserOne && userData.validUserOne.userType === 'user' && (
-                  <h5>Data Interval: <span className="span-class">{userData.validUserOne.dataInteval}</span></h5>
-                )}
-              </ul>
-              <ul className="quick-links ml-auto">
+          </div>
+        </div>
+        <ul className="quick-links ml-auto">
                 {latestData && (
                   <>
-                    <h5>Analyser Health : </h5>
+                    <h5>Analyser Health: </h5>
                     {searchResult?.validationStatus ? (
                       <h5 style={{ color: "green" }}>Good</h5>
                     ) : (
@@ -153,32 +130,42 @@ const Noise = () => {
                   </>
                 )}
               </ul>
-              <ul className="quick-links ml-auto">
-                <button className="btn btn-primary" onClick={() => setShowHistoryModal(true)}>
-                  Daily History
-                </button>
-              </ul>
-              {userData?.validUserOne && userData.validUserOne.userType === 'user' && (
-                <ul className="quick-links ml-auto">
-                  <button type="submit" onClick={handleOpenCalibrationPopup} className="btn btn-primary mb-2 mt-2"> Calibration </button>
-                </ul>
-              )}
-            </div>
+        <div className="row align-items-center">
+          <div className="col-md-4">
+            {searchResult?.stackData && searchResult.stackData.length > 0 && (
+              <div className="stack-dropdown">
+                <label htmlFor="stackSelect" className="label-select">Select Stack:</label>
+                <div className="styled-select-wrapper">
+                  <select
+                    id="stackSelect"
+                    className="form-select styled-select"
+                    value={selectedStack}
+                    onChange={handleStackChange}
+                  >
+                    <option value="all">All Stacks</option>
+                    {searchResult.stackData.map((stack, index) => (
+                      <option key={index} value={stack.stackName}>
+                        {stack.stackName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
           </div>
-        </div>
-        {searchError && (
-          <div className="card mb-4">
-            <div className="card-body">
-              <h1>{searchError}</h1>
-            </div>
-          </div>
-        )}
-        <div className="p-2"></div>
-        <div className="p-2"></div>
-
-        <div className="row">
-          <div className="col-12">
+          <div className="col-md-4">
             <h3 className="text-center">{companyName}</h3>
+          </div>
+
+          <div className="col-md-4 d-flex justify-content-end">
+            <button className="btn btn-primary" onClick={() => setShowHistoryModal(true)}>
+              Daily History
+            </button>
+            {userData?.validUserOne && userData.validUserOne.userType === 'user' && (
+              <button type="submit" onClick={handleOpenCalibrationPopup} className="btn btn-primary ml-2">
+                Calibration
+              </button>
+            )}
           </div>
         </div>
 
@@ -197,27 +184,44 @@ const Noise = () => {
         )}
 
         <div className="row">
-          {!loading && (
-            <div className="col-12 col-md-4 grid-margin">
-              <div className="card" onClick={() => handleCardClick({ title: "Limits in DB" })}>
-                <div className="card-body">
-                  <div className="row">
-                    <div className="col-12">
-                      <h3 className="mb-3">Limits in DB</h3>
+          {!loading && searchResult && searchResult.stackData && (
+            <>
+              {searchResult.stackData.map((stack, stackIndex) => (
+                (selectedStack === "all" || selectedStack === stack.stackName) && (
+                  <div key={stackIndex} className="col-12 mb-4">
+                    <div className="stack-box">
+                      <h4 className="text-center">{stack.stackName}</h4>
+                      <div className="row">
+                        {noiseParameters.map((item, index) => {
+                          const value = stack[item.name];
+                          return value && value !== 'N/A' ? (
+                            <div className="col-12 col-md-4 grid-margin" key={index}>
+                              <div className="card" onClick={() => handleCardClick({ title: item.parameter })}>
+                                <div className="card-body">
+                                  <div className="row">
+                                    <div className="col-12">
+                                      <h3 className="mb-3">{item.parameter}</h3>
+                                    </div>
+                                    <div className="col-12 mb-3">
+                                      <h6>
+                                        <strong className="strong-value" style={{ color: '#236A80' }}>
+                                          {value}
+                                        </strong>
+                                        <span>{item.value}</span>
+                                      </h6>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ) : null;
+                        })}
+                      </div>
                     </div>
-                    <div className="col-12 mb-3">
-                      <h6>
-                        <strong className="strong-value">
-                          {searchResult ? searchResult.db || 'N/A' : 'No Result found for this userID'}
-                        </strong> 
-                        dB
-                      </h6>
-                    </div>
-                    <div className="col-12"></div>
                   </div>
-                </div>
-              </div>
-            </div>
+                )
+              ))}
+            </>
           )}
         </div>
 
@@ -232,32 +236,29 @@ const Noise = () => {
 
         {showCalibrationPopup && (
           <CalibrationPopup
+            userName={userData?.validUserOne?.userName}
             onClose={handleCloseCalibrationPopup}
           />
         )}
-      </div>
+        <CalibrationExceeded />
+        <footer className="footer">
+          <div className="container-fluid clearfix">
+            <span className="text-muted d-block text-center text-sm-left d-sm-inline-block">
+              Ebhoom Control and Monitor System
+            </span>
+            <span className="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">
+              {" "}© <a href="" target="_blank">Ebhoom Solutions LLP</a> 2023
+            </span>
+          </div>
+        </footer>
 
-      <CalibrationExceeded />
-
-      <footer className="footer">
-        <div className="container-fluid clearfix">
-          <span className="text-muted d-block text-center text-sm-left d-sm-inline-block">
-            Ebhoom Control and Monitor System
-          </span>
-          <span className="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">
-            ©
-            <a href="" target="_blank">
-              Ebhoom Solutions LLP
-            </a>
-            2023
-          </span>
-        </div>
-      </footer>
-        {/* Include the Daily History Modal */}
         <DailyHistoryModal
-        isOpen={showHistoryModal}
-        onRequestClose={() => setShowHistoryModal(false)}
-      />
+          isOpen={showHistoryModal}
+          onRequestClose={() => setShowHistoryModal(false)}
+          fetchData={fetchData}
+          downloadData={() => {}}
+        />
+      </div>
     </div>
   );
 };

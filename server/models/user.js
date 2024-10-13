@@ -15,6 +15,10 @@ const userSchema=new mongoose.Schema({
         required:true
         
     },
+    stackName: {
+        type: [String],  
+        default: []
+    },
     modelName:{
         type:String,
     

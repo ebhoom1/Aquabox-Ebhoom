@@ -161,6 +161,7 @@ const Report = () => {
                           <th>To Date</th>
                           <th>Username</th>
                           <th>Company Name</th>
+                          <th>Stack Name</th>
                           <th>Industry Type</th>
                           <th>Engineer Name</th>
                           <th>Verified/Declined</th>
@@ -178,6 +179,7 @@ const Report = () => {
                             <td>{entry.toDate}</td>
                             <td>{entry.userName}</td>
                             <td>{entry.companyName}</td>
+                            <td>{entry.stackName}</td>
                             <td>{entry.industryType}</td>
                             <td>{entry.engineerName}</td>
                             <td>{entry.reportApproved ? 'Verified' : 'Declined'}</td>

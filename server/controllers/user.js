@@ -59,6 +59,34 @@ const register = async (req, res) => {
     }
 };
 
+// Add or Update Stack Names for a user
+const updateStackName = async (req, res) => {
+    const { companyName } = req.params;  // Extract companyName from params
+    const { stackName } = req.body;  // Expect stackName to be an array of strings in the body
+
+    if (!Array.isArray(stackName)) {
+        return res.status(400).json({ status: 400, message: "stackName must be an array of strings" });
+    }
+
+    try {
+        // Find the user by companyName and update the stackName field
+        const updatedUser = await userdb.findOneAndUpdate(
+            { companyName },  // Find user by companyName
+            { $set: { stackName } },  // Set stackName to the new value
+            { new: true }  // Return the updated document
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ status: 404, message: "User with the specified company name not found" });
+        }
+
+        return res.status(200).json({ status: 200, user: updatedUser, message: "Stack names updated successfully" });
+    } catch (error) {
+        return res.status(500).json({ status: 500, error: "Internal Server Error" });
+    }
+};
+
+
 
 // user login
 
@@ -316,6 +344,76 @@ const getAUserByUserName = async(req,res)=>{
         return res.status(500).json({status:500, error: "Internal Server Error"})
     }
 }
+const getAUserByCompanyName = async(req,res)=>{
+    try {
+       const {companyName}=req.params;
+        
+       const user = await userdb.findOne({companyName});
+
+       if(!user){
+        return res.status(404).json({status:404, message:"User Not Found"})
+       }else{
+        return res.status(200).json({status:200, user});
+    }
+    } catch (error) {
+        return res.status(500).json({status:500, error: "Internal Server Error"})
+    }
+}
+    const getStackNamesByCompanyName = async (req, res) => {
+        try {
+            const { companyName } = req.params;
+
+            // Find the document with the specified companyName
+            const user = await userdb.findOne({ companyName });
+
+            if (!user) {
+                return res.status(404).json({ status: 404, message: "User Not Found" });
+            }
+
+            // Assuming stackName is a field directly inside the user document (not inside stackData)
+            if (user.stackName && user.stackName.length > 0) {
+                return res.status(200).json({
+                    status: 200,
+                    stackNames: user.stackName,  // Returning the stackName directly
+                });
+            } else {
+                return res.status(404).json({
+                    status: 404,
+                    message: `No stack names found for companyName: ${companyName}`,
+                });
+            }
+        } catch (error) {
+            return res.status(500).json({ status: 500, error: "Internal Server Error" });
+        }
+    };
+    const getStackNamesByUserName = async (req, res) => {
+        try {
+            const { userName } = req.params;
+
+            // Find the document with the specified companyName
+            const user = await userdb.findOne({ userName });
+
+            if (!user) {
+                return res.status(404).json({ status: 404, message: "User Not Found" });
+            }
+
+            // Assuming stackName is a field directly inside the user document (not inside stackData)
+            if (user.stackName && user.stackName.length > 0) {
+                return res.status(200).json({
+                    status: 200,
+                    stackNames: user.stackName,  // Returning the stackName directly
+                });
+            } else {
+                return res.status(404).json({
+                    status: 404,
+                    message: `No stack names found for UserName: ${userName}`,
+                });
+            }
+        } catch (error) {
+            return res.status(500).json({ status: 500, error: "Internal Server Error" });
+        }
+    };
+
 //Change Current Password 
     const changeCurrentPassword = async (req, res) => {
         const { id, token } = req.params;
@@ -390,4 +488,7 @@ const getAllDeviceCredentials = async () => {
     }
 };
 
-module.exports={register,login,validuser,logout,sendPasswordLink,forgotPassword,changePassword, getAllUsers, editUser, deleteUser,getAUser,changeCurrentPassword,getDeviceCredentidals,getAllDeviceCredentials,getAUserByUserName}
+module.exports={register, updateStackName,login,validuser,logout,sendPasswordLink,forgotPassword,changePassword, getAllUsers, editUser, deleteUser,
+    getAUser,changeCurrentPassword,getDeviceCredentidals,getAllDeviceCredentials,getAUserByUserName,getAUserByCompanyName,getStackNamesByCompanyName,
+    getStackNamesByUserName
+}

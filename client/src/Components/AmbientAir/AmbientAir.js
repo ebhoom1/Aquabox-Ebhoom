@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchIotDataByUserName } from "../../redux/features/iotData/iotDataSlice";
+import { fetchIotDataByUserName, fetchLatestIotData } from "../../redux/features/iotData/iotDataSlice";
 import AirGraphPopup from "./AirGraphPopup";
 import './index.css';
 import CalibrationPopup from "../Calibration/CalibrationPopup";
@@ -18,6 +18,7 @@ const AmbientAir = () => {
   const [showCalibrationPopup, setShowCalibrationPopup] = useState(false);
   const { searchTerm } = useOutletContext();
   const [searchResult, setSearchResult] = useState(null);
+  const [selectedStack, setSelectedStack] = useState("all"); // 'all' means show all stacks initially
   const [searchError, setSearchError] = useState("");
   const [currentUserName, setCurrentUserName] = useState(userType === 'admin' ? "KSPCB001" : userData?.validUserOne?.userName);
   const [companyName, setCompanyName] = useState("");
@@ -27,7 +28,7 @@ const AmbientAir = () => {
   const fetchData = async (userName) => {
     setLoading(true);
     try {
-      const result = await dispatch(fetchIotDataByUserName(userName)).unwrap();
+      const result = await dispatch(fetchLatestIotData(userName)).unwrap();
       setSearchResult(result);
       setCompanyName(result?.companyName || "Unknown Company");
       setSearchError("");
@@ -39,18 +40,7 @@ const AmbientAir = () => {
       setLoading(false);
     }
   };
-  const fetchHistoryData = async (fromDate, toDate) => {
-    // Logic to fetch history data based on the date range
-    console.log('Fetching data from:', fromDate, 'to:', toDate);
-    // Example API call:
-    // const data = await dispatch(fetchHistoryDataByDate({ fromDate, toDate })).unwrap();
-  };
-  const downloadHistoryData = (fromDate, toDate) => {
-    // Logic to download history data based on the date range
-    console.log('Downloading data from:', fromDate, 'to:', toDate);
-    // Example API call:
-    // downloadData({ fromDate, toDate });
-  };
+
   useEffect(() => {
     if (searchTerm) {
       fetchData(searchTerm);
@@ -73,6 +63,16 @@ const AmbientAir = () => {
     setShowCalibrationPopup(true);
   };
 
+  const fetchHistoryData = async (fromDate, toDate) => {
+    // Logic to fetch history data based on the date range
+    console.log('Fetching data from:', fromDate, 'to:', toDate);
+  };
+
+  const downloadHistoryData = (fromDate, toDate) => {
+    // Logic to download history data based on the date range
+    console.log('Downloading data from:', fromDate, 'to:', toDate);
+  };
+
   const handleCloseCalibrationPopup = () => {
     setShowCalibrationPopup(false);
   };
@@ -93,6 +93,10 @@ const AmbientAir = () => {
     }
   };
 
+  const handleStackChange = (event) => {
+    setSelectedStack(event.target.value); // 'all' for all stacks, or stack name
+  };
+
   const airParameters = [
     { parameter: "Flow", value: 'm/s', name: "Flow" },
     { parameter: "CO", value: 'µg/Nm³', name: "CO" },
@@ -104,21 +108,11 @@ const AmbientAir = () => {
     { parameter: "Mercury", value: 'µg/m³', name: "Mercury" },
     { parameter: "PM 10", value: 'µg/m³', name: "PM10" },
     { parameter: "PM 2.5", value: 'µg/m³', name: "PM25" },
-    { parameter: "NOH", value: 'µg/m³', name: "NOH" },
-    { parameter: "NH3", value: 'µg/m³', name: "NH3" },
-    { parameter: "Windspeed", value: 'm/s', name: "Windspeed" },
+    { parameter: "Windspeed", value: 'm/s', name: "WindSpeed" },
     { parameter: "Wind Dir", value: 'deg', name: "WindDir" },
     { parameter: "Temperature", value: '℃', name: "AirTemperature" },
     { parameter: "Humidity", value: '%', name: "Humidity" },
     { parameter: "Solar Radiation", value: 'w/m²', name: "solarRadiation" },
-    {parameter:"Flouride",value:'µg/m',name:"Flouride"},
-    {parameter:"Flouride (II)",value:'µg/m',name:"stack_2_Flouride"},
-    { parameter: "PM (II)", value: 'µg/m³', name: "stack_2_PM" },
-    { parameter: "NH3 (II)", value: 'µg/m³', name: "stack_2_NH3" },
-    {parameter:"Flouride (III)",value:'µg/m',name:"STACK_32_Ammonia_Flouride"},
-    { parameter: "PM (III)", value: 'µg/m³', name: "STACK_32_Ammonia_PM" },
-    { parameter: "NH3 (III)", value: 'µg/m³', name: "STACK_32_Ammonia_NH3" },
-    
   ];
 
   return (
@@ -139,13 +133,9 @@ const AmbientAir = () => {
                 </div>
               )}
             </div>
-            <div className="quick-link-wrapper w-100 d-md-flex flex-md-wrap">
-              <ul className="quick-links ml-auto">
-                {userData?.validUserOne && userData.validUserOne.userType === 'user' && (
-                  <h5>Data Interval: <span className="span-class">{userData.validUserOne.dataInteval}</span></h5>
-                )}
-              </ul>
-              <ul className="quick-links ml-auto">
+          </div>
+        </div>
+        <ul className="quick-links ml-auto">
                 {latestData && (
                   <>
                     <h5>Analyser Health: </h5>
@@ -157,34 +147,54 @@ const AmbientAir = () => {
                   </>
                 )}
               </ul>
-              <ul className="quick-links ml-auto">
-                <button className="btn btn-primary" onClick={() => setShowHistoryModal(true)}>
-                  Daily History
-                </button>
-              </ul>
-              {userData?.validUserOne && userData.validUserOne.userType === 'user' && (
-                <ul className="quick-links ml-auto">
-                  <button type="submit" onClick={handleOpenCalibrationPopup} className="btn btn-primary mb-2 mt-2"> Calibration </button>
-                </ul>
-              )}
-            </div>
-          </div>
+        <div className="row align-items-center">
+        <div className="col-md-4">
+    {/* Dropdown for Stack Names */}
+    {searchResult?.stackData && searchResult.stackData.length > 0 && (
+      <div className="stack-dropdown">
+        <label htmlFor="stackSelect" className="label-select">Select Stack:</label>
+        <div className="styled-select-wrapper">
+          <select
+            id="stackSelect"
+            className="form-select styled-select"
+            value={selectedStack}
+            onChange={handleStackChange}
+          >
+            <option value="all">All Stacks</option> {/* Default option to show all stacks */}
+            {searchResult.stackData.map((stack, index) => (
+              <option key={index} value={stack.stackName}>
+                {stack.stackName}
+              </option>
+            ))}
+          </select>
         </div>
-        {searchError && (
-          <div className="card mb-4">
-            <div className="card-body">
-              <h1>{searchError}</h1>
-            </div>
-          </div>
-        )}
-        <div className="p-2"></div>
-        <div className="p-2"></div>
+      </div>
+    )}
+  </div>
+  <div className="col-md-4">
+    <h3 className="text-center">{companyName}</h3>
+  </div>
 
-        <div className="row">
-          <div className="col-12">
-            <h3 className="text-center">{companyName}</h3>
-          </div>
-        </div>
+ 
+
+  {/* Buttons for Daily History and Calibration */}
+  <div className="col-md-4 d-flex justify-content-end">
+    <ul className="quick-links ml-auto">
+      <button className="btn btn-primary" onClick={() => setShowHistoryModal(true)}>
+        Daily History
+      </button>
+    </ul>
+    {userData?.validUserOne && userData.validUserOne.userType === 'user' && (
+      <ul className="quick-links ml-auto">
+        <button type="submit" onClick={handleOpenCalibrationPopup} className="btn btn-primary ml-2">
+          Calibration
+        </button>
+      </ul>
+    )}
+  </div>
+  
+</div>
+
 
         {loading && (
           <div className="spinner-container">
@@ -200,89 +210,55 @@ const AmbientAir = () => {
           </div>
         )}
 
+        {!loading && (!searchResult || !searchResult.stackData || searchResult.stackData.length === 0) && (
+          <div className="col-12">
+            <h5 className="text-center">No Data Available</h5>
+          </div>
+        )}
+
 <div className="row">
-  {/* Exclude Stack II and Stack III Parameters */}
-  {!loading && airParameters.filter(param => !param.name.includes("stack_2") && !param.name.includes("STACK_32_Ammonia")).map((item, index) => (
-    <div className="col-12 col-md-4 grid-margin" key={index}>
-      <div className="card" onClick={() => handleCardClick({ title: item.parameter })}>
-        <div className="card-body">
-          <div className="row">
-            <div className="col-12">
-              <h3 className="mb-3 ">{item.parameter}</h3>
-            </div>
-            <div className="col-12 mb-3">
-              <h6>
-                <strong className="strong-value" style={{color:'#35852a'}}>
-                  {searchResult ? searchResult[item.name] || 'N/A' : 'No Result found for this userID'}
-                </strong> 
-                <span>{item.value}</span>
-              </h6>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  ))}
-</div>
-
-        <div className="row">
-  {/* Heading for Stack II */}
-  <div className="col-12">
-    <h3 className="text-center mt-4">Stack II</h3>
-  </div>
-
-  {/* Stack II Parameters */}
-  {!loading && airParameters.filter(param => param.name.includes("stack_2")).map((item, index) => (
-    <div className="col-12 col-md-4 grid-margin" key={index}>
-      <div className="card" onClick={() => handleCardClick({ title: item.parameter })}>
-        <div className="card-body">
-          <div className="row">
-            <div className="col-12">
-              <h3 className="mb-3">{item.parameter}</h3>
-            </div>
-            <div className="col-12 mb-3">
-              <h6>
-                <strong className="strong-value" style={{color:'#2e8023'}}>
-                  {searchResult ? searchResult[item.name] || 'N/A' : 'No Result found for this userID'}
-                </strong> 
-                <span>{item.value}</span>
-              </h6>
+  {!loading && searchResult && searchResult.stackData && (
+    <>
+      {searchResult.stackData.map((stack, stackIndex) => (
+        (selectedStack === "all" || selectedStack === stack.stackName) && (
+          <div key={stackIndex} className="col-12 mb-4">
+            {/* Stack name as heading */}
+            <div className="stack-box">
+              <h4 className="text-center">{stack.stackName}</h4>
+              <div className="row">
+                {airParameters.map((item, index) => {
+                  const value = stack[item.name];
+                  return value && value !== 'N/A' ? (
+                    <div className="col-12 col-md-4 grid-margin" key={index}>
+                      <div className="card" onClick={() => handleCardClick({ title: item.parameter })}>
+                        <div className="card-body">
+                          <div className="row">
+                            <div className="col-12">
+                              <h3 className="mb-3">{item.parameter}</h3>
+                            </div>
+                            <div className="col-12 mb-3">
+                              <h6>
+                                <strong className="strong-value" style={{ color: '#236A80' }}>
+                                  {value}
+                                </strong> 
+                                <span>{item.value}</span>
+                              </h6>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : null; // Don't render if value is 'N/A' or undefined
+                })}
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-  ))}
+        )
+      ))}
+    </>
+  )}
 </div>
-<div className="row">
-  {/* Heading for Stack II */}
-  <div className="col-12">
-    <h3 className="text-center mt-4">STACK_32_Ammonia</h3>
-  </div>
 
-  {/* Stack II Parameters */}
-  {!loading && airParameters.filter(param => param.name.includes("STACK_32_Ammonia")).map((item, index) => (
-    <div className="col-12 col-md-4 grid-margin" key={index}>
-      <div className="card" onClick={() => handleCardClick({ title: item.parameter })}>
-        <div className="card-body">
-          <div className="row">
-            <div className="col-12">
-              <h3 className="mb-3">{item.parameter}</h3>
-            </div>
-            <div className="col-12 mb-3">
-              <h6>
-                <strong className="strong-value" style={{color:'#328023'}}>
-                  {searchResult ? searchResult[item.name] || 'N/A' : 'No Result found for this userID'}
-                </strong> 
-                <span>{item.value}</span>
-              </h6>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  ))}
-</div>
 
         {showPopup && selectedCard && (
           <AirGraphPopup
@@ -300,29 +276,25 @@ const AmbientAir = () => {
           />
         )}
         <CalibrationExceeded />
+
         <footer className="footer">
           <div className="container-fluid clearfix">
             <span className="text-muted d-block text-center text-sm-left d-sm-inline-block">
               Ebhoom Control and Monitor System
             </span>
             <span className="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">
-              {" "}
-              ©{" "}
-              <a href="" target="_blank">
-                Ebhoom Solutions LLP
-              </a>{" "}
-              2023
+              {" "}© <a href="" target="_blank">Ebhoom Solutions LLP</a> 2023
             </span>
           </div>
         </footer>
+
+        <DailyHistoryModal
+          isOpen={showHistoryModal}
+          onRequestClose={() => setShowHistoryModal(false)}
+          fetchData={fetchHistoryData}
+          downloadData={downloadHistoryData}
+        />
       </div>
-       {/* Include the Daily History Modal */}
-       <DailyHistoryModal
-        isOpen={showHistoryModal}
-        onRequestClose={() => setShowHistoryModal(false)}
-        fetchData={fetchHistoryData}
-        downloadData={downloadHistoryData}
-      />
     </div>
   );
 };

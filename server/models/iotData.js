@@ -1,235 +1,71 @@
-const { required } = require('joi');
 const mongoose = require('mongoose');
 
-const iotDataSchema = new mongoose.Schema({
-   product_id:{
-    type:String,
-   },
-    ph:{
-        type:String,
-    },
-    TDS:{
-        type:String,
-
-    },
-    turbidity:{
-        type:String,
-    },
-    temperature:{
-        type:String,
-    },
-    BOD:{
-        type:String,
-    },
-    COD:{
-        type:String,
-    },
-    TSS:{ 
-        type:String,
-    },
-    ORP:{
-        type:String,
-    },
-    nitrate:{
-        type:String,
-    },
-    ammonicalNitrogen:{
-        type:String,
-    },
-    DO:{
-        type:String,
-    },
-    chloride:{
-        type:String,
-    }, 
-    Flow:{
-        type:String,
-    },
-    CO:{
-        type:String,
-    },
-    NOX:{type:String},
-    Pressure:{type:String},
-    Flouride:{type:String},
-    PM:{
-        type:String,
-    },   
-    SO2:{
-        type:String,
-    },
-    NO2:{
-        type:String
-    },
-    Mercury:{
-        type:String,
-    },
-    PM10:{
-        type:String,
-    },
-    PM25:{
-        type:String,
-    },
-    NOH:{
-        type:String,
-    },
-    NH3:{
-        type:String,
-    },
-    WindSpeed:{
-        type:String,
-    },
-    WindDir:{
-        type:String,
-    },
-    AirTemperature:{
-        type:String,
-    },
-    Humidity:{
-        type:String,
-    },
-    solarRadiation:{
-        type:String,
-    },
-    DB:{
-        type:String,
-    },
-    inflow:{
-        type:Number,
-    },
-    finalflow:{
-        type:Number,
-    },
-    energy:{
-        type:Number,
-      
-    },
-    voltage: {
-        type: Number,
-    },
-    current: {
-        type: Number,
-    },
-    power: {
-        type: Number,
-    },
-    stack_2_flow:{
-        type:String,
-    },
-    STACK_32_Ammonia_flow:{
-        type:String,
-    },
-    stack_2_CO:{
-        type:String,
-    },
-    stack_2_NOX:{type:String},
-    stack_2_Pressure:{type:String},
-    stack_2_Flouride:{type:String},
-    stack_2_PM:{
-        type:String,
-    },   
-    stack_2_SO2:{
-        type:String,
-    },
-    stack_2_NO2:{
-        type:String
-    },
-    stack_2_Mercury:{
-        type:String,
-    },
-    stack_2_PM10:{
-        type:String,
-    },
-    stack_2_PM25:{
-        type:String,
-    },
-    stack_2_NOH:{
-        type:String,
-    },
-    stack_2_NH3:{
-        type:String,
-    },
-    stack_2_WindSpeed:{
-        type:String,
-    },
-    stack_2_WindDir:{
-        type:String,
-    },
-    stack_2_AirTemperature:{
-        type:String,
-    },
-    stack_2_Humidity:{
-        type:String,
-    },
-    stack_2_solarRadiation:{
-        type:String,
-    },
-    STACK_32_Ammonia_CO:{
-        type:String,
-    },
-    STACK_32_Ammonia_NOX:{type:String},
-    STACK_32_Ammonia_Pressure:{type:String},
-    STACK_32_Ammonia_Flouride:{type:String},
-    STACK_32_Ammonia_PM:{
-        type:String,
-    },   
-    STACK_32_Ammonia_SO2:{
-        type:String,
-    },
-    STACK_32_Ammonia_NO2:{
-        type:String
-    },
-    STACK_32_Ammonia_Mercury:{
-        type:String,
-    },
-    STACK_32_Ammonia_PM10:{
-        type:String,
-    },
-    STACK_32_Ammonia_PM25:{
-        type:String,
-    },
-    STACK_32_Ammonia_NOH:{
-        type:String,
-    },
-    STACK_32_Ammonia_NH3:{
-        type:String,
-    },
-    STACK_32_Ammonia_WindSpeed:{
-        type:String,
-    },
-    STACK_32_Ammonia_WindDir:{
-        type:String,
-    },
-    STACK_32_Ammonia_AirTemperature:{
-        type:String,
-    },
-    STACK_32_Ammonia_Humidity:{
-        type:String,
-    },
-    STACK_32_Ammonia_solarRadiation:{
-        type:String,
-    },
-    date:{
-        type:String,
-         required: true
-    },
-    time:{
-        type:String
-    },
-    topic: { type: String },
-    userName: { type: String, required: true },
-    companyName: { type: String, required: true },
-    industryType: { type: String, required: true },
-    mobileNumber: { type: String, required: true },
-    email: { type: String, required: true },
-    validationStatus: { type: String,  },
-    validationMessage: { type: String,  },
-   
-    timestamp: {
-        type: Date,  // Store as Date type
-        default: () => moment().toDate()
-    }
+// Stack Schema to store sensor data
+const StackSchema = new mongoose.Schema({
+    stackName: { type: String, required: true }, // Ensure stackName is mandatory
+    ph: { type: String },
+    TDS: { type: String },
+    turbidity: { type: String },
+    temperature: { type: String },
+    BOD: { type: String },
+    COD: { type: String },
+    TSS: { type: String },
+    ORP: { type: String },
+    nitrate: { type: String },
+    ammonicalNitrogen: { type: String },
+    DO: { type: String },
+    chloride: { type: String },
+    Flow: { type: String },
+    Totalizer_Flow: { type: String },
+    CO: { type: String },
+    NOX: { type: String },
+    Pressure: { type: String },
+    Fluoride: { type: String },
+    PM: { type: String },
+    SO2: { type: String },
+    NO2: { type: String },
+    Mercury: { type: String },
+    PM10: { type: String },
+    PM25: { type: String },
+    NOH: { type: String },
+    NH3: { type: String },
+    WindSpeed: { type: String },
+    WindDir: { type: String },
+    AirTemperature: { type: String },
+    Humidity: { type: String },
+    solarRadiation: { type: String },
+    DB: { type: String },
+    inflow: { type: Number, default: 0 },
+    finalflow: { type: Number, default: 0 },
+    energy: { type: Number, default: 0 },
+    voltage: { type: Number, default: 0 },
+    current: { type: Number, default: 0 },
+    power: { type: Number, default: 0 },
 });
 
-const IotData = mongoose.model('IotData', iotDataSchema);
+// IoT Data Schema to store all incoming data
+const IotDataSchema = new mongoose.Schema({
+    product_id: { type: String, required: true }, // Ensure product_id is mandatory
+    stackData: {
+        type: [StackSchema], // Array of stack objects
+        validate: {
+            validator: (v) => Array.isArray(v) && v.length > 0,
+            message: 'stackData must contain at least one stack.',
+        },
+    },
+    date: { type: String, required: true },
+    time: { type: String, required: true },
+    topic: { type: String, default: 'N/A' },
+    companyName: { type: String, required: true },
+    industryType: { type: String, required: true },
+    userName: { type: String, required: true },
+    mobileNumber: { type: String, required: true },
+    email: { type: String, required: true },
+    timestamp: { type: Date, default: Date.now },
+    validationMessage: { type: String, default: 'Validated' },
+    validationStatus: { type: String, default: 'Valid' },
+});
 
+// Export the models
+const IotData = mongoose.model('IotData', IotDataSchema);
 module.exports = IotData;

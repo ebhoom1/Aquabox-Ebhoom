@@ -37,6 +37,48 @@ export const fetchUserByUserName = createAsyncThunk(
     }
   }  
 );
+export const fetchUserByCompanyName = createAsyncThunk(
+  'userLog/fetchUserByCompanyName',
+  async(companyName,{rejectWithValue})=>{
+    try{
+      const response = await axios.get(`${API_URL}/api/get-user-by-companyName/${companyName}`);
+      return response.data.user;
+    }catch(error){
+      return rejectWithValue(error.response.data);
+    }
+  }  
+);
+export const fetchStackNameByCompanyName = createAsyncThunk(
+  'userLog/fetchStackNameByCompanyName',
+  async (companyName, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${API_URL}/api/get-stacknames-by-companyName/${companyName}`);
+      return response.data.stackNames;  // Assuming stackNames array is returned
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const fetchStackNameByUserName = createAsyncThunk(
+  'userLog/fetchStackNameByUserName',
+  async (userName, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(
+        `${API_URL}/api/get-stacknames-by-userName/${userName}`
+      );
+      console.log('API Response:', response.data); // Debugging
+
+      // Ensure the stackNames array is correctly returned
+      return response.data.stackNames || [];
+    } catch (error) {
+      console.error('Error fetching stack names:', error);
+      return rejectWithValue(error.response?.data || 'An error occurred');
+    }
+  }
+);
+
+
 export const addUser = createAsyncThunk(
   'userLog/addUser',
   async (formData, { rejectWithValue }) => {
@@ -52,6 +94,24 @@ export const addUser = createAsyncThunk(
     }
   }
 );
+
+export const addStackName = createAsyncThunk(
+  'userLog/addStackName',
+  async ({ companyName, stackName }, { rejectWithValue }) => {
+    try {
+      const response = await axios.patch(`${API_URL}/api/updateStackName/${companyName}`, { stackName }, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      return response.data.user;  // Assuming response contains updated user data
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+
 
 export const updateUser = createAsyncThunk(
   'userLog/updateUser',
@@ -89,6 +149,7 @@ const userLogSlice = createSlice({
     users: [],
     filteredUsers: [],
     selectedUser: null,
+    stackNames: [], 
     loading: false,
     error: null,
   },
@@ -138,6 +199,42 @@ const userLogSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
+      .addCase(fetchUserByCompanyName.pending,(state)=>{
+        state.loading = false;
+      })
+      .addCase(fetchUserByCompanyName.fulfilled,(state,action)=>{
+        state.loading = false;
+        state.users = action.payload ? [action.payload] : [];
+      })
+      .addCase(fetchUserByCompanyName.rejected,(state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      // Fetch Stack Names By CompanyName
+      .addCase(fetchStackNameByCompanyName.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchStackNameByCompanyName.fulfilled, (state, action) => {
+        state.loading = false;
+        state.stackNames = action.payload; // Update the stackNames state with the fetched stack names
+      })
+      .addCase(fetchStackNameByCompanyName.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(fetchStackNameByUserName.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchStackNameByUserName.fulfilled, (state, action) => {
+        state.loading = false;
+        state.stackNames = action.payload; // Update the stackNames state with the fetched stack names
+      })
+      .addCase(fetchStackNameByUserName.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
       .addCase(addUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -175,7 +272,25 @@ const userLogSlice = createSlice({
       .addCase(deleteUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
+      })
+      // addStackName cases
+       // Updated addStackName cases
+       .addCase(addStackName.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(addStackName.fulfilled, (state, action) => {
+        state.loading = false;
+        const index = state.users.findIndex(user => user.companyName === action.payload.companyName);
+        if (index !== -1) {
+          state.users[index].stackName = action.payload.stackName;  // Update stackName
+        }
+      })
+      .addCase(addStackName.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
+
   },
 });
 

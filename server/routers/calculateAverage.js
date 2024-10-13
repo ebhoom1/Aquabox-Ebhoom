@@ -8,8 +8,12 @@ const {
         handleSaveMessage,
         getDifferenceDataByUserName,
         downloadIotDataByUserName,
-        viewDataByDateAndUser,
-        deleteIotDataByDateAndUser 
+        deleteIotDataByDateAndUser,
+        downloadIotDataByUserNameAndStackName,
+        getIotDataByUserNameAndStackName,
+        getIotDataByCompanyNameAndStackName,
+        getIotDataByCompanyName,
+        viewDataByDateUserAndStackName
         
 } = require('../controllers/iotData');
 
@@ -23,6 +27,9 @@ router.get('/get-all-iot-values',getAllIotData);
 
 //Route to find a IoT data using UserName
 router.get('/get-IoT-Data-by-userName/:userName',getIotDataByUserName);
+
+//Route to find a IoT data using Company Name
+router.get('/get-IoT-Data-by-companyName/:companyName',getIotDataByCompanyName);
 
 //Route for getting the latest IoT Data
 router.get('/latest-iot-data/:userName',getLatestIoTData);
@@ -41,12 +48,16 @@ router.get('/downloadIotData',downloadIotData);
 
 router.get('/downloadIotDataByUserName',downloadIotDataByUserName)
 
+router.get('/downloadIotDataByUserNameAndStackName',downloadIotDataByUserNameAndStackName)
 
 // Route to view data by date and user
-router.get('/view-data-by-date-user', viewDataByDateAndUser);
+router.get('/view-data-by-date-user-stack', viewDataByDateUserAndStackName);
 
 //Route to delete many by date
 router.delete('/delete-by-date',deleteIotDataByDateAndUser)
+
+router.get('/get-IoT-Data-by-userName-and-stackName/:userName/:stackName', getIotDataByUserNameAndStackName);
+router.get('/get-IoT-Data-by-companyName-and-stackName/:companyName/:stackName',getIotDataByCompanyNameAndStackName);
 
 
 module.exports = router;

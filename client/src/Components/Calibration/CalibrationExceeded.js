@@ -19,38 +19,46 @@ const CalibrationExceeded = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem("userdatatoken");
+        const token = localStorage.getItem('userdatatoken');
         const userResponse = await axios.get(`${API_URL}/api/validuser`, {
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             Authorization: token,
-          }
+          },
         });
+
         const userData = userResponse.data;
 
         if (userData.status === 401 || !userData.validUserOne) {
-          console.log("User not valid");
+          console.log('User not valid');
           navigate('/');
+          return;
+        }
+
+        console.log('User Verified');
+        setUserType(userData.validUserOne.userType);
+        setDataLoaded(true);
+
+        // Construct the appropriate API URL based on userType
+        let apiUrl = '';
+
+        if (userData.validUserOne.userType === 'admin' && searchTerm) {
+          apiUrl = `${API_URL}/api/get-user-exceed-data/${searchTerm}`;
+        } else if (userData.validUserOne.userType === 'user') {
+          apiUrl = `${API_URL}/api/get-user-exceed-data/${userData.validUserOne.userName}`;
         } else {
-          console.log("User Verified");
-          setUserType(userData.validUserOne.userType);
-          setDataLoaded(true);
+          console.error('Invalid API URL configuration.');
+          return; // Avoid further execution if the API URL is invalid
+        }
 
-          if (isSearchTriggered) {
-            const apiUrl = userData.validUserOne.userType === 'admin'
-              ? `${API_URL}/api/get-user-exceed-data/${searchTerm}`
-              : `${API_URL}/api/get-user-exceed-data/${userData.validUserOne.userName}`;
-
-            const commentsResponse = await axios.get(apiUrl);
-            if (commentsResponse.data && commentsResponse.data.userExceedData) {
-              setEntries(commentsResponse.data.userExceedData);
-            } else {
-              setEntries([]);
-            }
-          }
+        const commentsResponse = await axios.get(apiUrl);
+        if (commentsResponse.data && commentsResponse.data.userExceedData) {
+          setEntries(commentsResponse.data.userExceedData);
+        } else {
+          setEntries([]);
         }
       } catch (error) {
-        console.error("Error Validating user or fetching comments:", error);
+        console.error('Error validating user or fetching comments:', error);
         navigate('/');
       }
     };
@@ -61,9 +69,13 @@ const CalibrationExceeded = () => {
   const handleEditComment = async (id, commentField) => {
     try {
       await axios.put(`${API_URL}/api/edit-comments/${id}`, {
-        [commentField]: currentComment
+        [commentField]: currentComment,
       });
-      setEntries(entries.map(entry => entry._id === id ? { ...entry, [commentField]: currentComment } : entry));
+      setEntries((prevEntries) =>
+        prevEntries.map((entry) =>
+          entry._id === id ? { ...entry, [commentField]: currentComment } : entry
+        )
+      );
       toast.success(`${commentField} updated successfully`);
       setCurrentEntryId(null);
       setCurrentComment('');
@@ -87,6 +99,7 @@ const CalibrationExceeded = () => {
                     <tr>
                       <th>SI.No</th>
                       <th>User ID</th>
+                      <th>Stack Name</th>
                       <th>Exceeded Parameter</th>
                       <th>Value</th>
                       <th>Date</th>
@@ -101,6 +114,7 @@ const CalibrationExceeded = () => {
                       <tr key={entry._id}>
                         <td>{index + 1}</td>
                         <td>{entry.userName}</td>
+                        <td>{entry.stackName}</td>
                         <td>{entry.parameter}</td>
                         <td>{entry.value}</td>
                         <td>{entry.formattedDate}</td>
@@ -110,7 +124,6 @@ const CalibrationExceeded = () => {
                         <td>
                           {userType === 'admin' && (
                             <button
-                              type="button"
                               className="btn btn-primary m-2"
                               onClick={() => {
                                 setCurrentEntryId(entry._id);
@@ -123,7 +136,6 @@ const CalibrationExceeded = () => {
                           )}
                           {userType === 'user' && (
                             <button
-                              type="button"
                               className="btn btn-primary m-2"
                               onClick={() => {
                                 setCurrentEntryId(entry._id);
@@ -148,18 +160,17 @@ const CalibrationExceeded = () => {
                     <textarea
                       value={currentComment}
                       onChange={(e) => setCurrentComment(e.target.value)}
-                      placeholder={isEditingAdminComment ? "Edit admin comment" : "Enter comment"}
+                      placeholder={isEditingAdminComment ? 'Edit admin comment' : 'Enter comment'}
                     ></textarea>
                     <div className="popup-buttons">
                       <button
                         className="btn btn-success"
-                        onClick={() => {
-                          if (isEditingAdminComment) {
-                            handleEditComment(currentEntryId, 'commentByAdmin');
-                          } else {
-                            handleEditComment(currentEntryId, 'commentByUser');
-                          }
-                        }}
+                        onClick={() =>
+                          handleEditComment(
+                            currentEntryId,
+                            isEditingAdminComment ? 'commentByAdmin' : 'commentByUser'
+                          )
+                        }
                       >
                         {isEditingAdminComment ? 'Save' : 'Add'}
                       </button>

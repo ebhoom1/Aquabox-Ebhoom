@@ -16,6 +16,7 @@ const calibrationExceedSchema = new mongoose.Schema({
     formattedTime:{type:String},
     industryType: { type: String },
     companyName: { type: String },
+    stackName:{type:String},
     userName:{type:String},
     userId:{type:String},
     timestamp: { type: Date, default: Date.now },

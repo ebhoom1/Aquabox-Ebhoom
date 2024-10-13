@@ -106,3 +106,29 @@
     align-items: center;
     height: 60vh; /* Adjust the height as needed to center the spinner vertically */
   }
+  .styled-select {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #236A80;
+    background-color: white;
+    width: 40%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    appearance: none; /* Remove default dropdown arrow */
+  }
+  
+  .styled-select:focus {
+    border-color: #236A80;
+    outline: none;
+  }
+  
+  .styled-select::after {
+    content: '\25BC'; /* Custom arrow */
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+  .label-select{
+    font-weight: bolder;
+  }

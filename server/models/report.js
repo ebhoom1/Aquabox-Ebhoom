@@ -20,6 +20,9 @@ const reportSchema = new mongoose.Schema({
     userName:{
         type:String
     },
+    stackName:{
+        type:String
+    },
     calibrationExceeds: [{ 
         parameter: String,
         value: Number,

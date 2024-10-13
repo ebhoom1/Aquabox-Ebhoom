@@ -6,13 +6,14 @@ import { API_URL } from '../../utils/apiConfig';
 
 const CalibrationExceededReport = () => {
   const location = useLocation();
-  const { dateFrom, dateTo, industry, company, userName } = location.state || {};
+  const { dateFrom, dateTo, industry, company, userName,stackName } = location.state || {};
   const navigate = useNavigate();
   const [entries, setEntries] = useState([]);
   const [engineerName, setEngineerName] = useState('');
 
+  
   useEffect(() => {
-    console.log("Received Data:", { dateFrom, dateTo, industry, company, userName }); // Debugging log
+    console.log("Received Data:", { dateFrom, dateTo, industry, company, userName,stackName }); // Debugging log
 
     const fetchData = async () => {
       try {
@@ -21,6 +22,7 @@ const CalibrationExceededReport = () => {
             userName: userName.trim(),
             industryType: industry.trim(),
             companyName: company.trim(),
+            stackName:stackName.trim(),
             fromDate: dateFrom.trim(),
             toDate: dateTo.trim()
           }
@@ -36,7 +38,7 @@ const CalibrationExceededReport = () => {
     if (dateFrom && dateTo && industry && company && userName) {
       fetchData();
     }
-  }, [dateFrom, dateTo, industry, company, userName]);
+  }, [dateFrom, dateTo, industry, company, userName,stackName]);
 
   const handleReport = async (reportApproved) => {
     if (!engineerName.trim()) {
@@ -48,6 +50,7 @@ const CalibrationExceededReport = () => {
         userName: userName.trim(),
         industryType: industry.trim(),
         companyName: company.trim(),
+        stackName:stackName.trim(),
         fromDate: dateFrom.trim(),
         toDate: dateTo.trim(),
         engineerName: engineerName.trim(),
@@ -105,6 +108,7 @@ const CalibrationExceededReport = () => {
                   <p><strong>Industry:</strong> {industry}</p>
                   <p><strong>Company:</strong> {company}</p>
                   <p><strong>User Name:</strong> {userName}</p>
+                  <p><strong>Stack Name:</strong>{stackName}</p>
                 </div>
                 
                 <div className="table-responsive">
@@ -153,6 +157,10 @@ const CalibrationExceededReport = () => {
                     <div className="col-md-6">
                       <label htmlFor="company" className="form-label"><strong>Company:</strong></label>
                       <input type="text" className="input-field" id="company" value={company} readOnly />
+                    </div>
+                    <div className="col-md-6">
+                      <label htmlFor="company" className="form-label"><strong>Stack Name:</strong></label>
+                      <input type="text" className="input-field" id="company" value={stackName} readOnly />
                     </div>
                     <div className="col-md-6">
                       <label htmlFor="userName" className="form-label"><strong>User Name:</strong></label>

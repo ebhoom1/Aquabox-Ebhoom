@@ -8,32 +8,26 @@ const ViewComponent = () => {
   console.log('Data received:', data);
   console.log('From Date:', fromDate);
   console.log('To Date:', toDate);
-  console.log('Type of data:', typeof data);  // Log the type of data
 
-  // Fields to exclude
-  const fieldsToExclude = [
-    '_id', 
-    'product_id', 
-    'userName', 
-    'companyName', 
-    'email', 
-    'mobileNumber', 
-    'validationStatus', 
-    'validationMessage', 
-    'timestamp', // Ensure this is included
-    '__v',
-    'topic',
-    'industryType'
-  ];
+  // Function to extract and format the date and time from a timestamp
+  const formatDate = (timestamp) => {
+    const date = new Date(timestamp);
+    return `${String(date.getUTCDate()).padStart(2, '0')}/${String(
+      date.getUTCMonth() + 1
+    ).padStart(2, '0')}/${date.getUTCFullYear()}`;
+  };
 
-  // Function to check if a key should be excluded
-  const shouldExclude = (key) => fieldsToExclude.includes(key);
+  const formatTime = (timestamp) => {
+    const date = new Date(timestamp);
+    return `${String(date.getUTCHours()).padStart(2, '0')}:${String(
+      date.getUTCMinutes()
+    ).padStart(2, '0')}:${String(date.getUTCSeconds()).padStart(2, '0')}`;
+  };
 
-  // Function to get date fields and non-date fields
-  const getOrderedFields = (item) => {
-    const dateFields = Object.keys(item).filter(key => key.toLowerCase().includes('date') || key.toLowerCase().includes('time'));
-    const nonDateFields = Object.keys(item).filter(key => !shouldExclude(key) && !dateFields.includes(key));
-    return [...dateFields, ...nonDateFields];
+  // Filter out the _id field from stackData
+  const filterStackData = (stack) => {
+    const { _id, ...filteredData } = stack;
+    return filteredData;
   };
 
   // Render the component
@@ -41,26 +35,34 @@ const ViewComponent = () => {
     <div className='container-fluid'>
       <h4>From Date: {fromDate}</h4>
       <h4>To Date: {toDate}</h4>
-      
+
       {typeof data === 'object' && data !== null ? (
         Array.isArray(data) ? (
           <div style={{ overflowX: 'auto' }}>
             <table className="table table-bordered">
               <thead>
                 <tr>
-                  {getOrderedFields(data[0]).map((key) => (
-                    <th key={key}>{key}</th>
-                  ))}
+                  <th>Date</th>
+                  <th>Time</th>
+                  {Object.keys(filterStackData(data[0]?.stackData[0]) || {}).map(
+                    (stackKey) => (
+                      <th key={stackKey}>{stackKey}</th>
+                    )
+                  )}
                 </tr>
               </thead>
               <tbody>
-                {data.map((item, index) => (
-                  <tr key={index}>
-                    {getOrderedFields(item).map((key, i) => (
-                      <td key={i}>{JSON.stringify(item[key], null, 2)}</td>
-                    ))}
-                  </tr>
-                ))}
+                {data.map((item, index) =>
+                  item.stackData.map((stack, stackIndex) => (
+                    <tr key={`${index}-${stackIndex}`}>
+                      <td>{formatDate(item.timestamp)}</td>
+                      <td>{formatTime(item.timestamp)}</td>
+                      {Object.values(filterStackData(stack)).map((value, i) => (
+                        <td key={`${stackIndex}-${i}`}>{value}</td>
+                      ))}
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -69,17 +71,25 @@ const ViewComponent = () => {
             <table className="table table-bordered">
               <thead>
                 <tr>
-                  {getOrderedFields(data).map((key) => (
-                    <th key={key}>{key}</th>
-                  ))}
+                  <th>Date</th>
+                  <th>Time</th>
+                  {Object.keys(filterStackData(data.stackData[0]) || {}).map(
+                    (stackKey) => (
+                      <th key={stackKey}>{stackKey}</th>
+                    )
+                  )}
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  {getOrderedFields(data).map((key, index) => (
-                    <td key={index}>{JSON.stringify(data[key], null, 2)}</td>
-                  ))}
-                </tr>
+                {data.stackData.map((stack, stackIndex) => (
+                  <tr key={stackIndex}>
+                    <td>{formatDate(data.timestamp)}</td>
+                    <td>{formatTime(data.timestamp)}</td>
+                    {Object.values(filterStackData(stack)).map((value, i) => (
+                      <td key={`${stackIndex}-${i}`}>{value}</td>
+                    ))}
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

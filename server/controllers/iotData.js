@@ -50,155 +50,306 @@ const checkRequiredFields = (data, requiredFields) => {
 
 
 // Function to handle Mqtt Messages and save the data to MongoDB
+// const handleSaveMessage = async (req, res) => {
+//     const data = req.body;
+
+//     try {
+//         // Check required fields
+//         const requiredFields = ['userName', 'companyName', 'industryType', 'mobileNumber', 'email', 'product_id'];
+//         const validationStatus = checkRequiredFields(data, requiredFields);
+//         if (!validationStatus.success) {
+//             console.error(validationStatus.message);
+//             return res.status(400).json(validationStatus);
+//         }
+        
+//         // Check sensor data
+//         const sensorValidationStatus = checkSensorData(data);
+//         if (!sensorValidationStatus.success) {
+//             console.error(sensorValidationStatus.message);
+//             return res.status(400).json(sensorValidationStatus);
+//         }
+
+//         const formattedDate = moment().format('DD/MM/YYYY');
+
+//         // Prepare stack data if provided
+//         let stackData = [];
+
+//         // If the 'stacks' array is provided in the data, use it directly
+//         if (data.stacks && Array.isArray(data.stacks)) {
+//             stackData = data.stacks.map(stack => ({
+//                 stackName: stack.stackName,
+//                 ph: stack.ph !== 'N/A' ? stack.ph : null,
+//                 TDS: stack.TDS !== 'N/A' ? stack.TDS : null,
+//                 turbidity: stack.turbidity !== 'N/A' ? stack.turbidity : null,
+//                 temperature: stack.temperature !== 'N/A' ? stack.temperature : null,
+//                 BOD: stack.BOD !== 'N/A' ? stack.BOD : null,
+//                 COD: stack.COD !== 'N/A' ? stack.COD : null,
+//                 TSS: stack.TSS !== 'N/A' ? stack.TSS : null,
+//                 ORP: stack.ORP !== 'N/A' ? stack.ORP : null,
+//                 nitrate: stack.nitrate !== 'N/A' ? stack.nitrate : null,
+//                 ammonicalNitrogen: stack.ammonicalNitrogen !== 'N/A' ? stack.ammonicalNitrogen : null,
+//                 DO: stack.DO !== 'N/A' ? stack.DO : null,
+//                 chloride: stack.chloride !== 'N/A' ? stack.chloride : null,
+//                 Flow: stack.Flow !== 'N/A' ? stack.Flow : null,
+//                 Totalizer_Flow:stack.Totalizer_Flow !=='N/A' ? stack.Totalizer_Flow : null,
+//                 CO: stack.CO !== 'N/A' ? stack.CO : null,
+//                 NOX: stack.NOX !== 'N/A' ? stack.NOX : null,
+//                 Pressure: stack.Pressure !== 'N/A' ? stack.Pressure : null,
+//                 Flouride: stack.Flouride !== 'N/A' ? stack.Flouride : null,
+//                 PM: stack.PM !== 'N/A' ? stack.PM : null,
+//                 SO2: stack.SO2 !== 'N/A' ? stack.SO2 : null,
+//                 NO2: stack.NO2 !== 'N/A' ? stack.NO2 : null,
+//                 Mercury: stack.Mercury !== 'N/A' ? stack.Mercury : null,
+//                 PM10: stack.PM10 !== 'N/A' ? stack.PM10 : null,
+//                 PM25: stack.PM25 !== 'N/A' ? stack.PM25 : null,
+//                 NOH: stack.NOH !== 'N/A' ? stack.NOH : null,
+//                 NH3: stack.NH3 !== 'N/A' ? stack.NH3 : null,
+//                 WindSpeed: stack.WindSpeed !== 'N/A' ? stack.WindSpeed : null,
+//                 WindDir: stack.WindDir !== 'N/A' ? stack.WindDir : null,
+//                 AirTemperature: stack.AirTemperature !== 'N/A' ? stack.AirTemperature : null,
+//                 Humidity: stack.Humidity !== 'N/A' ? stack.Humidity : null,
+//                 solarRadiation: stack.solarRadiation !== 'N/A' ? stack.solarRadiation : null,
+//                 DB: stack.DB !== 'N/A' ? stack.DB : null,
+//                 inflow: stack.inflow !== 'N/A' ? stack.inflow : null,
+//                 finalflow: stack.finalflow !== 'N/A' ? stack.finalflow : null,
+//                 energy: stack.energy !== 'N/A' ? stack.energy : null,
+//                 voltage: stack.voltage !== 'N/A' ? stack.voltage : null,
+//                 current: stack.current !== 'N/A' ? stack.current : null,
+//                 power: stack.power !== 'N/A' ? stack.power : null,
+//             }));
+//         } else {
+//             // If no stacks array is provided, assume it's for stack_1 and use individual sensor data
+//             stackData.push({
+//                 stackName: "stack_1",
+//                 ph: data.ph !== 'N/A' ? data.ph : null,
+//                 TDS: data.TDS !== 'N/A' ? data.TDS : null,
+//                 turbidity: data.turbidity !== 'N/A' ? data.turbidity : null,
+//                 temperature: data.temperature !== 'N/A' ? data.temperature : null,
+//                 BOD: data.BOD !== 'N/A' ? data.BOD : null,
+//                 COD: data.COD !== 'N/A' ? data.COD : null,
+//                 TSS: data.TSS !== 'N/A' ? data.TSS : null,
+//                 ORP: data.ORP !== 'N/A' ? data.ORP : null,
+//                 nitrate: data.nitrate !== 'N/A' ? data.nitrate : null,
+//                 ammonicalNitrogen: data.ammonicalNitrogen !== 'N/A' ? data.ammonicalNitrogen : null,
+//                 DO: data.DO !== 'N/A' ? data.DO : null,
+//                 chloride: data.chloride !== 'N/A' ? data.chloride : null,
+//                 Flow: data.Flow !== 'N/A' ? data.Flow : null,
+//                 CO: data.CO !== 'N/A' ? data.CO : null,
+//                 NOX: data.NOX !== 'N/A' ? data.NOX : null,
+//                 Pressure: data.Pressure !== 'N/A' ? data.Pressure : null,
+//                 Flouride: data.Flouride !== 'N/A' ? data.Flouride : null,
+//                 PM: data.PM !== 'N/A' ? data.PM : null,
+//                 SO2: data.SO2 !== 'N/A' ? data.SO2 : null,
+//                 NO2: data.NO2 !== 'N/A' ? data.NO2 : null,
+//                 Mercury: data.Mercury !== 'N/A' ? data.Mercury : null,
+//                 PM10: data.PM10 !== 'N/A' ? data.PM10 : null,
+//                 PM25: data.PM25 !== 'N/A' ? data.PM25 : null,
+//                 NOH: data.NOH !== 'N/A' ? data.NOH : null,
+//                 NH3: data.NH3 !== 'N/A' ? data.NH3 : null,
+//                 WindSpeed: data.WindSpeed !== 'N/A' ? data.WindSpeed : null,
+//                 WindDir: data.WindDir !== 'N/A' ? data.WindDir : null,
+//                 AirTemperature: data.AirTemperature !== 'N/A' ? data.AirTemperature : null,
+//                 Humidity: data.Humidity !== 'N/A' ? data.Humidity : null,
+//                 solarRadiation: data.solarRadiation !== 'N/A' ? data.solarRadiation : null,
+//                 DB: data.DB !== 'N/A' ? data.DB : null,
+//                 inflow: data.inflow !== 'N/A' ? data.inflow : null,
+//                 finalflow: data.finalflow !== 'N/A' ? data.finalflow : null,
+//                 energy: data.energy !== 'N/A' ? data.energy : null,
+//                 voltage: data.voltage !== 'N/A' ? data.voltage : null,
+//                 current: data.current !== 'N/A' ? data.current : null,
+//                 power: data.power !== 'N/A' ? data.power : null
+//             });
+//         }
+
+//         const newEntry = new IotData({
+//             product_id: data.product_id,
+//             stackData,
+//             date: formattedDate,
+//             time: data.time !== 'N/A' ? data.time : moment().format('HH:mm:ss'),
+//             topic: data.topic,
+//             companyName: data.companyName,
+//             industryType: data.industryType,
+//             userName: data.userName || 'N/A',
+//             mobileNumber: data.mobileNumber || 'N/A',
+//             email: data.email || 'N/A',
+//             timestamp: new Date(),
+//             validationMessage: data.validationMessage || 'Validated',
+//             validationStatus: data.validationStatus || 'Valid',
+//         });
+
+//         await newEntry.save();
+//         console.log('New Entry:', newEntry);
+
+//         // Update the user's iotLastEnterDate
+//         const userUpdate = await userdb.findOneAndUpdate(
+//             { userName: data.userName },
+//             { iotLastEnterDate: formattedDate }, // Update with the latest incoming date
+//             { new: true } // Return the updated document
+//         );
+
+//         if (!userUpdate) {
+//             console.error('User not found or update failed');
+//             return res.status(404).json({ success: false, message: 'User not found or update failed' });
+//         }
+
+//         console.log('User Updated Successfully:', userUpdate);
+
+//         // Call handleExceedValues after saving the new IoT data entry
+//         await handleExceedValues();
+
+//         res.status(200).json({
+//             success: true,
+//             message: "New Entry data saved successfully",
+//             newEntry
+//         });
+//     } catch (error) {
+//         console.error('Error saving data to MongoDB:', error);
+//         res.status(500).json({
+//             success: false,
+//             message: "Error saving data to MongoDB",
+//             error: error.message
+//         });
+//     }
+// };
+
 const handleSaveMessage = async (req, res) => {
     const data = req.body;
 
+    // Check if 'stackData' field is provided instead of 'stacks'
+    const stacks = data.stacks || data.stackData; 
+
+    // Ensure that the 'stacks' (or 'stackData') field exists
+    if (!Array.isArray(stacks) || stacks.length === 0) {
+        console.error('Stacks data is required but not provided.');
+        return res.status(400).json({
+            success: false,
+            message: 'Stacks data is required and must include stackName.',
+            missingFields: ['stacks'],
+        });
+    }
+
     try {
-        // Check required fields
-        const requiredFields = ['userName', 'companyName', 'industryType', 'mobileNumber', 'email', 'product_id',];
-        const validationStatus = checkRequiredFields(data, requiredFields);
-        if (!validationStatus.success) {
-            console.error(validationStatus.message);
-            return res.status(400).json(validationStatus);
-        }
-        
-        // Check sensor data
-        const sensorValidationStatus = checkSensorData(data);
-        if (!sensorValidationStatus.success) {
-            console.error(sensorValidationStatus.message);
-            return res.status(400).json(sensorValidationStatus);
-        }
-
-        const formattedDate = moment().format('DD/MM/YYYY');
-
         const newEntry = new IotData({
             product_id: data.product_id,
-            ph: data.ph !== 'N/A' ? data.ph : null,
-            TDS: data.tds !== 'N/A' ? data.tds : null,
-            turbidity: data.turbidity !== 'N/A' ? data.turbidity : null,
-            temperature: data.temperature !== 'N/A' ? data.temperature : null,
-            BOD: data.bod !== 'N/A' ? data.bod : null,
-            COD: data.cod !== 'N/A' ? data.cod : null,
-            TSS: data.tss !== 'N/A' ? data.tss : null,
-            ORP: data.orp !== 'N/A' ? data.orp : null,
-            nitrate: data.nitrate !== 'N/A' ? data.nitrate : null,
-            ammonicalNitrogen: data.ammonicalNitrogen !== 'N/A' ? data.ammonicalNitrogen : null,
-            DO: data.DO !== 'N/A' ? data.DO : null,
-            chloride: data.chloride !== 'N/A' ? data.chloride : null,
-            Flow: data.Flow !== 'N/A' ? data.Flow : null,
-            CO: data.CO !== 'N/A' ? data.CO : null,
-            NOX: data.NOX !== 'N/A' ? data.NOX : null,
-            Pressure: data.Pressure !== 'N/A' ? data.Pressure : null,
-            Flouride: data.Flouride !== 'N/A' ? data.Flouride : null,
-            PM: data.PM !== 'N/A' ? data.PM : null,
-            SO2: data.SO2 !== 'N/A' ? data.SO2 : null,
-            NO2: data.NO2 !== 'N/A' ? data.NO2 : null,
-            Mercury: data.Mercury !== 'N/A' ? data.Mercury : null,
-            PM10: data.PM10 !== 'N/A' ? data.PM10 : null,
-            PM25: data.PM25 !== 'N/A' ? data.PM25 : null,
-            NOH: data.NOH !== 'N/A' ? data.NOH : null,
-            NH3: data.NH3 !== 'N/A' ? data.NH3 : null,
-            WindSpeed: data.WindSpeed !== 'N/A' ? data.WindSpeed : null,
-            WindDir: data.WindDir !== 'N/A' ? data.WindDir : null,
-            AirTemperature: data.AirTemperature !== 'N/A' ? data.AirTemperature : null,
-            Humidity: data.Humidity !== 'N/A' ? data.Humidity : null,
-            solarRadiation: data.solarRadiation !== 'N/A' ? data.solarRadiation : null,
-            DB: data.DB !== 'N/A' ? data.DB : null,
-            inflow: data.inflow !== 'N/A' ? data.inflow : null,
-            finalflow: data.finalflow !== 'N/A' ? data.finalflow : null,
-            energy: data.energy !== 'N/A' ? data.energy : null,
-            voltage: data.voltage !== 'N/A' ? data.voltage : null,
-            current: data.current !== 'N/A' ? data.current : null,
-            power: data.power !== 'N/A' ? data.power : null,
-            
-            // Add stack_1 fields
-            stack_2_flow: data.stack_2_flow !== 'N/A' ? data.stack_2_flow : null,
-            stack_2_CO: data.stack_2_CO !== 'N/A' ? data.stack_2_CO : null,
-            stack_2_NOX: data.stack_2_NOX !== 'N/A' ? data.stack_2_NOX : null,
-            stack_2_Pressure: data.stack_2_Pressure !== 'N/A' ? data.stack_2_Pressure : null,
-            stack_2_Flouride: data.stack_2_Flouride !== 'N/A' ? data.stack_2_Flouride : null,
-            stack_2_PM: data.stack_2_PM !== 'N/A' ? data.stack_2_PM : null,
-            stack_2_SO2: data.stack_2_SO2 !== 'N/A' ? data.stack_2_SO2 : null,
-            stack_2_NO2: data.stack_2_NO2 !== 'N/A' ? data.stack_2_NO2 : null,
-            stack_2_Mercury: data.stack_2_Mercury !== 'N/A' ? data.stack_2_Mercury : null,
-            stack_2_PM10: data.stack_2_PM10 !== 'N/A' ? data.stack_2_PM10 : null,
-            stack_2_PM25: data.stack_2_PM25 !== 'N/A' ? data.stack_2_PM25 : null,
-            stack_2_NOH: data.stack_2_NOH !== 'N/A' ? data.stack_2_NOH : null,
-            stack_2_NH3: data.stack_2_NH3 !== 'N/A' ? data.stack_2_NH3 : null,
-            stack_2_WindSpeed: data.stack_2_WindSpeed !== 'N/A' ? data.stack_2_WindSpeed : null,
-            stack_2_WindDir: data.stack_2_WindDir !== 'N/A' ? data.stack_2_WindDir : null,
-            stack_2_AirTemperature: data.stack_2_AirTemperature !== 'N/A' ? data.stack_2_AirTemperature : null,
-            stack_2_Humidity: data.stack_2_Humidity !== 'N/A' ? data.stack_2_Humidity : null,
-            stack_2_solarRadiation: data.stack_2_solarRadiation !== 'N/A' ? data.stack_2_solarRadiation : null,
-        
-            // Add stack_2 fields
-            STACK_32_Ammonia_flow: data.STACK_32_Ammonia_flow !== 'N/A' ? data.STACK_32_Ammonia_flow : null,
-            STACK_32_Ammonia_CO: data.STACK_32_Ammonia_CO !== 'N/A' ? data.STACK_32_Ammonia_CO : null,
-            STACK_32_Ammonia_NOX: data.STACK_32_Ammonia_NOX !== 'N/A' ? data.STACK_32_Ammonia_NOX : null,
-            STACK_32_Ammonia_Pressure: data.STACK_32_Ammonia_Pressure !== 'N/A' ? data.STACK_32_Ammonia_Pressure : null,
-            STACK_32_Ammonia_Flouride: data.STACK_32_Ammonia_Flouride !== 'N/A' ? data.STACK_32_Ammonia_Flouride : null,
-            STACK_32_Ammonia_PM: data.STACK_32_Ammonia_PM !== 'N/A' ? data.STACK_32_Ammonia_PM : null,
-            STACK_32_Ammonia_SO2: data.STACK_32_Ammonia_SO2 !== 'N/A' ? data.STACK_32_Ammonia_SO2 : null,
-            STACK_32_Ammonia_NO2: data.STACK_32_Ammonia_NO2 !== 'N/A' ? data.STACK_32_Ammonia_NO2 : null,
-            STACK_32_Ammonia_Mercury: data.STACK_32_Ammonia_Mercury !== 'N/A' ? data.STACK_32_Ammonia_Mercury : null,
-            STACK_32_Ammonia_PM10: data.STACK_32_Ammonia_PM10 !== 'N/A' ? data.STACK_32_Ammonia_PM10 : null,
-            STACK_32_Ammonia_PM25: data.STACK_32_Ammonia_PM25 !== 'N/A' ? data.STACK_32_Ammonia_PM25 : null,
-            STACK_32_Ammonia_NOH: data.STACK_32_Ammonia_NOH !== 'N/A' ? data.STACK_32_Ammonia_NOH : null,
-            STACK_32_Ammonia_NH3: data.STACK_32_Ammonia_NH3 !== 'N/A' ? data.STACK_32_Ammonia_NH3 : null,
-            STACK_32_Ammonia_WindSpeed: data.STACK_32_Ammonia_WindSpeed !== 'N/A' ? data.STACK_32_Ammonia_WindSpeed : null,
-            STACK_32_Ammonia_WindDir: data.STACK_32_Ammonia_WindDir !== 'N/A' ? data.STACK_32_Ammonia_WindDir : null,
-            STACK_32_Ammonia_AirTemperature: data.STACK_32_Ammonia_AirTemperature !== 'N/A' ? data.STACK_32_Ammonia_AirTemperature : null,
-            STACK_32_Ammonia_Humidity: data.STACK_32_Ammonia_Humidity !== 'N/A' ? data.STACK_32_Ammonia_Humidity : null,
-            STACK_32_Ammonia_solarRadiation: data.STACK_32_Ammonia_solarRadiation !== 'N/A' ? data.STACK_32_Ammonia_solarRadiation : null,
-        
-            date: formattedDate,
-            time: data.time !== 'N/A' ? data.time : moment().format('HH:mm:ss'),
-            topic: data.topic,
+            stackData: stacks, // Save stacks directly
+            date: moment().format('DD/MM/YYYY'),
+            time: data.time || moment().format('HH:mm:ss'),
             companyName: data.companyName,
             industryType: data.industryType,
-            userName: data.userName || 'N/A',
-            mobileNumber: data.mobileNumber || 'N/A',
-            email: data.email || 'N/A',
+            userName: data.userName,
+            mobileNumber: data.mobileNumber,
+            email: data.email,
             timestamp: new Date(),
             validationMessage: data.validationMessage || 'Validated',
             validationStatus: data.validationStatus || 'Valid',
         });
-        
 
         await newEntry.save();
-        console.log('New Ent:',newEntry)
-
-           // Update the user's iotLastEnterDate
-           const userUpdate = await userdb.findOneAndUpdate(
-            { userName: data.userName },
-            { iotLastEnterDate: formattedDate }, // Update with the latest incoming date
-            { new: true } // Return the updated document
-        );
-
-        if (!userUpdate) {
-            console.error('User not found or update failed');
-            return res.status(404).json({ success: false, message: 'User not found or update failed' });
-        }
-
-        console.log('User Updated Successfully:', userUpdate);
-
-         // Call handleExceedValues after saving the new IoT data entry
-          await handleExceedValues();
+        console.log('New Entry:', newEntry);
 
         res.status(200).json({
             success: true,
-            message: "New Entry data saved successfully",
-            newEntry
+            message: 'New Entry data saved successfully',
+            newEntry,
         });
     } catch (error) {
         console.error('Error saving data to MongoDB:', error);
         res.status(500).json({
             success: false,
-            message: "Error saving data to MongoDB",
-            error: error.message
+            message: 'Error saving data to MongoDB',
+            error: error.message,
         });
     }
 };
+
+
+
+
+
+const getIotDataByUserNameAndStackName = async (req, res) => {
+    const { userName, stackName } = req.params;
+
+    try {
+        // Querying data based on userName and stackName within stackData and sorting by timestamp (latest first)
+        const data = await IotData.find({
+            userName,
+            'stackData.stackName': stackName,  // Accessing stackName inside stackData
+        }).sort({ timestamp: -1 }); // Sorting in descending order by timestamp
+
+        if (data.length === 0) {
+            return res.status(404).json({
+                status: 404,
+                success: false,
+                message: `No IoT data found for the specified userName: ${userName} and stackName: ${stackName}`,
+            });
+        }
+
+        // Filter stackData to return only the matching stackName
+        const filteredData = data.map((entry) => {
+            const stackData = entry.stackData.filter(stack => stack.stackName === stackName);
+            return {
+                ...entry._doc,  // Spread the document object to keep other fields
+                stackData       // Replace stackData with the filtered version
+            };
+        });
+
+        res.status(200).json({
+            status: 200,
+            success: true,
+            message: `IoT data for userName ${userName} and stackName ${stackName} fetched successfully`,
+            data: filteredData,
+        });
+    } catch (error) {
+        console.error(`Error Fetching IoT data by userName and stackName:`, error);
+        res.status(500).json({
+            status: 500,
+            success: false,
+            message: `Error Fetching IoT data by userName and stackName || Internal Server error`,
+            error: error.message,
+        });
+    }
+};
+
+
+const getIotDataByCompanyNameAndStackName = async (req, res) => {
+    let { companyName, stackName } = req.params;
+
+    try {
+        // Decode the companyName to handle %20 or other encoded characters
+        companyName = decodeURIComponent(companyName);
+
+        // Querying data based on companyName and stackName within stackData
+        const data = await IotData.find({
+            companyName,
+            'stackData.stackName': stackName,  // Accessing stackName inside stackData
+        });
+
+        if (data.length === 0) {
+            return res.status(404).json({
+                status: 404,
+                success: false,
+                message: `No IoT data found for the specified companyName: ${companyName} and stackName: ${stackName}`,
+            });
+        }
+
+        res.status(200).json({
+            status: 200,
+            success: true,
+            message: `IoT data for companyName ${companyName} and stackName ${stackName} fetched successfully`,
+            data,
+        });
+    } catch (error) {
+        console.error(`Error Fetching IoT data by companyName and stackName:`, error);
+        res.status(500).json({
+            status: 500,
+            success: false,
+            message: `Error Fetching IoT data by companyName and stackName || Internal Server error`,
+            error: error.message,
+        });
+    }
+};
+
+
 
 
 const getAllIotData =async (req,res)=>{
@@ -284,6 +435,35 @@ const getIotDataByUserName = async (req,res)=>{
         })
     }
 }
+const getIotDataByCompanyName = async (req, res) => {
+    const { companyName } = req.params;
+
+    try {
+        const data = await IotData.find({ companyName });
+        if (data.length === 0) {
+            return res.status(404).json({
+                status: 404,
+                success: false,
+                message: 'No IoT data found for the specified companyName',
+            });
+        }
+        res.status(200).json({
+            status: 200,
+            success: true,
+            message: `IoT data for companyName ${companyName} fetched successfully`,
+            data,
+        });
+    } catch (error) {
+        console.error(`Error Fetching IoT data by companyName:`, error);
+        res.status(500).json({
+            status: 500,
+            success: false,
+            message: `Error Fetching IoT data by companyName || Internal Server error`,
+            error: error.message,
+        });
+    }
+};
+
 
 // The Graph printing Taking average and using in the graph//
 const calculateAverages = async (userName, product_id, startTime, endTime, interval) => {
@@ -497,17 +677,7 @@ const downloadIotData = async (req, res) => {
                 'NOH', 'NH3', 'WindSpeed', 'WindDir', 'AirTemperature', 'Humidity', 
                 'solarRadiation', 'DB', 'inflow', 'finalflow', 'energy', 'voltage', 
                 'current', 'power', 
-                'stack_2_flow', 'STACK_32_Ammonia_flow', 'stack_2_CO', 'stack_2_NOX', 
-                'stack_2_Pressure', 'stack_2_Flouride', 'stack_2_PM', 'stack_2_SO2', 
-                'stack_2_NO2', 'stack_2_Mercury', 'stack_2_PM10', 'stack_2_PM25', 'stack_2_NOH', 
-                'stack_2_NH3', 'stack_2_WindSpeed', 'stack_2_WindDir', 'stack_2_AirTemperature', 
-                'stack_2_Humidity', 'stack_2_solarRadiation', 'STACK_32_Ammonia_CO', 
-                'STACK_32_Ammonia_NOX', 'STACK_32_Ammonia_Pressure', 'STACK_32_Ammonia_Flouride', 
-                'STACK_32_Ammonia_PM', 'STACK_32_Ammonia_SO2', 'STACK_32_Ammonia_NO2', 
-                'STACK_32_Ammonia_Mercury', 'STACK_32_Ammonia_PM10', 'STACK_32_Ammonia_PM25', 
-                'STACK_32_Ammonia_NOH', 'STACK_32_Ammonia_NH3', 'STACK_32_Ammonia_WindSpeed', 
-                'STACK_32_Ammonia_WindDir', 'STACK_32_Ammonia_AirTemperature', 'STACK_32_Ammonia_Humidity', 
-                'STACK_32_Ammonia_solarRadiation', 'topic', 'mobileNumber', 'email', 
+                 'topic', 'mobileNumber', 'email', 
                 'validationStatus', 'validationMessage', 'timestamp'
               ];
               
@@ -729,28 +899,117 @@ const downloadIotDataByUserName = async (req, res) => {
 };
 
 
+const downloadIotDataByUserNameAndStackName = async (req, res) => {
+    try {
+        let { userName, stackName, fromDate, toDate, format } = req.query;
 
-const viewDataByDateAndUser = async (req, res) => {
-    const { fromDate, toDate, userName } = req.query;
+        // Decode parameters and validate input
+        userName = decodeURIComponent(userName.trim());
+        stackName = decodeURIComponent(stackName.trim());
+
+        const parsedFromDate = moment(fromDate, 'DD-MM-YYYY').startOf('day').toDate();
+        const parsedToDate = moment(toDate, 'DD-MM-YYYY').endOf('day').toDate();
+
+        if (!parsedFromDate || !parsedToDate || !userName || !stackName) {
+            return res.status(400).send('Missing required query parameters');
+        }
+
+        // Query IoT data by user and stack name within the given date range
+        const data = await IotData.find({
+            userName,
+            'stackData.stackName': stackName,
+            timestamp: { $gte: parsedFromDate, $lte: parsedToDate }
+        }).lean();
+
+        if (data.length === 0) {
+            return res.status(404).send('No data found for the specified criteria');
+        }
+
+        if (format === 'csv') {
+            // Extract the fields dynamically from the stackData, excluding '_id'
+            const stackKeys = Object.keys(data[0].stackData[0] || {}).filter(key => key !== '_id');
+
+            const fields = ['Date', 'Time', ...stackKeys];
+            const csvData = data.flatMap(item =>
+                item.stackData.map(stack => ({
+                    Date: moment(item.timestamp).format('DD-MM-YYYY'),
+                    Time: moment(item.timestamp).format('HH:mm:ss'),
+                    ...stack
+                }))
+            );
+
+            const json2csvParser = new Parser({ fields });
+            const csv = json2csvParser.parse(csvData);
+
+            res.header('Content-Type', 'text/csv');
+            res.attachment('iot_data.csv');
+            return res.send(csv);
+        } else if (format === 'pdf') {
+            // Generate PDF in tabular format
+            const doc = new PDFDocument();
+            res.header('Content-Type', 'application/pdf');
+            res.attachment('iot_data.pdf');
+
+            doc.pipe(res);
+            doc.fontSize(20).text('IoT Data Report', { align: 'center' });
+            doc.fontSize(12).text(`User Name: ${userName}`);
+            doc.fontSize(12).text(`Stack Name: ${stackName}`);
+            doc.fontSize(12).text(`Date Range: ${fromDate} - ${toDate}`);
+            doc.moveDown();
+
+            data.forEach(item => {
+                doc.fontSize(10).text(`Date: ${moment(item.timestamp).format('DD-MM-YYYY')}, Time: ${moment(item.timestamp).format('HH:mm:ss')}`);
+                const stackData = item.stackData;
+
+                stackData.forEach(stack => {
+                    doc.moveDown();
+                    doc.fontSize(12).text(`Stack: ${stack.stackName}`, { underline: true });
+
+                    const keys = Object.keys(stack).filter(key => key !== 'stackName' && stack[key] !== null);
+                    const tableData = keys.map(key => `${key}: ${stack[key]}`).join(', ');
+
+                    doc.text(tableData);
+                });
+                doc.moveDown();
+            });
+
+            doc.end();
+        } else {
+            res.status(400).send('Invalid format requested');
+        }
+    } catch (error) {
+        console.error('Error fetching or processing data:', error);
+        res.status(500).send('Internal Server Error');
+    }
+};
+
+
+const viewDataByDateUserAndStackName = async (req, res) => {
+    const { fromDate, toDate, userName, stackName } = req.query;
 
     try {
-        // Assuming date is stored as 'DD-MM-YYYY' strings in MongoDB and no time zone adjustment is needed
-        const formattedFromDate = moment(fromDate, 'DD-MM-YYYY').format('DD-MM-YYYY'); 
-        const formattedToDate = moment(toDate, 'DD-MM-YYYY').format('DD-MM-YYYY');
+        // Parse the input dates to ISO Date objects for accurate querying
+        const parsedFromDate = moment(fromDate, 'DD-MM-YYYY').startOf('day').toDate();
+        const parsedToDate = moment(toDate, 'DD-MM-YYYY').endOf('day').toDate();
 
-        console.log("Formatted Dates:", { formattedFromDate, formattedToDate });
+        console.log("Parsed Dates:", { parsedFromDate, parsedToDate });
 
-        const data = await IotData.find({
+        // Build query with proper date range and userName
+        const query = {
             userName: userName,
-            date: {
-                $gte: formattedFromDate,
-                $lte: formattedToDate
-            }
-        }).lean();
-        
+            timestamp: { // Use timestamp for accurate date-based queries
+                $gte: parsedFromDate,
+                $lte: parsedToDate
+            },
+            // Check if any stack inside stackData matches the given stackName
+            'stackData.stackName': stackName
+        };
+
+        const data = await IotData.find(query).lean();
+
         if (!data.length) {
-            console.log("No data found with criteria:", { formattedFromDate, formattedToDate, userName });
-            return res.status(404).json({ message: "No data record is saved on these dates for the given user." });
+            console.log("No data found with criteria:", { parsedFromDate, parsedToDate, userName, stackName });
+            return res.status(404).json({ message: "No data record is saved on these dates for the given user and stack name." });
         }
 
         res.status(200).json({ data });
@@ -759,6 +1018,8 @@ const viewDataByDateAndUser = async (req, res) => {
         res.status(500).json({ message: "Failed to process request" });
     }
 };
+
+
 
 
 const deleteIotDataByDateAndUser = async (req, res) => {
@@ -808,7 +1069,8 @@ const deleteIotDataByDateAndUser = async (req, res) => {
 
 module.exports ={handleSaveMessage, scheduleAveragesCalculation,getAllIotData, getLatestIoTData,getIotDataByUserName,
     downloadIotData,getAverageDataByUserName,calculateAndSaveDailyDifferences,getDifferenceDataByUserName,downloadIotDataByUserName,
-    viewDataByDateAndUser,deleteIotDataByDateAndUser
+    deleteIotDataByDateAndUser,downloadIotDataByUserNameAndStackName,getIotDataByUserNameAndStackName,getIotDataByCompanyNameAndStackName,
+    getIotDataByCompanyName,viewDataByDateUserAndStackName
  }
 
 

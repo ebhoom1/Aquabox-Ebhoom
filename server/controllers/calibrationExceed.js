@@ -187,31 +187,39 @@ const getAllExceedData = async (req, res) => {
 
 const getAUserExceedData = async (req, res) => {
     try {
-        const { userName, industryType, companyName, fromDate, toDate } = req.query;
+        const { userName, industryType, companyName, fromDate, toDate, stackName } = req.query;
 
         // Construct the query object
         let query = {};
 
-        if (userName) {
-            query.userName = userName;
+        if (userName) query.userName = decodeURIComponent(userName.trim());
+        if (industryType) query.industryType = industryType;
+        if (companyName) query.companyName = companyName;
+
+        // Corrected: Querying 'stackName' directly since it's not inside 'stackData'
+        if (stackName) query.stackName = decodeURIComponent(stackName.trim());
+
+        // Parse the dates correctly to ensure proper querying
+        const parsedFromDate = moment(fromDate, 'DD-MM-YYYY').startOf('day').utc().toDate();
+        const parsedToDate = moment(toDate, 'DD-MM-YYYY').endOf('day').utc().toDate();
+
+        // Validate the parsed dates
+        if (!parsedFromDate || !parsedToDate) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid date format. Use DD-MM-YYYY format.'
+            });
         }
 
-        if (industryType) {
-            query.industryType = industryType;
-        }
+        // Add the date range to the query
+        query.timestamp = {
+            $gte: parsedFromDate,
+            $lte: parsedToDate
+        };
 
-        if (companyName) {
-            query.companyName = companyName;
-        }
+        console.log('Query:', query); // Debugging query object
 
-        if (fromDate && toDate) {
-            query.timestamp = {
-                $gte: new Date(fromDate),
-                $lte: new Date(toDate)
-            };
-        }
-
-        // Fetch and sort the data with allowDiskUse
+        // Fetch and sort the data
         const comments = await CalibrationExceed.find(query)
             .sort({ timestamp: -1 })
             .allowDiskUse(true);
@@ -229,6 +237,7 @@ const getAUserExceedData = async (req, res) => {
             comments: comments
         });
     } catch (error) {
+        console.error('Error retrieving data:', error);
         res.status(500).json({
             success: false,
             message: 'Failed to retrieve the comments',
@@ -236,6 +245,9 @@ const getAUserExceedData = async (req, res) => {
         });
     }
 };
+
+
+
   
 const getExceedDataByUserName = async(req,res)=>{
     try {
@@ -261,11 +273,14 @@ const getExceedDataByUserName = async(req,res)=>{
     }
 } 
   
+
+
 const handleExceedValues = async () => {
     try {
         // Fetch the latest IoT data entry
         const latestData = await IotData.findOne().sort({ timestamp: -1 });
         console.log('latestData:', latestData);
+        
         if (!latestData) {
             console.error('No IoT data found');
             return;
@@ -295,66 +310,81 @@ const handleExceedValues = async () => {
                 return;
             }
 
-            // Define parameters to be checked
-const exceedParameters = [
-    { parameter: 'ph', value: latestData.ph, aboveThreshold: industryThresholds.phAbove, belowThreshold: industryThresholds.phBelow },
-    { parameter: 'turbidity', value: latestData.turbidity, threshold: industryThresholds.turbidity },
-    { parameter: 'ORP', value: latestData.ORP, threshold: industryThresholds.ORP },
-    { parameter: 'TDS', value: latestData.TDS, threshold: industryThresholds.TDS },
-    { parameter: 'temperature', value: latestData.temperature, threshold: industryThresholds.temperature },
-    { parameter: 'BOD', value: latestData.BOD, threshold: industryThresholds.BOD },
-    { parameter: 'COD', value: latestData.COD, threshold: industryThresholds.COD },
-    { parameter: 'TSS', value: latestData.TSS, threshold: industryThresholds.TSS },
-    { parameter: 'PM', value: latestData.PM, threshold: industryThresholds.PM },
-    { parameter: 'nitrate', value: latestData.nitrate, threshold: industryThresholds.nitrate },
-    { parameter: 'ammonicalNitrogen', value: latestData.ammonicalNitrogen, threshold: industryThresholds.ammonicalNitrogen },
-    { parameter: 'DO', value: latestData.DO, threshold: industryThresholds.DO },
-    { parameter: 'chloride', value: latestData.chloride, threshold: industryThresholds.chloride },
-    { parameter: 'SO2', value: latestData.SO2, threshold: industryThresholds.SO2 },
-    { parameter: 'NO2', value: latestData.NO2, threshold: industryThresholds.NO2 },
-    { parameter: 'Mercury', value: latestData.Mercury, threshold: industryThresholds.Mercury },
-    { parameter: 'PM10', value: latestData.PM10, threshold: industryThresholds.PM10 },
-    { parameter: 'PM25', value: latestData.PM25, threshold: industryThresholds.PM25 },
-    { parameter: 'NOH', value: latestData.NOH, threshold: industryThresholds.NOH },
-    { parameter: 'NH3', value: latestData.NH3, threshold: industryThresholds.NH3 },
-    { parameter: 'WindSpeed', value: latestData.WindSpeed, threshold: industryThresholds.WindSpeed },
-    { parameter: 'WindDir', value: latestData.WindDir, threshold: industryThresholds.WindDir },
-    { parameter: 'AirTemperature', value: latestData.AirTemperature, threshold: industryThresholds.AirTemperature },
-    { parameter: 'Humidity', value: latestData.Humidity, threshold: industryThresholds.Humidity },
-    { parameter: 'solarRadiation', value: latestData.solarRadiation, threshold: industryThresholds.solarRadiation },
-    { parameter: 'DB', value: latestData.DB, threshold: industryThresholds.DB },
-    { parameter: 'inflow', value: latestData.inflow, threshold: industryThresholds.inflow },
-    { parameter: 'finalflow', value: latestData.finalflow, threshold: industryThresholds.finalflow },
-    { parameter: 'energy', value: latestData.energy, threshold: industryThresholds.energy },
-    // Add other parameters if needed
-  ];
-  
-
-            // Check if any parameter exceeds the threshold
             const exceedances = [];
-            for (const { parameter, value, aboveThreshold, belowThreshold, threshold } of exceedParameters) {
-                if ((aboveThreshold && value >= aboveThreshold) || (belowThreshold && value <= belowThreshold) || (threshold && value >= threshold)) {
-                    console.log(`Exceed detected for parameter: ${parameter}, value: ${value}, user: ${user.userName}`);
-                    exceedances.push({ parameter, value });
+
+            // Iterate through each stack in stackData
+            for (const stack of latestData.stackData) {
+                console.log(`Checking stack: ${stack.stackName}`);
+
+                // Define the parameters to be checked for this stack
+                const exceedParameters = [
+                    { parameter: 'ph', value: stack.ph, aboveThreshold: industryThresholds.phAbove, belowThreshold: industryThresholds.phBelow },
+                    { parameter: 'turbidity', value: stack.turbidity, threshold: industryThresholds.turbidity },
+                    { parameter: 'ORP', value: stack.ORP, threshold: industryThresholds.ORP },
+                    { parameter: 'TDS', value: stack.TDS, threshold: industryThresholds.TDS },
+                    { parameter: 'temperature', value: stack.temperature, threshold: industryThresholds.temperature },
+                    { parameter: 'BOD', value: stack.BOD, threshold: industryThresholds.BOD },
+                    { parameter: 'COD', value: stack.COD, threshold: industryThresholds.COD },
+                    { parameter: 'TSS', value: stack.TSS, threshold: industryThresholds.TSS },
+                    { parameter: 'PM', value: stack.PM, threshold: industryThresholds.PM },
+                    { parameter: 'nitrate', value: stack.nitrate, threshold: industryThresholds.nitrate },
+                    { parameter: 'ammonicalNitrogen', value: stack.ammonicalNitrogen, threshold: industryThresholds.ammonicalNitrogen },
+                    { parameter: 'DO', value: stack.DO, threshold: industryThresholds.DO },
+                    { parameter: 'chloride', value: stack.chloride, threshold: industryThresholds.chloride },
+                    { parameter: 'SO2', value: stack.SO2, threshold: industryThresholds.SO2 },
+                    { parameter: 'NO2', value: stack.NO2, threshold: industryThresholds.NO2 },
+                    { parameter: 'Mercury', value: stack.Mercury, threshold: industryThresholds.Mercury },
+                    { parameter: 'PM10', value: stack.PM10, threshold: industryThresholds.PM10 },
+                    { parameter: 'PM25', value: stack.PM25, threshold: industryThresholds.PM25 },
+                    { parameter: 'NOH', value: stack.NOH, threshold: industryThresholds.NOH },
+                    { parameter: 'NH3', value: stack.NH3, threshold: industryThresholds.NH3 },
+                    { parameter: 'WindSpeed', value: stack.WindSpeed, threshold: industryThresholds.WindSpeed },
+                    { parameter: 'WindDir', value: stack.WindDir, threshold: industryThresholds.WindDir },
+                    { parameter: 'AirTemperature', value: stack.AirTemperature, threshold: industryThresholds.AirTemperature },
+                    { parameter: 'Humidity', value: stack.Humidity, threshold: industryThresholds.Humidity },
+                    { parameter: 'solarRadiation', value: stack.solarRadiation, threshold: industryThresholds.solarRadiation },
+                    { parameter: 'DB', value: stack.DB, threshold: industryThresholds.DB },
+                    { parameter: 'inflow', value: stack.inflow, threshold: industryThresholds.inflow },
+                    { parameter: 'finalflow', value: stack.finalflow, threshold: industryThresholds.finalflow },
+                    { parameter: 'energy', value: stack.energy, threshold: industryThresholds.energy }
+                ];
+
+                // Check each parameter for exceedances
+                for (const { parameter, value, aboveThreshold, belowThreshold, threshold } of exceedParameters) {
+                    if (value === null || value === undefined) continue;
+
+                    // Special case for 'ph' with above/below thresholds
+                    if (parameter === 'ph' && 
+                        ((aboveThreshold && value >= aboveThreshold) || (belowThreshold && value <= belowThreshold))) {
+                        console.log(`Exceed detected for ${parameter}: ${value} in ${stack.stackName}`);
+                        exceedances.push({ parameter, value, stackName: stack.stackName });
+                    }
+                    // General case for parameters with a single threshold
+                    else if (threshold && value >= threshold) {
+                        console.log(`Exceed detected for ${parameter}: ${value} in ${stack.stackName}`);
+                        exceedances.push({ parameter, value, stackName: stack.stackName });
+                    }
                 }
             }
 
-            // Save all exceedances and send notifications
+            // Save exceedances and send notifications
             for (const exceed of exceedances) {
-                await saveExceedValue(exceed.parameter, exceed.value, user);
-                await sendNotification(exceed.parameter, exceed.value, user);
+                await saveExceedValue(exceed.parameter, exceed.value, user, exceed.stackName);
+                await sendNotification(exceed.parameter, exceed.value, user, exceed.stackName);
             }
-        } 
+        }
 
         console.log('Exceed values handled successfully');
     } catch (error) {
         console.error('Error handling exceed values:', error);
     }
 };
+
+
    
-const sendNotification = async (parameter, value, user) => {
+const sendNotification = async (parameter, value, user,stackName) => {
     try {
-        const message = `Your calibration for ${parameter} exceeds the threshold. The value is ${value} for userId ${user._id} and userName ${user.userName}`;
+        const message = `Your calibration for ${parameter} exceeds the threshold. The value is ${value} for company ${user.companyName} and userName ${user.userName} and station Name ${stackName}`;
         const currentDate = moment().format('DD/MM/YYYY');
         const currentTime = moment().format('HH:mm:ss');
 
@@ -380,7 +410,7 @@ const sendNotification = async (parameter, value, user) => {
     }
 };
  
-const saveExceedValue = async (parameter, value, user) => {
+const saveExceedValue = async (parameter, value, user,stackName) => {
     try {
         console.log(`Saving exceed value for parameter: ${parameter}, value: ${value}, user:`, user);
 
@@ -399,6 +429,7 @@ const saveExceedValue = async (parameter, value, user) => {
             formattedTime: currentTime,
             message: `Value Exceed in ${parameter} of ${value} for userId ${user.userName}`,
             userName: user.userName,
+            stackName,
             industryType: user.industryType,
             companyName: user.companyName,
             commentByUser: 'N/A',

@@ -33,7 +33,7 @@ const server = http.createServer(app);
 
 const io = socketIO(server, {
     cors: {
-        origin: ['https://ocems.ebhoom.com','https://api.ocems.ebhoom.com','https://new.ocems.ebhoom.com','http://localhost:3000'], // Include other origins as needed
+        origin: ['https://ocems.ebhoom.com','https://api.ocems.ebhoom.com','https://new.ocems.ebhoom.com','http://localhost:3000','http://localhost:3001'], // Include other origins as needed
         methods: ["GET", "POST","PUT","PATCH","DELETE"],
         credentials: true
     }
@@ -44,7 +44,7 @@ DB();
 
 // Middleware
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://ocems.ebhoom.com', 'https://new.ocems.ebhoom.com', 'http://13.233.106.171:5555','https://ocems.ebhoom.com','https://api.ocems.ebhoom.com'],
+    origin: ['http://localhost:3000',  'https://new.ocems.ebhoom.com','https://ocems.ebhoom.com','https://api.ocems.ebhoom.com','http://localhost:3001'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT','PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
