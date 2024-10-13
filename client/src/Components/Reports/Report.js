@@ -161,7 +161,7 @@ const Report = () => {
                           <th>To Date</th>
                           <th>Username</th>
                           <th>Company Name</th>
-                          <th>Stack Name</th>
+                          <th>Station Name</th>
                           <th>Industry Type</th>
                           <th>Engineer Name</th>
                           <th>Verified/Declined</th>

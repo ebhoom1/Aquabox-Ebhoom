@@ -195,7 +195,7 @@ const ValidateData = () => {
                   </select>
                 </div>
                 <div className="col-lg-6 col-md-6 mb-3">
-                  <label>Stack Name</label>
+                  <label>Station Name</label>
                   <select
                     className="input-field"
                     onChange={(e) => setStackName(e.target.value)}

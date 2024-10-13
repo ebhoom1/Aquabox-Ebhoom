@@ -108,7 +108,7 @@ const CalibrationExceededReport = () => {
                   <p><strong>Industry:</strong> {industry}</p>
                   <p><strong>Company:</strong> {company}</p>
                   <p><strong>User Name:</strong> {userName}</p>
-                  <p><strong>Stack Name:</strong>{stackName}</p>
+                  <p><strong>Station Name:</strong>{stackName}</p>
                 </div>
                 
                 <div className="table-responsive">

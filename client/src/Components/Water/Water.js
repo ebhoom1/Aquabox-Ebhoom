@@ -139,7 +139,7 @@ const Water = () => {
           <div className="col-md-4">
             {searchResult?.stackData && searchResult.stackData.length > 0 && (
               <div className="stack-dropdown">
-                <label htmlFor="stackSelect" className="label-select">Select Stack:</label>
+                <label htmlFor="stackSelect" className="label-select">Select Station:</label>
                 <div className="styled-select-wrapper">
                   <select
                     id="stackSelect"

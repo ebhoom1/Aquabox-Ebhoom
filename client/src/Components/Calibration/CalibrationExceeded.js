@@ -99,7 +99,7 @@ const CalibrationExceeded = () => {
                     <tr>
                       <th>SI.No</th>
                       <th>User ID</th>
-                      <th>Stack Name</th>
+                      <th>Station Name</th>
                       <th>Exceeded Parameter</th>
                       <th>Value</th>
                       <th>Date</th>

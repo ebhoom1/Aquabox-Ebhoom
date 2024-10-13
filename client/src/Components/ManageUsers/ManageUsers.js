@@ -594,7 +594,7 @@ const AddStackName = () => {
                   value={stackName}
                   onChange={(e) => handleStackNameChange(index, e)}
                   className="input-field"
-                  placeholder="Enter Stack Name"
+                  placeholder="Enter Station Name"
                 />
                 {index > 0 && (
                   <button

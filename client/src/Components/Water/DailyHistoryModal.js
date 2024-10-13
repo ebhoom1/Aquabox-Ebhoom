@@ -171,7 +171,7 @@ const DailyHistoryModal = ({ isOpen, onRequestClose }) => {
           </div>
         )}
         <div className="form-group">
-          <label>Stack Name</label>
+          <label>Station Name</label>
           <select
             className="form-control"
             value={stackName}

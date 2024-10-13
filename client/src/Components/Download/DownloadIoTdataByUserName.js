@@ -114,7 +114,7 @@ const DownloadIoTdataByUserName = () => {
                                     </select>
                                 </div>
                                 <div className="col-lg-6 col-md-6 mb-3">
-                                    <label>Select Stack Name</label>
+                                    <label>Select Station Name</label>
                                     <select
                                         className="input-field"
                                         value={stackName}
