@@ -215,6 +215,15 @@ const checkRequiredFields = (data, requiredFields) => {
 const handleSaveMessage = async (req, res) => {
     const data = req.body;
 
+     // Check for missing required fields
+     const requiredFields = ['product_id', 'companyName', 'industryType', 'userName', 'mobileNumber', 'email'];
+     const requiredFieldsCheck = checkRequiredFields(data, requiredFields);
+
+
+    if (!requiredFieldsCheck.success) {
+        return res.status(400).json(requiredFieldsCheck);
+    }
+
     // Check if 'stackData' field is provided instead of 'stacks'
     const stacks = data.stacks || data.stackData; 
 
@@ -227,13 +236,15 @@ const handleSaveMessage = async (req, res) => {
             missingFields: ['stacks'],
         });
     }
-
+// Adjust to your local timezone
+const time = moment().tz('Asia/Kolkata').format('HH:mm:ss');
+const timestamp = moment().tz('Asia/Kolkata').toDate();
     try {
         const newEntry = new IotData({
             product_id: data.product_id,
             stackData: stacks, // Save stacks directly
             date: moment().format('DD/MM/YYYY'),
-            time: data.time || moment().format('HH:mm:ss'),
+            time: time,
             companyName: data.companyName,
             industryType: data.industryType,
             userName: data.userName,

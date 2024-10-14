@@ -17,6 +17,7 @@ const reportRoutes = require('./routers/report');
 const paymentRoutes = require('./routers/payment');
 const liveVideoRoutes = require('./routers/liveVideo');
 const chatRoutes = require('./routers/chatRoutes');
+const sensorRoute = require('./routers/sensorRoutes')
 
 const { calculateAndSaveDailyDifferences } = require('./controllers/iotData');
 const { getAllDeviceCredentials } = require('./controllers/user');
@@ -73,6 +74,7 @@ app.use('/api', reportRoutes);
 app.use('/api', paymentRoutes);
 app.use('/api', liveVideoRoutes);
 app.use('/api', chatRoutes);
+app.use('/api',sensorRoute);
 
 // WebSockets for real-time chat
 io.on('connection', (socket) => {
