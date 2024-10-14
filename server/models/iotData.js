@@ -35,12 +35,12 @@ const StackSchema = new mongoose.Schema({
     Humidity: { type: String },
     solarRadiation: { type: String },
     DB: { type: String },
-    inflow: { type: Number, default: 0 },
-    finalflow: { type: Number, default: 0 },
-    energy: { type: Number, default: 0 },
-    voltage: { type: Number, default: 0 },
-    current: { type: Number, default: 0 },
-    power: { type: Number, default: 0 },
+    inflow: { type: Number,  }, //default: 0
+    finalflow: { type: Number,  }, //default: 0
+    energy: { type: Number,  }, //default: 0
+    voltage: { type: Number,  }, //default: 0
+    current: { type: Number,  }, //default: 0
+    power: { type: Number,  }, //default: 0
 });
 
 // IoT Data Schema to store all incoming data
