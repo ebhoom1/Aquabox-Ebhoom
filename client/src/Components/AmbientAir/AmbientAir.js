@@ -28,18 +28,24 @@ const AmbientAir = () => {
   const fetchData = async (userName) => {
     setLoading(true);
     try {
-      const result = await dispatch(fetchLatestIotData(userName)).unwrap();
-      setSearchResult(result);
-      setCompanyName(result?.companyName || "Unknown Company");
-      setSearchError("");
+        const result = await dispatch(fetchLatestIotData(userName)).unwrap();
+        
+        // Filter out stacks with "effluent" in the name
+        const filteredStackData = result.stackData?.filter(
+            stack => !stack.stackName.toLowerCase().includes("effluent")
+        );
+
+        setSearchResult({ ...result, stackData: filteredStackData });
+        setCompanyName(result?.companyName || "Unknown Company");
+        setSearchError("");
     } catch (err) {
-      setSearchResult(null);
-      setCompanyName("Unknown Company");
-      setSearchError(err.message || 'No Result found for this userID');
+        setSearchResult(null);
+        setCompanyName("Unknown Company");
+        setSearchError(err.message || 'No Result found for this userID');
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
 
   useEffect(() => {
     if (searchTerm) {
@@ -113,6 +119,9 @@ const AmbientAir = () => {
     { parameter: "Temperature", value: '℃', name: "AirTemperature" },
     { parameter: "Humidity", value: '%', name: "Humidity" },
     { parameter: "Solar Radiation", value: 'w/m²', name: "solarRadiation" },
+    { parameter: "Fluoride", value: "", name: "Fluoride" },
+    {parameter: "NH3", value: "", name: "NH3"},
+
   ];
 
   return (

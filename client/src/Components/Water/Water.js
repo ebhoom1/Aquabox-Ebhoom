@@ -101,6 +101,8 @@ const Water = () => {
     {parameter:"Totalizer_Flow", value:'/', name:'Totalizer_Flow'},
     { parameter: "Chloride", value: 'mmol/l', name: 'chloride' },
     { parameter: "Colour", value: 'color', name: 'color' },
+    { parameter: "Fluoride", value: "", name: "Fluoride" },
+
   ];
 
   return (
