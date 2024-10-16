@@ -257,7 +257,9 @@ const timestamp = moment().tz('Asia/Kolkata').toDate();
 
         await newEntry.save();
         console.log('New Entry:', newEntry);
-
+ 
+        // Call handleExceedValues after saving the new IoT data entry
+      await handleExceedValues();
         res.status(200).json({
             success: true,
             message: 'New Entry data saved successfully',

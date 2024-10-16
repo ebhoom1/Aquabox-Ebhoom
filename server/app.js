@@ -17,11 +17,10 @@ const reportRoutes = require('./routers/report');
 const paymentRoutes = require('./routers/payment');
 const liveVideoRoutes = require('./routers/liveVideo');
 const chatRoutes = require('./routers/chatRoutes');
-const sensorRoute = require('./routers/sensorRoutes')
 
 const { calculateAndSaveDailyDifferences } = require('./controllers/iotData');
 const { getAllDeviceCredentials } = require('./controllers/user');
-const { initializeMqttClients } = require('./mqtt/mqtt-socket');
+const {initializeMqttClients} = require('./mqtt/mqtt-mosquitto');
 const http = require('http');
 const socketIO = require('socket.io');
 const cron = require('node-cron');
@@ -74,7 +73,6 @@ app.use('/api', reportRoutes);
 app.use('/api', paymentRoutes);
 app.use('/api', liveVideoRoutes);
 app.use('/api', chatRoutes);
-app.use('/api',sensorRoute);
 
 // WebSockets for real-time chat
 io.on('connection', (socket) => {
@@ -127,10 +125,18 @@ cron.schedule('59 23 * * *', async () => {
 });
 
 // Initialize all MQTT clients at server startup
-server.listen(port, () => {
+server.listen(port, async () => {
     console.log(`Server running on port ${port}`);
-    initializeMqttClients(io, getAllDeviceCredentials);
+
+    // Initialize the MQTT client when the server starts
+    try {
+        await initializeMqttClients(io);
+        console.log('MQTT clients initialized successfully');
+    } catch (error) {
+        console.error('Failed to initialize MQTT clients:', error);
+    }
 });
+
 
 // Error handling middleware
 app.use((err, req, res, next) => {

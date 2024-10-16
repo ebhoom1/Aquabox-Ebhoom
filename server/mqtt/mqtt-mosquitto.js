@@ -1,6 +1,4 @@
 const mqtt = require('mqtt');
-const path = require('path');
-const fs = require('fs');
 const axios = require('axios');
 const moment = require('moment');
 const userdb = require('../models/user'); // Import user schema
@@ -8,32 +6,34 @@ const userdb = require('../models/user'); // Import user schema
 const MAX_RETRIES = 5;
 const RETRY_DELAY = 5000; // 5 seconds
 
-const KEY = path.resolve(__dirname, './creds/ebhoom-v1-device-private.pem.key');
-const CERT = path.resolve(__dirname, './creds/ebhoom-v1-device-certificate.pem.crt');
-const CAfile = path.resolve(__dirname, './creds/ebhoom-v1-device-AmazonRootCA1.pem');
+// Mosquitto MQTT connection options
+const options = {
+    host: '13.201.137.182',  // Your EC2 public IP for Mosquitto broker
+    port: 1883,              // Default MQTT port
+    clientId: 'EbhoomSubscriber',
+    protocol: 'mqtt',         // Use 'mqtt' protocol
+    keepalive: 30,            // Keep connection alive for 30 seconds
+    clean: true,              // Clean session
+};
 
-// Setup MQTT client
 const setupMqttClient = (io, retries = 0) => {
-    const options = {
-        host: "a3gtwu0ec0i4y6-ats.iot.ap-south-1.amazonaws.com",
-        protocol: 'mqtts',
-        keepalive: 30,
-        clientId: "Ebhoom2023",
-        clean: true,
-        key: fs.readFileSync(KEY),
-        cert: fs.readFileSync(CERT),
-        ca: fs.readFileSync(CAfile),
-    };
-
     const client = mqtt.connect(options);
 
+    // On successful connection
     client.on('connect', () => {
         console.log('Connected to MQTT broker');
+
+        // Subscribe to the `ebhoomPub` topic
         client.subscribe('ebhoomPub', (err) => {
-            if (err) console.error('Subscription error:', err);
+            if (err) {
+                console.error('Subscription error:', err);
+            } else {
+                console.log('Subscribed to topic: ebhoomPub');
+            }
         });
     });
 
+    // On receiving a message
     client.on('message', async (topic, message) => {
         try {
             console.log('Received message on topic:', topic);
@@ -45,7 +45,9 @@ const setupMqttClient = (io, retries = 0) => {
                 console.error('Received data is not an array.');
                 return;
             }
-
+                // Adjust to your local timezone
+                const time = moment().tz('Asia/Kolkata').format('HH:mm:ss');
+                const timestamp = moment().tz('Asia/Kolkata').toDate();
             for (const item of data) {
                 const { product_id, userName, stacks } = item;
 
@@ -84,7 +86,7 @@ const setupMqttClient = (io, retries = 0) => {
                         ),
                     })),
                     date: moment().format('DD/MM/YYYY'),
-                    time: item.time || moment().format('HH:mm:ss'),
+                    time: time,
                     validationStatus: 'Valid',
                     validationMessage: 'Validated',
                     timestamp: new Date(),
@@ -101,12 +103,20 @@ const setupMqttClient = (io, retries = 0) => {
         }
     });
 
+    // Handle connection errors
     client.on('error', (err) => {
         console.error('MQTT error:', err);
         if (retries < MAX_RETRIES) {
             console.log(`Retrying connection in ${RETRY_DELAY / 1000} seconds...`);
             setTimeout(() => setupMqttClient(io, retries + 1), RETRY_DELAY);
+        } else {
+            client.end();
         }
+    });
+
+    // Handle disconnection
+    client.on('close', () => {
+        console.log('Disconnected from broker');
     });
 
     return client;

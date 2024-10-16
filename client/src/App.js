@@ -48,7 +48,6 @@ import CustomBanner from './Components/InstallPrompt/CustomBanner'
 import DownloadIoTdataByUserName from './Components/Download/DownloadIoTdataByUserName';
 import ChatApp from './Components/Chat/ChatApp';
 import ViewComponent from './Components/Water/ViewComponent';
-import SensorGraph from './Components/Water/SensorGraph';
 
 
 function App() {
@@ -128,7 +127,6 @@ function App() {
                 <Route path="/live-video" element={<LiveVideo />} />
                 <Route path="/chat" element={<ChatApp />} />
                 <Route path="/view-data" element={<ViewComponent />} />
-                <Route path='/view-graph'element ={<SensorGraph/>}/>
                 {/* <Route path = "/*" element={<Error/>}/> */}
               </>
             )}
