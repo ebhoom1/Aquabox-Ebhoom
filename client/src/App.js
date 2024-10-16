@@ -48,7 +48,7 @@ import CustomBanner from './Components/InstallPrompt/CustomBanner'
 import DownloadIoTdataByUserName from './Components/Download/DownloadIoTdataByUserName';
 import ChatApp from './Components/Chat/ChatApp';
 import ViewComponent from './Components/Water/ViewComponent';
-
+  
 
 function App() {
   const dispatch = useDispatch();

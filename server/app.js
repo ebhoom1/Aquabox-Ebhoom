@@ -33,7 +33,7 @@ const server = http.createServer(app);
 
 const io = socketIO(server, {
     cors: {
-        origin: ['https://ocems.ebhoom.com','https://api.ocems.ebhoom.com','https://new.ocems.ebhoom.com','http://localhost:3000','http://localhost:3001'], // Include other origins as needed
+        origin: ['https://ocems.ebhoom.com','https://api.ocems.ebhoom.com','https://new.ocems.ebhoom.com','http://localhost:3000'], // Include other origins as needed
         methods: ["GET", "POST","PUT","PATCH","DELETE"],
         credentials: true
     }
@@ -44,7 +44,7 @@ DB();
 
 // Middleware
 app.use(cors({
-    origin: ['http://localhost:3000',  'https://new.ocems.ebhoom.com','https://ocems.ebhoom.com','https://api.ocems.ebhoom.com','http://localhost:3001'],
+    origin: ['http://localhost:3000',  'https://new.ocems.ebhoom.com','https://ocems.ebhoom.com','https://api.ocems.ebhoom.com'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT','PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -136,7 +136,10 @@ server.listen(port, async () => {
         console.error('Failed to initialize MQTT clients:', error);
     }
 });
-
+app.get('/cors-test', (req, res) => {
+    res.set('Access-Control-Allow-Origin', '*');
+    res.send('CORS is working!');
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {

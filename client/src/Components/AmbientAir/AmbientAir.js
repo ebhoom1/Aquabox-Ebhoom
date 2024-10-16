@@ -104,12 +104,12 @@ const AmbientAir = () => {
   };
 
   const airParameters = [
-    { parameter: "Flow", value: 'm/s', name: "Flow" },
+    { parameter: "Flow", value: 'm3/hr', name: "Flow" },
     { parameter: "CO", value: 'µg/Nm³', name: "CO" },
     { parameter: "NOX", value: 'µg/Nm³', name: "NOX" },
     { parameter: "Pressure", value: 'Pa', name: "Pressure" },
     { parameter: "PM", value: 'µg/m³', name: "PM" },
-    { parameter: "SO2", value: 'µg/m³', name: "SO2" },
+    { parameter: "SO2", value: 'mg/Nm3', name: "SO2" },
     { parameter: "NO2", value: 'µg/m³', name: "NO2" },
     { parameter: "Mercury", value: 'µg/m³', name: "Mercury" },
     { parameter: "PM 10", value: 'µg/m³', name: "PM10" },
@@ -119,8 +119,13 @@ const AmbientAir = () => {
     { parameter: "Temperature", value: '℃', name: "AirTemperature" },
     { parameter: "Humidity", value: '%', name: "Humidity" },
     { parameter: "Solar Radiation", value: 'w/m²', name: "solarRadiation" },
-    { parameter: "Fluoride", value: "", name: "Fluoride" },
-    {parameter: "NH3", value: "", name: "NH3"},
+    { parameter: "Fluoride", value: "mg/Nm3", name: "Fluoride" },
+    {parameter: "NH3", value: "mg/Nm3", name: "NH3"},
+    { parameter: "pH", value: 'pH', name: 'ph' },
+    { parameter: "Ammonical Nitrogen", value: 'mg/l', name: 'ammonicalNitrogen' },
+    {parameter:"Totalizer_Flow", value:'m3/Day', name:'Totalizer_Flow'},
+
+
 
   ];
 

@@ -87,7 +87,7 @@ const Water = () => {
   };
 
   const waterParameters = [
-    { parameter: "Ph", value: 'pH', name: 'ph' },
+    { parameter: "pH", value: 'pH', name: 'ph' },
     { parameter: "TDS", value: 'mg/l', name: 'TDS' },
     { parameter: "Turbidity", value: 'NTU', name: 'turbidity' },
     { parameter: "Temperature", value: '℃', name: 'temperature' },
@@ -98,10 +98,11 @@ const Water = () => {
     { parameter: "Nitrate", value: 'mg/l', name: 'nitrate' },
     { parameter: "Ammonical Nitrogen", value: 'mg/l', name: 'ammonicalNitrogen' },
     { parameter: "DO", value: 'mg/l', name: 'DO' },
-    {parameter:"Totalizer_Flow", value:'/', name:'Totalizer_Flow'},
+    {parameter:"Totalizer_Flow", value:'m3/Day', name:'Totalizer_Flow'},
     { parameter: "Chloride", value: 'mmol/l', name: 'chloride' },
     { parameter: "Colour", value: 'color', name: 'color' },
-    { parameter: "Fluoride", value: "", name: "Fluoride" },
+    { parameter: "Fluoride", value: "mg/Nm3", name: "Fluoride" },
+    { parameter: "Flow", value: 'm3/hr', name: "Flow" },
 
   ];
 
