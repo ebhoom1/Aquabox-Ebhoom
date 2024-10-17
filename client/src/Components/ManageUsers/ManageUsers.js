@@ -481,54 +481,56 @@ const AddStackName = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Local state for companyName and stackNames
   const [selectedCompany, setSelectedCompany] = useState('');
-  const [stackNames, setStackNames] = useState(['']);
+  const [stacks, setStacks] = useState([{ stackName: '', stationType: '' }]);
 
-  // Fetch users from the Redux store
   const { users, selectedUser, loading, error } = useSelector((state) => state.userLog);
 
-  // Fetch all users when the component mounts
   useEffect(() => {
     dispatch(fetchUsers());
   }, [dispatch]);
 
-  // Handle stackName input changes
-  const handleStackNameChange = (index, event) => {
-    const newStackNames = [...stackNames];
-    newStackNames[index] = event.target.value;
-    setStackNames(newStackNames);
+  const handleInputChange = (index, field, value) => {
+    const newStacks = [...stacks];
+    newStacks[index][field] = value;
+    setStacks(newStacks);
   };
 
-  // Add more input fields for stackNames
   const handleAddInput = () => {
-    setStackNames([...stackNames, '']);
+    setStacks([...stacks, { stackName: '', stationType: '' }]);
   };
 
-  // Remove a stackName input field
   const handleRemoveInput = (index) => {
-    const newStackNames = stackNames.filter((_, idx) => idx !== index);
-    setStackNames(newStackNames);
+    const newStacks = stacks.filter((_, idx) => idx !== index);
+    setStacks(newStacks);
   };
 
-  // Handle company selection from the dropdown
   const handleCompanyChange = async (event) => {
     const companyName = event.target.value;
     setSelectedCompany(companyName);
 
     if (companyName) {
-      // Fetch the selected user data to get the existing stack names
-      const result = await dispatch(fetchUserByCompanyName(companyName)).unwrap();
-      
-      if (result.stackName && result.stackName.length > 0) {
-        setStackNames(result.stackName); // Pre-fill with existing stack names
-      } else {
-        setStackNames(['']); // Empty input if no stack names exist
+      try {
+        const result = await dispatch(fetchUserByCompanyName(companyName)).unwrap();
+        console.log('Fetched User:', result);
+
+        if (result.stackName && Array.isArray(result.stackName)) {
+          const formattedStacks = result.stackName.map((stack) => ({
+            stackName: stack.name || '',
+            stationType: stack.stationType || '',
+          }));
+          setStacks(formattedStacks);
+        } else {
+          setStacks([{ stackName: '', stationType: '' }]);
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        toast.error('Failed to fetch user data.');
+        setStacks([{ stackName: '', stationType: '' }]);
       }
     }
   };
 
-  // Handle Save action
   const handleSave = async () => {
     if (!selectedCompany) {
       toast.error('Please select a company', { position: 'top-center' });
@@ -536,32 +538,40 @@ const AddStackName = () => {
     }
 
     try {
-      await dispatch(addStackName({ companyName: selectedCompany, stackName: stackNames })).unwrap();
-      toast.success('Stack Names added successfully', {
+      const stackData = stacks.map((stack) => ({
+        name: stack.stackName,
+        stationType: stack.stationType,
+      }));
+
+      console.log('Payload:', { companyName: selectedCompany, stackData });
+
+      await dispatch(
+        addStackName({
+          companyName: selectedCompany,
+          stackData,
+        })
+      ).unwrap();
+
+      toast.success('Stack Names and Station Types added successfully', {
         position: 'top-center',
-      autoClose: 2000,  // Closes after 3 seconds
-      hideProgressBar: false,
-      closeOnClick: true,
-       pauseOnHover: true,
-      draggable: true,
-       });
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     } catch (error) {
+      console.error('Error adding stack names:', error);
       toast.error('An error occurred. Please try again.', { position: 'top-center' });
     }
   };
 
-  // Handle Cancel action
   const handleCancel = () => {
-    navigate('/manage-users'); // Cancel and go back to Manage Users
+    navigate('/manage-users');
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message || JSON.stringify(error)}</div>;
 
   return (
     <div className="row">
@@ -569,14 +579,8 @@ const AddStackName = () => {
         <div className="card">
           <div className="card-body">
             <div className="d-flex justify-content-between align-items-center">
-              <h1>Add Stack Names</h1>
-
-              {/* Company name dropdown */}
-              <select
-                className="input-field"
-                value={selectedCompany}
-                onChange={handleCompanyChange}
-              >
+              <h1>Add Stack Names and Station Types</h1>
+              <select className="input-field" value={selectedCompany} onChange={handleCompanyChange}>
                 <option value="">Select Company</option>
                 {users.map((user) => (
                   <option key={user._id} value={user.companyName}>
@@ -586,42 +590,37 @@ const AddStackName = () => {
               </select>
             </div>
 
-            {/* Stack Name Inputs */}
-            {stackNames.map((stackName, index) => (
-              <div key={index} className="mb-3">
+            {stacks.map((stack, index) => (
+              <div key={index} className="mb-3 d-flex align-items-center">
                 <input
                   type="text"
-                  value={stackName}
-                  onChange={(e) => handleStackNameChange(index, e)}
-                  className="input-field"
-                  placeholder="Enter Station Name"
+                  value={stack.stackName}
+                  onChange={(e) => handleInputChange(index, 'stackName', e.target.value)}
+                  className="input-field mr-2"
+                  placeholder="Enter Stack Name"
+                />
+                <input
+                  type="text"
+                  value={stack.stationType}
+                  onChange={(e) => handleInputChange(index, 'stationType', e.target.value)}
+                  className="input-field mr-2"
+                  placeholder="Enter Station Type"
                 />
                 {index > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveInput(index)}
-                    className="btn btn-danger ml-2"
-                  >
+                  <button type="button" onClick={() => handleRemoveInput(index)} className="btn btn-danger">
                     -
                   </button>
                 )}
               </div>
             ))}
-            <button
-              type="button"
-              onClick={handleAddInput}
-              className="btn btn-secondary mb-2"
-            >
-              + Add Another Stack Name
+
+            <button type="button" onClick={handleAddInput} className="btn btn-secondary mb-2">
+              + Add Another Stack and Station Type
             </button>
 
             <div className="mt-4">
-              <button onClick={handleSave} className="btn btn-primary mb-2">
-                Save Stack Names
-              </button>
-              <button onClick={handleCancel} className="btn btn-danger mb-2 ml-2">
-                Cancel
-              </button>
+              <button onClick={handleSave} className="btn btn-primary mb-2">Save</button>
+              <button onClick={handleCancel} className="btn btn-danger mb-2 ml-2">Cancel</button>
             </div>
           </div>
         </div>
@@ -629,9 +628,6 @@ const AddStackName = () => {
     </div>
   );
 };
-
-
-
 
 
 const DeleteUsers = () => { 

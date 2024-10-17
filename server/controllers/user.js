@@ -61,26 +61,25 @@ const register = async (req, res) => {
 
 // Add or Update Stack Names for a user
 const updateStackName = async (req, res) => {
-    const { companyName } = req.params;  // Extract companyName from params
-    const { stackName } = req.body;  // Expect stackName to be an array of strings in the body
+    const { companyName } = req.params;
+    const { stackData } = req.body; // Expect stackData to be an array of objects [{ name, stationType }]
 
-    if (!Array.isArray(stackName)) {
-        return res.status(400).json({ status: 400, message: "stackName must be an array of strings" });
+    if (!Array.isArray(stackData)) {
+        return res.status(400).json({ status: 400, message: "stackData must be an array of objects" });
     }
 
     try {
-        // Find the user by companyName and update the stackName field
         const updatedUser = await userdb.findOneAndUpdate(
-            { companyName },  // Find user by companyName
-            { $set: { stackName } },  // Set stackName to the new value
-            { new: true }  // Return the updated document
+            { companyName },
+            { $set: { stackName: stackData } }, // Update the stackName field
+            { new: true }
         );
 
         if (!updatedUser) {
             return res.status(404).json({ status: 404, message: "User with the specified company name not found" });
         }
 
-        return res.status(200).json({ status: 200, user: updatedUser, message: "Stack names updated successfully" });
+        return res.status(200).json({ status: 200, user: updatedUser, message: "Stack names and station types updated successfully" });
     } catch (error) {
         return res.status(500).json({ status: 500, error: "Internal Server Error" });
     }
@@ -89,7 +88,7 @@ const updateStackName = async (req, res) => {
 
 
 // user login
-
+  
 const login = async (req, res) => {
     const { email, password, userType } = req.body;
 

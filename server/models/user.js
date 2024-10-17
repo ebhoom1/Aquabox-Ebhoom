@@ -16,7 +16,12 @@ const userSchema=new mongoose.Schema({
         
     },
     stackName: {
-        type: [String],  
+        type: [
+            {
+                name: String,  // Stack name
+                stationType: String  // Station type associated with the stack
+            }
+        ],  
         default: []
     },
     modelName:{

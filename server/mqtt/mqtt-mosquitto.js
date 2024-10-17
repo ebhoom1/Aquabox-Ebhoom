@@ -1,48 +1,55 @@
 const mqtt = require('mqtt');
 const axios = require('axios');
-const moment = require('moment-timezone'); // Ensure moment-timezone is used for correct timezones
+const moment = require('moment-timezone'); // Use moment-timezone for accurate timezones
 const userdb = require('../models/user'); // Import user schema
 
-const MAX_RETRIES = 5;
 const RETRY_DELAY = 5000; // 5 seconds
-let reconnectAttempts = 0;
-const MAX_RECONNECT_ATTEMPTS = 10;
 
-// Mosquitto MQTT connection options
+// MQTT Connection Options
 const options = {
     host: '3.110.40.48',
     port: 1883,
     clientId: `EbhoomSubscriber-${Math.random().toString(16).substr(2, 8)}`,
     protocol: 'mqtt',
     keepalive: 300,
-    reconnectPeriod: 5000, 
+    reconnectPeriod: RETRY_DELAY,
     clean: false,
     connectTimeout: 60000,
-    pingTimeout: 120000
+    pingTimeout: 120000,
 };
 
-const setupMqttClient = (io, retries = 0) => {
+// Setup MQTT Client
+const setupMqttClient = (io) => {
     const client = mqtt.connect(options);
 
     client.on('connect', () => {
         console.log('Connected to MQTT broker');
+
+        // Subscribe to the topic only on a successful connection
         client.subscribe('ebhoomPub', (err) => {
-            if (err) console.error('Subscription error:', err);
-            else console.log('Subscribed to topic: ebhoomPub');
+            if (err) {
+                console.error('Subscription error:', err);
+            } else {
+                console.log('Subscribed to topic: ebhoomPub');
+            }
         });
     });
 
+    // Handle Incoming Messages
     client.on('message', async (topic, message) => {
         try {
-            console.log('Received message on topic:', topic);
+            console.log(`Received message on topic: ${topic}`);
             const messageString = message.toString();
             console.log('Message:', messageString);
 
-            // Parse the incoming JSON message
-            let data = JSON.parse(messageString);
-
-            // Handle both array and object payloads
-            data = Array.isArray(data) ? data : [data];
+            let data;
+            try {
+                data = JSON.parse(messageString); // Try parsing JSON
+                data = Array.isArray(data) ? data : [data]; // Ensure it's an array
+            } catch (parseError) {
+                console.log('Invalid JSON. Treating message as plain string.');
+                data = [{ message: messageString }];
+            }
 
             const time = moment().tz('Asia/Kolkata').format('HH:mm:ss');
             const timestamp = moment().tz('Asia/Kolkata').toDate();
@@ -56,10 +63,13 @@ const setupMqttClient = (io, retries = 0) => {
                 }
 
                 const stackNames = stacks.map(stack => stack.stackName);
+
                 const userDetails = await userdb.findOne({
                     productID: product_id,
                     userName,
-                    stackName: { $in: stackNames }
+                    stackName: { 
+                        $elemMatch: { name: { $in: stackNames } } 
+                    },
                 });
 
                 if (!userDetails) {
@@ -78,13 +88,13 @@ const setupMqttClient = (io, retries = 0) => {
                         stackName: stack.stackName,
                         ...Object.fromEntries(
                             Object.entries(stack).filter(([key, value]) => key !== 'stackName' && value !== 'N/A')
-                        )
+                        ),
                     })),
                     date: moment().format('DD/MM/YYYY'),
-                    time: time,
+                    time,
                     validationStatus: 'Valid',
                     validationMessage: 'Validated',
-                    timestamp: new Date()
+                    timestamp: new Date(),
                 };
 
                 await axios.post('https://api.ocems.ebhoom.com/api/handleSaveMessage', payload);
@@ -97,35 +107,26 @@ const setupMqttClient = (io, retries = 0) => {
         }
     });
 
+    // Handle MQTT Errors
     client.on('error', (err) => {
         console.error('MQTT error:', err);
-        if (retries < MAX_RETRIES) {
-            console.log(`Retrying connection in ${RETRY_DELAY / 1000} seconds...`);
-            setTimeout(() => setupMqttClient(io, retries + 1), RETRY_DELAY);
-        } else {
-            client.end();
-        }
+        console.log('Attempting to reconnect...');
     });
 
+    // Handle Disconnections
     client.on('close', () => {
         console.warn(`Disconnected from broker at ${new Date().toLocaleString()}`);
-        if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
-            reconnectAttempts++;
-            console.log(`Reconnecting attempt ${reconnectAttempts} in 5 seconds...`);
-            setTimeout(() => client.reconnect(), 5000);
-        } else {
-            console.error('Max reconnect attempts reached. Exiting.');
-            client.end();
-        }
     });
 
+    // Reconnection Logic
     client.on('reconnect', () => {
-        console.log('Reconnecting to broker...');
+        console.log('Reconnecting to MQTT broker...');
     });
 
     return client;
 };
 
+// Initialize MQTT Clients at Server Startup
 const initializeMqttClients = async (io) => {
     try {
         setupMqttClient(io);

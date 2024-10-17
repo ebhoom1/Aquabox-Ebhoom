@@ -7,6 +7,7 @@ import CalibrationExceeded from '../Calibration/CalibrationExceeded';
 import { useOutletContext } from 'react-router-dom';
 import { Oval } from 'react-loader-spinner';
 import DailyHistoryModal from './DailyHistoryModal'; 
+import { API_URL } from "../../utils/apiConfig";
 
 const Water = () => {
   const dispatch = useDispatch();
@@ -23,6 +24,23 @@ const Water = () => {
   const [loading, setLoading] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [selectedStack, setSelectedStack] = useState("all");
+
+  const [effluentStacks, setEffluentStacks] = useState([]); // New state to store effluent stacks
+
+  // Fetch stack names and filter effluent stationType stacks
+  const fetchEffluentStacks = async (userName) => {
+    try {
+      const response = await fetch(`${API_URL}/api/get-stacknames-by-userName/${userName}`);
+      const data = await response.json(); // Make sure to parse the JSON
+      const effluentStacks = data.stackNames
+        .filter(stack => stack.stationType === 'effluent')
+        .map(stack => stack.name); // Use 'name' instead of 'stackName'
+      setEffluentStacks(effluentStacks);
+    } catch (error) {
+      console.error("Error fetching effluent stacks:", error);
+    }
+  };
+  
 
   const fetchData = async (userName) => {
     setLoading(true);
@@ -43,10 +61,13 @@ const Water = () => {
   useEffect(() => {
     if (searchTerm) {
       fetchData(searchTerm);
+      fetchEffluentStacks(searchTerm); // Fetch effluent stacks
     } else {
       fetchData(currentUserName);
+      fetchEffluentStacks(currentUserName); // Fetch effluent stacks
     }
   }, [searchTerm, currentUserName, dispatch]);
+
 
   const handleCardClick = (card) => {
     setSelectedCard(card);
@@ -191,47 +212,48 @@ const Water = () => {
           </div>
         )}
 
-        <div className="row">
-          {!loading && searchResult && searchResult.stackData && (
-            <>
-              {searchResult.stackData.map((stack, stackIndex) => (
-                (selectedStack === "all" || selectedStack === stack.stackName) && (
-                  <div key={stackIndex} className="col-12 mb-4">
-                    <div className="stack-box">
-                      <h4 className="text-center">{stack.stackName}</h4>
-                      <div className="row">
-                        {waterParameters.map((item, index) => {
-                          const value = stack[item.name];
-                          return value && value !== 'N/A' ? (
-                            <div className="col-12 col-md-4 grid-margin" key={index}>
-                              <div className="card" onClick={() => handleCardClick({ title: item.parameter })}>
-                                <div className="card-body">
-                                  <div className="row">
-                                    <div className="col-12">
-                                      <h3 className="mb-3">{item.parameter}</h3>
-                                    </div>
-                                    <div className="col-12 mb-3">
-                                      <h6>
-                                        <strong className="strong-value" style={{ color: '#236A80' }}>
-                                          {value}
-                                        </strong>
-                                        <span>{item.value}</span>
-                                      </h6>
-                                    </div>
+         <div className="row">
+        {!loading && searchResult && searchResult.stackData && (
+          <>
+            {searchResult.stackData.map((stack, stackIndex) => (
+              (selectedStack === "all" || selectedStack === stack.stackName) &&
+              effluentStacks.includes(stack.stackName) && ( // Filter by effluent stacks
+                <div key={stackIndex} className="col-12 mb-4">
+                  <div className="stack-box">
+                    <h4 className="text-center">{stack.stackName}</h4>
+                    <div className="row">
+                      {waterParameters.map((item, index) => {
+                        const value = stack[item.name];
+                        return value && value !== 'N/A' ? (
+                          <div className="col-12 col-md-4 grid-margin" key={index}>
+                            <div className="card" onClick={() => handleCardClick({ title: item.parameter })}>
+                              <div className="card-body">
+                                <div className="row">
+                                  <div className="col-12">
+                                    <h3 className="mb-3">{item.parameter}</h3>
+                                  </div>
+                                  <div className="col-12 mb-3">
+                                    <h6>
+                                      <strong className="strong-value" style={{ color: '#236A80' }}>
+                                        {value}
+                                      </strong>
+                                      <span>{item.value}</span>
+                                    </h6>
                                   </div>
                                 </div>
                               </div>
                             </div>
-                          ) : null;
-                        })}
-                      </div>
+                          </div>
+                        ) : null;
+                      })}
                     </div>
                   </div>
-                )
-              ))}
-            </>
-          )}
-        </div>
+                </div>
+              )
+            ))}
+          </>
+        )}
+      </div>
 
         {showPopup && selectedCard && (
           <WaterGraphPopup
@@ -260,11 +282,11 @@ const Water = () => {
           </div>
         </footer>
 
-        <DailyHistoryModal
-          isOpen={showHistoryModal}
-          onRequestClose={() => setShowHistoryModal(false)}
-          
-        />
+        <DailyHistoryModal 
+  isOpen={showHistoryModal} 
+  onRequestClose={() => setShowHistoryModal(false)} 
+/>
+
       </div>
     </div>
   );

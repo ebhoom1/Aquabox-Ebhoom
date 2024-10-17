@@ -60,25 +60,29 @@ const DailyHistoryModal = ({ isOpen, onRequestClose }) => {
       const loggedUserName = userData.validUserOne.userName;
       setUserName(loggedUserName);
       setSubscriptionDate(userData.validUserOne.subscriptionDate);
-
+  
       // Automatically fetch stack names for the logged-in user
       handleUserChange({ userName: loggedUserName });
     }
   }, [userType, userData]);
+  
 
   const handleUserChange = async (selectedUser) => {
     setUserName(selectedUser.userName);
     setSubscriptionDate(selectedUser.subscriptionDate);
-
+  
     try {
       const result = await dispatch(fetchStackNameByUserName(selectedUser.userName)).unwrap();
-      setStackOptions(result || []);
+      
+      // Ensure we map the stack names to an array of strings
+      const stackNames = result.map((stack) => stack.name); 
+      setStackOptions(stackNames);
     } catch (error) {
       console.error('Error fetching stack names:', error);
       alert('Failed to fetch stack names for the selected user.');
     }
   };
-
+  
   const handleViewClick = async () => {
     if (fromDate && toDate && userName && stackName) {
       const isSameDate = moment(fromDate).isSame(moment(toDate), 'day');
@@ -173,18 +177,20 @@ const DailyHistoryModal = ({ isOpen, onRequestClose }) => {
         <div className="form-group">
           <label>Station Name</label>
           <select
-            className="form-control"
-            value={stackName}
-            onChange={(e) => setStackName(e.target.value)}
-            disabled={!stackOptions.length}
-          >
-            <option value="">Select</option>
-            {stackOptions.map((stack) => (
-              <option key={stack} value={stack}>
-                {stack}
-              </option>
-            ))}
-          </select>
+  className="form-control"
+  value={stackName}
+  onChange={(e) => setStackName(e.target.value)}
+  disabled={!stackOptions.length}
+>
+  <option value="">Select</option>
+  {stackOptions.map((stack, index) => (
+    <option key={index} value={stack}>
+      {stack}
+    </option>
+  ))}
+</select>
+
+
         </div>
         <div className="form-group">
           <label>From Date (Subscription Date: {moment(subscriptionDate).format('DD-MM-YYYY')}):</label>

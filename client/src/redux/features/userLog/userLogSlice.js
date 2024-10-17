@@ -41,7 +41,7 @@ export const fetchUserByCompanyName = createAsyncThunk(
   'userLog/fetchUserByCompanyName',
   async(companyName,{rejectWithValue})=>{
     try{
-      const response = await axios.get(`${API_URL}/api/get-user-by-companyName/${companyName}`);
+      const response = await axios.get(`${LOCAL_API_URL}/api/get-user-by-companyName/${companyName}`);
       return response.data.user;
     }catch(error){
       return rejectWithValue(error.response.data);
@@ -97,19 +97,23 @@ export const addUser = createAsyncThunk(
 
 export const addStackName = createAsyncThunk(
   'userLog/addStackName',
-  async ({ companyName, stackName }, { rejectWithValue }) => {
+  async ({ companyName, stackData }, { rejectWithValue }) => {
     try {
-      const response = await axios.patch(`${API_URL}/api/updateStackName/${companyName}`, { stackName }, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      return response.data.user;  // Assuming response contains updated user data
+      const response = await axios.patch(
+        `${LOCAL_API_URL}/api/updateStackName/${companyName}`,
+        { stackData }, // Correct payload key
+        {
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+      return response.data.user; // Assuming response contains updated user data
     } catch (error) {
+      console.error('Error in addStackName thunk:', error.response.data);
       return rejectWithValue(error.response.data);
     }
   }
 );
+
 
 
 
@@ -202,10 +206,10 @@ const userLogSlice = createSlice({
       .addCase(fetchUserByCompanyName.pending,(state)=>{
         state.loading = false;
       })
-      .addCase(fetchUserByCompanyName.fulfilled,(state,action)=>{
+      .addCase(fetchUserByCompanyName.fulfilled, (state, action) => {
         state.loading = false;
-        state.users = action.payload ? [action.payload] : [];
-      })
+        state.selectedUser = action.payload; // Store the user object directly
+    })
       .addCase(fetchUserByCompanyName.rejected,(state, action) => {
         state.loading = false;
         state.error = action.error.message;
@@ -281,11 +285,11 @@ const userLogSlice = createSlice({
       })
       .addCase(addStackName.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.users.findIndex(user => user.companyName === action.payload.companyName);
-        if (index !== -1) {
-          state.users[index].stackName = action.payload.stackName;  // Update stackName
+        if (state.selectedUser && state.selectedUser.companyName === action.payload.companyName) {
+            state.selectedUser.stackName = action.payload.stackName; // Update stackName field
         }
-      })
+    })
+    
       .addCase(addStackName.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
