@@ -41,7 +41,7 @@ export const fetchUserByCompanyName = createAsyncThunk(
   'userLog/fetchUserByCompanyName',
   async(companyName,{rejectWithValue})=>{
     try{
-      const response = await axios.get(`${LOCAL_API_URL}/api/get-user-by-companyName/${companyName}`);
+      const response = await axios.get(`${API_URL}/api/get-user-by-companyName/${companyName}`);
       return response.data.user;
     }catch(error){
       return rejectWithValue(error.response.data);
@@ -100,7 +100,7 @@ export const addStackName = createAsyncThunk(
   async ({ companyName, stackData }, { rejectWithValue }) => {
     try {
       const response = await axios.patch(
-        `${LOCAL_API_URL}/api/updateStackName/${companyName}`,
+        `${API_URL}/api/updateStackName/${companyName}`,
         { stackData }, // Correct payload key
         {
           headers: { 'Content-Type': 'application/json' },
