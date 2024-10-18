@@ -48,6 +48,7 @@ import CustomBanner from './Components/InstallPrompt/CustomBanner'
 import DownloadIoTdataByUserName from './Components/Download/DownloadIoTdataByUserName';
 import ChatApp from './Components/Chat/ChatApp';
 import ViewComponent from './Components/Water/ViewComponent';
+import EnergyLayout from './Components/Energy/EnergyLayout';
   
 
 function App() {
@@ -123,7 +124,7 @@ function App() {
                 <Route path="/download-IoT-Data" element={<DownloadIoTdata />} />
                 <Route path="/download-Iot-Data-By-userName" element={<DownloadIoTdataByUserName />} />
                 <Route path="/quantity" element={<Quantity />} />
-                <Route path="/energy" element={<Energy />} />
+                <Route path="/energy" element={<EnergyLayout />} />
                 <Route path="/live-video" element={<LiveVideo />} />
                 <Route path="/chat" element={<ChatApp />} />
                 <Route path="/view-data" element={<ViewComponent />} />
@@ -144,7 +145,7 @@ function App() {
                 <Route path="/download-IoT-Data" element={<DownloadIoTdata />} />
                 <Route path="/download-Iot-Data-By-userName" element={<DownloadIoTdataByUserName />} />
                 <Route path="/quantity" element={<Quantity />} />
-                <Route path="/energy" element={<Energy />} />
+                <Route path="/energy" element={<EnergyLayout />} />
                 <Route path="/chat" element={<ChatApp />} />
                 <Route path="/view-data" element={<ViewComponent />} />
                 {/* <Route path = "/*" element={<Error/>}/> */}
