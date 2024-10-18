@@ -55,7 +55,7 @@ const TotalSewageGraph = () => {
   };
 
   return (
-    <div className="card mt-4 mb-5">
+    <div className="card mt-4 mb-5 col-lg-12">
       <div className="card-body">
         <h2 className="m-3">Total FL Sewage Graph</h2>
         <div className="btn-group" role="group">
