@@ -1,5 +1,8 @@
+// WaterFlow.jsx
 import React, { useEffect, useState } from "react";
-import { ToastContainer } from "react-toastify";
+import { fetchDifferenceDataByUserName } from "../../redux/features/iotData/iotDataSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 // Function to generate dynamic dates
@@ -23,16 +26,33 @@ const generateDates = (startDate, numberOfDays) => {
   return dates;
 };
 
-const WaterFlow = ({ differenceData }) => {
+const WaterFlow = ({ searchTerm, userData, userType }) => {
+  const dispatch = useDispatch();
+  const { differenceData } = useSelector((state) => state.iotData);
   const [datesHeaders, setDatesHeaders] = useState([]);
 
   useEffect(() => {
-    // Generate date headers dynamically (you can customize the start date and the number of days)
-    const startDate = "2024-07-08"; // Example start date
-    const numberOfDays = 10; // Example number of days
-    const dates = generateDates(startDate, numberOfDays);
-    setDatesHeaders(dates);
+    // Generate date headers dynamically
+    const startDate = "2024-07-08";
+    const numberOfDays = 10;
+    setDatesHeaders(generateDates(startDate, numberOfDays));
   }, []);
+
+  useEffect(() => {
+    const fetchData = async (userName) => {
+      try {
+        await dispatch(fetchDifferenceDataByUserName(userName)).unwrap();
+      } catch (error) {
+        toast.error("Failed to fetch difference data.");
+      }
+    };
+
+    if (searchTerm) {
+      fetchData(searchTerm);
+    } else if (userData && userType === "user") {
+      fetchData(userData.validUserOne.userName);
+    }
+  }, [searchTerm, userData, userType, dispatch]);
 
   return (
     <div className="card mb-4">
@@ -44,48 +64,65 @@ const WaterFlow = ({ differenceData }) => {
               <tr>
                 <th>Sl.No</th>
                 <th>Parameter</th>
-                <th>Flow</th>
+                <th>Flow Type</th>
                 {datesHeaders.map((date, index) => (
-                  <th key={index}>{date}</th>
+                  <th key={index} className="text-center">{date}</th>
                 ))}
-               
-               
               </tr>
             </thead>
             <tbody>
-              {Array.isArray(differenceData) && differenceData.length > 0 ? (
-                differenceData.map((data, index) => (
-                  <React.Fragment key={index}>
-                    <tr>
-                      <td rowSpan={2}>{index + 1}</td>
-                      <td>FL-Inlet raw sewage, KLD</td>
-                      <td>{data.inflowDifference}</td>
-                      {/* Dynamically populate date-related data for Inflow Difference */}
-                      {datesHeaders.map((date, dateIndex) => (
-                        <td key={dateIndex}>{data.inflowData?.[date] || "N/A"}</td>
-                      ))}
-                    
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <td>FL-Treated Water, KLD</td>
-                      <td>{data.finalflowDifference}</td>
-                      {/* Dynamically populate date-related data for Final Flow Difference */}
-                      {datesHeaders.map((date, dateIndex) => (
-                        <td key={dateIndex}>{data.finalflowData?.[date] || "N/A"}</td>
-                      ))}
-                      <td></td>
-                     
-                    </tr>
-                  </React.Fragment>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={datesHeaders.length + 5} className="text-center">
-                    No data available
+              <tr>
+                <td rowSpan={3}>1</td>
+                <td rowSpan={3}>FL-Inlet raw sewage, KLD</td>
+                <td>Inflow</td>
+                {datesHeaders.map((date, dateIndex) => (
+                  <td key={dateIndex}>
+                    {differenceData?.inflowData?.[date] || "N/A"}
                   </td>
-                </tr>
-              )}
+                ))}
+              </tr>
+              <tr>
+                <td>Final Flow</td>
+                {datesHeaders.map((date, dateIndex) => (
+                  <td key={dateIndex}>
+                    {differenceData?.finalflowData?.[date] || "N/A"}
+                  </td>
+                ))}
+              </tr>
+              <tr>
+                <td>Difference</td>
+                {datesHeaders.map((date, dateIndex) => (
+                  <td key={dateIndex}>
+                    {differenceData?.difference?.[date] || "N/A"}
+                  </td>
+                ))}
+              </tr>
+              <tr>
+                <td rowSpan={3}>2</td>
+                <td rowSpan={3}>Treated Water, KLD</td>
+                <td>Inflow</td>
+                {datesHeaders.map((date, dateIndex) => (
+                  <td key={dateIndex}>
+                    {differenceData?.treatedInflow?.[date] || "N/A"}
+                  </td>
+                ))}
+              </tr>
+              <tr>
+                <td>Final Flow</td>
+                {datesHeaders.map((date, dateIndex) => (
+                  <td key={dateIndex}>
+                    {differenceData?.treatedFinalflow?.[date] || "N/A"}
+                  </td>
+                ))}
+              </tr>
+              <tr>
+                <td>Difference</td>
+                {datesHeaders.map((date, dateIndex) => (
+                  <td key={dateIndex}>
+                    {differenceData?.treatedDifference?.[date] || "N/A"}
+                  </td>
+                ))}
+              </tr>
             </tbody>
           </table>
         </div>

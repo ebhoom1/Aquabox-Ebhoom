@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   CartesianGrid,
   XAxis,
@@ -10,8 +10,50 @@ import {
   Bar,
 } from "recharts";
 import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-const TotalSewageGraph = ({ averageData, handleIntervalChange, interval, formatXAxis }) => {
+// Dummy Data
+const dummyData = [
+  { timestamp: "2024-07-08", inflow: 50, finalflow: 30 },
+  { timestamp: "2024-07-09", inflow: 60, finalflow: 35 },
+  { timestamp: "2024-07-10", inflow: 55, finalflow: 32 },
+  { timestamp: "2024-07-11", inflow: 70, finalflow: 40 },
+  { timestamp: "2024-07-12", inflow: 65, finalflow: 38 },
+];
+
+const TotalSewageGraph = () => {
+  const [averageData, setAverageData] = useState([]);
+  const [interval, setInterval] = useState("day");
+
+  useEffect(() => {
+    // Simulate fetching data with dummy data
+    setAverageData(dummyData);
+  }, []);
+
+  const handleIntervalChange = (newInterval) => {
+    setInterval(newInterval);
+    console.log(`Interval changed to: ${newInterval}`);
+  };
+
+  const formatXAxis = (tickItem) => {
+    const date = new Date(tickItem);
+    switch (interval) {
+      case "hour":
+        return date.toLocaleTimeString();
+      case "day":
+        return date.toLocaleDateString("en-US", { weekday: "short" });
+      case "week":
+      case "sixmonth":
+        return date.toLocaleDateString();
+      case "month":
+        return date.toLocaleString("en-US", { month: "short" });
+      case "year":
+        return date.getFullYear();
+      default:
+        return tickItem;
+    }
+  };
+
   return (
     <div className="card mt-4 mb-5">
       <div className="card-body">
