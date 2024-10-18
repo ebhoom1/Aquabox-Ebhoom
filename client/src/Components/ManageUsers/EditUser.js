@@ -13,6 +13,15 @@ const EditUsers = () => {
   const dispatch = useDispatch();
   const { selectedUser, loading, error } = useSelector((state) => state.userLog);
 
+  const industryPollutionCategory =[
+    {category:"Select"},
+    {category:"Green"},
+    {category:"White"},
+    {category:"Orange"},
+    {category:"Red"}
+
+  ]
+
   const [userData, setUserData] = useState({
     userName: '',
     companyName: '',
@@ -25,6 +34,7 @@ const EditUsers = () => {
     subscriptionDate: '',
     userType: '',
     industryType: '',
+    industryPollutionCategory:"",
     dataInteval: '',
     district: '',
     state: '',
@@ -253,6 +263,23 @@ const EditUsers = () => {
                         <option value="Admin">Admin</option>
                       </select>
                     </div>
+                    <div className="col-12 col-lg-6 col-md-6 mb-3">
+                            <label htmlFor="industryPollutionCategory">Industry Pollution Category</label>
+                                  <select 
+                                    className="input-field" 
+                                    id="industryPollutionCategory" 
+                                    name="industryPollutionCategory" 
+                                    value={userData.industryPollutionCategory} 
+                                    onChange={handleChange}
+                                  >
+                                    {industryPollutionCategory.map((item, index) => (
+                                      <option key={index} value={item.category}>
+                                        {item.category}
+                                      </option>
+                                    ))}
+                                  </select>
+
+                          </div>
                     <div className="col-12 col-lg-6 col-md-6 mb-3">
                       <label htmlFor="dataInteval">Data Interval </label>
                       <select

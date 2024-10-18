@@ -203,3 +203,136 @@ ph: data.ph !== 'N/A' ? data.ph : null,
 //         console.error('Error handling exceed values:', error);
 //     }
 // };
+
+
+
+//Difference Data calculations 
+//inflow, finalflow,Energy
+
+
+const calculateAndSaveDailyDifferences = async () => {
+    try {
+        // Set the test range to 2:10 AM and 2:30 AM
+        const now = new Date();
+        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 6, 40, 0); // 2:10 AM
+        const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 10, 10, 0);  // 2:30 AM
+
+        console.log(`Start of test range: ${startOfDay}`);
+        console.log(`End of test range: ${endOfDay}`);
+
+        // Fetch the first and last data entries for the specified time range
+        const initialData = await IotData.findOne({ timestamp: { $gte: startOfDay } }).sort({ timestamp: 1 });
+        const finalData = await IotData.findOne({ timestamp: { $lte: endOfDay } }).sort({ timestamp: -1 });
+
+        // Ensure data is available
+        if (!initialData) {
+            console.log('No initial data found for the specified range.');
+            return;
+        }
+
+        if (!finalData) {
+            console.log('No final data found for the specified range.');
+            return;
+        }
+
+        console.log(`Initial data: ${JSON.stringify(initialData, null, 2)}`);
+        console.log(`Final data: ${JSON.stringify(finalData, null, 2)}`);
+
+        // Helper function to extract energy, inflow, and finalflow from stackData
+        const extractValues = (data) => {
+            let inflow = 0, finalflow = 0, energy = 0;
+            data.stackData.forEach((stack) => {
+                if (stack.inflow) inflow = parseFloat(stack.inflow);
+                if (stack.finalflow) finalflow = parseFloat(stack.finalflow);
+                if (stack.energy) energy = parseFloat(stack.energy);
+            });
+            return { inflow, finalflow, energy };
+        };
+
+        // Extract values from initial and final data
+        const initialValues = extractValues(initialData);
+        const finalValues = extractValues(finalData);
+
+        // Validate required fields
+        const requiredFields = ['inflow', 'finalflow', 'energy'];
+        for (const field of requiredFields) {
+            if (typeof initialValues[field] === 'undefined' || typeof finalValues[field] === 'undefined') {
+                console.log(`Missing field ${field} in initial or final data.`);
+                return;
+            }
+        }
+
+        // Calculate differences
+        const inflowDifference = finalValues.inflow - initialValues.inflow;
+        const finalflowDifference = finalValues.finalflow - initialValues.finalflow;
+        const energyDifference = finalValues.energy - initialValues.energy;
+
+        // Create and save a new DifferenceData entry
+        const differenceEntry = new DifferenceData({
+            date: moment(startOfDay).format('DD/MM/YYYY'),
+            day: moment(startOfDay).format('dddd'),
+            time:moment(startOfDay).format('HH:MM:SS'),
+            userName: initialData.userName,
+            productId: initialData.product_id,
+            initialInflow: initialValues.inflow,
+            finalInflow: finalValues.inflow,
+            inflowDifference: inflowDifference,
+            initialFinalflow: initialValues.finalflow,
+            finalFinalflow: finalValues.finalflow,
+            finalflowDifference: finalflowDifference,
+            initialEnergy: initialValues.energy,
+            finalEnergy: finalValues.energy,
+            energyDifference: energyDifference,
+        }); 
+
+        await differenceEntry.save();
+        console.log(`Difference entry saved for ${moment(startOfDay).format('DD/MM/YYYY')}`);
+    } catch (error) {
+        console.error('Error calculating and saving daily differences:', error);
+    }
+};
+
+
+
+// calculateAndSaveDailyDifferences()
+// Schedule the task to run once a day at midnight
+// cron.schedule('0 0 * * *', calculateAndSaveDailyDifferences);
+// Schedule the task to run every day at 10:10 AM
+cron.schedule('10 10 * * *', () => {
+    console.log('Scheduled task started at 10:10 AM');
+    calculateAndSaveDailyDifferences();
+});
+
+const findFirstAndLastDataPerDay = async () => {
+    try {
+        // Group data by day and find the first and last entry of each day
+        const result = await IotData.aggregate([
+            {
+                $group: {
+                    _id: {
+                        year: { $year: "$timestamp" },
+                        month: { $month: "$timestamp" },
+                        day: { $dayOfMonth: "$timestamp" }
+                    },
+                    firstEntry: { $first: "$$ROOT" },
+                    lastEntry: { $last: "$$ROOT" }
+                }
+            },
+            {
+                $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 }
+            }
+        ]);
+
+        // Iterate over the result and log the first and last data entries for each day
+        result.forEach(dayData => {
+            console.log(`\nDate: ${dayData._id.day}/${dayData._id.month}/${dayData._id.year}`);
+            console.log("First Entry:", dayData.firstEntry);
+            console.log("Last Entry:", dayData.lastEntry);
+        });
+
+        return result; // Optional: Return the result for further processing
+    } catch (error) {
+        console.error("Error finding first and last data per day:", error);
+    }
+};
+

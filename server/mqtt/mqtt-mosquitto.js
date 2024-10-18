@@ -94,7 +94,7 @@ const setupMqttClient = (io) => {
                     time,
                     validationStatus: 'Valid',
                     validationMessage: 'Validated',
-                    timestamp: new Date(),
+                    timestamp: new Date(),    
                 };
 
                 await axios.post('https://api.ocems.ebhoom.com/api/handleSaveMessage', payload);

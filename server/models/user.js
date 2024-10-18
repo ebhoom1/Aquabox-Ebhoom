@@ -80,6 +80,9 @@ const userSchema=new mongoose.Schema({
     industryType:{
         type:String,
     },
+    industryPollutionCategory:{
+        type:String,
+    },
     dataInteval:{
         type:String
     },

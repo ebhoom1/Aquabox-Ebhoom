@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 // Stack Schema to store sensor data
 const StackSchema = new mongoose.Schema({
     stackName: { type: String, required: true }, // Ensure stackName is mandatory
+    stationType:{type:String},
     ph: { type: String },
     TDS: { type: String },
     turbidity: { type: String },

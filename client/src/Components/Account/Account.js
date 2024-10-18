@@ -68,6 +68,10 @@ const  Account=()=>{
                      
                       <p className="account-details">Subcription Date : { userData.validUserOne && userData.validUserOne.subscriptionDate}</p>
                       <p className="account-details">Industry Type : { userData.validUserOne && userData.validUserOne.industryType}</p>
+                      <p className="account-details">industryPollutionCategory : { userData.validUserOne && userData.validUserOne.industryPollutionCategory}</p>
+
+                        
+
 
                     
 

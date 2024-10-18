@@ -27,7 +27,7 @@ const transporter=nodemailer.createTransport({
 
 
 const register = async (req, res) => {
-    const { userName, companyName, modelName, fname, email, mobileNumber, password, cpassword, subscriptionDate, userType, industryType, dataInteval, district, state, address, latitude, longitude,productID } = req.body;
+    const { userName, companyName, modelName, fname, email, mobileNumber, password, cpassword, subscriptionDate, userType, industryType,industryPollutionCategory, dataInteval, district, state, address, latitude, longitude,productID } = req.body;
 
     try {
         const preuser = await userdb.findOne({ email: email });
@@ -45,7 +45,7 @@ const register = async (req, res) => {
             const formattedEndSubscriptionDate = endSubscriptionDate.toISOString().split('T')[0];
 
             const finalUser = new userdb({
-                userName, companyName, modelName, fname, email, mobileNumber, password, cpassword, subscriptionDate, endSubscriptionDate: formattedEndSubscriptionDate, userType, industryType, dataInteval, district, state, address, latitude, longitude,
+                userName, companyName, modelName, fname, email, mobileNumber, password, cpassword, subscriptionDate, endSubscriptionDate: formattedEndSubscriptionDate, userType, industryType,industryPollutionCategory, dataInteval, district, state, address, latitude, longitude,
                 productID,iotLastEnterDate: subscriptionDate
 
             });

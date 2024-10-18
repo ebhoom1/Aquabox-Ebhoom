@@ -79,6 +79,12 @@ const AddUsers = () => {
     {
       category:"Zinc Smelter"
     },
+    {category:"Shopping mall"},
+    {category:"Hospital"},
+    {category:"Office building"},
+    {category:"Flat & apartment"},
+    {category:"Amusement park"},
+    {category:"Hotel"},
     {
       category:"Other"
     },
@@ -87,6 +93,15 @@ const AddUsers = () => {
     },
   
   ]
+  const industryPollutionCategory =[
+    {category:"Select"},
+    {category:"Green"},
+    {category:"White"},
+    {category:"Orange"},
+    {category:"Red"}
+
+  ]
+
   const dispatch = useDispatch();
   const {loading,error} = useSelector((state)=>state.userLog);
 
@@ -102,6 +117,7 @@ const AddUsers = () => {
     subscriptionDate: "",
     userType: "",
     industryType: "",
+    industryPollutionCategory: "",
     dataInteval: "", 
     district: "",
     state: "",
@@ -115,24 +131,19 @@ const AddUsers = () => {
 
 
 
-  const handleInputChange = event => {
+  const handleInputChange = (event) => {
     const { name, value } = event.target;
-    setFormData(prevFormData => ({
+    setFormData((prevFormData) => ({
       ...prevFormData,
       [name]: value
     }));
   };
+  
 
-  const handleSubmit = async event => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-
-    const formDataToSend = new FormData();
-    for (const key in formData) {
-      if (formData.hasOwnProperty(key)) {
-        formDataToSend.append(key, formData[key]);
-      }
-    }
-
+  
+    const formDataToSend = { ...formData };
     try {
       await dispatch(addUser(formDataToSend)).unwrap();
       toast.success('The User is added successfully', {
@@ -150,7 +161,8 @@ const AddUsers = () => {
         subscriptionDate: "",
         userType: "",
         industryType: "",
-        dataInterval: "",
+        industryPollutionCategory: "",  // Reset
+        dataInteval: "",
         district: "",
         state: "",
         address: "",
@@ -165,6 +177,7 @@ const AddUsers = () => {
       });
     }
   };
+  
 if (loading) {
   return <div>Loading...</div>;
 }
@@ -295,7 +308,7 @@ if (error) {
                             className="input-field" 
                             id="password"
                             name='password'
-                            value={formData.pasword}
+                            value={formData.password}
                             onChange={handleInputChange}
                             placeholder="Enter Password"
                            />
@@ -363,6 +376,24 @@ if (error) {
                               </select>
                              
                           </div>
+                          <div className="col-12 col-lg-6 col-md-6 mb-3">
+                            <label htmlFor="industryPollutionCategory">Industry Pollution Category</label>
+                                  <select 
+                                    className="input-field" 
+                                    id="industryPollutionCategory" 
+                                    name="industryPollutionCategory" 
+                                    value={formData.industryPollutionCategory} 
+                                    onChange={handleInputChange}
+                                  >
+                                    {industryPollutionCategory.map((item, index) => (
+                                      <option key={index} value={item.category}>
+                                        {item.category}
+                                      </option>
+                                    ))}
+                                  </select>
+
+                          </div>
+
                           <div className="col-12 col-lg-6 col-md-6 mb-3">
                               <label htmlFor="exampleFormControlInput5">Data Interval </label>
                               <select 
