@@ -9,7 +9,6 @@ import { API_URL } from "../../utils/apiConfig";
 const QuantityFlow = () => {
     const dispatch = useDispatch();
     const { userData, userType } = useSelector((state) => state.user);
-    const { latestData, error } = useSelector((state) => state.iotData);
     const [searchResult, setSearchResult] = useState(null);
     const [companyName, setCompanyName] = useState("");
     const [loading, setLoading] = useState(false);
@@ -60,12 +59,50 @@ const QuantityFlow = () => {
         fetchEffluentStacks(userName);
     }, [searchTerm, currentUserName, dispatch]);
 
+    const handleNextUser = () => {
+        const userIdNumber = parseInt(currentUserName.replace(/[^\d]/g, ''), 10);
+        if (!isNaN(userIdNumber)) {
+            const newUserId = `KSPCB${String(userIdNumber + 1).padStart(3, '0')}`;
+            setCurrentUserName(newUserId);
+        }
+    };
+
+    const handlePrevUser = () => {
+        const userIdNumber = parseInt(currentUserName.replace(/[^\d]/g, ''), 10);
+        if (!isNaN(userIdNumber) && userIdNumber > 1) {
+            const newUserId = `KSPCB${String(userIdNumber - 1).padStart(3, '0')}`;
+            setCurrentUserName(newUserId);
+        }
+    };
+
     const handleStackChange = (event) => {
         setSelectedStack(event.target.value);
     };
 
     return (
         <div className="content-wrapper">
+            <div className="row page-title-header">
+                <div className="col-12">
+                    <div className="page-header d-flex justify-content-between">
+                        {userType === 'admin' ? (
+                            <>
+                                <button className="btn btn-primary" onClick={handlePrevUser} disabled={loading}>
+                                    Prev
+                                </button>
+                                <h4 className="page-title">Quantity Flow Dashboard</h4>
+                                <button className="btn btn-primary" onClick={handleNextUser} disabled={loading}>
+                                    Next
+                                </button>
+                            </>
+                        ) : (
+                            <div className="mx-auto">
+                                <h4 className="page-title">Quantity Flow Dashboard</h4>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+
             <div className="row align-items-center">
                 <div className="col-md-4">
                     <select
@@ -81,6 +118,9 @@ const QuantityFlow = () => {
                             </option>
                         ))}
                     </select>
+                </div>
+                <div className="col-md-4">
+                    <h3 className="text-center">{companyName}</h3>
                 </div>
                 <div className="col-md-4 d-flex justify-content-end">
                     <button className="btn btn-primary" onClick={() => setShowHistoryModal(true)}>
