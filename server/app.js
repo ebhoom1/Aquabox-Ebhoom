@@ -24,8 +24,10 @@ const { getAllDeviceCredentials } = require('./controllers/user');
 const {initializeMqttClients} = require('./mqtt/mqtt-mosquitto');
 const http = require('http');
 const socketIO = require('socket.io');
+
 const cron = require('node-cron');
 const { calculateAndSaveAverages } = require('./controllers/iotData');
+const { handleSaveMessage, getIotDataByUserName, getIotDataByUserNameAndStackName, getLatestIoTData } = require('./controllers/iotData');
 const { deleteOldNotifications } = require('./controllers/notification');
 
 const app = express();
@@ -36,9 +38,10 @@ const io = socketIO(server, {
     cors: {
         origin: ['https://ocems.ebhoom.com','https://api.ocems.ebhoom.com','https://new.ocems.ebhoom.com','http://localhost:3000','http://localhost:3001'], // Include other origins as needed
         methods: ["GET", "POST","PUT","PATCH","DELETE"],
-        credentials: true
     }
 });
+// Export io and server instances
+module.exports = { io, server };
 
 // Database connection
 DB();
@@ -64,6 +67,10 @@ app.use((req, res, next) => {
 });
 
 // Routes
+app.use((req, res, next) => {
+    req.io = io;
+    next();
+});
 app.use('/api', userRoutes);
 app.use('/api', calibrationRoutes);
 app.use('/api', notificationRoutes);
@@ -84,6 +91,15 @@ io.on('connection', (socket) => {
     socket.on('joinRoom', ({ userId }) => {
         socket.join(userId);
         console.log(`User joined room: ${userId}`);
+    });
+
+    socket.on('fetchRealTimeData', async ({ userName }) => {
+        try {
+            const latestData = await getIotDataByUserName({ params: { userName } });
+            io.to(userName).emit('realTimeData', latestData.data);
+        } catch (error) {
+            console.error('Error fetching real-time data:', error);
+        }
     });
 
     // Listen for chat messages

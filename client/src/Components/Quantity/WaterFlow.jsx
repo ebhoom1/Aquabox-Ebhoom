@@ -21,7 +21,7 @@ const extractUniqueDates = (data) => {
   }));
 };
 
-const Energy = ({ searchTerm, userData, userType }) => {
+const WaterFlow = ({ searchTerm, userData, userType }) => {
   const dispatch = useDispatch();
   const { differenceData, error } = useSelector((state) => state.iotData);
   const [datesHeaders, setDatesHeaders] = useState([]);
@@ -76,7 +76,7 @@ const Energy = ({ searchTerm, userData, userType }) => {
   return (
     <div className="card">
       <div className="card-body">
-        <h2>Energy Flow</h2>
+        <h2>Water Flow</h2>
         {error && <p className="text-danger">{error}</p>}
         <div className="table-responsive mt-3">
           <table className="table table-bordered">
@@ -120,4 +120,4 @@ const Energy = ({ searchTerm, userData, userType }) => {
   );
 };
 
-export default Energy;
+export default WaterFlow;

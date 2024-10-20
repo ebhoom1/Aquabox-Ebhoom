@@ -14,7 +14,7 @@ export const fetchLatestIotData = createAsyncThunk(
     }
 );
 
-export const fetchIotDataByUserName = createAsyncThunk(
+export const    fetchIotDataByUserName = createAsyncThunk(
     'iotData/fetchIotDataByUserName',
     async (userName, { rejectWithValue }) => {
         try {
