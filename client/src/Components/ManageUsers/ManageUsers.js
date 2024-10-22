@@ -79,6 +79,9 @@ const AddUsers = () => {
     {
       category:"Zinc Smelter"
     },
+    {
+  category:"CHLOR ALKALI"
+    },   
     {category:"Shopping mall"},
     {category:"Hospital"},
     {category:"Office building"},

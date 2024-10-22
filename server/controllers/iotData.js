@@ -7,6 +7,8 @@ const userdb = require('../models/user');
 const IotDataAverage = require(`../models/averageData`);
 const DifferenceData = require(`../models/differeneceData`);
 const { handleExceedValues } = require('./calibrationExceed');
+const { io, server } = require('../app');
+
 
 // Function to check sensor data for zero values
 const checkSensorData = (data) => {
@@ -212,22 +214,21 @@ const checkRequiredFields = (data, requiredFields) => {
 //     }
 // };
 
+// IoT Data Handler to Save Data and Emit Real-Time Updates
+
+
 const handleSaveMessage = async (req, res) => {
     const data = req.body;
 
-     // Check for missing required fields
-     const requiredFields = ['product_id', 'companyName', 'industryType', 'userName', 'mobileNumber', 'email'];
-     const requiredFieldsCheck = checkRequiredFields(data, requiredFields);
-
-
+    // Validate required fields
+    const requiredFields = ['product_id', 'companyName', 'industryType', 'userName', 'mobileNumber', 'email'];
+    const requiredFieldsCheck = checkRequiredFields(data, requiredFields);
     if (!requiredFieldsCheck.success) {
         return res.status(400).json(requiredFieldsCheck);
     }
 
-    // Check if 'stackData' field is provided instead of 'stacks'
-    const stacks = data.stacks || data.stackData; 
-
-    // Ensure that the 'stacks' (or 'stackData') field exists
+    // Ensure stackData is provided and valid
+    const stacks = data.stacks || data.stackData;
     if (!Array.isArray(stacks) || stacks.length === 0) {
         console.error('Stacks data is required but not provided.');
         return res.status(400).json({
@@ -236,13 +237,14 @@ const handleSaveMessage = async (req, res) => {
             missingFields: ['stacks'],
         });
     }
-// Adjust to your local timezone
-const time = moment().tz('Asia/Kolkata').format('HH:mm:ss');
-const timestamp = moment().tz('Asia/Kolkata').toDate();
+
+    const time = moment().tz('Asia/Kolkata').format('HH:mm:ss');
+    const timestamp = moment().tz('Asia/Kolkata').toDate();
+
     try {
         const newEntry = new IotData({
             product_id: data.product_id,
-            stackData: stacks, // Save stacks directly
+            stackData: stacks,
             date: moment().format('DD/MM/YYYY'),
             time: time,
             companyName: data.companyName,
@@ -256,10 +258,28 @@ const timestamp = moment().tz('Asia/Kolkata').toDate();
         });
 
         await newEntry.save();
-        console.log('New Entry:', newEntry);
- 
-        // Call handleExceedValues after saving the new IoT data entry
-      await handleExceedValues();
+        // console.log('New IoT Data Saved:', newEntry);
+
+        // Extract energy data from the correct stack object
+        const energyStack = stacks.find(stack => stack.stationType === 'energy');
+        if (energyStack) {
+            // Emit real-time energy data to the room
+            req.io.to(data.userName).emit('energyDataUpdate', {
+                energy: energyStack.energy,
+                voltage: energyStack.voltage,
+                current: energyStack.current,
+                power: energyStack.power,
+                timestamp: new Date(),
+            });
+            console.log('Energy Data Emitted:', energyStack);
+        } else {
+            console.warn('Energy data stack not found.');
+        }
+        
+
+        // Call any exceed value checks after saving the data
+        await handleExceedValues();
+
         res.status(200).json({
             success: true,
             message: 'New Entry data saved successfully',

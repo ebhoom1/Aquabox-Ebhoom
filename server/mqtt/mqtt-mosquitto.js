@@ -38,9 +38,9 @@ const setupMqttClient = (io) => {
     // Handle Incoming Messages
     client.on('message', async (topic, message) => {
         try {
-            console.log(`Received message on topic: ${topic}`);
+            // console.log(`Received message on topic: ${topic}`);
             const messageString = message.toString();
-            console.log('Message:', messageString);
+            // console.log('Message:', messageString);
 
             let data;
             try {
@@ -100,7 +100,7 @@ const setupMqttClient = (io) => {
                 await axios.post('http://localhost:5555/api/handleSaveMessage', payload);
                 io.to(product_id.toString()).emit('data', payload);
 
-                console.log('Data successfully sent:', payload);
+                // console.log('Data successfully sent:', payload);
             }
         } catch (error) {
             console.error('Error handling MQTT message:', error);

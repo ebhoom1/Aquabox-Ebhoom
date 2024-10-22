@@ -38,12 +38,12 @@ const StackSchema = new mongoose.Schema({
     DB: { type: String },
     inflow: { type: Number,  }, //default: 0
     finalflow: { type: Number,  }, //default: 0
-    energy: { type: Number,  }, //default: 0
+      energy: { type: Number,  }, //default: 0
     voltage: { type: Number,  }, //default: 0
     current: { type: Number,  }, //default: 0
     power: { type: Number,  }, //default: 0
 });
-
+    
 // IoT Data Schema to store all incoming data
 const IotDataSchema = new mongoose.Schema({
     product_id: { type: String, required: true }, // Ensure product_id is mandatory

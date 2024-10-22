@@ -289,6 +289,137 @@ cron.schedule('55 23 * * *', () => {
     calculateAndSaveDailyDifferences();
 });
 
+const calculateAndSaveHourlyDifferences = async () => {
+    try {
+        console.log("Starting hourly difference calculation...");
+
+        // Step 1: Find users with both 'energy' and 'effluent_flow' station types
+        const usersWithStations = await IotData.aggregate([
+            { $unwind: "$stackData" },
+            {
+                $match: {
+                    $or: [
+                        { "stackData.stationType": "energy" },
+                        { "stackData.stationType": "effluent_flow" }
+                    ]
+                }
+            },
+            {
+                $group: {
+                    _id: "$userName",
+                    stationTypes: { $addToSet: "$stackData.stationType" }
+                }
+            },
+            {
+                $match: {
+                    stationTypes: { $all: ["energy", "effluent_flow"] }
+                }
+            }
+        ]);
+
+        const relevantUsers = usersWithStations.map(user => user._id);
+        console.log("Users with both 'energy' and 'effluent_flow':", relevantUsers);
+
+        // Step 2: Process data for each user and every hour of the current day
+        const today = moment().startOf('day');
+
+        for (const userName of relevantUsers) {
+            for (let hour = 0; hour < 24; hour++) {
+                const startOfHour = today.clone().hour(hour).minute(0).second(0).toDate();
+                const endOfHour = today.clone().hour(hour).minute(59).second(59).toDate();
+
+                console.log(`Processing data for ${userName} between ${startOfHour} and ${endOfHour}`);
+
+                // Fetch the first and last data entries for the hour
+                const startData = await IotData.findOne({
+                    userName,
+                    timestamp: { $gte: startOfHour, $lte: endOfHour }
+                }).sort({ timestamp: 1 });
+
+                const endData = await IotData.findOne({
+                    userName,
+                    timestamp: { $gte: startOfHour, $lte: endOfHour }
+                }).sort({ timestamp: -1 });
+
+                if (!startData || !endData) {
+                    console.log(`No data found for ${userName} between ${startOfHour} and ${endOfHour}`);
+                    continue;
+                }
+
+                // Helper function to extract values by station type
+                const extractValues = (data, stationType) => {
+                    const stack = data.stackData.find(s => s.stationType === stationType);
+                    if (!stack) return {};
+
+                    return {
+                        inflow: parseFloat(stack.inflow) || 0,
+                        finalflow: parseFloat(stack.finalflow) || 0,
+                        energy: parseFloat(stack.energy) || 0,
+                        stationType: stack.stationType,
+                        stackName: stack.stackName
+                    };
+                };
+
+                // Extract energy and effluent values
+                const initialEnergyData = extractValues(startData, 'energy');
+                const finalEnergyData = extractValues(endData, 'energy');
+                const initialEffluentData = extractValues(startData, 'effluent_flow');
+                const finalEffluentData = extractValues(endData, 'effluent_flow');
+
+                // Calculate differences
+                const energyDifference = finalEnergyData.energy - initialEnergyData.energy;
+                const inflowDifference = finalEffluentData.inflow - initialEffluentData.inflow;
+                const finalflowDifference = finalEffluentData.finalflow - initialEffluentData.finalflow;
+
+                // Save energy data if available
+                if (initialEnergyData.energy && finalEnergyData.energy) {
+                    const energyEntry = new DifferenceData({
+                        date: moment(startOfHour).format('DD/MM/YYYY'),
+                        hour: moment(startOfHour).format('HH'),
+                        userName,
+                        product_id: startData.product_id,
+                        stationType: initialEnergyData.stationType,
+                        stackName: initialEnergyData.stackName,
+                        initialEnergy: initialEnergyData.energy,
+                        finalEnergy: finalEnergyData.energy,
+                        energyDifference: energyDifference,
+                    });
+                    await energyEntry.save();
+                    console.log(`Hourly energy entry saved for ${userName} at hour ${hour}`);
+                }
+
+                // Save effluent data if available
+                if (initialEffluentData.inflow && finalEffluentData.finalflow) {
+                    const effluentEntry = new DifferenceData({
+                        date: moment(startOfHour).format('DD/MM/YYYY'),
+                        hour: moment(startOfHour).format('HH'),
+                        userName,
+                        product_id: startData.product_id,
+                        stationType: initialEffluentData.stationType,
+                        stackName: initialEffluentData.stackName,
+                        initialInflow: initialEffluentData.inflow,
+                        finalInflow: finalEffluentData.inflow,
+                        inflowDifference: inflowDifference,
+                        initialFinalflow: initialEffluentData.finalflow,
+                        finalFinalflow: finalEffluentData.finalflow,
+                        finalflowDifference: finalflowDifference,
+                    });
+                    await effluentEntry.save();
+                    console.log(`Hourly effluent entry saved for ${userName} at hour ${hour}`);
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Error calculating and saving hourly differences:', error);
+    }
+};
+
+// Schedule the task to run every hour
+cron.schedule('0 * * * *', () => {
+    console.log('Running hourly difference calculation');
+    calculateAndSaveHourlyDifferences();
+});
+
 // Function to get daily difference data by userName
 const getDailyDifferencesByUserName = async (userName) => {
     try {
@@ -388,4 +519,4 @@ const downloadDifferenceDataByUserName = async (req, res) => {
     }
 };
 
-module.exports = {calculateAndSaveDailyDifferences,calculateAndSaveDailyDifferenceCheck, getDailyDifferencesByUserName,downloadDifferenceDataByUserName}
+module.exports = {calculateAndSaveDailyDifferences,calculateAndSaveHourlyDifferences, calculateAndSaveDailyDifferenceCheck, getDailyDifferencesByUserName,downloadDifferenceDataByUserName}

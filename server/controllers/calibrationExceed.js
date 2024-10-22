@@ -279,7 +279,7 @@ const handleExceedValues = async () => {
     try {
         // Fetch the latest IoT data entry
         const latestData = await IotData.findOne().sort({ timestamp: -1 });
-        console.log('latestData:', latestData);
+        // console.log('latestData:', latestData);
         
         if (!latestData) {
             console.error('No IoT data found');
@@ -303,7 +303,7 @@ const handleExceedValues = async () => {
 
             // Fetch the industry thresholds
             const industryThresholds = await CalibrationExceedValues.findOne({ industryType: user.industryType });
-            console.log('Industry Thresholds:', industryThresholds);
+            // console.log('Industry Thresholds:', industryThresholds);
 
             if (!industryThresholds) {
                 console.error(`No thresholds found for industry type: ${user.industryType}`);

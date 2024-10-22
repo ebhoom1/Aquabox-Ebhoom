@@ -4,7 +4,8 @@ const {
     calculateAndSaveDailyDifferences,
     getDailyDifferencesByUserName,
     downloadDifferenceDataByUserName,
-    calculateAndSaveDailyDifferenceCheck
+    calculateAndSaveDailyDifferenceCheck,
+    calculateAndSaveHourlyDifferences
 } = require('../controllers/differenceData'); // Adjust path as needed
 
 // Route to trigger the calculation manually
@@ -50,5 +51,17 @@ router.get('/daily-differences/:userName', async (req, res) => {
 
 // Route to download difference data by userName
 router.get('/download-difference-data', downloadDifferenceDataByUserName);
+
+// Route to trigger hourly difference calculation
+router.get('/calculate-hourly-differences', async (req, res) => {
+    try {
+        console.log('Manual trigger: Calculating hourly differences.');
+        await calculateAndSaveHourlyDifferences();
+        res.status(200).json({ message: 'Hourly differences calculated and saved successfully.' });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: 'Failed to calculate hourly differences.' });
+    }
+});
 
 module.exports = router;

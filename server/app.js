@@ -84,41 +84,36 @@ app.use('/api', chatRoutes);
 app.use('/api',dailyDifferencesRoutes)
 
 // WebSockets for real-time chat
+// WebSockets for real-time chat and energy data
 io.on('connection', (socket) => {
     console.log('New client connected');
 
-    // Join room by user ID
+    // Join room based on user ID
     socket.on('joinRoom', ({ userId }) => {
         socket.join(userId);
         console.log(`User joined room: ${userId}`);
     });
 
-    socket.on('fetchRealTimeData', async ({ userName }) => {
-        try {
-            const latestData = await getIotDataByUserName({ params: { userName } });
-            io.to(userName).emit('realTimeData', latestData.data);
-        } catch (error) {
-            console.error('Error fetching real-time data:', error);
-        }
-    });
+    // Broadcast real-time energy data
+    socket.on('sendEnergyData', (data) => {
+        console.log('Energy data received:', data);
+        const { userName } = data;
+        io.to(userName).emit('energyDataUpdate', data); // Broadcast to clients in the room
+      });
 
     // Listen for chat messages
     socket.on('chatMessage', async ({ from, to, message }) => {
         try {
-            const chat = new Chat({
-                from,
-                to,
-                message
-            });
+            const chat = new Chat({ from, to, message });
             await chat.save();
-            io.to(from).emit('newChatMessage', chat);
-            io.to(to).emit('newChatMessage', chat); // Emit new message to the recipient
+            io.to(from).emit('newChatMessage', chat); // Emit to sender
+            io.to(to).emit('newChatMessage', chat);   // Emit to recipient
         } catch (error) {
             console.error('Error sending chat message:', error);
         }
     });
 
-    // Handle disconnection
+    // Handle client disconnection
     socket.on('disconnect', () => {
         console.log('Client disconnected');
     });
