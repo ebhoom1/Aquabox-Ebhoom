@@ -46,6 +46,7 @@ const AmbientAir = () => {
     try {
       const result = await dispatch(fetchIotDataByUserName(userName)).unwrap();
       setSearchResult(result);
+      console.log("result IOT : ", result)
       setCompanyName(result?.companyName || "Unknown Company");
       setSearchError("");
     } catch (err) {
@@ -126,8 +127,11 @@ const AmbientAir = () => {
     { parameter: "pH", value: 'pH', name: 'ph' },
     { parameter: "Ammonical Nitrogen", value: 'mg/l', name: 'ammonicalNitrogen' },
     {parameter:"Totalizer_Flow", value:'m3/Day', name:'Totalizer_Flow'},
+    {parameter:"HCl", value:'mg/Nm3', name:'HCl'},
+    {parameter:"total_chlorine", value:'mg/Nm3', name:'total_chlorine'},
+    {parameter:"chlorine", value:'mg/Nm3', name:'chlorine'},
 
-
+    
 
   ];
 

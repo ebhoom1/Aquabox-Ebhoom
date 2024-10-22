@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchIotDataByUserName } from "../../redux/features/iotData/iotDataSlice";
-import { io } from 'socket.io-client'; // Import socket.io-client
-import EnergyGraphPopup from './EnergyGraphPopup';
+import { io } from 'socket.io-client';
 import { useOutletContext } from 'react-router-dom';
 import { Oval } from 'react-loader-spinner';
 import DailyHistoryModal from '../Water/DailyHistoryModal';
@@ -14,30 +13,32 @@ const socket = io(API_URL, { transports: ['websocket'], reconnectionAttempts: 5 
 const EnergyFlow = () => {
   const dispatch = useDispatch();
   const { userData, userType } = useSelector((state) => state.user);
-  const { latestData } = useSelector((state) => state.iotData);
-  const [realTimeData, setRealTimeData] = useState(null); // State for real-time data
-  const [showPopup, setShowPopup] = useState(false);
-  const [selectedCard, setSelectedCard] = useState(null);
-  const { searchTerm } = useOutletContext();
+  const [realTimeData, setRealTimeData] = useState({}); 
   const [searchResult, setSearchResult] = useState(null);
-  const [searchError, setSearchError] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [selectedStack, setSelectedStack] = useState("all"); 
+  const [energyStacks, setEnergyStacks] = useState([]);
+  const { searchTerm } = useOutletContext();
   const [currentUserName, setCurrentUserName] = useState(
     userType === 'admin' ? "KSPCB001" : userData?.validUserOne?.userName
   );
-  const [companyName, setCompanyName] = useState("");
-  const [loading, setLoading] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
-  const [selectedStack, setSelectedStack] = useState("all");
-  const [energyStacks, setEnergyStacks] = useState([]);
+
+  // Define units for parameters
+  const parameterUnits = {
+    energy: "kW/hr",
+    power: "W",
+    voltage: "V",
+    current: "A",
+  };
 
   // Fetch energy stacks
   const fetchEnergyStacks = async (userName) => {
     try {
       const response = await fetch(`${API_URL}/api/get-stacknames-by-userName/${userName}`);
       const data = await response.json();
-      const stacks = data.stackNames
-        .filter(stack => stack.stationType === 'energy')
-        .map(stack => stack.name);
+      const stacks = data.stackNames.filter(stack => stack.stationType === 'energy').map(stack => stack.name);
       setEnergyStacks(stacks);
     } catch (error) {
       console.error("Error fetching energy stacks:", error);
@@ -50,83 +51,68 @@ const EnergyFlow = () => {
       const result = await dispatch(fetchIotDataByUserName(userName)).unwrap();
       setSearchResult(result);
       setCompanyName(result?.companyName || "Unknown Company");
-      setSearchError("");
-    } catch (err) {
+    } catch (error) {
+      console.error("Error fetching data:", error);
       setSearchResult(null);
       setCompanyName("Unknown Company");
-      setSearchError(err.message || 'No Result found for this userID');
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch initial data and stacks
   useEffect(() => {
-    if (searchTerm) {
-      fetchData(searchTerm);
-      fetchEnergyStacks(searchTerm);
-    } else {
-      fetchData(currentUserName);
-      fetchEnergyStacks(currentUserName);
-    }
+    const userName = searchTerm || currentUserName;
+    fetchData(userName);
+    fetchEnergyStacks(userName);
   }, [searchTerm, currentUserName]);
 
-  // Connect to the WebSocket server and listen for real-time data updates
-  // Dynamically join and leave rooms based on the current user
   useEffect(() => {
     const userName = searchTerm || currentUserName;
     console.log('Joining room:', userName);
-    
+
     socket.emit('joinRoom', { userId: userName });
 
     socket.on('energyDataUpdate', (data) => {
       console.log('Received real-time data:', data);
-      setRealTimeData({ ...data });
+      setRealTimeData((prevData) => ({
+        ...prevData,
+        [data.stackName]: data,
+      }));
+    });
+
+    socket.on('allEnergyDataUpdate', (dataArray) => {
+      const newData = dataArray.reduce((acc, item) => {
+        acc[item.stackName] = item;
+        return acc;
+      }, {});
+      setRealTimeData(newData);
     });
 
     return () => {
       console.log('Leaving room:', userName);
       socket.emit('leaveRoom', { userId: userName });
       socket.off('energyDataUpdate');
+      socket.off('allEnergyDataUpdate');
     };
   }, [searchTerm, currentUserName]);
-  
-  useEffect(() => {
-    socket.on('energyDataUpdate', (data) => {
-      console.log('Received real-time data:', data);
-      setRealTimeData({ ...data });  // Create a new object to trigger re-render
-    });
-  
-    return () => {
-      socket.off('energyDataUpdate');
-    };
-  }, []);
-  
-  
-  const handleNextUser = () => {
-    const userIdNumber = parseInt(currentUserName.replace(/[^\d]/g, ''), 10);
-    if (!isNaN(userIdNumber)) {
-      const newUserId = `KSPCB${String(userIdNumber + 1).padStart(3, '0')}`;
-      setCurrentUserName(newUserId);
-    }
-  };
-  const handlePrevUser = () => {
-    const userIdNumber = parseInt(currentUserName.replace(/[^\d]/g, ''), 10);
-    if (!isNaN(userIdNumber) && userIdNumber > 1) {
-      const newUserId = `KSPCB${String(userIdNumber - 1).padStart(3, '0')}`;
-      setCurrentUserName(newUserId);
-    }
-  };
 
   const handleStackChange = (event) => {
     setSelectedStack(event.target.value);
   };
-  const energyParameters = [
-    { parameter: "Energy", value: 'kW/hr', name: 'energy' },
-    { parameter: "Current", value: 'A', name: 'current' },
-    { parameter: "Voltage", value: 'V', name: 'voltage' },
-    { parameter: "Power", value: 'kW', name: 'power' }
-  ];
+
+  const handleNextUser = () => {
+    const userIdNumber = parseInt(currentUserName.replace(/[^\d]/g, ''), 10);
+    if (!isNaN(userIdNumber)) setCurrentUserName(`KSPCB${String(userIdNumber + 1).padStart(3, '0')}`);
+  };
+
+  const handlePrevUser = () => {
+    const userIdNumber = parseInt(currentUserName.replace(/[^\d]/g, ''), 10);
+    if (!isNaN(userIdNumber) && userIdNumber > 1) setCurrentUserName(`KSPCB${String(userIdNumber - 1).padStart(3, '0')}`);
+  };
+
+  const filteredData = selectedStack === "all"
+    ? Object.values(realTimeData)
+    : Object.values(realTimeData).filter(data => data.stackName === selectedStack);
 
   return (
     <div className="content-wrapper">
@@ -135,9 +121,13 @@ const EnergyFlow = () => {
           <div className="page-header d-flex justify-content-between">
             {userType === 'admin' ? (
               <>
-                <button className="btn btn-primary" onClick={handlePrevUser} disabled={loading}>Prev</button>
-                <h4 className="page-title">Energy Dashboard</h4>
-                <button className="btn btn-primary" onClick={handleNextUser} disabled={loading}>Next</button>
+                <button className="btn btn-primary" onClick={handlePrevUser} disabled={loading}>
+                  Prev
+                </button>
+                <h4 className="page-title">Quantity Flow Dashboard</h4>
+                <button className="btn btn-primary" onClick={handleNextUser} disabled={loading}>
+                  Next
+                </button>
               </>
             ) : (
               <div className="mx-auto">
@@ -152,18 +142,20 @@ const EnergyFlow = () => {
         <div className="col-md-4">
           {searchResult?.stackData && (
             <div className="stack-dropdown">
-              <label htmlFor="stackSelect" className="label-select">Select Station:</label>
+              <label htmlFor="stackSelect">Select Station:</label>
               <select
                 id="stackSelect"
-                className="form-select styled-select"
+                className="form-select"
                 value={selectedStack}
                 onChange={handleStackChange}
               >
-                <option value="all">All Stacks</option>
+                <option value="all">All Stations</option>
                 {searchResult.stackData
                   .filter(stack => energyStacks.includes(stack.stackName))
                   .map((stack, index) => (
-                    <option key={index} value={stack.stackName}>{stack.stackName}</option>
+                    <option key={index} value={stack.stackName}>
+                      {stack.stackName}
+                    </option>
                   ))}
               </select>
             </div>
@@ -173,7 +165,9 @@ const EnergyFlow = () => {
           <h3 className="text-center">{companyName}</h3>
         </div>
         <div className="col-md-4 d-flex justify-content-end">
-          <button className="btn btn-primary" onClick={() => setShowHistoryModal(true)}>Daily History</button>
+          <button className="btn btn-primary" onClick={() => setShowHistoryModal(true)}>
+            Daily History
+          </button>
         </div>
       </div>
 
@@ -184,20 +178,31 @@ const EnergyFlow = () => {
       )}
 
       <div className="row">
-        {!loading && realTimeData && (
+        {!loading && filteredData.length > 0 && (
           <div className="col-12 mb-4">
             <div className="stack-box">
-              <h4 className="text-center">Real-Time Data</h4>
               <div className="row">
-                {energyParameters.map((param, index) => (
-                  <div className="col-12 col-md-4 grid-margin" key={index}>
-                    <div className="card">
+                {filteredData.map((data, index) => (
+                  <div className="col-12 mb-4" key={index}>
+                    <div className="card h-100">
                       <div className="card-body">
-                        <h3>{param.parameter}</h3>
-                        <h6>
-                          <strong>{realTimeData[param.name] || 'N/A'}</strong>
-                          <span>{param.value}</span>
-                        </h6>
+                        <h3 className="text-center mb-3">{data.stackName}</h3>
+                        <div className="d-flex justify-content-around flex-wrap">
+                          {Object.entries(data)
+                            .filter(([key]) => !key.toLowerCase().includes('timestamp') && key !== 'stackName')
+                            .map(([key, value]) => (
+                              <div className="p-2" key={key}>
+                                <div className="card text-center">
+                                  <div className="card-body">
+                                    <h5 className="card-title">{key}</h5>
+                                    <h6 className="card-text">
+                                      <strong>{value || 'N/A'} {parameterUnits[key] || ''}</strong>
+                                    </h6>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                        </div>
                       </div>
                     </div>
                   </div>

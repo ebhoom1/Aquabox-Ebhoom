@@ -260,21 +260,23 @@ const handleSaveMessage = async (req, res) => {
         await newEntry.save();
         // console.log('New IoT Data Saved:', newEntry);
 
-        // Extract energy data from the correct stack object
-        const energyStack = stacks.find(stack => stack.stationType === 'energy');
-        if (energyStack) {
-            // Emit real-time energy data to the room
-            req.io.to(data.userName).emit('energyDataUpdate', {
-                energy: energyStack.energy,
-                voltage: energyStack.voltage,
-                current: energyStack.current,
-                power: energyStack.power,
-                timestamp: new Date(),
-            });
-            console.log('Energy Data Emitted:', energyStack);
-        } else {
-            console.warn('Energy data stack not found.');
-        }
+       // Extract and emit all energy stack data
+       const energyStacks = stacks.filter(stack => stack.stationType === 'energy');
+       if (energyStacks.length > 0) {
+           energyStacks.forEach(energyStack => {
+               req.io.to(data.userName).emit('energyDataUpdate', {
+                   stackName: energyStack.stackName,
+                   energy: energyStack.energy,
+                   voltage: energyStack.voltage,
+                   current: energyStack.current,
+                   power: energyStack.power,
+                   timestamp: new Date(),
+               });
+               console.log('Energy Data Emitted:', energyStack);
+           });
+       } else {
+           console.warn('No energy stacks found to emit.');
+       }
         
 
         // Call any exceed value checks after saving the data
