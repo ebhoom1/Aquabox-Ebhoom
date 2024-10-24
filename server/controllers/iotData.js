@@ -217,6 +217,86 @@ const checkRequiredFields = (data, requiredFields) => {
 // IoT Data Handler to Save Data and Emit Real-Time Updates
 
 
+// const handleSaveMessage = async (req, res) => {
+//     const data = req.body;
+
+//     // Validate required fields
+//     const requiredFields = ['product_id', 'companyName', 'industryType', 'userName', 'mobileNumber', 'email'];
+//     const requiredFieldsCheck = checkRequiredFields(data, requiredFields);
+//     if (!requiredFieldsCheck.success) {
+//         return res.status(400).json(requiredFieldsCheck);
+//     }
+
+//     // Ensure stackData is provided and valid
+//     const stacks = data.stacks || data.stackData;
+//     if (!Array.isArray(stacks) || stacks.length === 0) {
+//         console.error('Stacks data is required but not provided.');
+//         return res.status(400).json({
+//             success: false,
+//             message: 'Stacks data is required and must include stackName.',
+//             missingFields: ['stacks'],
+//         });
+//     }
+
+//     const time = moment().tz('Asia/Kolkata').format('HH:mm:ss');
+//     const timestamp = moment().tz('Asia/Kolkata').toDate();
+
+//     try {
+//         const newEntry = new IotData({
+//             product_id: data.product_id,
+//             stackData: stacks,
+//             date: moment().format('DD/MM/YYYY'),
+//             time: time,
+//             companyName: data.companyName,
+//             industryType: data.industryType,
+//             userName: data.userName,
+//             mobileNumber: data.mobileNumber,
+//             email: data.email,
+//             timestamp: new Date(),
+//             validationMessage: data.validationMessage || 'Validated',
+//             validationStatus: data.validationStatus || 'Valid',
+//         });
+
+//         await newEntry.save();
+//         // console.log('New IoT Data Saved:', newEntry);
+
+//        // Extract and emit all energy stack data
+//        const energyStacks = stacks.filter(stack => stack.stationType === 'energy');
+//        if (energyStacks.length > 0) {
+//            energyStacks.forEach(energyStack => {
+//                req.io.to(data.userName).emit('energyDataUpdate', {
+//                    stackName: energyStack.stackName,
+//                    energy: energyStack.energy,
+//                    voltage: energyStack.voltage,
+//                    current: energyStack.current,
+//                    power: energyStack.power,
+//                    timestamp: new Date(),
+//                });
+//                console.log('Energy Data Emitted:', energyStack);
+//            });
+//        } else {
+//            console.warn('No energy stacks found to emit.');
+//        }
+        
+
+//         // Call any exceed value checks after saving the data
+//         await handleExceedValues();
+
+//         res.status(200).json({
+//             success: true,
+//             message: 'New Entry data saved successfully',
+//             newEntry,
+//         });
+//     } catch (error) {
+//         console.error('Error saving data to MongoDB:', error);
+//         res.status(500).json({
+//             success: false,
+//             message: 'Error saving data to MongoDB',
+//             error: error.message,
+//         });
+//     }
+// };
+
 const handleSaveMessage = async (req, res) => {
     const data = req.body;
 
@@ -258,26 +338,13 @@ const handleSaveMessage = async (req, res) => {
         });
 
         await newEntry.save();
-        // console.log('New IoT Data Saved:', newEntry);
 
-       // Extract and emit all energy stack data
-       const energyStacks = stacks.filter(stack => stack.stationType === 'energy');
-       if (energyStacks.length > 0) {
-           energyStacks.forEach(energyStack => {
-               req.io.to(data.userName).emit('energyDataUpdate', {
-                   stackName: energyStack.stackName,
-                   energy: energyStack.energy,
-                   voltage: energyStack.voltage,
-                   current: energyStack.current,
-                   power: energyStack.power,
-                   timestamp: new Date(),
-               });
-               console.log('Energy Data Emitted:', energyStack);
-           });
-       } else {
-           console.warn('No energy stacks found to emit.');
-       }
-        
+        // Emit all stack data in real time to the specific user room
+        req.io.to(data.userName).emit('stackDataUpdate', {
+            stackData: stacks, // Send the entire stackData array
+            timestamp: new Date(),
+        });
+        console.log(`Real-time data emitted to ${data.userName}`, stacks);
 
         // Call any exceed value checks after saving the data
         await handleExceedValues();

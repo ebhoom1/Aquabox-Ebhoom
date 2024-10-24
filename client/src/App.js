@@ -49,6 +49,7 @@ import DownloadIoTdataByUserName from './Components/Download/DownloadIoTdataByUs
 import ChatApp from './Components/Chat/ChatApp';
 import ViewComponent from './Components/Water/ViewComponent';
 import EnergyDashboard from './Components/Energy/EnergyLayout'
+import ViewDifference from './Components/Energy/ViewDifference';
   
 
 function App() {
@@ -128,6 +129,7 @@ function App() {
                 <Route path="/live-video" element={<LiveVideo />} />
                 <Route path="/chat" element={<ChatApp />} />
                 <Route path="/view-data" element={<ViewComponent />} />
+                <Route path = '/view-difference' element={<ViewDifference/>}/>
                 {/* <Route path = "/*" element={<Error/>}/> */}
               </>
             )}
@@ -148,6 +150,8 @@ function App() {
                 <Route path="/energy" element={<EnergyDashboard />} />
                 <Route path="/chat" element={<ChatApp />} />
                 <Route path="/view-data" element={<ViewComponent />} />
+                <Route path = '/view-difference' element={<ViewDifference/>}/>
+
                 {/* <Route path = "/*" element={<Error/>}/> */}
               </>
             )}

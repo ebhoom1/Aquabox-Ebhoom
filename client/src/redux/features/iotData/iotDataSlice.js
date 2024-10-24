@@ -108,7 +108,7 @@ export const fetchDifferenceDataByUserName = createAsyncThunk(
     'iotData/fetchDifferenceDataByUserName',
     async (userName, { rejectWithValue }) => {
         try {
-            const response = await axios.get(`${API_URL}/api/differenceData/${userName}`);
+            const response = await axios.get(`${API_URL}/api/differenceByUserName//${userName}`);
             return response.data.data;
         } catch (error) {
             return rejectWithValue(error.response.data);

@@ -8,6 +8,18 @@ import CalibrationExceeded from '../Calibration/CalibrationExceeded';
 import { useOutletContext } from 'react-router-dom';
 import { Oval } from 'react-loader-spinner';
 import DailyHistoryModal from '../Water/DailyHistoryModal';
+import { io } from 'socket.io-client';
+import { API_URL } from '../../utils/apiConfig';
+
+// Initialize Socket.IO
+const socket = io(API_URL, { 
+  transports: ['websocket'], 
+  reconnectionAttempts: 5,
+  reconnectionDelay: 1000, // Retry every second
+});
+
+socket.on('connect', () => console.log('Connected to Socket.IO server'));
+socket.on('connect_error', (error) => console.error('Connection Error:', error));
 
 const Noise = () => {
   const dispatch = useDispatch();
@@ -24,7 +36,22 @@ const Noise = () => {
   const [loading, setLoading] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [selectedStack, setSelectedStack] = useState("all");
+  const [noiseStacks, setNoiseStacks] = useState([]); // New state to store noise stacks
+  const [realTimeData, setRealTimeData] = useState({});
 
+  // Fetch stack names and filter effluent stationType stacks
+  const fetchNoiseStacks = async (userName) => {
+    try {
+      const response = await fetch(`${API_URL}/api/get-stacknames-by-userName/${userName}`);
+      const data = await response.json(); // Make sure to parse the JSON
+      const noiseStacks = data.stackNames
+        .filter(stack => stack.stationType === 'noise')
+        .map(stack => stack.name); // Use 'name' instead of 'stackName'
+        setNoiseStacks(noiseStacks);
+    } catch (error) {
+      console.error("Error fetching effluent stacks:", error);
+    }
+  };
   const fetchData = async (userName) => {
     setLoading(true);
     try {
@@ -42,19 +69,39 @@ const Noise = () => {
   };
 
   useEffect(() => {
-    if (searchTerm) {
-      fetchData(searchTerm);
-    } else {
-      fetchData(currentUserName);
-    }
-  }, [searchTerm, currentUserName, dispatch]);
+    const userName = searchTerm || currentUserName;
+    fetchData(userName);
+    fetchNoiseStacks(userName);
+  }, [searchTerm, currentUserName]);
 
-  // Console log for debugging to check the data structure
   useEffect(() => {
-    if (searchResult) {
-      console.log("Stack Data:", searchResult.stackData);
-    }
-  }, [searchResult]);
+    const userName = searchTerm || currentUserName;
+
+    console.log('Joining room:', userName);
+    socket.emit('joinRoom', { userId: userName });
+
+    // Listen for stack data updates in real-time
+    socket.on('stackDataUpdate', (data) => {
+      console.log('Received real-time stack data:', data);
+
+      // Merge new data with the existing data
+      setRealTimeData((prevData) => ({
+        ...prevData,
+        ...data.stackData.reduce((acc, item) => {
+          acc[item.stackName] = item;
+          return acc;
+        }, {}),
+      }));
+    });
+
+    return () => {
+      console.log('Leaving room:', userName);
+      socket.emit('leaveRoom', { userId: userName });
+      socket.off('stackDataUpdate');
+    };
+  }, [searchTerm, currentUserName]);
+
+
 
   const handleCardClick = (card) => {
     setSelectedCard(card);
@@ -94,6 +141,12 @@ const Noise = () => {
     setSelectedStack(event.target.value);
   };
 
+
+
+  const filteredData = selectedStack === "all"
+    ? Object.values(realTimeData)
+    : Object.values(realTimeData).filter(data => data.stackName === selectedStack);
+
   const noiseParameters = [
     { parameter: "Noise Level", value: 'dB', name: 'DB' },  // Ensure name matches "DB"
   ];
@@ -132,26 +185,28 @@ const Noise = () => {
               </ul>
         <div className="row align-items-center">
           <div className="col-md-4">
-            {searchResult?.stackData && searchResult.stackData.length > 0 && (
-              <div className="stack-dropdown">
-                <label htmlFor="stackSelect" className="label-select">Select Station:</label>
-                <div className="styled-select-wrapper">
-                  <select
-                    id="stackSelect"
-                    className="form-select styled-select"
-                    value={selectedStack}
-                    onChange={handleStackChange}
-                  >
-                    <option value="all">All Stacks</option>
-                    {searchResult.stackData.map((stack, index) => (
-                      <option key={index} value={stack.stackName}>
-                        {stack.stackName}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            )}
+          {searchResult?.stackData && searchResult.stackData.length > 0 && (
+      <div className="stack-dropdown">
+        <label htmlFor="stackSelect" className="label-select">Select Station:</label>
+        <div className="styled-select-wrapper">
+          <select
+            id="stackSelect"
+            className="form-select styled-select"
+            value={selectedStack}
+            onChange={handleStackChange}
+          >
+            <option value="all">All Stacks</option>
+            {searchResult.stackData
+              .filter(stack => noiseStacks.includes(stack.stackName)) // Filter only noise stations
+              .map((stack, index) => (
+                <option key={index} value={stack.stackName}>
+                  {stack.stackName}
+                </option>
+              ))}
+          </select>
+        </div>
+      </div>
+    )}
           </div>
           <div className="col-md-4">
             <h3 className="text-center">{companyName}</h3>
@@ -170,60 +225,54 @@ const Noise = () => {
         </div>
 
         {loading && (
-          <div className="spinner-container">
-            <Oval
-              height={60}
-              width={60}
-              color="#236A80"
-              ariaLabel="Fetching details"
-              secondaryColor="#e0e0e0"
-              strokeWidth={2}
-              strokeWidthSecondary={2}
-            />
-          </div>
-        )}
-
-        <div className="row">
-          {!loading && searchResult && searchResult.stackData && (
-            <>
-              {searchResult.stackData.map((stack, stackIndex) => (
-                (selectedStack === "all" || selectedStack === stack.stackName) && (
-                  <div key={stackIndex} className="col-12 mb-4">
-                    <div className="stack-box">
-                      <h4 className="text-center">{stack.stackName}</h4>
-                      <div className="row">
-                        {noiseParameters.map((item, index) => {
-                          const value = stack[item.name];
-                          return value && value !== 'N/A' ? (
-                            <div className="col-12 col-md-4 grid-margin" key={index}>
-                              <div className="card" onClick={() => handleCardClick({ title: item.parameter })}>
-                                <div className="card-body">
-                                  <div className="row">
-                                    <div className="col-12">
-                                      <h3 className="mb-3">{item.parameter}</h3>
-                                    </div>
-                                    <div className="col-12 mb-3">
-                                      <h6>
-                                        <strong className="strong-value" style={{ color: '#236A80' }}>
-                                          {value}
-                                        </strong>
-                                        <span>{item.value}</span>
-                                      </h6>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          ) : null;
-                        })}
-                      </div>
-                    </div>
+                  <div className="spinner-container">
+                      <Oval
+                          height={60}
+                          width={60}
+                          color="#236A80"
+                          ariaLabel="Fetching details"
+                          secondaryColor="#e0e0e0"
+                          strokeWidth={2}
+                          strokeWidthSecondary={2}
+                      />
                   </div>
-                )
-              ))}
-            </>
-          )}
-        </div>
+              )}
+
+              <div className="row">
+                  {!loading && filteredData.length > 0 ? (
+                      filteredData.map((stack, stackIndex) => (
+                          noiseStacks.includes(stack.stackName) && (
+                              <div key={stackIndex} className="col-12 mb-4">
+                                  <div className="stack-box">
+                                      <h4 className="text-center">{stack.stackName}</h4>
+                                      <div className="row">
+                                          {noiseParameters.map((item, index) => {
+                                              const value = stack[item.name];
+                                              return value && value !== 'N/A' ? (
+                                                  <div className="col-12 col-md-4 grid-margin" key={index}>
+                                                      <div className="card" onClick={() => handleCardClick({ title: item.parameter })}>
+                                                          <div className="card-body">
+                                                              <h5>{item.parameter}</h5>
+                                                              <p>
+                                                                  <strong style={{ color: '#236A80', fontSize:'24px' }}>{value}</strong> {item.value}
+                                                              </p>
+                                                          </div>
+                                                      </div>
+                                                  </div>
+                                              ) : null;
+                                          })}
+                                      </div>
+                                  </div>
+                              </div>
+                          )
+                      ))
+                  ) : (
+                      <div className="col-12">
+                          <h5>Waiting real-time data available</h5>
+                      </div>
+                  )}
+              </div>
+
 
         {showPopup && selectedCard && (
           <NoiseGraphPopup

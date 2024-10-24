@@ -9,7 +9,17 @@ import { useOutletContext } from 'react-router-dom';
 import { Oval } from 'react-loader-spinner';
 import DailyHistoryModal from "../Water/DailyHistoryModal";
 import { API_URL } from "../../utils/apiConfig";
+import { io } from 'socket.io-client';
 
+  // Initialize Socket.IO
+  const socket = io(API_URL, { 
+    transports: ['websocket'], 
+    reconnectionAttempts: 5,
+    reconnectionDelay: 1000, // Retry every second
+  });
+
+  socket.on('connect', () => console.log('Connected to Socket.IO server'));
+  socket.on('connect_error', (error) => console.error('Connection Error:', error));
 const AmbientAir = () => {
   const dispatch = useDispatch();
   const { userData, userType } = useSelector((state) => state.user);
@@ -26,6 +36,7 @@ const AmbientAir = () => {
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [selectedStack, setSelectedStack] = useState("all");
   const [emissionStacks, setEmissionStacks] = useState([]); // Store only emission-related stacks
+  const [realTimeData, setRealTimeData] = useState({});
 
   // Fetch stack names and filter by emission-related station types
   const fetchEmissionStacks = async (userName) => {
@@ -105,13 +116,42 @@ const AmbientAir = () => {
   const handleStackChange = (event) => {
     setSelectedStack(event.target.value); // 'all' for all stacks, or specific stack name
   };
-
+  useEffect(() => {
+    const userName = searchTerm || currentUserName;
+  
+    console.log('Joining room:', userName);
+    socket.emit('joinRoom', { userId: userName });
+  
+    // Listen for real-time stack data updates
+    socket.on('stackDataUpdate', (data) => {
+      console.log('Received real-time stack data:', data);
+  
+      // Merge new data with existing data similarly to Water.js
+      setRealTimeData((prevData) => ({
+        ...prevData,
+        ...data.stackData.reduce((acc, item) => {
+          acc[item.stackName] = { ...prevData[item.stackName], ...item };
+          return acc;
+        }, {}),
+      }));
+    });
+  
+    return () => {
+      console.log('Leaving room:', userName);
+      socket.emit('leaveRoom', { userId: userName });
+      socket.off('stackDataUpdate');
+    };
+  }, [searchTerm, currentUserName]);
+  
+  const filteredData = selectedStack === "all"
+  ? Object.values(realTimeData)
+  : Object.values(realTimeData).filter(data => data.stackName === selectedStack);
   const airParameters = [
     { parameter: "Flow", value: 'm3/hr', name: "Flow" },
     { parameter: "CO", value: 'µg/Nm³', name: "CO" },
     { parameter: "NOX", value: 'µg/Nm³', name: "NOX" },
     { parameter: "Pressure", value: 'Pa', name: "Pressure" },
-    { parameter: "PM", value: 'µg/m³', name: "PM" },
+    { parameter: "PM", value: 'mg/Nm3.', name: "PM" },
     { parameter: "SO2", value: 'mg/Nm3', name: "SO2" },
     { parameter: "NO2", value: 'µg/m³', name: "NO2" },
     { parameter: "Mercury", value: 'µg/m³', name: "Mercury" },
@@ -158,26 +198,27 @@ const AmbientAir = () => {
 
         <div className="row align-items-center">
           <div className="col-md-4">
-            {searchResult?.stackData && (
-              <div className="stack-dropdown">
-                <label htmlFor="stackSelect" className="label-select">Select Station:</label>
-                <select
-                  id="stackSelect"
-                  className="form-select styled-select"
-                  value={selectedStack}
-                  onChange={handleStackChange}
-                >
-                  <option value="all">All Stacks</option>
-                  {searchResult.stackData
-                    .filter(stack => emissionStacks.includes(stack.stackName))
-                    .map((stack, index) => (
-                      <option key={index} value={stack.stackName}>
-                        {stack.stackName}
-                      </option>
-                    ))}
-                </select>
-              </div>
-            )}
+          {searchResult?.stackData && (
+  <div className="stack-dropdown">
+    <label htmlFor="stackSelect" className="label-select">Select Station:</label>
+    <select
+      id="stackSelect"
+      className="form-select styled-select"
+      value={selectedStack}
+      onChange={handleStackChange}
+    >
+      <option value="all">All Stacks</option>
+      {searchResult.stackData
+        .filter((stack) => emissionStacks.includes(stack.stackName)) // Ensure only emission stacks are shown
+        .map((stack, index) => (
+          <option key={index} value={stack.stackName}>
+            {stack.stackName}
+          </option>
+        ))}
+    </select>
+  </div>
+)}
+
           </div>
           <div className="col-md-4">
             <h3 className="text-center">{companyName}</h3>
@@ -204,12 +245,11 @@ const AmbientAir = () => {
     />
   </div>
 )}
-
 <div className="row">
-  {!loading && searchResult && searchResult.stackData && (
+  {!loading && Object.values(realTimeData).length > 0 && (
     <>
-      {searchResult.stackData
-        .filter((stack) => emissionStacks.includes(stack.stackName))
+      {Object.values(realTimeData)
+        .filter((stack) => emissionStacks.includes(stack.stackName)) // Filter emission stacks
         .map((stack, stackIndex) => (
           (selectedStack === "all" || selectedStack === stack.stackName) && (
             <div key={stackIndex} className="col-12 mb-4">
@@ -231,10 +271,7 @@ const AmbientAir = () => {
                               </div>
                               <div className="col-12 mb-3">
                                 <h6>
-                                  <strong
-                                    className="strong-value"
-                                    style={{ color: "#236A80" }}
-                                  >
+                                  <strong className="strong-value" style={{ color: "#236A80" }}>
                                     {value}
                                   </strong>
                                   <span>{param.value}</span>
@@ -254,6 +291,8 @@ const AmbientAir = () => {
     </>
   )}
 </div>
+
+
 
 
         {showPopup && selectedCard && (

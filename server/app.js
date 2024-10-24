@@ -93,13 +93,30 @@ io.on('connection', (socket) => {
         socket.join(userId);
         console.log(`User joined room: ${userId}`);
     });
+       // Handle real-time stack data updates
+       socket.on('sendStackData', (data) => {
+        console.log('Stack data received:', data);
+        const { userName, stackData } = data;
 
+        // Emit stack data to the specific user room
+        io.to(userName).emit('stackDataUpdate', {
+            stackData, // Send the entire stack data array
+            timestamp: new Date(),
+        });
+        console.log(`Real-time stack data emitted to ${userName}`);
+    });
     // Broadcast real-time energy data
     socket.on('sendEnergyData', (data) => {
         console.log('Energy data received:', data);
         const { userName } = data;
         io.to(userName).emit('energyDataUpdate', data); // Broadcast to clients in the room
       });
+        // Emit real-time water data
+        socket.on('sendWaterData', (data) => {
+            console.log('Water data received:', data);
+            const { userName } = data;
+            io.to(userName).emit('waterDataUpdate', data); // Emit to specific room
+        });
 
     // Listen for chat messages
     socket.on('chatMessage', async ({ from, to, message }) => {
