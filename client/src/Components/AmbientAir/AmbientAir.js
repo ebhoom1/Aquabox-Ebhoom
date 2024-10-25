@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchIotDataByUserName } from "../../redux/features/iotData/iotDataSlice";
-import AirGraphPopup from "./AirGraphPopup";
+import AirGraphPopup from "../Water/WaterGraphPopup";
 import './index.css';
 import CalibrationPopup from "../Calibration/CalibrationPopup";
 import CalibrationExceeded from '../Calibration/CalibrationExceeded';
@@ -70,19 +70,19 @@ const AmbientAir = () => {
   };
 
   useEffect(() => {
-    if (searchTerm) {
-      fetchData(searchTerm);
-      fetchEmissionStacks(searchTerm); // Fetch emission stacks
-    } else {
-      fetchData(currentUserName);
-      fetchEmissionStacks(currentUserName); // Fetch emission stacks
-    }
-  }, [searchTerm, currentUserName, dispatch]);
+    const userName = searchTerm || currentUserName;
+    fetchData(userName);
+    setCurrentUserName(userName); 
+    fetchEmissionStacks(userName);
+  }, [searchTerm, currentUserName,dispatch]);
 
-  const handleCardClick = (card) => {
-    setSelectedCard(card);
+  const handleCardClick = (card, stackName) => {
+    // Ensure we use the correct userName when admin searches for a user.
+    const userName = searchTerm || currentUserName;
+    setSelectedCard({ ...card, stackName, userName });
     setShowPopup(true);
   };
+
 
   const handleClosePopup = () => {
     setShowPopup(false);
@@ -245,8 +245,8 @@ const AmbientAir = () => {
     />
   </div>
 )}
-<div className="row">
-  {!loading && Object.values(realTimeData).length > 0 && (
+               <div className="row">
+  {!loading && Object.values(realTimeData).length > 0 ? (
     <>
       {Object.values(realTimeData)
         .filter((stack) => emissionStacks.includes(stack.stackName)) // Filter emission stacks
@@ -262,7 +262,9 @@ const AmbientAir = () => {
                       <div className="col-12 col-md-4 grid-margin" key={i}>
                         <div
                           className="card"
-                          onClick={() => handleCardClick({ title: param.parameter })}
+                          onClick={() =>
+                            handleCardClick({ title: param.name }, stack.stackName, currentUserName)
+                          }
                         >
                           <div className="card-body">
                             <div className="row">
@@ -289,6 +291,10 @@ const AmbientAir = () => {
           )
         ))}
     </>
+  ) : (
+    <div className="col-12">
+      <h5>Waiting for real-time data available</h5>
+    </div>
   )}
 </div>
 
@@ -297,10 +303,11 @@ const AmbientAir = () => {
 
         {showPopup && selectedCard && (
           <AirGraphPopup
-            isOpen={showPopup}
-            onRequestClose={handleClosePopup}
-            parameter={selectedCard.title}
-            userName={currentUserName}
+          isOpen={showPopup}
+          onRequestClose={handleClosePopup}
+          parameter={selectedCard.title}
+          userName={currentUserName}
+          stackName={selectedCard.stackName} // Pass stackName
           />
         )}
 

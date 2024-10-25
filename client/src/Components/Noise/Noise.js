@@ -2,7 +2,7 @@ import './index.css';
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchIotDataByUserName } from '../../redux/features/iotData/iotDataSlice';
-import NoiseGraphPopup from './NoiseGraphPopup';
+import NoiseGraphPopup from '../Water/WaterGraphPopup';
 import CalibrationPopup from '../Calibration/CalibrationPopup';
 import CalibrationExceeded from '../Calibration/CalibrationExceeded';
 import { useOutletContext } from 'react-router-dom';
@@ -71,6 +71,7 @@ const Noise = () => {
   useEffect(() => {
     const userName = searchTerm || currentUserName;
     fetchData(userName);
+    setCurrentUserName(userName); 
     fetchNoiseStacks(userName);
   }, [searchTerm, currentUserName]);
 
@@ -103,11 +104,12 @@ const Noise = () => {
 
 
 
-  const handleCardClick = (card) => {
-    setSelectedCard(card);
+  const handleCardClick = (card, stackName) => {
+    // Ensure we use the correct userName when admin searches for a user.
+    const userName = searchTerm || currentUserName;
+    setSelectedCard({ ...card, stackName, userName });
     setShowPopup(true);
   };
-
   const handleClosePopup = () => {
     setShowPopup(false);
     setSelectedCard(null);
@@ -250,8 +252,9 @@ const Noise = () => {
                                               const value = stack[item.name];
                                               return value && value !== 'N/A' ? (
                                                   <div className="col-12 col-md-4 grid-margin" key={index}>
-                                                      <div className="card" onClick={() => handleCardClick({ title: item.parameter })}>
-                                                          <div className="card-body">
+<div className="card"   onClick={() =>
+                                handleCardClick({ title: item.name }, stack.stackName, currentUserName)
+                              }>                                                          <div className="card-body">
                                                               <h5>{item.parameter}</h5>
                                                               <p>
                                                                   <strong style={{ color: '#236A80', fontSize:'24px' }}>{value}</strong> {item.value}
@@ -276,10 +279,11 @@ const Noise = () => {
 
         {showPopup && selectedCard && (
           <NoiseGraphPopup
-            isOpen={showPopup}
-            onRequestClose={handleClosePopup}
-            parameter={selectedCard.title}
-            userName={currentUserName}
+          isOpen={showPopup}
+          onRequestClose={handleClosePopup}
+          parameter={selectedCard.title}
+          userName={currentUserName}
+          stackName={selectedCard.stackName} 
           />
         )}
 

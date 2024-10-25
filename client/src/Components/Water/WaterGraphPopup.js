@@ -13,7 +13,10 @@ import {
 import { Line } from 'react-chartjs-2';
 import moment from 'moment';
 import { toast } from 'react-toastify';
+import { Oval } from 'react-loader-spinner'; 
 import 'react-toastify/dist/ReactToastify.css';
+import './index.css'; 
+import { API_URL } from '../../utils/apiConfig';
 
 ChartJS.register(
     CategoryScale,
@@ -40,13 +43,13 @@ const WaterGraphPopup = ({ isOpen, onRequestClose, parameter, userName, stackNam
         setLoading(true);
         try {
             const response = await fetch(
-                `http://localhost:5555/api/average/user/${userName}/stack/${stackName}/interval/${timeInterval}`
+                `${API_URL}/api/average/user/${userName}/stack/${stackName}/interval/${timeInterval}`
             );
             const data = await response.json();
             if (Array.isArray(data) && data.length > 0) {
                 setGraphData(data);
             } else {
-                toast.error(`No data found for ${parameter} (${timeInterval})`);
+                setGraphData([]);
             }
         } catch (error) {
             toast.error('Failed to fetch data');
@@ -61,7 +64,6 @@ const WaterGraphPopup = ({ isOpen, onRequestClose, parameter, userName, stackNam
             return { labels: [], values: [] };
         }
 
-        // Extract intervals for the X-axis and parameter values for the Y-axis
         const labels = graphData.map((entry) =>
             moment(entry.interval).format('DD/MM/YYYY HH:mm')
         );
@@ -85,9 +87,12 @@ const WaterGraphPopup = ({ isOpen, onRequestClose, parameter, userName, stackNam
                 label: `${parameter} - ${stackName}`,
                 data: values,
                 fill: false,
-                backgroundColor: '#82ca9d',
-                borderColor: '#82ca9d',
-                tension: 0.1,
+                backgroundColor: '#236a80',
+                borderColor: '#236A80',
+                tension: 0.3,
+                pointRadius: 5, // Default size of the dots
+                pointHoverRadius: 10, // Size of the dots on hover
+                pointHoverBorderWidth: 3, // Border width on hover
             },
         ],
     };
@@ -102,6 +107,20 @@ const WaterGraphPopup = ({ isOpen, onRequestClose, parameter, userName, stackNam
             title: {
                 display: true,
                 text: `${parameter} Values Over Time`,
+            },
+            tooltip: {
+                callbacks: {
+                    label: (tooltipItem) => {
+                        let value = tooltipItem.raw;
+                        return `Value: ${value}`; // Tooltip message
+                    },
+                    title: (tooltipItems) => {
+                        let timestamp = tooltipItems[0].label;
+                        return `Time: ${timestamp}`; // Tooltip title with timestamp
+                    },
+                },
+                titleFont: { size: 18 }, // Larger font for tooltip title
+                bodyFont: { size: 16 }, // Larger font for tooltip value
             },
         },
         scales: {
@@ -121,7 +140,7 @@ const WaterGraphPopup = ({ isOpen, onRequestClose, parameter, userName, stackNam
                     text: `${parameter} Value`,
                 },
                 beginAtZero: true,
-                suggestedMax: Math.max(...values) + 5, // Adjust Y-axis max based on data
+                suggestedMax: Math.max(...values, 5),
             },
         },
     };
@@ -134,12 +153,14 @@ const WaterGraphPopup = ({ isOpen, onRequestClose, parameter, userName, stackNam
             bottom: 'auto',
             marginRight: '-50%',
             transform: 'translate(-50%, -50%)',
-            width: '60%',
-            height: '60%',
-            padding: '10px',
+            width: '80%',
+            maxWidth: '900px',
+            height: '70%',
+            padding: '20px',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
+            overflow: 'auto',
         },
     };
 
@@ -149,25 +170,42 @@ const WaterGraphPopup = ({ isOpen, onRequestClose, parameter, userName, stackNam
             onRequestClose={onRequestClose}
             contentLabel="Graph Popup"
             style={customStyles}
+            ariaHideApp={false}
         >
-            <h4>{parameter} - {stackName}</h4>
+            <h3 className="popup-title">{parameter} - {stackName}</h3>
 
-            <div className="btn-group" role="group" aria-label="Time Intervals">
+            <div className="interval-buttons">
                 {['hour', 'day', 'week', 'month', 'sixmonths', 'year'].map((interval) => (
                     <button
                         key={interval}
-                        className={`btn ${timeInterval === interval ? 'active' : ''}`}
+                        className={`interval-btn ${timeInterval === interval ? 'active' : ''}`}
                         onClick={() => setTimeInterval(interval)}
                     >
-                        {interval}
+                        {interval.charAt(0).toUpperCase() + interval.slice(1)}
                     </button>
                 ))}
             </div>
 
             {loading ? (
-                <p>Loading...</p>
+                <div className="loading-container">
+                    <Oval
+                        height={60}
+                        width={60}
+                        color="#236A80"
+                        ariaLabel="Fetching details"
+                        secondaryColor="#e0e0e0"
+                        strokeWidth={2}
+                        strokeWidthSecondary={2}
+                    />
+                    <p>Loading data, please wait...</p>
+                </div>
+            ) : graphData.length === 0 ? (
+                <div className="no-data-container">
+                    <h5>No data available for {parameter} ({timeInterval})</h5>
+                    <p>Please try a different interval or check back later.</p>
+                </div>
             ) : (
-                <div style={{ width: '100%', height: '100%' }}>
+                <div className="chart-container">
                     <Line data={chartData} options={chartOptions} />
                 </div>
             )}

@@ -300,6 +300,8 @@
                         </div>
                     )}
                 </div>
+ 
+
 
                 {showPopup && selectedCard && (
     <WaterGraphPopup
