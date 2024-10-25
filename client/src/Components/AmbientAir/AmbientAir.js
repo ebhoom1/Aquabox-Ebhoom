@@ -122,7 +122,6 @@ const AmbientAir = () => {
     console.log('Joining room:', userName);
     socket.emit('joinRoom', { userId: userName });
   
-    // Listen for real-time stack data updates
     socket.on('stackDataUpdate', (data) => {
       console.log('Received real-time stack data:', data);
   
@@ -142,6 +141,7 @@ const AmbientAir = () => {
       socket.off('stackDataUpdate');
     };
   }, [searchTerm, currentUserName]);
+  
   
   const filteredData = selectedStack === "all"
   ? Object.values(realTimeData)

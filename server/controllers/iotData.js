@@ -344,7 +344,7 @@ const handleSaveMessage = async (req, res) => {
             stackData: stacks, // Send the entire stackData array
             timestamp: new Date(),
         });
-        console.log(`Real-time data emitted to ${data.userName}`, stacks);
+        // console.log(`Real-time data emitted to ${data.userName}`, stacks);
 
         // Call any exceed value checks after saving the data
         await handleExceedValues();
@@ -567,131 +567,131 @@ const getIotDataByCompanyName = async (req, res) => {
 };
 
 
-// The Graph printing Taking average and using in the graph//
-const calculateAverages = async (userName, product_id, startTime, endTime, interval) => {
-    console.log(`Calculating averages for ${interval}: ${startTime} to ${endTime}`);
-    const data = await IotData.find({
-        userName: userName,
-        product_id: product_id,
-        timestamp: {
-            $gte: startTime,
-            $lt: endTime
-        }
-    });
-    console.log(`Data length for ${interval}:`, data.length);
-    if (data.length === 0) {
-        console.log(`No data found for interval ${interval}`);
-        return;
-    }
+// // The Graph printing Taking average and using in the graph//
+// const calculateAverages = async (userName, product_id, startTime, endTime, interval) => {
+//     console.log(`Calculating averages for ${interval}: ${startTime} to ${endTime}`);
+//     const data = await IotData.find({
+//         userName: userName,
+//         product_id: product_id,
+//         timestamp: {
+//             $gte: startTime,
+//             $lt: endTime
+//         }
+//     });
+//     console.log(`Data length for ${interval}:`, data.length);
+//     if (data.length === 0) {
+//         console.log(`No data found for interval ${interval}`);
+//         return;
+//     }
 
-    const fields = ['ph', 'TDS', 'turbidity', 'temperature', 'BOD', 'COD', 'TSS', 'ORP', 'nitrate', 'ammonicalNitrogen', 'DO', 'chloride', 'PM', 'PM10', 'PM25', 'NOH', 'NH3', 'WindSpeed', 'WindDir', 'AirTemperature', 'Flouride', 'Humidity', 'solarRadiation', 'DB', 'inflow', 'finalflow', 'energy', 'CO', 'NOX', 'NO2', 'Mercury', 'Pressure', 'voltage', 'current', 'power'];
+//     const fields = ['ph', 'TDS', 'turbidity', 'temperature', 'BOD', 'COD', 'TSS', 'ORP', 'nitrate', 'ammonicalNitrogen', 'DO', 'chloride', 'PM', 'PM10', 'PM25', 'NOH', 'NH3', 'WindSpeed', 'WindDir', 'AirTemperature', 'Flouride', 'Humidity', 'solarRadiation', 'DB', 'inflow', 'finalflow', 'energy', 'CO', 'NOX', 'NO2', 'Mercury', 'Pressure', 'voltage', 'current', 'power'];
 
-    const averages = fields.reduce((acc, field) => {
-        acc[field] = parseFloat((data.reduce((sum, item) => sum + parseFloat(item[field] || 0), 0) / data.length).toFixed(2));
-        return acc;
-    }, {});
+//     const averages = fields.reduce((acc, field) => {
+//         acc[field] = parseFloat((data.reduce((sum, item) => sum + parseFloat(item[field] || 0), 0) / data.length).toFixed(2));
+//         return acc;
+//     }, {});
 
-    console.log(`Averages calculated for ${interval}:`, averages);
+//     console.log(`Averages calculated for ${interval}:`, averages);
 
-    const averageEntry = new IotDataAverage({
-        userName: userName,
-        product_id: product_id,  // Assuming all data entries have the same product_id
-        interval: interval,
-        dateAndTime: moment().format('DD/MM/YYYY HH:mm'),
-        ...averages,
-        timestamp: new Date()
-    });
+//     const averageEntry = new IotDataAverage({
+//         userName: userName,
+//         product_id: product_id,  // Assuming all data entries have the same product_id
+//         interval: interval,
+//         dateAndTime: moment().format('DD/MM/YYYY HH:mm'),
+//         ...averages,
+//         timestamp: new Date()
+//     });
 
-    await averageEntry.save();
-    console.log(`Average entry saved for ${interval}:`, averageEntry);
-};
+//     await averageEntry.save();
+//     console.log(`Average entry saved for ${interval}:`, averageEntry);
+// };
 
-const scheduleAveragesCalculation = () => {
+// const scheduleAveragesCalculation = () => {
    
-    cron.schedule('0 * * * *', async () => { // Every hour
-        console.log("Running hourly average calculation...");
-        const users = await IotData.distinct('userName');
-        for (let userName of users) {
-            const productIds = await IotData.distinct('product_id', { userName: userName });
-            for (let product_id of productIds) {
-                const startTime = new Date(Date.now() - 60 * 60 * 1000);
-                const endTime = new Date();
-                await calculateAverages(userName, product_id, startTime, endTime, 'hour');
-            }
-        }
-    });
+//     cron.schedule('0 * * * *', async () => { // Every hour
+//         console.log("Running hourly average calculation...");
+//         const users = await IotData.distinct('userName');
+//         for (let userName of users) {
+//             const productIds = await IotData.distinct('product_id', { userName: userName });
+//             for (let product_id of productIds) {
+//                 const startTime = new Date(Date.now() - 60 * 60 * 1000);
+//                 const endTime = new Date();
+//                 await calculateAverages(userName, product_id, startTime, endTime, 'hour');
+//             }
+//         }
+//     });
 
-    cron.schedule('0 0 * * *', async () => { // Every day
-        console.log("Running daily average calculation...");
-        const users = await IotData.distinct('userName');
-        for (let userName of users) {
-            const productIds = await IotData.distinct('product_id', { userName: userName });
-            for (let product_id of productIds) {
-                const now = new Date();
-                const dailyStartTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
-                const dailyEndTime = new Date(dailyStartTime.getTime() + 24 * 60 * 60 * 1000 - 1);
-                await calculateAverages(userName, product_id, dailyStartTime, dailyEndTime, 'day');
-            }
-        }
-    });
+//     cron.schedule('0 0 * * *', async () => { // Every day
+//         console.log("Running daily average calculation...");
+//         const users = await IotData.distinct('userName');
+//         for (let userName of users) {
+//             const productIds = await IotData.distinct('product_id', { userName: userName });
+//             for (let product_id of productIds) {
+//                 const now = new Date();
+//                 const dailyStartTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+//                 const dailyEndTime = new Date(dailyStartTime.getTime() + 24 * 60 * 60 * 1000 - 1);
+//                 await calculateAverages(userName, product_id, dailyStartTime, dailyEndTime, 'day');
+//             }
+//         }
+//     });
 
-    cron.schedule('0 0 * * 1', async () => { // Every week (Monday)
-        console.log("Running weekly average calculation...");
-        const users = await IotData.distinct('userName');
-        for (let userName of users) {
-            const productIds = await IotData.distinct('product_id', { userName: userName });
-            for (let product_id of productIds) {
-                const now = new Date();
-                const weeklyStartTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7, 0, 0, 0);
-                await calculateAverages(userName, product_id, weeklyStartTime, now, 'week');
-            }
-        }
-    });
+//     cron.schedule('0 0 * * 1', async () => { // Every week (Monday)
+//         console.log("Running weekly average calculation...");
+//         const users = await IotData.distinct('userName');
+//         for (let userName of users) {
+//             const productIds = await IotData.distinct('product_id', { userName: userName });
+//             for (let product_id of productIds) {
+//                 const now = new Date();
+//                 const weeklyStartTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7, 0, 0, 0);
+//                 await calculateAverages(userName, product_id, weeklyStartTime, now, 'week');
+//             }
+//         }
+//     });
 
-    cron.schedule('0 0 1 * *', async () => { // Every month (1st day)
-        console.log("Running monthly average calculation...");
-        const users = await IotData.distinct('userName');
-        for (let userName of users) {
-            const productIds = await IotData.distinct('product_id', { userName: userName });
-            for (let product_id of productIds) {
-                const now = new Date();
-                const monthlyStartTime = new Date(now.getFullYear(), now.getMonth(), now.getDate()- 30, 0, 0, 0);
-                const monthlyEndTime = new Date();
-                await calculateAverages(userName, product_id, monthlyStartTime, monthlyEndTime, 'month');
-            }
-        }
-    });
+//     cron.schedule('0 0 1 * *', async () => { // Every month (1st day)
+//         console.log("Running monthly average calculation...");
+//         const users = await IotData.distinct('userName');
+//         for (let userName of users) {
+//             const productIds = await IotData.distinct('product_id', { userName: userName });
+//             for (let product_id of productIds) {
+//                 const now = new Date();
+//                 const monthlyStartTime = new Date(now.getFullYear(), now.getMonth(), now.getDate()- 30, 0, 0, 0);
+//                 const monthlyEndTime = new Date();
+//                 await calculateAverages(userName, product_id, monthlyStartTime, monthlyEndTime, 'month');
+//             }
+//         }
+//     });
 
-    cron.schedule('0 0 1 */6 *', async () => { // Every 6 months (1st day of every 6th month)
-        console.log("Running 6-monthly average calculation...");
-        const users = await IotData.distinct('userName');
-        for (let userName of users) {
-            const productIds = await IotData.distinct('product_id', { userName: userName });
-            for (let product_id of productIds) {
-                const now = new Date();
-                const sixMonthStartTime = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate(), 0, 0, 0);
-                const sixMonthEndTime = new Date();
-                await calculateAverages(userName, product_id, sixMonthStartTime, sixMonthEndTime, 'sixmonths');
-            }
-        }
-    });
+//     cron.schedule('0 0 1 */6 *', async () => { // Every 6 months (1st day of every 6th month)
+//         console.log("Running 6-monthly average calculation...");
+//         const users = await IotData.distinct('userName');
+//         for (let userName of users) {
+//             const productIds = await IotData.distinct('product_id', { userName: userName });
+//             for (let product_id of productIds) {
+//                 const now = new Date();
+//                 const sixMonthStartTime = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate(), 0, 0, 0);
+//                 const sixMonthEndTime = new Date();
+//                 await calculateAverages(userName, product_id, sixMonthStartTime, sixMonthEndTime, 'sixmonths');
+//             }
+//         }
+//     });
 
-    cron.schedule('0 0 1 1 *', async () => { // Every year (1st day of January)
-        console.log("Running yearly average calculation...");
-        const users = await IotData.distinct('userName');
-        for (let userName of users) {
-            const productIds = await IotData.distinct('product_id', { userName: userName });
-            for (let product_id of productIds) {
-                const now = new Date();
-                const yearlyStartTime = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate(), 0, 0, 0);
-                const yearlyEndTime = new Date();
-                await calculateAverages(userName, product_id, yearlyStartTime,yearlyEndTime, 'year');
-            }
-        }
-    });
-};
+//     cron.schedule('0 0 1 1 *', async () => { // Every year (1st day of January)
+//         console.log("Running yearly average calculation...");
+//         const users = await IotData.distinct('userName');
+//         for (let userName of users) {
+//             const productIds = await IotData.distinct('product_id', { userName: userName });
+//             for (let product_id of productIds) {
+//                 const now = new Date();
+//                 const yearlyStartTime = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate(), 0, 0, 0);
+//                 const yearlyEndTime = new Date();
+//                 await calculateAverages(userName, product_id, yearlyStartTime,yearlyEndTime, 'year');
+//             }
+//         }
+//     });
+// };
 
-scheduleAveragesCalculation();
+// scheduleAveragesCalculation();
 
 
 
@@ -1100,7 +1100,7 @@ const deleteIotDataByDateAndUser = async (req, res) => {
 
 
 
-module.exports ={handleSaveMessage, scheduleAveragesCalculation,getAllIotData, getLatestIoTData,getIotDataByUserName,
+module.exports ={handleSaveMessage, getAllIotData, getLatestIoTData,getIotDataByUserName,
     downloadIotData,getAverageDataByUserName,getDifferenceDataByUserName,downloadIotDataByUserName,
     deleteIotDataByDateAndUser,downloadIotDataByUserNameAndStackName,getIotDataByUserNameAndStackName,getIotDataByCompanyNameAndStackName,
     getIotDataByCompanyName,viewDataByDateUserAndStackName

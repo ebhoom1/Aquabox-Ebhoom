@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchAverageDataByUserName } from '../../redux/features/iotData/iotDataSlice';
 import Modal from 'react-modal';
 import {
     Chart as ChartJS,
@@ -10,7 +8,7 @@ import {
     LineElement,
     Title,
     Tooltip,
-    Legend
+    Legend,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import moment from 'moment';
@@ -27,99 +25,105 @@ ChartJS.register(
     Legend
 );
 
-const WaterGraphPopup = ({ isOpen, onRequestClose, parameter, userName }) => {
+const WaterGraphPopup = ({ isOpen, onRequestClose, parameter, userName, stackName }) => {
     const [timeInterval, setTimeInterval] = useState('hour');
-    const [dataByInterval, setDataByInterval] = useState({});
-    const [loadingByInterval, setLoadingByInterval] = useState({});
-    const [errorByInterval, setErrorByInterval] = useState({});
-    const dispatch = useDispatch();
+    const [graphData, setGraphData] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        if (userName && parameter) {
-            setLoadingByInterval(prevState => ({
-                ...prevState,
-                [timeInterval]: true
-            }));
-            setErrorByInterval(prevState => ({
-                ...prevState,
-                [timeInterval]: null
-            }));
-
-            dispatch(fetchAverageDataByUserName({ userName, interval: timeInterval }))
-                .unwrap()
-                .then((data) => {
-                    setDataByInterval(prevState => ({
-                        ...prevState,
-                        [timeInterval]: data
-                    }));
-                })
-                .catch(() => {
-                    toast.error(`${timeInterval} graph not found`);
-                    setDataByInterval(prevState => ({
-                        ...prevState,
-                        [timeInterval]: []
-                    }));
-                    setErrorByInterval(prevState => ({
-                        ...prevState,
-                        [timeInterval]: `${timeInterval} graph not found`
-                    }));
-                })
-                .finally(() => {
-                    setLoadingByInterval(prevState => ({
-                        ...prevState,
-                        [timeInterval]: false
-                    }));
-                });
+        if (userName && stackName && parameter) {
+            fetchData();
         }
-    }, [timeInterval, userName, parameter, dispatch]);
+    }, [timeInterval, userName, stackName, parameter]);
 
-    const processData = (data, interval) => {
-        if (!Array.isArray(data) || data.length === 0) {
+    const fetchData = async () => {
+        setLoading(true);
+        try {
+            const response = await fetch(
+                `http://localhost:5555/api/average/user/${userName}/stack/${stackName}/interval/${timeInterval}`
+            );
+            const data = await response.json();
+            if (Array.isArray(data) && data.length > 0) {
+                setGraphData(data);
+            } else {
+                toast.error(`No data found for ${parameter} (${timeInterval})`);
+            }
+        } catch (error) {
+            toast.error('Failed to fetch data');
+            console.error('Error fetching graph data:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const processData = () => {
+        if (!Array.isArray(graphData) || graphData.length === 0) {
             return { labels: [], values: [] };
         }
 
-        let labels;
-        switch (interval) {
-            case 'hour':
-                labels = data.map(entry => moment(entry.timestamp).format('HH:mm'));
-                break;
-            case 'day':
-                labels = data.map(entry => moment(entry.timestamp).format('HH:mm'));
-                break;
-            case 'week':
-                labels = data.map(entry => moment(entry.timestamp).format('ddd'));
-                break;
-            case 'month':
-                labels = data.map(entry => moment(entry.timestamp).format('MMM'));
-                break;
-            case 'sixmonths':
-                labels = data.map(entry => moment(entry.timestamp).format('MMM YYYY'));
-                break;
-            case 'year':
-                labels = data.map(entry => moment(entry.timestamp).format('MMM YYYY'));
-                break;
-            default:
-                labels = data.map(entry => entry.interval);
-        }
+        // Extract intervals for the X-axis and parameter values for the Y-axis
+        const labels = graphData.map((entry) =>
+            moment(entry.interval).format('DD/MM/YYYY HH:mm')
+        );
 
-        const values = data.map(entry => entry[parameter]);
+        const values = graphData.map((entry) => {
+            const stack = entry.stackData.find(
+                (stack) => stack.stackName === stackName
+            );
+            return stack ? stack.parameters[parameter] : 0;
+        });
 
         return { labels, values };
     };
 
-    const { labels, values } = processData(dataByInterval[timeInterval], timeInterval);
+    const { labels, values } = processData();
 
     const chartData = {
         labels,
         datasets: [
             {
-                label: parameter,
+                label: `${parameter} - ${stackName}`,
                 data: values,
                 fill: false,
                 backgroundColor: '#82ca9d',
                 borderColor: '#82ca9d',
+                tension: 0.1,
             },
         ],
+    };
+
+    const chartOptions = {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top',
+            },
+            title: {
+                display: true,
+                text: `${parameter} Values Over Time`,
+            },
+        },
+        scales: {
+            x: {
+                title: {
+                    display: true,
+                    text: 'Interval',
+                },
+                ticks: {
+                    autoSkip: true,
+                    maxTicksLimit: 10,
+                },
+            },
+            y: {
+                title: {
+                    display: true,
+                    text: `${parameter} Value`,
+                },
+                beginAtZero: true,
+                suggestedMax: Math.max(...values) + 5, // Adjust Y-axis max based on data
+            },
+        },
     };
 
     const customStyles = {
@@ -130,39 +134,41 @@ const WaterGraphPopup = ({ isOpen, onRequestClose, parameter, userName }) => {
             bottom: 'auto',
             marginRight: '-50%',
             transform: 'translate(-50%, -50%)',
-            width: '50%',
-            height: '50%',
+            width: '60%',
+            height: '60%',
             padding: '10px',
             display: 'flex',
             flexDirection: 'column',
-            alignItems: 'center'
-        }
+            alignItems: 'center',
+        },
     };
 
     return (
         <Modal
             isOpen={isOpen}
             onRequestClose={onRequestClose}
-            contentLabel="Data Popup"
+            contentLabel="Graph Popup"
             style={customStyles}
         >
-            <h4>{parameter}</h4>
-           
-            <div className="btn-group" role="group" aria-label="Date Range">
-                <button className="btn btn-primary" onClick={() => setTimeInterval('hour')}>Hour</button>
-                <button className="btn btn-primary" onClick={() => setTimeInterval('day')}>Day</button>
-                <button className="btn btn-primary" onClick={() => setTimeInterval('week')}>Week</button>
-                <button className="btn btn-primary" onClick={() => setTimeInterval('month')}>Month</button>
-                <button className="btn btn-primary" onClick={() => setTimeInterval('sixmonths')}>6 Months</button>
-                <button className="btn btn-primary" onClick={() => setTimeInterval('year')}>Year</button>
+            <h4>{parameter} - {stackName}</h4>
+
+            <div className="btn-group" role="group" aria-label="Time Intervals">
+                {['hour', 'day', 'week', 'month', 'sixmonths', 'year'].map((interval) => (
+                    <button
+                        key={interval}
+                        className={`btn ${timeInterval === interval ? 'active' : ''}`}
+                        onClick={() => setTimeInterval(interval)}
+                    >
+                        {interval}
+                    </button>
+                ))}
             </div>
-            {loadingByInterval[timeInterval] ? (
+
+            {loading ? (
                 <p>Loading...</p>
-            ) : errorByInterval[timeInterval] ? (
-                <p>{errorByInterval[timeInterval]}</p>
             ) : (
                 <div style={{ width: '100%', height: '100%' }}>
-                    <Line data={chartData} />
+                    <Line data={chartData} options={chartOptions} />
                 </div>
             )}
         </Modal>

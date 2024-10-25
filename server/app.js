@@ -12,14 +12,14 @@ const calibrationRoutes = require('./routers/calibration');
 const notificationRoutes = require('./routers/notification');
 const calibrationExceedRoutes = require('./routers/calibrationExceed');
 const calibrationExceedValuesRoute = require('./routers/calibrationExceedValues');
-const calculateAverageRoute = require('./routers/calculateAverage');
+const calculateAverageRoute = require('./routers/iotDataRouter');
 const reportRoutes = require('./routers/report');
 const paymentRoutes = require('./routers/payment');
 const liveVideoRoutes = require('./routers/liveVideo');
 const chatRoutes = require('./routers/chatRoutes');
 const dailyDifferencesRoutes = require('./routers/differenceData') 
+const iotDataAveragesRoutes = require('./routers/iotDataAveragesRoute')
 
-const { calculateAndSaveDailyDifferences } = require('./controllers/iotData');
 const { getAllDeviceCredentials } = require('./controllers/user');
 const {initializeMqttClients} = require('./mqtt/mqtt-mosquitto');
 const http = require('http');
@@ -29,6 +29,7 @@ const cron = require('node-cron');
 const { calculateAndSaveAverages } = require('./controllers/iotData');
 const { handleSaveMessage, getIotDataByUserName, getIotDataByUserNameAndStackName, getLatestIoTData } = require('./controllers/iotData');
 const { deleteOldNotifications } = require('./controllers/notification');
+const { scheduleAveragesCalculation } = require('./controllers/iotDataAverages');
 
 const app = express();
 const port = process.env.PORT || 5555;
@@ -82,6 +83,7 @@ app.use('/api', paymentRoutes);
 app.use('/api', liveVideoRoutes);
 app.use('/api', chatRoutes);
 app.use('/api',dailyDifferencesRoutes)
+app.use('/api', iotDataAveragesRoutes)
 
 // WebSockets for real-time chat
 // WebSockets for real-time chat and energy data
@@ -136,11 +138,14 @@ io.on('connection', (socket) => {
     });
 });
 
-// Schedule the averages calculation every hour
-cron.schedule('0 * * * *', async () => {
-    await calculateAndSaveAverages();
-    // console.log('Averages calculated and saved.');
-});
+// Start the scheduling function when the server starts
+scheduleAveragesCalculation();
+
+// // Schedule the averages calculation every hour
+// cron.schedule('0 * * * *', async () => {
+//     await calculateAndSaveAverages();
+//     // console.log('Averages calculated and saved.');
+// });
 
 // Schedule the task to delete old notifications every day at midnight
 cron.schedule('0 0 * * *', () => {

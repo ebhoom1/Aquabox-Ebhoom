@@ -94,9 +94,9 @@ export const fetchIotDataByUserNameAndStackName = createAsyncThunk(
   );
 export const fetchAverageDataByUserName = createAsyncThunk(
     'iotData/fetchAverageDataByUserName',
-    async ({ userName, interval }, { rejectWithValue }) => {
+    async ({ userName,stackName, interval }, { rejectWithValue }) => {
         try {
-            const response = await axios.get(`${API_URL}/api/averageData/${userName}?interval=${interval}`);
+            const response = await axios.get(`${API_URL}/api/average/user/${userName}/stack/${stackName}?interval=${interval}`);
             return response.data.data;
         } catch (error) {
             return rejectWithValue(error.response.data);

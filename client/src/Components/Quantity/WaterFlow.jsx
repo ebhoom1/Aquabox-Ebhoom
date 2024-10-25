@@ -58,13 +58,11 @@ const WaterFlow = () => {
         setDifferenceData(filteredData);
         setSearchResult(userName);
       } else {
-        toast.error("Difference data not found");
         setDifferenceData([]);
       }
     } catch (error) {
       console.error("Error fetching difference data:", error);
       setError("Failed to fetch difference data.");
-      toast.error("Failed to fetch difference data.");
     }
   };
 
@@ -191,7 +189,6 @@ const WaterFlow = () => {
           </table>
         </div>
 
-        <ToastContainer />
       </div>
       <EnergyDataModal isOpen={isModalOpen} onRequestClose={() => setModalOpen(false)} />
 
