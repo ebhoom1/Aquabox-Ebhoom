@@ -3,7 +3,6 @@ const {
         getAllIotData,
         getIotDataByUserName,
         getLatestIoTData,
-        getAverageDataByUserName,
         downloadIotData,
         handleSaveMessage,
         getDifferenceDataByUserName,
@@ -16,6 +15,7 @@ const {
         viewDataByDateUserAndStackName
         
 } = require('../controllers/iotData');
+const { getLatestDataByUserName } = require('../controllers/lastIotDataController');
 
 const router = express.Router();
 
@@ -32,12 +32,8 @@ router.get('/get-IoT-Data-by-userName/:userName',getIotDataByUserName);
 router.get('/get-IoT-Data-by-companyName/:companyName',getIotDataByCompanyName);
 
 //Route for getting the latest IoT Data
-router.get('/latest-iot-data/:userName',getLatestIoTData);
+router.get('/latest/:userName', getLatestDataByUserName);
   
-
-
-// Route to get average data by userName and interval
-router.get('/averageData/:userName', getAverageDataByUserName);
 
 // Add the route for fetching difference data by userName
 router.get('/differenceData/:userName', getDifferenceDataByUserName);

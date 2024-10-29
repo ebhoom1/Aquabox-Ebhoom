@@ -27,10 +27,10 @@ const EnergyDashboard = () => {
         <div className="row">
           <WaterFlow searchTerm={searchTerm} userData={userData} userType={userType} />
         </div>
-        <div className="row col-lg-12">
+        {/* <div className="row col-lg-12">
           <TotalSewageGraph searchTerm={searchTerm} userData={userData} userType={userType} />
-        </div>
-        <div className="row">
+        </div> */}
+        <div className="mt-5">
         <CalibrationExceeded />
         </div>
       </div>

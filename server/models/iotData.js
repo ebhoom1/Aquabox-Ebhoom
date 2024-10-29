@@ -20,6 +20,7 @@ const StackSchema = new mongoose.Schema({
     Totalizer_Flow: { type: String },
     CO: { type: String },
     NOX: { type: String },
+    TOC:{type:String},
     Pressure: { type: String },
     Fluoride: { type: String },
     PM: { type: String },

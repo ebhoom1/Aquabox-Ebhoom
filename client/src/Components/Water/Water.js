@@ -1,6 +1,7 @@
     import React, { useEffect, useState } from "react";
     import { useDispatch, useSelector } from 'react-redux';
-    import { fetchIotDataByUserName } from "../../redux/features/iotData/iotDataSlice";
+    import { fetchIotDataByUserName,} from "../../redux/features/iotData/iotDataSlice";
+    import { fetchUserLatestByUserName } from "../../redux/features/userLog/userLogSlice";
     import WaterGraphPopup from './WaterGraphPopup';
     import CalibrationPopup from '../Calibration/CalibrationPopup';
     import CalibrationExceeded from '../Calibration/CalibrationExceeded';
@@ -58,18 +59,25 @@
       const fetchData = async (userName) => {
         setLoading(true);
         try {
-          const result = await dispatch(fetchIotDataByUserName(userName)).unwrap();
-          setSearchResult(result);
-          setCompanyName(result?.companyName || "Unknown Company");
-          setSearchError("");
+          const result = await dispatch(fetchUserLatestByUserName(userName)).unwrap();
+      
+          if (result) {
+            setSearchResult(result); // Store the entire result object
+            setCompanyName(result.companyName || "Unknown Company"); // Access companyName directly
+            console.log('fetchData of Latest:', result); // Check if the result is logged correctly
+            setSearchError("");
+          } else {
+            throw new Error("No data found for this user.");
+          }
         } catch (err) {
           setSearchResult(null);
           setCompanyName("Unknown Company");
-          setSearchError(err.message || 'No Result found for this userID');
+          setSearchError(err.message || 'No result found for this userID');
         } finally {
           setLoading(false);
         }
       };
+      
 
       useEffect(() => {
         const userName = searchTerm || currentUserName;
@@ -213,25 +221,23 @@
             <div className="col-md-4">
       {searchResult?.stackData && searchResult.stackData.length > 0 && (
         <div className="stack-dropdown">
-          <label htmlFor="stackSelect" className="label-select">Select Station:</label>
-          <div className="styled-select-wrapper">
-            <select
-              id="stackSelect"
-              className="form-select styled-select"
-              value={selectedStack}
-              onChange={handleStackChange}
-            >
-              <option value="all">All Stacks</option>
-              {searchResult.stackData
-                .filter(stack => effluentStacks.includes(stack.stackName)) // Filter only effluent stations
-                .map((stack, index) => (
-                  <option key={index} value={stack.stackName}>
-                    {stack.stackName}
-                  </option>
-                ))}
-            </select>
-          </div>
+        <label htmlFor="stackSelect" className="label-select">Select Station:</label>
+        <div className="styled-select-wrapper">
+          <select
+            id="stackSelect"
+            className="form-select styled-select"
+            value={selectedStack}
+            onChange={handleStackChange}
+          >
+            <option value="all">All Stacks</option>
+            {searchResult?.stackData?.map((stack, index) => (
+              <option key={index} value={stack.stackName}>
+                {stack.stackName}
+              </option>
+            ))}
+          </select>
         </div>
+      </div>
       )}
     </div>
               <div className="col-md-4">

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchIotDataByUserName } from "../../redux/features/iotData/iotDataSlice";
+import { fetchUserLatestByUserName } from "../../redux/features/userLog/userLogSlice";
 import AirGraphPopup from "../Water/WaterGraphPopup";
 import './index.css';
 import CalibrationPopup from "../Calibration/CalibrationPopup";
@@ -55,7 +56,7 @@ const AmbientAir = () => {
   const fetchData = async (userName) => {
     setLoading(true);
     try {
-      const result = await dispatch(fetchIotDataByUserName(userName)).unwrap();
+      const result = await dispatch(fetchUserLatestByUserName(userName)).unwrap();
       setSearchResult(result);
       console.log("result IOT : ", result)
       setCompanyName(result?.companyName || "Unknown Company");

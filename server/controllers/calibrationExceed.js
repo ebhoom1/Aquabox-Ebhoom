@@ -288,7 +288,7 @@ const handleExceedValues = async () => {
 
         // Find the user based on the latestData's userName
         const user = await userdb.findOne({ userName: latestData.userName });
-        console.log('User:', user);
+        // console.log('User:', user);
 
         if (!user) {
             console.error('User not found');

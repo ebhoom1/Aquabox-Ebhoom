@@ -19,6 +19,10 @@ const liveVideoRoutes = require('./routers/liveVideo');
 const chatRoutes = require('./routers/chatRoutes');
 const dailyDifferencesRoutes = require('./routers/differenceData') 
 const iotDataAveragesRoutes = require('./routers/iotDataAveragesRoute')
+const consumptionRoutes = require('./routers/consumptionRouter');
+const predictionRoutes = require('./routers/predictionRouter');
+const totalConsumptionSummaryRoutes = require('./routers/totalConsumptionSummaryRouter');
+const totalPredictionSummaryRoutes = require('./routers/totalPredictionSummaryRouter');
 
 const { getAllDeviceCredentials } = require('./controllers/user');
 const {initializeMqttClients} = require('./mqtt/mqtt-mosquitto');
@@ -26,10 +30,13 @@ const http = require('http');
 const socketIO = require('socket.io');
 
 const cron = require('node-cron');
-const { calculateAndSaveAverages } = require('./controllers/iotData');
-const { handleSaveMessage, getIotDataByUserName, getIotDataByUserNameAndStackName, getLatestIoTData } = require('./controllers/iotData');
 const { deleteOldNotifications } = require('./controllers/notification');
 const { scheduleAveragesCalculation } = require('./controllers/iotDataAverages');
+const {schedulePredictionCalculation} = require('./controllers/predictionController')
+const {scheduleTotalConsumptionCalculation} = require('./controllers/consumptionController');
+const {scheduleTotalConsumptionSummaryCalculation} =require('./controllers/TotalConsumptionSummaryController');
+const {scheduleTotalPredictionSummaryCalculation} = require('./controllers/TotalPredictionSummaryController');
+const totalPredictionSummaryController = require('./controllers/TotalPredictionSummaryController');
 
 const app = express();
 const port = process.env.PORT || 5555;
@@ -72,6 +79,7 @@ app.use((req, res, next) => {
     req.io = io;
     next();
 });
+
 app.use('/api', userRoutes);
 app.use('/api', calibrationRoutes);
 app.use('/api', notificationRoutes);
@@ -82,8 +90,14 @@ app.use('/api', reportRoutes);
 app.use('/api', paymentRoutes);
 app.use('/api', liveVideoRoutes);
 app.use('/api', chatRoutes);
-app.use('/api',dailyDifferencesRoutes)
-app.use('/api', iotDataAveragesRoutes)
+app.use('/api', dailyDifferencesRoutes);
+app.use('/api', iotDataAveragesRoutes);
+app.use('/api', consumptionRoutes);
+app.use('/api', predictionRoutes);  
+app.use('/api', totalConsumptionSummaryRoutes);
+app.use('/api', totalPredictionSummaryRoutes);
+
+
 
 // WebSockets for real-time chat
 // WebSockets for real-time chat and energy data
@@ -141,11 +155,21 @@ io.on('connection', (socket) => {
 // Start the scheduling function when the server starts
 scheduleAveragesCalculation();
 
-// // Schedule the averages calculation every hour
-// cron.schedule('0 * * * *', async () => {
-//     await calculateAndSaveAverages();
-//     // console.log('Averages calculated and saved.');
-// });
+// Start the scheduling function with logging
+console.log("Starting total consumption scheduling...");
+scheduleTotalConsumptionCalculation();
+
+// Start the scheduling
+schedulePredictionCalculation();
+
+//Start the TotalSummaryOfConsumption
+scheduleTotalConsumptionSummaryCalculation();
+
+//Start the TotalPedictionSummaryCalculation
+// Start the TotalPredictionSummary Calculation
+totalPredictionSummaryController.scheduleTotalPredictionSummaryCalculation();
+
+
 
 // Schedule the task to delete old notifications every day at midnight
 cron.schedule('0 0 * * *', () => {

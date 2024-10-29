@@ -6,18 +6,22 @@ import { useOutletContext } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { API_URL } from "../../utils/apiConfig";
 import EnergyDataModal from "./EnergyDataModal";
+import './index.css';
 
 // Extract unique headers (dates or hours)
 const extractHeaders = (data, viewType) => {
   const headers = new Set();
   data.forEach((item) => {
-    const formatted = viewType === "daily" ? item.date : item.time;
+    const date = new Date(item.timestamp);
+    const formatted = viewType === "daily"
+      ? date.toLocaleDateString()
+      : date.toLocaleTimeString();
     headers.add(formatted);
   });
   return Array.from(headers);
 };
 
-// Group data by stackName to prevent duplication
+// Group data by stackName to avoid duplication
 const groupDataByStackName = (data) => {
   const groupedData = {};
   data.forEach((item) => {
@@ -39,14 +43,18 @@ const Energy = () => {
   const [error, setError] = useState(null);
   const [energyStacks, setEnergyStacks] = useState([]);
   const [isModalOpen, setModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const currentUserName = userType === "admin" ? "KSPCB001" : userData?.validUserOne?.userName;
+  const currentUserName = userType === "admin"
+    ? "KSPCB001"
+    : userData?.validUserOne?.userName;
 
+  // Fetch energy station stacks
   const fetchEnergyStacks = async (userName) => {
     try {
-      const response = await fetch(`${API_URL}/api/get-stacknames-by-userName/${userName}`);
-      const data = await response.json();
-      const stacks = data.stackNames
+      const response = await axios.get(`${API_URL}/api/get-stacknames-by-userName/${userName}`);
+      const stacks = response.data.stackNames
         .filter((stack) => stack.stationType === "energy")
         .map((stack) => stack.name);
       setEnergyStacks(stacks);
@@ -55,14 +63,25 @@ const Energy = () => {
     }
   };
 
-  const fetchDifferenceData = async (userName) => {
+  // Fetch difference data by userName and interval, filtered by energyStacks
+  const fetchDifferenceData = async (userName, page = 1, limit = 10) => {
     try {
-      const response = await axios.get(`${API_URL}/api/differenceByUserName/${userName}`);
+      const response = await axios.get(
+        `${API_URL}/api/difference/${userName}?interval=daily&page=${page}&limit=${limit}`
+      );
       const { data } = response;
+
       if (data && data.success) {
-        const allData = viewType === "daily" ? data.data.daily : data.data.hourly;
-        const filteredData = allData.filter((item) => energyStacks.includes(item.stackName));
+        const filteredData = data.data
+          .map((item) => ({
+            ...item,
+            date: new Date(item.timestamp).toLocaleDateString(),
+            time: new Date(item.timestamp).toLocaleTimeString(),
+          }))
+          .filter((item) => energyStacks.includes(item.stackName));
+
         setDifferenceData(filteredData);
+        setTotalPages(Math.ceil(data.total / limit));
       } else {
         toast.error("Difference data not found");
         setDifferenceData([]);
@@ -75,14 +94,10 @@ const Energy = () => {
   };
 
   useEffect(() => {
-    if (searchTerm) {
-      fetchEnergyStacks(searchTerm);
-      fetchDifferenceData(searchTerm);
-    } else {
-      fetchEnergyStacks(currentUserName);
-      fetchDifferenceData(currentUserName);
-    }
-  }, [searchTerm, currentUserName, viewType]);
+    const userName = searchTerm || currentUserName;
+    fetchEnergyStacks(userName);
+    fetchDifferenceData(userName, currentPage);
+  }, [searchTerm, currentUserName, currentPage]);
 
   useEffect(() => {
     if (differenceData.length) {
@@ -95,85 +110,161 @@ const Energy = () => {
 
   const groupedData = groupDataByStackName(differenceData);
 
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) setCurrentPage((prev) => prev - 1);
+  };
+
   return (
-    <>
-      <div className="card">
-        <div className="card-body">
-          <h2>Energy Flow</h2>
-          {error && <p className="text-danger">{error}</p>}
+    <div className="container-fluid">
+      <div className="row mt-5">
+        <div className="col-md-6">
+          <div className="card" style={{ height: "100%" }}>
+            <div className="card-body">
+              <h2>Energy Flow</h2>
+              {error && <p className="text-danger">{error}</p>}
 
-          <div className="mb-3 d-flex justify-content-between">
-            <div>
-              <button
-                className={`btn ${viewType === "daily" ? "btn-primary" : "btn-outline-primary"} mr-2`}
-                onClick={() => setViewType("daily")}
+              <div className="mb-3 d-flex justify-content-between">
+                <button
+                  className={`btn ${viewType === "daily" ? "btn-primary" : "btn-outline-primary"} mr-2`}
+                  onClick={() => setViewType("daily")}
+                >
+                  Daily View
+                </button>
+
+                <button className="btn btn-success" onClick={() => setModalOpen(true)}>
+                  View
+                </button>
+              </div>
+
+              <div
+                className="table-responsive mt-3"
+                style={{ maxHeight: "400px", overflowY: "auto" }}
               >
-                Daily View
-              </button>
-              <button
-                className={`btn ${viewType === "hourly" ? "btn-primary" : "btn-outline-primary"} mr-2`}
-                onClick={() => setViewType("hourly")}
-              >
-                Hourly View
-              </button>
+                <table className="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>SL. NO</th>
+                      <th>Stack Name</th>
+                      <th>Acceptables</th>
+                      {headers.map((header, index) => (
+                        <th key={index}>{header}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Object.entries(groupedData).map(([stackName, records], stackIndex) => (
+                      <React.Fragment key={stackIndex}>
+                        <tr>
+                          <td rowSpan={3}>{stackIndex + 1}</td>
+                          <td rowSpan={3}>{stackName}</td>
+                          <td>Initial Energy</td>
+                          {headers.map((header, index) => {
+                            const matchingRecord = records.find(
+                              (item) => item.date === header || item.time === header
+                            );
+                            return (
+                              <td key={index}>
+                                {matchingRecord?.initialEnergy || "N/A"}
+                              </td>
+                            );
+                          })}
+                        </tr>
+                        <tr>
+                          <td>Last Energy</td>
+                          {headers.map((header, index) => {
+                            const matchingRecord = records.find(
+                              (item) => item.date === header || item.time === header
+                            );
+                            return (
+                              <td key={index}>
+                                {matchingRecord?.lastEnergy || "N/A"}
+                              </td>
+                            );
+                          })}
+                        </tr>
+                        <tr>
+                          <td>Energy Difference</td>
+                          {headers.map((header, index) => {
+                            const matchingRecord = records.find(
+                              (item) => item.date === header || item.time === header
+                            );
+                            return (
+                              <td key={index}>
+                                {matchingRecord?.energyDifference || "N/A"}
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      </React.Fragment>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="pagination-controls d-flex justify-content-between mt-3">
+                <button
+                  className="btn btn-secondary"
+                  onClick={handlePreviousPage}
+                  disabled={currentPage === 1}
+                >
+                  Previous
+                </button>
+
+                <span>
+                  Page {currentPage} of {totalPages}
+                </span>
+
+                <button
+                  className="btn btn-secondary"
+                  onClick={handleNextPage}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                </button>
+              </div>
+
+              <ToastContainer />
             </div>
-            <button className="btn btn-success" onClick={() => setModalOpen(true)}>
-              View
-            </button>
+            <EnergyDataModal isOpen={isModalOpen} onRequestClose={() => setModalOpen(false)} />
           </div>
-
-          <div className="table-responsive mt-3" style={{ overflowX: "auto" }}>
-            <table className="table table-bordered">
-              <thead>
-                <tr>
-                  <th>SL. NO</th>
-                  <th>Stack Name</th>
-                  <th>Acceptables</th>
-                  {headers.map((header, index) => (
-                    <th key={index}>{header}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {Object.entries(groupedData).map(([stackName, records], stackIndex) => (
-                  <React.Fragment key={stackIndex}>
-                    <tr>
-                      <td rowSpan={3}>{stackIndex + 1}</td>
-                      <td rowSpan={3}>{stackName}</td>
-                      <td>Initial Energy</td>
-                      {headers.map((header, index) => (
-                        <td key={index}>
-                          {records.find((item) => item.date === header || item.time === header)?.initialEnergy || "N/A"}
-                        </td>
-                      ))}
-                    </tr>
-                    <tr>
-                      <td>Last Energy</td>
-                      {headers.map((header, index) => (
-                        <td key={index}>
-                          {records.find((item) => item.date === header || item.time === header)?.lastEnergy || "N/A"}
-                        </td>
-                      ))}
-                    </tr>
-                    <tr>
-                      <td>Energy Difference</td>
-                      {headers.map((header, index) => (
-                        <td key={index}>
-                          {records.find((item) => item.date === header || item.time === header)?.energyDifference || "N/A"}
-                        </td>
-                      ))}
-                    </tr>
-                  </React.Fragment>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <ToastContainer />
         </div>
-        <EnergyDataModal isOpen={isModalOpen} onRequestClose={() => setModalOpen(false)} />
+
+        <div className="col-md-6">
+          <div className="card full-height-card">
+            <div className="col-md-12">
+              <h2 className="text-center mb-4">Carbon Emission</h2>
+              <div className="row">
+                <div className="col-md-12 mb-4">
+                  <div className="card h-100">
+                    <small className="text-end p-2">{new Date().toLocaleDateString()}</small>
+                    <div className="card-body d-flex flex-column justify-content-center">
+                      <h5 className="card-title text-center">Total Carbon Emission</h5>
+                      <p className="text-center display-3">0 kg CO2</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="row">
+                <div className="col-md-12 mb-4">
+                  <div className="card h-100">
+                    <small className="text-end p-2">{new Date().toLocaleDateString()}</small>
+                    <div className="card-body d-flex flex-column justify-content-center">
+                      <h5 className="card-title text-center">Predicted Carbon Emission</h5>
+                      <p className="text-center display-3">0 kg CO2</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </>
+    </div>
   );
 };
 

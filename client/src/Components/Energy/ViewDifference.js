@@ -6,20 +6,25 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const ViewDifference = () => {
-  const location = useLocation(); // Retrieve state from the router
-  const { userName, stackName, interval, fromDate, toDate } = location.state || {};
-  
+  const location = useLocation();
+  const { userName, interval, fromDate, toDate } = location.state || {};
+
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  // Fetch data based on parameters passed via navigation
-  const fetchData = async () => {
+  const fetchData = async (currentPage) => {
     try {
-      const response = await axios.get(`${API_URL}/api/difference/viewData`, {
-        params: { userName, stackName, interval, fromDate, toDate },
-      });
-      setData(response.data);
+      const response = await axios.get(
+        `${API_URL}/api/differenceData/${userName}/${interval}/${fromDate}/${toDate}`,
+        {
+          params: { page: currentPage, limit: 10 },
+        }
+      );
+      setData(response.data.data);
+      setTotalPages(response.data.totalPages);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -29,13 +34,19 @@ const ViewDifference = () => {
   };
 
   useEffect(() => {
-    if (userName && stackName && interval && fromDate && toDate) {
-      fetchData();
+    if (userName && interval && fromDate && toDate) {
+      fetchData(page);
     } else {
       setError('Invalid parameters. Please go back and try again.');
       setLoading(false);
     }
-  }, [userName, stackName, interval, fromDate, toDate]);
+  }, [userName, interval, fromDate, toDate, page]);
+
+  const handlePageChange = (newPage) => {
+    if (newPage > 0 && newPage <= totalPages) {
+      setPage(newPage);
+    }
+  };
 
   return (
     <div className="container mt-5">
@@ -49,7 +60,6 @@ const ViewDifference = () => {
             <thead>
               <tr>
                 <th>SL. NO</th>
-                <th>Stack Name</th>
                 <th>Initial Energy</th>
                 <th>Last Energy</th>
                 <th>Energy Difference</th>
@@ -61,8 +71,7 @@ const ViewDifference = () => {
             <tbody>
               {data.map((item, index) => (
                 <tr key={index}>
-                  <td>{index + 1}</td>
-                  <td>{item.stackName}</td>
+                  <td>{(page - 1) * 10 + index + 1}</td>
                   <td>{item.initialEnergy}</td>
                   <td>{item.lastEnergy}</td>
                   <td>{item.energyDifference}</td>
@@ -73,6 +82,25 @@ const ViewDifference = () => {
               ))}
             </tbody>
           </table>
+          <div className="pagination mt-3">
+            <button
+              className="btn btn-secondary"
+              onClick={() => handlePageChange(page - 1)}
+              disabled={page === 1}
+            >
+              Previous
+            </button>
+            <span className="mx-3">
+              Page {page} of {totalPages}
+            </span>
+            <button
+              className="btn btn-secondary"
+              onClick={() => handlePageChange(page + 1)}
+              disabled={page === totalPages}
+            >
+              Next
+            </button>
+          </div>
         </div>
       )}
       <ToastContainer />

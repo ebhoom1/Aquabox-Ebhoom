@@ -1,66 +1,50 @@
 const IotData = require('../models/iotData');
-const DifferenceData = require('../models/differeneceData');
-const moment = require('moment');
+const DifferenceData = require('../models/differeneceData'); // Ensure correct spelling of 'differenceData'
 const cron = require('node-cron');
 const { Parser } = require('json2csv'); // For CSV export
-const pdf = require('pdfkit'); // For PDF export
-const fs = require('fs'); // File system for saving PDFs
-const { timeStamp } = require('console');
+const PDFDocument = require('pdfkit');
+const moment = require('moment-timezone');
 
-// Helper function to get initial and last entries
+
+// Helper to fetch initial and last entries for a stack
 const getInitialAndLastEntries = async (userName, stackName, startTime, endTime) => {
-    console.log(`Fetching data for user: ${userName}, stack: ${stackName}, between ${startTime} and ${endTime}`);
     const data = await IotData.find({
         userName,
         'stackData.stackName': stackName,
-        timestamp: { $gte: startTime, $lte: endTime }
+        timestamp: { $gte: startTime, $lte: endTime },
     }).sort({ timestamp: 1 });
 
-    if (!data.length) {
-        console.log(`No data found for ${userName} - ${stackName}`);
-        return null;
-    }
+    if (!data.length) return null;
 
-    console.log(`Data fetched for ${userName} - ${stackName}:`, data);
     return { initialEntry: data[0], lastEntry: data[data.length - 1] };
 };
 
-// Function to extract values from a given entry
+// Extract values from stack data
 const extractValues = (entry, stackName) => {
     const stack = entry.stackData.find(stack => stack.stackName === stackName) || {};
     const timestamp = moment(entry.timestamp);
-    
+
     return {
         energy: stack.energy || 0,
         inflow: stack.inflow || 0,
-        finalflow: stack.finalflow || 0, 
-        date: timestamp.format('YYYY-MM-DD'),
-        time: timestamp.format('HH:mm:ss'),
-        day: timestamp.format('dddd'), // Get day of the week
+        finalflow: stack.finalflow || 0,
+        date: timestamp.format('DD/MM/YYYY'),
+        time: timestamp.format('HH:mm'),
     };
 };
 
-const calculateAndSaveDifferences = async (
-    userName, companyName, stackName, stationType, interval, startTime, endTime
-) => {
+// Calculate and save the difference data
+const calculateAndSaveDifferences = async (userName, stackName, stationType, interval, intervalType, startTime, endTime) => {
     const entries = await getInitialAndLastEntries(userName, stackName, startTime, endTime);
-    if (!entries) {
-        console.log(`No entries found for ${userName} - ${stackName}`);
-        return;
-    }
+    if (!entries) return;
 
     const { initialEntry, lastEntry } = entries;
-
-    console.log(`Calculating differences for ${userName} - ${stackName}`);
     const initialValues = extractValues(initialEntry, stackName);
     const lastValues = extractValues(lastEntry, stackName);
 
-    const differenceData = new DifferenceData({
-        userName,
-        companyName,
+    const differenceDataEntry = {
         stackName,
-        stationType,
-        interval,
+        stationType: stationType || 'NIL',
         initialEnergy: initialValues.energy,
         lastEnergy: lastValues.energy,
         energyDifference: lastValues.energy - initialValues.energy,
@@ -70,206 +54,281 @@ const calculateAndSaveDifferences = async (
         initialFinalFlow: initialValues.finalflow,
         lastFinalFlow: lastValues.finalflow,
         finalFlowDifference: lastValues.finalflow - initialValues.finalflow,
-        date: lastValues.date,
-        time: lastValues.time,
-        day: lastValues.day,
-        timestamp: new Date(), // Use current timestamp
+    };
+
+    // Convert to IST and format the interval
+    const intervalIST = moment().tz('Asia/Kolkata').format('ddd MMM DD YYYY HH:mm:ss [GMT+0530] (India Standard Time)');
+
+    const differenceEntry = new DifferenceData({
+        userName,
+        interval: intervalIST,
+        intervalType,
+        date: initialValues.date,
+        time: initialValues.time,
+        differenceData: [differenceDataEntry], // Save the difference in an array
+        timestamp: new Date(),
     });
 
-    try {
-        await differenceData.save();
-        console.log(`Saved difference data for ${userName} - ${stackName}`);
-    } catch (error) {
-        console.error('Error saving difference data:', error);
-    }
+    await differenceEntry.save();
+    console.log(`Saved difference data for ${userName} - ${stackName}`);
 };
 
-// Process differences for a given interval
-const processDifferences = async (interval, startTime, endTime) => {
-    console.log(`Processing differences for interval: ${interval}`);
+// Schedule the difference calculations
+const scheduleDifferenceCalculation = () => {
+    const intervals = [
+        { cronTime: '0 * * * *', interval: 'hourly', intervalType: 'hour' }, // Every hour
+        { cronTime: '0 0 * * *', interval: 'daily', intervalType: 'day' }, // Every day
+    ];
 
-    const users = await IotData.find({
-        'stackData.stationType': { $in: ['energy', 'effluent_flow'] }
-    }).distinct('userName');
+    intervals.forEach(({ cronTime, interval, intervalType }) => {
+        cron.schedule(cronTime, async () => {
+            console.log(`Running ${interval} difference calculation...`);
+            const users = await IotData.distinct('userName');
 
-    for (const userName of users) {
-        const stacks = await IotData.find({ userName }).distinct('stackData.stackName');
+            for (const userName of users) {
+                const stackNames = await IotData.aggregate([
+                    { $match: { userName } },
+                    { $unwind: '$stackData' },
+                    { $group: { _id: '$stackData.stackName' } },
+                ]).then(result => result.map(item => item._id));
 
-        for (const stackName of stacks) {
-            const stackRecord = await IotData.findOne({
-                userName,
-                'stackData.stackName': stackName
-            }).select('companyName stationType');
+                for (const stackName of stackNames) {
+                    const now = new Date();
+                    const startTime = new Date(now.getTime() - (intervalType === 'hour' ? 60 * 60 * 1000 : 24 * 60 * 60 * 1000));
+                    const stationType = await IotData.findOne({ userName, 'stackData.stackName': stackName }).select('stackData.stationType');
 
-            if (!stackRecord) {
-                console.log(`No data found for ${userName} - ${stackName}`);
-                continue;
+                    await calculateAndSaveDifferences(
+                        userName,
+                        stackName,
+                        stationType?.stackData?.stationType,
+                        interval,
+                        intervalType,
+                        startTime,
+                        now
+                    );
+                }
             }
-
-            const { companyName, stationType } = stackRecord;
-            console.log(`User: ${userName}, Stack: ${stackName}, Company: ${companyName}`);
-
-            await calculateAndSaveDifferences(
-                userName,
-                companyName,
-                stackName,
-                stationType,
-                interval,
-                startTime,
-                endTime
-            );
-        }
-    }
+        });
+    });
 };
 
-
-// Calculate hourly difference
-const calculateHourlyDifference = async () => {
-    const now = moment().startOf('hour').toDate(); // Start of current hour
-    const startTime = moment(now).subtract(1, 'hour').toDate(); // 1 hour before
-
-    console.log(`Hourly Difference Calculation - Start: ${startTime}, End: ${now}`);
-    await processDifferences('hourly', startTime, now);
-};
-
-// Calculate daily difference
-const calculateDailyDifference = async () => {
-    const now = moment().startOf('day').toDate(); // Start of current day
-    const startTime = moment(now).subtract(1, 'day').toDate(); // 1 day before
-
-    console.log(`Daily Difference Calculation - Start: ${startTime}, End: ${now}`);
-    await processDifferences('daily', startTime, now);
-};
-
-// Schedule hourly and daily difference calculations
-cron.schedule('0 * * * *', async () => {
- console.log('Running hourly difference calculation...');
-    await calculateHourlyDifference();
-});
-
-cron.schedule('0 0 * * *', async () => {
-    console.log('Running daily difference calculation...');
-    await calculateDailyDifference();
-});
-
-
+// Start the scheduling process
+scheduleDifferenceCalculation();
 
 // Controller to fetch difference data by userName and interval
-const getDifferenceDataByUserNameAndInterval = async (userName, interval) => {
+// Controller to fetch difference data by userName and interval with pagination
+const getDifferenceDataByUserNameAndInterval = async (userName, interval, page = 1, limit = 10) => {
     try {
         if (!['daily', 'hourly'].includes(interval)) {
             throw new Error('Invalid interval. Use "daily" or "hourly".');
         }
 
-        const data = await DifferenceData.find({ userName, interval }).lean();
-        return data;
+        const skip = (page - 1) * limit;
+
+        // Query MongoDB to fetch relevant fields, including stackName and energy-related fields
+        const data = await DifferenceData.find({ userName, interval })
+            .select('userName interval stackName date time initialEnergy lastEnergy energyDifference timestamp initialInflow lastInflow inflowDifference initialFinalFlow lastFinalFlow finalFlowDifference')
+            .sort({ timestamp: -1 }) // Sort by most recent timestamp
+            .skip(skip)
+            .limit(limit)
+            .lean(); // Converts Mongoose documents to plain objects
+
+        const total = await DifferenceData.countDocuments({ userName, interval });
+
+        return {
+            data,
+            total,
+            page,
+            totalPages: Math.ceil(total / limit),
+        };
     } catch (error) {
         console.error('Error fetching difference data:', error);
         throw error;
     }
 };
-
-// Controller to fetch both hourly and daily difference data by userName
-const getAllDifferenceDataByUserName = async (userName) => {
-    try {
-        const data = await DifferenceData.find({ userName }).lean();
-
-        if (!data.length) {
-            return { daily: [], hourly: [] }; // Return empty arrays if no data found
-        }
-
-        const dailyData = data.filter((item) => item.interval === 'daily');
-        const hourlyData = data.filter((item) => item.interval === 'hourly');
-
-        return { daily: dailyData, hourly: hourlyData };
-    } catch (error) {
-        console.error('Error fetching all difference data:', error);
-        throw error;
-    }
-};
-
-// Function to fetch data by userName, interval, and time range
-const getDifferenceDataByTimeRange = async (userName, interval, fromDate, toDate) => {
+// Controller to fetch data by userName and time range with projections and limit
+// Controller to fetch data by userName and time range with pagination
+const getDifferenceDataByTimeRange = async (userName, interval, fromDate, toDate, page = 1, limit = 10) => {
     try {
         if (!['daily', 'hourly'].includes(interval)) {
             throw new Error('Invalid interval. Use "daily" or "hourly".');
         }
 
+        const startIST = moment.tz(fromDate, 'DD-MM-YYYY', 'Asia/Kolkata').startOf('day');
+        const endIST = moment.tz(toDate, 'DD-MM-YYYY', 'Asia/Kolkata').endOf('day');
+
+        const startUTC = startIST.utc().toDate();
+        const endUTC = endIST.utc().toDate();
+
+        if (isNaN(startUTC) || isNaN(endUTC)) {
+            throw new Error('Invalid date format. Use "DD-MM-YYYY".');
+        }
+
+        const skip = (page - 1) * limit;
+
         const data = await DifferenceData.find({
             userName,
             interval,
-            timestamp: { $gte: new Date(fromDate), $lte: new Date(toDate) }
-        }).lean();
+            timestamp: { $gte: startUTC, $lte: endUTC },
+        })
+            .select('userName interval stackName date time initialEnergy lastEnergy energyDifference timestamp')
+            .sort({ timestamp: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean();
 
-        return data;
+        const total = await DifferenceData.countDocuments({
+            userName,
+            interval,
+            timestamp: { $gte: startUTC, $lte: endUTC },
+        });
+
+        return {
+            data,
+            total,
+            page,
+            totalPages: Math.ceil(total / limit),
+        };
     } catch (error) {
         console.error('Error fetching data by time range:', error);
         throw error;
     }
 };
 
+// Controller to fetch both hourly and daily difference data by userName
+// Controller to fetch all difference data by userName with pagination and interval filtering
+const getAllDifferenceDataByUserName = async (userName, interval, page = 1, limit = 10) => {
+    try {
+        if (!['daily', 'hourly'].includes(interval)) {
+            throw new Error('Invalid interval. Use "daily" or "hourly".');
+        }
+
+        const skip = (page - 1) * limit;
+
+        const data = await DifferenceData.find({ userName, interval })
+            .select('userName interval stackName date time initialEnergy lastEnergy energyDifference timestamp')
+            .sort({ timestamp: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean();
+
+        const total = await DifferenceData.countDocuments({ userName, interval });
+
+        return {
+            data,
+            total,
+            page,
+            totalPages: Math.ceil(total / limit),
+        };
+    } catch (error) {
+        console.error('Error fetching all difference data:', error);
+        throw error;
+    }
+};
+
+
+
+
 
 // Function to download data as CSV
-const downloadDifferenceDataAsCSV = async (userName, interval, fromDate, toDate, res) => {
+
+// Unified function to download difference data as CSV or PDF
+const downloadDifferenceData = async (req, res) => {
     try {
-        const data = await getDifferenceDataByTimeRange(userName, interval, fromDate, toDate);
-        if (!data.length) {
-            return res.status(404).json({ success: false, message: 'No data found for the given time range' });
+        const { userName, fromDate, toDate, format, intervalType = 'daily' } = req.query;
+
+        console.log('Query Parameters:', req.query);
+
+        if (!userName || !fromDate || !toDate || !format) {
+            return res.status(400).json({ success: false, message: 'Missing required query parameters.' });
         }
 
-        const json2csvParser = new Parser();
-        const csv = json2csvParser.parse(data);
+        const parsedFromDate = moment.tz(fromDate, 'DD-MM-YYYY', 'Asia/Kolkata').startOf('day').toDate();
+        const parsedToDate = moment.tz(toDate, 'DD-MM-YYYY', 'Asia/Kolkata').endOf('day').toDate();
 
-        res.setHeader('Content-Type', 'text/csv');
-        res.setHeader('Content-Disposition', `attachment; filename=${userName}_${interval}_data.csv`);
-        res.status(200).end(csv);
+        if (isNaN(parsedFromDate) || isNaN(parsedToDate)) {
+            return res.status(400).json({ success: false, message: 'Invalid date format. Use "DD-MM-YYYY".' });
+        }
+
+        // Query the data using userName, interval type, and timestamp range
+        const data = await DifferenceData.find({
+            userName: decodeURIComponent(userName.trim()),
+            interval: intervalType,
+            timestamp: { $gte: parsedFromDate, $lte: parsedToDate },
+        }).lean();
+
+        if (!data.length) {
+            return res.status(404).json({ success: false, message: 'No data found for the specified criteria.' });
+        }
+
+        if (format === 'csv') {
+            const fields = [
+                'userName', 'interval', 'date', 'time', 'stackName',
+                'initialEnergy', 'lastEnergy', 'energyDifference',
+                'initialInflow', 'lastInflow', 'inflowDifference',
+                'initialFinalFlow', 'lastFinalFlow', 'finalFlowDifference',
+            ];
+
+            const csvData = data.map(item => ({
+                userName: item.userName,
+                interval: item.interval,
+                date: item.date,
+                time: item.time,
+                stackName: item.stackName,
+                initialEnergy: item.initialEnergy,
+                lastEnergy: item.lastEnergy,
+                energyDifference: item.energyDifference,
+                initialInflow: item.initialInflow,
+                lastInflow: item.lastInflow,
+                inflowDifference: item.inflowDifference,
+                initialFinalFlow: item.initialFinalFlow,
+                lastFinalFlow: item.lastFinalFlow,
+                finalFlowDifference: item.finalFlowDifference,
+            }));
+
+            const parser = new Parser({ fields });
+            const csv = parser.parse(csvData);
+
+            res.header('Content-Type', 'text/csv');
+            res.attachment(`${userName}_difference_data.csv`);
+            return res.send(csv);
+        } else if (format === 'pdf') {
+            const doc = new PDFDocument();
+            res.header('Content-Type', 'application/pdf');
+            res.attachment(`${userName}_difference_data.pdf`);
+
+            doc.pipe(res);
+            doc.fontSize(20).text('Difference Data Report', { align: 'center' });
+            doc.fontSize(12).text(`User Name: ${userName}`);
+            doc.fontSize(12).text(`Date Range: ${fromDate} - ${toDate}`);
+            doc.fontSize(12).text(`Interval Type: ${intervalType}`);
+            doc.moveDown();
+
+            data.forEach(item => {
+                doc.fontSize(10).text(`Date: ${item.date}, Time: ${item.time}, Stack: ${item.stackName}`);
+                doc.text(`Initial Energy: ${item.initialEnergy}, Last Energy: ${item.lastEnergy}, Energy Difference: ${item.energyDifference}`);
+                doc.text(`Initial Inflow: ${item.initialInflow}, Last Inflow: ${item.lastInflow}, Inflow Difference: ${item.inflowDifference}`);
+                doc.text(`Initial Final Flow: ${item.initialFinalFlow}, Last Final Flow: ${item.lastFinalFlow}, Final Flow Difference: ${item.finalFlowDifference}`);
+                doc.moveDown();
+            });
+
+            doc.end();
+        } else {
+            return res.status(400).json({ success: false, message: 'Invalid format requested. Use "csv" or "pdf".' });
+        }
     } catch (error) {
-        console.error('Error downloading CSV:', error);
-        res.status(500).json({ success: false, message: 'Failed to download CSV' });
+        console.error('Error fetching or processing data:', error);
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
 };
 
-// Function to download data as PDF
-const downloadDifferenceDataAsPDF = async (userName, interval, fromDate, toDate, res) => {
-    try {
-        const data = await getDifferenceDataByTimeRange(userName, interval, fromDate, toDate);
-        if (!data.length) {
-            return res.status(404).json({ success: false, message: 'No data found for the given time range' });
-        }
 
-        const doc = new pdf();
-        const filename = `${userName}_${interval}_data.pdf`;
 
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
-
-        doc.pipe(res);
-        doc.fontSize(16).text(`Difference Data Report for ${userName}`, { align: 'center' });
-        doc.moveDown();
-
-        data.forEach((item, index) => {
-            doc.fontSize(12).text(`Entry ${index + 1}:`);
-            doc.text(`Stack Name: ${item.stackName}`);
-            doc.text(`Initial Energy: ${item.initialEnergy}`);
-            doc.text(`Last Energy: ${item.lastEnergy}`);
-            doc.text(`Energy Difference: ${item.energyDifference}`);
-            doc.text(`Date: ${item.date}`);
-            doc.text(`Time: ${item.time}`);
-            doc.text(`--------------------------------------`);
-        });
-
-        doc.end();
-    } catch (error) {
-        console.error('Error downloading PDF:', error);
-        res.status(500).json({ success: false, message: 'Failed to download PDF' });
-    }
-};
 
 module.exports = {
     getDifferenceDataByUserNameAndInterval,
     getAllDifferenceDataByUserName,
     getDifferenceDataByTimeRange,
-    downloadDifferenceDataAsCSV,
-    downloadDifferenceDataAsPDF
+    downloadDifferenceData,
 };
 

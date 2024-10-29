@@ -28,9 +28,9 @@ const EnergyDashboard = () => {
           <Energy searchTerm={searchTerm} userData={userData} userType={userType} />
         </div>
        
-        <div className="row">
+        {/* <div className="row">
           <TreatmentAnalysis searchTerm={searchTerm} userData={userData} userType={userType} />
-        </div>
+        </div> */}
         <div className="row">
         <CalibrationExceeded />
         </div>

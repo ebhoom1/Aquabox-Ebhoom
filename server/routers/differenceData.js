@@ -4,86 +4,161 @@ const {
   getDifferenceDataByUserNameAndInterval, 
   getAllDifferenceDataByUserName,
   getDifferenceDataByTimeRange,
-    downloadDifferenceDataAsCSV,
-    downloadDifferenceDataAsPDF
+  downloadDifferenceData
 } = require('../controllers/differenceData');
 
-// Route to get difference data by userName and interval (daily/hourly)
+// Helper function to validate intervals
+const isValidInterval = (interval) => ['daily', 'hourly'].includes(interval);
+
+// Route to get difference data by userName and interval (daily/hourly) with pagination
 router.get('/difference/:userName', async (req, res) => {
   const { userName } = req.params;
-  const { interval } = req.query; // 'hourly' or 'daily'
+  const { interval, page = 1, limit = 100 } = req.query;
 
   try {
-    const data = await getDifferenceDataByUserNameAndInterval(userName, interval);
+    if (!isValidInterval(interval)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid interval. Use "daily" or "hourly".'
+      });
+    }
 
-    if (!data || data.length === 0) {
+    const data = await getDifferenceDataByUserNameAndInterval(userName, interval, parseInt(page), parseInt(limit));
+
+    if (!data.data.length) {
       return res.status(404).json({
         success: false,
-        message: `No ${interval} difference data found for user ${userName}.`,
+        message: `No ${interval} difference data found for user ${userName}.`
       });
     }
 
     res.status(200).json({
       success: true,
       message: `${interval} difference data for ${userName} fetched successfully.`,
-      data,
+      data: data.data,
+      total: data.total,
+      page: data.page,
+      limit: data.limit
     });
   } catch (error) {
     console.error('Error fetching difference data:', error);
     res.status(500).json({
       success: false,
       message: 'Internal server error.',
-      error: error.message,
+      error: error.message
     });
   }
 });
 
-// Route to get all difference data (both hourly and daily) by userName
+// Route to get all difference data (both hourly and daily) by userName with pagination
 router.get('/differenceByUserName/:userName', async (req, res) => {
   const { userName } = req.params;
+  const { interval, page = 1, limit = 100 } = req.query;
 
   try {
-    const data = await getAllDifferenceDataByUserName(userName);
+    if (interval && !isValidInterval(interval)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid interval. Use "daily" or "hourly".'
+      });
+    }
 
-    if (!data.daily.length && !data.hourly.length) {
+    const data = await getAllDifferenceDataByUserName(userName, interval, parseInt(page), parseInt(limit));
+
+    if (!data.data.length) {
       return res.status(404).json({
         success: false,
-        message: `No difference data found for user ${userName}.`,
+        message: `No difference data found for user ${userName}.`
       });
     }
 
     res.status(200).json({
       success: true,
       message: `All difference data for ${userName} fetched successfully.`,
-      data,
+      data: data.data,
+      total: data.total,
+      page: data.page,
+      totalPages: data.totalPages
     });
   } catch (error) {
     console.error('Error fetching all difference data:', error);
     res.status(500).json({
       success: false,
       message: 'Internal server error.',
-      error: error.message,
+      error: error.message
     });
   }
 });
 
-// Route to fetch data by userName, interval, and time range
-// Route to fetch data by time range
-router.get('/data/:userName/:interval/:fromDate/:toDate', async (req, res) => {
+  // Route to fetch data by userName, interval, and time range with pagination
+  router.get('/differenceData/:userName/:interval/:fromDate/:toDate', async (req, res) => {
     const { userName, interval, fromDate, toDate } = req.params;
+    const { page = 1, limit = 100 } = req.query;
+
     try {
-        const data = await getDifferenceDataByTimeRange(userName, interval, fromDate, toDate);
-        res.status(200).json({ success: true, data });
+        if (!isValidInterval(interval)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid interval. Use "daily" or "hourly".',
+            });
+        }
+
+        const data = await getDifferenceDataByTimeRange(
+            userName,
+            interval,
+            fromDate,
+            toDate,
+            parseInt(page),
+            parseInt(limit)
+        );
+
+        if (!data.data.length) {
+            return res.status(404).json({
+                success: false,
+                message: `No data found for ${userName} within the specified time range.`,
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Data fetched successfully.',
+            data: data.data,
+            total: data.total,
+            page: data.page,
+            limit: data.limit,
+        });
     } catch (error) {
-        res.status(500).json({ success: false, message: 'Failed to fetch data' });
+        console.error('Error fetching data by time range:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch data.',
+            error: error.message,
+        });
     }
 });
 
-// Route to download data as CSV
-router.get('/download/csv/:userName/:interval/:fromDate/:toDate', downloadDifferenceDataAsCSV);
+// **Unified Download Route for CSV and PDF**
+// Unified Download Route for CSV and PDF
+// Route to download difference data as CSV or PDF
+router.get('/downloadDifferenceData/', async (req, res) => {
+  const { userName, fromDate, toDate, format, intervalType = 'daily' } = req.query;
 
-// Route to download data as PDF
-router.get('/download/pdf/:userName/:interval/:fromDate/:toDate', downloadDifferenceDataAsPDF);
+  // Validate the required parameters
+  if (!userName || !fromDate || !toDate || !['csv', 'pdf'].includes(format)) {
+      return res.status(400).json({
+          success: false,
+          message: 'Missing or invalid query parameters. Use "csv" or "pdf" for format.',
+      });
+  }
+
+  try {
+      // Call the download function with the provided query parameters
+      await downloadDifferenceData(req, res);
+  } catch (error) {
+      console.error('Error downloading data:', error);
+      res.status(500).json({ success: false, message: 'Failed to download data.' });
+  }
+});;
 
 
 module.exports = router;

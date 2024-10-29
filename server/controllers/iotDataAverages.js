@@ -2,6 +2,9 @@ const IotData = require('../models/iotData');
 const IotDataAverage = require('../models/averageData');
 const moment = require('moment-timezone');
 const cron = require('node-cron');
+const { Parser } = require('json2csv');
+const PDFDocument = require('pdfkit');
+
 
 // Function to calculate averages dynamically
 // Function to calculate averages dynamically
@@ -219,5 +222,151 @@ const findAverageDataUsingUserNameAndStackNameAndIntervalType = async (req, res)
     }
 };
 
+
+const findAverageDataUsingUserNameAndStackNameAndIntervalTypeWithTimeRange = async (req, res) => {
+    const { userName, stackName, intervalType } = req.params;
+    const { startTime, endTime } = req.query; // Time range query parameters
+
+    try {
+        // Parse start and end dates from the query
+        const startDate = moment(startTime, 'DD-MM-YYYY').format('DD/MM/YYYY');
+        const endDate = moment(endTime, 'DD-MM-YYYY').format('DD/MM/YYYY');
+
+        if (!startDate || !endDate) {
+            return res.status(400).json({ message: 'Invalid start or end date format.' });
+        }
+
+        // Fetch data matching the user, stack, and interval type within the date range
+        const data = await IotDataAverage.find({
+            userName,
+            intervalType,
+            'stackData.stackName': stackName,
+            dateAndTime: { $gte: startDate, $lte: endDate }, // Query by date range
+        });
+
+        if (!data || data.length === 0) {
+            return res.status(404).json({
+                message: 'No average data found for the specified criteria.',
+            });
+        }
+
+        // Filter the stack data by the provided stackName
+        const filteredData = data.map((entry) => ({
+            ...entry._doc,
+            stackData: entry.stackData.filter((stack) => stack.stackName === stackName),
+        }));
+
+        res.status(200).json(filteredData);
+    } catch (error) {
+        console.error(
+            `Error fetching data for user ${userName}, stack ${stackName}, interval type ${intervalType}, and time range:`,
+            error
+        );
+        res.status(500).json({
+            message: 'Error fetching average data.',
+            error,
+        });
+    }
+};
+
+
+const downloadAverageDataWithUserNameStackNameAndIntervalWithTimeRange = async (req, res) => {
+    try {
+        const { userName, stackName, intervalType } = req.params;
+        const { startTime, endTime, format } = req.query;
+
+        // Validate the input parameters
+        if (!userName || !stackName || !intervalType || !startTime || !endTime || !format) {
+            return res.status(400).json({ success: false, message: 'Missing required query parameters.' });
+        }
+
+        // Parse and format dates
+        const startDate = moment(startTime, 'DD-MM-YYYY').startOf('day').toDate();
+        const endDate = moment(endTime, 'DD-MM-YYYY').endOf('day').toDate();
+
+        if (!startDate || !endDate) {
+            return res.status(400).json({ success: false, message: 'Invalid date format. Use "DD-MM-YYYY".' });
+        }
+
+        // Query data with filtering for stackName and date range
+        const data = await IotDataAverage.find({
+            userName,
+            intervalType,
+            'stackData.stackName': stackName,
+            timestamp: { $gte: startDate, $lte: endDate },
+        }).lean();
+
+        if (!data || data.length === 0) {
+            return res.status(404).json({ success: false, message: 'No data found for the specified criteria.' });
+        }
+
+        // Filter out the stack data that matches the requested stackName
+        const filteredData = data.map(entry => ({
+            ...entry,
+            stackData: entry.stackData.filter(stack => stack.stackName === stackName),
+        })).filter(entry => entry.stackData.length > 0); // Ensure only non-empty stackData entries are included
+
+        // Extract dynamic fields from the stackData
+        const stackKeys = Object.keys(filteredData[0].stackData[0]?.parameters || {}).filter(key => key !== '_id');
+
+        if (format === 'csv') {
+            const fields = ['Date', 'Time', 'Stack Name', ...stackKeys];
+
+            const csvData = filteredData.flatMap(item =>
+                item.stackData.map(stack => ({
+                    Date: moment(item.timestamp).format('DD-MM-YYYY'),
+                    Time: moment(item.timestamp).format('HH:mm:ss'),
+                    'Stack Name': stack.stackName,
+                    ...stack.parameters,
+                }))
+            );
+
+            const parser = new Parser({ fields });
+            const csv = parser.parse(csvData);
+
+            res.header('Content-Type', 'text/csv');
+            res.attachment(`${userName}_${stackName}_average_data.csv`);
+            return res.send(csv);
+        } else if (format === 'pdf') {
+            const doc = new PDFDocument();
+            res.header('Content-Type', 'application/pdf');
+            res.attachment(`${userName}_${stackName}_average_data.pdf`);
+
+            doc.pipe(res);
+            doc.fontSize(20).text('Average Data Report', { align: 'center' });
+            doc.fontSize(12).text(`User Name: ${userName}`);
+            doc.fontSize(12).text(`Stack Name: ${stackName}`);
+            doc.fontSize(12).text(`Interval Type: ${intervalType}`);
+            doc.fontSize(12).text(`Date Range: ${startTime} - ${endTime}`);
+            doc.moveDown();
+
+            filteredData.forEach(item => {
+                item.stackData.forEach(stack => {
+                    doc.fontSize(12).text(`Date: ${moment(item.timestamp).format('DD-MM-YYYY')}`);
+                    doc.text(`Time: ${moment(item.timestamp).format('HH:mm:ss')}`);
+                    doc.fontSize(12).text(`Stack: ${stack.stackName}`, { underline: true });
+
+                    const keys = Object.keys(stack.parameters || {});
+                    const tableData = keys.map(key => `${key}: ${stack.parameters[key]}`).join(', ');
+
+                    doc.text(tableData);
+                    doc.moveDown();
+                });
+            });
+
+            doc.end();
+        } else {
+            return res.status(400).json({ success: false, message: 'Invalid format requested. Use "csv" or "pdf".' });
+        }
+    } catch (error) {
+        console.error('Error fetching or processing data:', error);
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+};
+
+
 module.exports = { calculateAverages, scheduleAveragesCalculation,findAverageDataUsingUserName,
-    findAverageDataUsingUserNameAndStackName,getAllAverageData,findAverageDataUsingUserNameAndStackNameAndIntervalType };
+    findAverageDataUsingUserNameAndStackName,getAllAverageData,findAverageDataUsingUserNameAndStackNameAndIntervalType,
+    findAverageDataUsingUserNameAndStackNameAndIntervalTypeWithTimeRange,
+    downloadAverageDataWithUserNameStackNameAndIntervalWithTimeRange,
+};

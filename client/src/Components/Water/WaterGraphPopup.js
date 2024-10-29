@@ -89,7 +89,7 @@ const WaterGraphPopup = ({ isOpen, onRequestClose, parameter, userName, stackNam
                 fill: false,
                 backgroundColor: '#236a80',
                 borderColor: '#236A80',
-                tension: 0.3,
+                tension: 0.1,
                 pointRadius: 5, // Default size of the dots
                 pointHoverRadius: 10, // Size of the dots on hover
                 pointHoverBorderWidth: 3, // Border width on hover

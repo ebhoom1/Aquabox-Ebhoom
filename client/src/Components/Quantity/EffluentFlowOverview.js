@@ -1,50 +1,154 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useOutletContext } from 'react-router-dom'; // Shared search context
+import { Oval } from 'react-loader-spinner'; // Import Oval spinner
+import ConsumptionPredictionGraph from './ConsumptionPredictionGraph';
+import { API_URL } from '../../utils/apiConfig';
+import { useSelector } from 'react-redux'; // Redux for userType check
 
 const EffluentFlowOverview = () => {
+  const { userType, userData } = useSelector((state) => state.user); // Fetch userType and userData from Redux
+  const [summaryData, setSummaryData] = useState({ totalInflow: 0, totalFinalflow: 0 });
+  const [predictionData, setPredictionData] = useState({ predictedInflow: 0, predictedFinalflow: 0 });
+  const [loading, setLoading] = useState(true);
+  const [predictionLoading, setPredictionLoading] = useState(true);
+  const [currentDate, setCurrentDate] = useState('');
+  const { searchTerm } = useOutletContext(); // Get search term from context
+  const [currentUserName, setCurrentUserName] = useState('');
+
+  useEffect(() => {
+    const userName = userType === 'admin' 
+      ? searchTerm || currentUserName 
+      : userData?.validUserOne?.userName;
+
+    if (userName) {
+      fetchData(userName);
+      fetchPredictionData(userName);
+      setCurrentUserName(userName);
+    }
+  }, [searchTerm, currentUserName, userType, userData]);
+
+  const fetchData = async (userName) => {
+    const intervals = ['monthly', 'daily', 'hourly', '30Minutes', '15Minutes'];
+    let data = null;
+
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      setCurrentDate(
+        new Date().toLocaleDateString('en-IN', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        })
+      );
+
+      for (let interval of intervals) {
+        const response = await axios.get(`${API_URL}/api/summary/${userName}/hourly`);
+        if (response.data && response.data.length > 0) {
+          const currentDateData = response.data.find(
+            (entry) => new Date(entry.interval).toISOString().split('T')[0] === today
+          );
+          if (currentDateData) {
+            data = currentDateData;
+            break;
+          }
+        }
+      }
+
+      setSummaryData(data || { totalInflow: 0, totalFinalflow: 0 });
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setSummaryData({ totalInflow: 0, totalFinalflow: 0 });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchPredictionData = async (userName) => {
+    try {
+      const response = await axios.get(`${API_URL}/api/prediction-summary/${userName}/hourly`);
+      const prediction = response.data[0];
+
+      setPredictionData(prediction || { predictedInflow: 0, predictedFinalflow: 0 });
+    } catch (error) {
+      console.error('Error fetching prediction data:', error);
+      setPredictionData({ predictedInflow: 0, predictedFinalflow: 0 });
+    } finally {
+      setPredictionLoading(false);
+    }
+  };
+
+  if (loading || predictionLoading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ height: '80vh' }}>
+        <Oval height={60} width={60} color="#236A80" ariaLabel="Fetching details" secondaryColor="#e0e0e0" />
+      </div>
+    );
+  }
+
   return (
-    <div className="row mt-4">
-      {/* First Division: Total Inflow and Outflow */}
-      <div className="col-md-12">
-        <h3 className="text-center">Total Inflow and Outflow</h3>
-        <div className="row">
-          <div className="col-12 col-md-6 mb-4">
-            <div className="card">
-              <div className="card-body">
-                <h5 className="card-title text-center">Total Inflow</h5>
-                <p className="text-center display-4">12,350 m³</p> {/* Example Value */}
+    <div className="container-fluid">
+      <div className="row mt-4">
+        {/* Left Section */}
+        <div className="col-md-6">
+          <h3 className="text-center">Total Inflow and Outflow</h3>
+          <div className="row">
+            <div className="col-md-6 mb-4">
+              <div className="card">
+                <small>{currentDate}</small>
+                <div className="card-body">
+                  <h5 className="card-title text-center">Inflow</h5>
+                  <p className="text-center display-4">
+                    {summaryData.totalInflow.toLocaleString()} m³
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="col-md-6 mb-4">
+              <div className="card">
+                <small>{currentDate}</small>
+                <div className="card-body">
+                  <h5 className="card-title text-center">Final Flow</h5>
+                  <p className="text-center display-4">
+                    {summaryData.totalFinalflow.toLocaleString()} m³
+                  </p>
+                </div>
               </div>
             </div>
           </div>
-          <div className="col-12 col-md-6 mb-4">
-            <div className="card">
-              <div className="card-body">
-                <h5 className="card-title text-center">Total Final Flow</h5>
-                <p className="text-center display-4">11,950 m³</p> {/* Example Value */}
+
+          <h3 className="text-center">Prediction for Next Month</h3>
+          <div className="row">
+            <div className="col-md-6 mb-4">
+              <div className="card">
+                <small>{currentDate}</small>
+                <div className="card-body">
+                  <h5 className="card-title text-center">Predicted Inflow</h5>
+                  <p className="text-center display-4">
+                    {predictionData.predictedInflow.toLocaleString()} m³
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="col-md-6 mb-4">
+              <div className="card">
+                <small>{currentDate}</small>
+                <div className="card-body">
+                  <h5 className="card-title text-center">Predicted Outflow</h5>
+                  <p className="text-center display-4">
+                    {predictionData.predictedFinalflow.toLocaleString()} m³
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Second Division: Prediction for Next Month */}
-      <div className="col-md-12">
-        <h3 className="text-center">Prediction for Next Month</h3>
-        <div className="row">
-          <div className="col-12 col-md-6 mb-4">
-            <div className="card">
-              <div className="card-body">
-                <h5 className="card-title text-center">Prediction Inflow</h5>
-                <p className="text-center display-4">13,200 m³</p> {/* Example Value */}
-              </div>
-            </div>
-          </div>
-          <div className="col-12 col-md-6 mb-4">
-            <div className="card">
-              <div className="card-body">
-                <h5 className="card-title text-center">Prediction Outflow</h5>
-                <p className="text-center display-4">12,900 m³</p> {/* Example Value */}
-              </div>
-            </div>
+        {/* Right Section */}
+        <div className="col-md-6">
+          <div className="card" style={{ height: '100%' }}>
+            <ConsumptionPredictionGraph />
           </div>
         </div>
       </div>

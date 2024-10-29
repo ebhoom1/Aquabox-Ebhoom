@@ -8,7 +8,8 @@ const IotDataAverage = require(`../models/averageData`);
 const DifferenceData = require(`../models/differeneceData`);
 const { handleExceedValues } = require('./calibrationExceed');
 const { io, server } = require('../app');
-
+const { calculateTotalUsage } = require('./consumptionController');
+const { saveOrUpdateLastEntryByUserName } = require('./lastIotDataController');
 
 // Function to check sensor data for zero values
 const checkSensorData = (data) => {
@@ -339,6 +340,9 @@ const handleSaveMessage = async (req, res) => {
 
         await newEntry.save();
 
+        // Save or update latest data
+        await saveOrUpdateLastEntryByUserName(newEntry.toObject());
+
         // Emit all stack data in real time to the specific user room
         req.io.to(data.userName).emit('stackDataUpdate', {
             stackData: stacks, // Send the entire stackData array
@@ -348,7 +352,7 @@ const handleSaveMessage = async (req, res) => {
 
         // Call any exceed value checks after saving the data
         await handleExceedValues();
-
+           
         res.status(200).json({
             success: true,
             message: 'New Entry data saved successfully',
@@ -567,169 +571,6 @@ const getIotDataByCompanyName = async (req, res) => {
 };
 
 
-// // The Graph printing Taking average and using in the graph//
-// const calculateAverages = async (userName, product_id, startTime, endTime, interval) => {
-//     console.log(`Calculating averages for ${interval}: ${startTime} to ${endTime}`);
-//     const data = await IotData.find({
-//         userName: userName,
-//         product_id: product_id,
-//         timestamp: {
-//             $gte: startTime,
-//             $lt: endTime
-//         }
-//     });
-//     console.log(`Data length for ${interval}:`, data.length);
-//     if (data.length === 0) {
-//         console.log(`No data found for interval ${interval}`);
-//         return;
-//     }
-
-//     const fields = ['ph', 'TDS', 'turbidity', 'temperature', 'BOD', 'COD', 'TSS', 'ORP', 'nitrate', 'ammonicalNitrogen', 'DO', 'chloride', 'PM', 'PM10', 'PM25', 'NOH', 'NH3', 'WindSpeed', 'WindDir', 'AirTemperature', 'Flouride', 'Humidity', 'solarRadiation', 'DB', 'inflow', 'finalflow', 'energy', 'CO', 'NOX', 'NO2', 'Mercury', 'Pressure', 'voltage', 'current', 'power'];
-
-//     const averages = fields.reduce((acc, field) => {
-//         acc[field] = parseFloat((data.reduce((sum, item) => sum + parseFloat(item[field] || 0), 0) / data.length).toFixed(2));
-//         return acc;
-//     }, {});
-
-//     console.log(`Averages calculated for ${interval}:`, averages);
-
-//     const averageEntry = new IotDataAverage({
-//         userName: userName,
-//         product_id: product_id,  // Assuming all data entries have the same product_id
-//         interval: interval,
-//         dateAndTime: moment().format('DD/MM/YYYY HH:mm'),
-//         ...averages,
-//         timestamp: new Date()
-//     });
-
-//     await averageEntry.save();
-//     console.log(`Average entry saved for ${interval}:`, averageEntry);
-// };
-
-// const scheduleAveragesCalculation = () => {
-   
-//     cron.schedule('0 * * * *', async () => { // Every hour
-//         console.log("Running hourly average calculation...");
-//         const users = await IotData.distinct('userName');
-//         for (let userName of users) {
-//             const productIds = await IotData.distinct('product_id', { userName: userName });
-//             for (let product_id of productIds) {
-//                 const startTime = new Date(Date.now() - 60 * 60 * 1000);
-//                 const endTime = new Date();
-//                 await calculateAverages(userName, product_id, startTime, endTime, 'hour');
-//             }
-//         }
-//     });
-
-//     cron.schedule('0 0 * * *', async () => { // Every day
-//         console.log("Running daily average calculation...");
-//         const users = await IotData.distinct('userName');
-//         for (let userName of users) {
-//             const productIds = await IotData.distinct('product_id', { userName: userName });
-//             for (let product_id of productIds) {
-//                 const now = new Date();
-//                 const dailyStartTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
-//                 const dailyEndTime = new Date(dailyStartTime.getTime() + 24 * 60 * 60 * 1000 - 1);
-//                 await calculateAverages(userName, product_id, dailyStartTime, dailyEndTime, 'day');
-//             }
-//         }
-//     });
-
-//     cron.schedule('0 0 * * 1', async () => { // Every week (Monday)
-//         console.log("Running weekly average calculation...");
-//         const users = await IotData.distinct('userName');
-//         for (let userName of users) {
-//             const productIds = await IotData.distinct('product_id', { userName: userName });
-//             for (let product_id of productIds) {
-//                 const now = new Date();
-//                 const weeklyStartTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7, 0, 0, 0);
-//                 await calculateAverages(userName, product_id, weeklyStartTime, now, 'week');
-//             }
-//         }
-//     });
-
-//     cron.schedule('0 0 1 * *', async () => { // Every month (1st day)
-//         console.log("Running monthly average calculation...");
-//         const users = await IotData.distinct('userName');
-//         for (let userName of users) {
-//             const productIds = await IotData.distinct('product_id', { userName: userName });
-//             for (let product_id of productIds) {
-//                 const now = new Date();
-//                 const monthlyStartTime = new Date(now.getFullYear(), now.getMonth(), now.getDate()- 30, 0, 0, 0);
-//                 const monthlyEndTime = new Date();
-//                 await calculateAverages(userName, product_id, monthlyStartTime, monthlyEndTime, 'month');
-//             }
-//         }
-//     });
-
-//     cron.schedule('0 0 1 */6 *', async () => { // Every 6 months (1st day of every 6th month)
-//         console.log("Running 6-monthly average calculation...");
-//         const users = await IotData.distinct('userName');
-//         for (let userName of users) {
-//             const productIds = await IotData.distinct('product_id', { userName: userName });
-//             for (let product_id of productIds) {
-//                 const now = new Date();
-//                 const sixMonthStartTime = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate(), 0, 0, 0);
-//                 const sixMonthEndTime = new Date();
-//                 await calculateAverages(userName, product_id, sixMonthStartTime, sixMonthEndTime, 'sixmonths');
-//             }
-//         }
-//     });
-
-//     cron.schedule('0 0 1 1 *', async () => { // Every year (1st day of January)
-//         console.log("Running yearly average calculation...");
-//         const users = await IotData.distinct('userName');
-//         for (let userName of users) {
-//             const productIds = await IotData.distinct('product_id', { userName: userName });
-//             for (let product_id of productIds) {
-//                 const now = new Date();
-//                 const yearlyStartTime = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate(), 0, 0, 0);
-//                 const yearlyEndTime = new Date();
-//                 await calculateAverages(userName, product_id, yearlyStartTime,yearlyEndTime, 'year');
-//             }
-//         }
-//     });
-// };
-
-// scheduleAveragesCalculation();
-
-
-
-
-
-
-const getAverageDataByUserName = async (req, res) => {
-    const { userName } = req.params;
-    const { interval } = req.query;
-
-    try {
-        const averageData = await IotDataAverage.find({ userName, interval });
-        if (averageData.length === 0) {
-            return res.status(404).json({
-                status: 404,
-                success: false,
-                message: 'No average data found for the specified userName and interval'
-            });
-        }
-
-        res.status(200).json({
-            status: 200,
-            success: true,
-            message: `Average data for userName ${userName} and interval ${interval} fetched successfully`,
-            data: averageData
-        });
-    } catch (error) {
-        console.error(`Error Fetching average data by userName:`, error);
-        res.status(500).json({
-            status: 500,
-            success: false,
-            message: `Error Fetching average data by userName and interval`,
-            error: error.message
-        });
-    }
-};
-
-
 //End of Averages // 
 
 //Download Entire IOT Data
@@ -820,11 +661,6 @@ const downloadIotData = async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 };
-
-
-
-
-
 
 
 
@@ -934,7 +770,7 @@ const downloadIotDataByUserName = async (req, res) => {
 
 const downloadIotDataByUserNameAndStackName = async (req, res) => {
     try {
-        let { userName, stackName, fromDate, toDate, format } = req.query;
+        let { userName, stackName, fromDate, toDate, format, page = 1 } = req.query;
 
         // Decode parameters and validate input
         userName = decodeURIComponent(userName.trim());
@@ -947,41 +783,50 @@ const downloadIotDataByUserNameAndStackName = async (req, res) => {
             return res.status(400).send('Missing required query parameters');
         }
 
-        // Query IoT data by user and stack name within the given date range
+        // Use pagination to fetch data in batches (page size is handled internally by skip)
+        const pageSize = 1000;  // Fetch 1000 records per batch
+        const skip = (page - 1) * pageSize;
+
+        // Query IoT data with pagination and filtering
         const data = await IotData.find({
             userName,
             'stackData.stackName': stackName,
             timestamp: { $gte: parsedFromDate, $lte: parsedToDate }
-        }).lean();
+        })
+        .skip(skip)
+        .limit(pageSize)
+        .lean();
 
         if (data.length === 0) {
             return res.status(404).send('No data found for the specified criteria');
         }
 
-        if (format === 'csv') {
-            // Extract the fields dynamically from the stackData, excluding '_id'
-            const stackKeys = Object.keys(data[0].stackData[0] || {}).filter(key => key !== '_id');
+        // Extract dynamic fields from the stackData, excluding '_id'
+        const stackKeys = Object.keys(data[0].stackData[0]?.parameters || {}).filter(key => key !== '_id');
 
-            const fields = ['Date', 'Time', ...stackKeys];
+        if (format === 'csv') {
+            // Prepare CSV data
+            const fields = ['Date', 'Time', 'Stack Name', ...stackKeys];
             const csvData = data.flatMap(item =>
                 item.stackData.map(stack => ({
                     Date: moment(item.timestamp).format('DD-MM-YYYY'),
                     Time: moment(item.timestamp).format('HH:mm:ss'),
-                    ...stack
+                    'Stack Name': stack.stackName,
+                    ...stack.parameters,
                 }))
             );
 
-            const json2csvParser = new Parser({ fields });
-            const csv = json2csvParser.parse(csvData);
+            const parser = new Parser({ fields });
+            const csv = parser.parse(csvData);
 
             res.header('Content-Type', 'text/csv');
-            res.attachment('iot_data.csv');
+            res.attachment(`${userName}_${stackName}_iot_data.csv`);
             return res.send(csv);
         } else if (format === 'pdf') {
-            // Generate PDF in tabular format
+            // Generate PDF with paginated data
             const doc = new PDFDocument();
             res.header('Content-Type', 'application/pdf');
-            res.attachment('iot_data.pdf');
+            res.attachment(`${userName}_${stackName}_iot_data.pdf`);
 
             doc.pipe(res);
             doc.fontSize(20).text('IoT Data Report', { align: 'center' });
@@ -991,19 +836,17 @@ const downloadIotDataByUserNameAndStackName = async (req, res) => {
             doc.moveDown();
 
             data.forEach(item => {
-                doc.fontSize(10).text(`Date: ${moment(item.timestamp).format('DD-MM-YYYY')}, Time: ${moment(item.timestamp).format('HH:mm:ss')}`);
-                const stackData = item.stackData;
-
-                stackData.forEach(stack => {
-                    doc.moveDown();
+                item.stackData.forEach(stack => {
+                    doc.fontSize(12).text(`Date: ${moment(item.timestamp).format('DD-MM-YYYY')}`);
+                    doc.text(`Time: ${moment(item.timestamp).format('HH:mm:ss')}`);
                     doc.fontSize(12).text(`Stack: ${stack.stackName}`, { underline: true });
 
-                    const keys = Object.keys(stack).filter(key => key !== 'stackName' && stack[key] !== null);
-                    const tableData = keys.map(key => `${key}: ${stack[key]}`).join(', ');
+                    const keys = Object.keys(stack.parameters || {});
+                    const tableData = keys.map(key => `${key}: ${stack.parameters[key]}`).join(', ');
 
                     doc.text(tableData);
+                    doc.moveDown();
                 });
-                doc.moveDown();
             });
 
             doc.end();
@@ -1018,34 +861,54 @@ const downloadIotDataByUserNameAndStackName = async (req, res) => {
 
 
 const viewDataByDateUserAndStackName = async (req, res) => {
-    const { fromDate, toDate, userName, stackName } = req.query;
+    const { fromDate, toDate, userName, stackName, limit = 10, page = 1 } = req.query;
 
     try {
         // Parse the input dates to ISO Date objects for accurate querying
         const parsedFromDate = moment(fromDate, 'DD-MM-YYYY').startOf('day').toDate();
         const parsedToDate = moment(toDate, 'DD-MM-YYYY').endOf('day').toDate();
 
+        if (!parsedFromDate || !parsedToDate || !userName || !stackName) {
+            return res.status(400).json({ message: 'Missing required query parameters' });
+        }
+
         console.log("Parsed Dates:", { parsedFromDate, parsedToDate });
 
-        // Build query with proper date range and userName
+        // Build the query with proper date range, userName, and stackName filtering
         const query = {
             userName: userName,
             timestamp: { // Use timestamp for accurate date-based queries
                 $gte: parsedFromDate,
                 $lte: parsedToDate
             },
-            // Check if any stack inside stackData matches the given stackName
-            'stackData.stackName': stackName
+            'stackData.stackName': stackName // Filter by stackName
         };
 
-        const data = await IotData.find(query).lean();
+        // Calculate the number of items to skip based on the page and limit
+        const skip = (page - 1) * limit;
+
+        // Query the data with pagination (limit and skip)
+        const data = await IotData.find(query)
+            .skip(skip) // Skip the previous pages' data
+            .limit(parseInt(limit)) // Limit the number of results per page
+            .lean();
 
         if (!data.length) {
             console.log("No data found with criteria:", { parsedFromDate, parsedToDate, userName, stackName });
             return res.status(404).json({ message: "No data record is saved on these dates for the given user and stack name." });
         }
 
-        res.status(200).json({ data });
+        // Filter out only the relevant stack data
+        const filteredData = data.map(entry => ({
+            ...entry,
+            stackData: entry.stackData.filter(stack => stack.stackName === stackName),
+        })).filter(entry => entry.stackData.length > 0); // Ensure only non-empty entries are included
+
+        res.status(200).json({ 
+            data: filteredData, 
+            currentPage: parseInt(page), 
+            totalRecords: data.length 
+        });
     } catch (error) {
         console.error('Failed to view data:', error);
         res.status(500).json({ message: "Failed to process request" });
@@ -1101,7 +964,7 @@ const deleteIotDataByDateAndUser = async (req, res) => {
 
 
 module.exports ={handleSaveMessage, getAllIotData, getLatestIoTData,getIotDataByUserName,
-    downloadIotData,getAverageDataByUserName,getDifferenceDataByUserName,downloadIotDataByUserName,
+    downloadIotData,getDifferenceDataByUserName,downloadIotDataByUserName,
     deleteIotDataByDateAndUser,downloadIotDataByUserNameAndStackName,getIotDataByUserNameAndStackName,getIotDataByCompanyNameAndStackName,
     getIotDataByCompanyName,viewDataByDateUserAndStackName
  }

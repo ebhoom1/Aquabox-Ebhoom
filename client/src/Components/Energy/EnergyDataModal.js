@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
-import { Oval } from 'react-loader-spinner';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import moment from 'moment';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { API_URL } from '../../utils/apiConfig';
-import { fetchStackNameByUserName } from '../../redux/features/userLog/userLogSlice';
+import './index.css'; // For custom styling
 
 Modal.setAppElement('#root');
 
@@ -32,16 +31,12 @@ const EnergyDataModal = ({ isOpen, onRequestClose }) => {
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [userName, setUserName] = useState('');
-  const [stackName, setStackName] = useState('');
   const [interval, setInterval] = useState('daily');
-  const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState([]);
-  const [stackOptions, setStackOptions] = useState([]);
   const [showDownloadOptions, setShowDownloadOptions] = useState(false);
 
   const navigate = useNavigate();
   const { userType, userData } = useSelector((state) => state.user);
-  const dispatch = useDispatch();
 
   useEffect(() => {
     if (userType === 'admin') {
@@ -56,33 +51,16 @@ const EnergyDataModal = ({ isOpen, onRequestClose }) => {
       fetchUsers();
     } else if (userType === 'user' && userData?.validUserOne?.userName) {
       setUserName(userData.validUserOne.userName);
-      fetchStackOptions(userData.validUserOne.userName);
     }
   }, [userType, userData]);
 
-  const fetchStackOptions = async (selectedUserName) => {
-    try {
-      const result = await dispatch(fetchStackNameByUserName(selectedUserName)).unwrap();
-      setStackOptions(result.map((stack) => stack.name));
-    } catch (error) {
-      console.error('Error fetching stack names:', error);
-      alert('Failed to fetch stack names.');
-    }
-  };
-
-  const handleUserChange = (selectedUser) => {
-    setUserName(selectedUser.userName);
-    fetchStackOptions(selectedUser.userName);
-  };
-
-  const handleViewClick = async () => {
-    navigate('/view-data', {
+  const handleViewClick = () => {
+    navigate('/view-difference', {
       state: {
         userName,
-        stackName,
         interval,
-        fromDate: moment(fromDate).format('YYYY-MM-DD'),
-        toDate: moment(toDate).format('YYYY-MM-DD'),
+        fromDate: moment(fromDate).format('DD-MM-YYYY'),
+        toDate: moment(toDate).format('DD-MM-YYYY'),
       },
     });
   };
@@ -90,14 +68,14 @@ const EnergyDataModal = ({ isOpen, onRequestClose }) => {
   const handleDownloadClick = async (format) => {
     try {
       const response = await axios.get(
-        `${API_URL}/api/difference/download${format.toUpperCase()}`,
+        `${API_URL}/api/downloadDifferenceData`,
         {
           params: {
             userName,
-            stackName,
-            interval,
-            fromDate,
-            toDate,
+            fromDate: moment(fromDate).format('DD-MM-YYYY'),
+            toDate: moment(toDate).format('DD-MM-YYYY'),
+            format,
+            intervalType: interval,
           },
           responseType: 'blob',
         }
@@ -107,7 +85,7 @@ const EnergyDataModal = ({ isOpen, onRequestClose }) => {
       link.href = url;
       link.setAttribute(
         'download',
-        `${userName}_${interval}_${fromDate}_${toDate}.${format.toLowerCase()}`
+        `${userName}_${interval}_${fromDate}_${toDate}.${format}`
       );
       document.body.appendChild(link);
       link.click();
@@ -130,7 +108,7 @@ const EnergyDataModal = ({ isOpen, onRequestClose }) => {
         {userType === 'admin' ? (
           <div className="form-group">
             <label>User Name</label>
-            <select className="form-control" onChange={(e) => handleUserChange(e.target.value)}>
+            <select className="form-control" onChange={(e) => setUserName(e.target.value)}>
               <option value="">Select User</option>
               {users.map((user) => (
                 <option key={user.userName} value={user.userName}>
@@ -172,19 +150,24 @@ const EnergyDataModal = ({ isOpen, onRequestClose }) => {
         </div>
       </div>
       <div className="modal-footer">
-        <button className="btn btn-success" onClick={() => setShowDownloadOptions(!showDownloadOptions)}>
-          Download
-        </button>
-        {showDownloadOptions && (
-          <div className="dropdown-menu show">
-            <button className="dropdown-item" onClick={() => handleDownloadClick('csv')}>
-              Download CSV
-            </button>
-            <button className="dropdown-item" onClick={() => handleDownloadClick('pdf')}>
-              Download PDF
-            </button>
-          </div>
-        )}
+        <div className="dropdown">
+          <button
+            className="btn btn-secondary dropdown-toggle"
+            onClick={() => setShowDownloadOptions(!showDownloadOptions)}
+          >
+            Download
+          </button>
+          {showDownloadOptions && (
+            <div className="dropdown-menu show">
+              <button className="dropdown-item" onClick={() => handleDownloadClick('csv')}>
+                Download as CSV
+              </button>
+              <button className="dropdown-item" onClick={() => handleDownloadClick('pdf')}>
+                Download as PDF
+              </button>
+            </div>
+          )}
+        </div>
         <button className="btn btn-primary" onClick={handleViewClick}>
           View Data
         </button>
