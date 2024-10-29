@@ -181,7 +181,7 @@
         { parameter: "Colour", value: 'color', name: 'color' },
         { parameter: "Fluoride", value: "mg/l", name: "Fluoride" },
         { parameter: "Flow", value: 'm3/hr', name: "Flow" },
-
+        { parameter: "TOC", value:' mg/l', name:'TOC'}
 
       ];
 
@@ -301,9 +301,9 @@
                             )
                         ))
                     ) : (
-                        <div className="col-12">
-                            <h5>Waiting real-time data available</h5>
-                        </div>
+                      <div class="col-12 d-flex justify-content-center align-items-center mt-5">
+                      <h5>Waiting real-time data available</h5>
+                    </div>
                     )}
                 </div>
  
