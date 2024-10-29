@@ -95,7 +95,7 @@ const LeftSideBar = () => {
               </ul>
             )}
           </li>
-          <NavItem to="/quantity" iconClass="typcn typcn-document-text" title="Quantity" />
+          {/* <NavItem to="/quantity" iconClass="typcn typcn-document-text" title="Quantity" /> */}
           <NavItem to="/energy" iconClass="typcn typcn-document-text" title="Energy" />
           <NavItem to="/live-video" iconClass="typcn typcn-document-text" title="Live Emmison Video" />
           <NavItem to="/manage-users" iconClass="typcn typcn-document-text" title="Manage Users" />
