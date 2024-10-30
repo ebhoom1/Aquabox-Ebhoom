@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { ToastContainer, toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { useOutletContext } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
@@ -83,7 +82,6 @@ const WaterFlow = () => {
         setDifferenceData(filteredData);
         setTotalPages(Math.ceil(data.total / limit));
       } else {
-        toast.error("Difference data not found");
         setDifferenceData([]);
       }
     } catch (error) {
@@ -222,7 +220,6 @@ const WaterFlow = () => {
                 </button>
               </div>
 
-              <ToastContainer />
             </div>
           </div>
         </div>
