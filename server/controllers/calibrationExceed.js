@@ -7,6 +7,8 @@ const userdb = require('../models/user');
 const { createNotification } = require('../controllers/notification');
 const CalibrationExceedValues = require('../models/calibrationExceedValues');
 const IotData = require('../models/iotData')
+const Chat = require('../models/chatModel')
+const User = require('../models/user');
 
 // Create a new Twilio client
 const accountsid ="AC16116151f40f27195ca7e326ada5cb83"
@@ -368,11 +370,35 @@ const handleExceedValues = async () => {
             }
 
             // Save exceedances and send notifications
-            for (const exceed of exceedances) {
-                await saveExceedValue(exceed.parameter, exceed.value, user, exceed.stackName);
-                await sendNotification(exceed.parameter, exceed.value, user, exceed.stackName);
-            }
-        }
+         // Save exceedances and send notifications + chat messages
+         // Fetch the admin user (or system user) for sending the chat message
+         const adminUser = await User.findOne({ userName: 'Admin-Developer' });
+
+         if (!adminUser) {
+             console.error('Admin user not found.');
+             return;
+         }
+
+         // Save exceedances and send notifications + chat messages
+         for (const exceed of exceedances) {
+             await saveExceedValue(exceed.parameter, exceed.value, user, exceed.stackName);
+             await sendNotification(exceed.parameter, exceed.value, user, exceed.stackName);
+
+             // Send chat message about the exceedance
+             const messageContent = `Exceedance detected for ${exceed.parameter} with value ${exceed.value} in ${exceed.stackName}.`;
+
+             const chatMessage = new Chat({
+                 from: adminUser._id, // Use admin user's ObjectId
+                 to: user._id, // Use affected user's ObjectId
+                 message: messageContent,
+             });
+
+             await chatMessage.save();
+             console.log(`Chat message sent: ${messageContent}`);
+         }
+     }
+
+     console.log('Exceed values handled successfully');
 
         console.log('Exceed values handled successfully');
     } catch (error) {

@@ -123,8 +123,6 @@ const Energy = () => {
           <div className="card" style={{ height: "100%" }}>
             <div className="card-body">
               <h2>Energy Flow</h2>
-              {error && <p className="text-danger">{error}</p>}
-
               <div className="mb-3 d-flex justify-content-between">
                 <button
                   className={`btn ${viewType === "daily" ? "btn-primary" : "btn-outline-primary"} mr-2`}
