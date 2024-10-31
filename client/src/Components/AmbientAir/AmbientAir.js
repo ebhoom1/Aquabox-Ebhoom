@@ -128,69 +128,84 @@ const AmbientAir = () => {
 
   return (
     <div className="main-panel">
-      <div className="content-wrapper">
-        <div className="row page-title-header">
-          <div className="col-12">
-            <div className="page-header d-flex justify-content-between">
-              {userType === 'admin' ? (
-                <>
-                  <button className="btn btn-primary" onClick={() => setCurrentUserName(prev => `KSPCB${(parseInt(prev.replace(/[^\d]/g, '')) - 1).toString().padStart(3, '0')}`)}>
-                    Prev
-                  </button>
-                  <h4 className="page-title">Stack Emission DASHBOARD</h4>
-                  <button className="btn btn-primary" onClick={() => setCurrentUserName(prev => `KSPCB${(parseInt(prev.replace(/[^\d]/g, '')) + 1).toString().padStart(3, '0')}`)}>
-                    Next
-                  </button>
-                </>
-              ) : (
-                <h4 className="page-title text-center">Stack Emission DASHBOARD</h4>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="row align-items-center">
-          <div className="col-md-4">
-            {emissionStacks.length > 0 && (
-              <div className="stack-dropdown">
-                <label htmlFor="stackSelect">Select Station:</label>
-                <select
-                  id="stackSelect"
-                  className="form-select"
-                  value={selectedStack}
-                  onChange={(e) => setSelectedStack(e.target.value)}
-                >
-                  <option value="all">All Stacks</option>
-                  {emissionStacks.map((stack, index) => (
-                    <option key={index} value={stack}>{stack}</option>
-                  ))}
-                </select>
-              </div>
+    <div className="content-wrapper">
+      <div className="row page-title-header">
+        <div className="col-10">
+          <div className="page-header d-flex justify-content-between">
+            {userType === 'admin' ? (
+              <>
+                <button className="btn btn-primary" onClick={() => setCurrentUserName(prev => `KSPCB${(parseInt(prev.replace(/[^\d]/g, '')) - 1).toString().padStart(3, '0')}`)}>
+                  Prev
+                </button>
+                <h4 className="page-title">Stack Emission DASHBOARD</h4>
+                <button className="btn btn-primary" onClick={() => setCurrentUserName(prev => `KSPCB${(parseInt(prev.replace(/[^\d]/g, '')) + 1).toString().padStart(3, '0')}`)}>
+                  Next
+                </button>
+              </>
+            ) : (
+              <h4 className="page-title text-center">Stack Emission DASHBOARD</h4>
             )}
           </div>
-          <div className="col-md-4">
-            <h3 className="text-center">{companyName}</h3>
-          </div>
-          <div className="col-md-4 d-flex justify-content-end">
-            <button className="btn btn-primary" onClick={() => setShowHistoryModal(true)}>Daily History</button>
-          </div>
         </div>
-
-        {loading ? (
-          <div className="spinner-container">
-            <Oval height={60} width={60} color="#236A80" ariaLabel="Loading" />
-          </div>
-        ) : filteredData.length > 0 ? (
-          <div className="row">
-            {filteredData.map((stack, index) => (
-              <div key={index} className="col-12 mb-4">
-                <div className="stack-box">
+      </div>
+  
+      <div className="row align-items-center mb-4">
+        <div className="col-md-4">
+          {emissionStacks.length > 0 && (
+            <div className="stack-dropdown">
+              <label htmlFor="stackSelect">Select Station:</label>
+              <select
+                id="stackSelect"
+                className="form-select"
+                value={selectedStack}
+                onChange={(e) => setSelectedStack(e.target.value)}
+              >
+                <option value="all">All Stacks</option>
+                {emissionStacks.map((stack, index) => (
+                  <option key={index} value={stack}>{stack}</option>
+                ))}
+              </select>
+            </div>
+          )}
+        </div>
+        <div className="col-md-4">
+          <h3 className="text-center">{companyName}</h3>
+        </div>
+        <div className="col-md-4 d-flex justify-content-end">
+          <button className="btn btn-primary" onClick={() => setShowHistoryModal(true)}>Daily History</button>
+        </div>
+      </div>
+  
+      {loading ? (
+        <div className="spinner-container">
+          <Oval height={60} width={60} color="#236A80" ariaLabel="Loading" />
+        </div>
+      ) : (
+        <div className="row">
+          {/* Column 1: Graph */}
+          <div className="col-md-5 border shadow" style={{ height: "70vh", marginRight: "10px", backgroundColor: "#fff" }}>
+          {showPopup && selectedCard ? (
+            <AirGraphPopup 
+              isOpen={showPopup} 
+              onRequestClose={() => setShowPopup(false)} 
+              {...selectedCard} 
+            />
+          ) : (
+            <h5 className="text-center">Select a parameter to view its graph</h5>
+          )}
+        </div>
+  
+          {/* Column 2: Data */}
+          <div className="col-md-5 overflow-auto border shadow" style={{ height: "70vh", backgroundColor: "#fff", overflowY: "scroll" }}>
+            {filteredData.length > 0 ? (
+              filteredData.map((stack, index) => (
+                <div key={index} className="stack-box mb-4">
                   <h4 className="text-center">{stack.stackName}</h4>
                   <div className="row">
                     {airParameters.map((param, i) => {
                       const value = stack[param.name];
                       return value && value !== "N/A" ? (
-                        <div key={i} className="col-md-4">
+                        <div key={i} className="col-md-4 col-6">
                           <div className="card" onClick={() => handleCardClick(param, stack.stackName)}>
                             <div className="card-body">
                               <h3>{param.parameter}</h3>
@@ -204,21 +219,19 @@ const AmbientAir = () => {
                     })}
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <h5 className="text-center mt-5">Waiting for real-time data available</h5>
+            )}
           </div>
-        ) : (
-          <h5 className="text-center mt-5">Waiting for real-time data availablegi</h5>
-        )}
-
-        {showPopup && selectedCard && (
-          <AirGraphPopup isOpen={showPopup} onRequestClose={() => setShowPopup(false)} {...selectedCard} />
-        )}
-
-        <CalibrationExceeded />
-        <DailyHistoryModal isOpen={showHistoryModal} onRequestClose={() => setShowHistoryModal(false)} />
-      </div>
+        </div>
+      )}
+  
+      <CalibrationExceeded />
+      <DailyHistoryModal isOpen={showHistoryModal} onRequestClose={() => setShowHistoryModal(false)} />
     </div>
+  </div>
+  
   );
 };
 

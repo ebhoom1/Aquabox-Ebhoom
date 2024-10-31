@@ -141,14 +141,14 @@ const QuantityFlow = () => {
 
   return (
     <div className="main-panel">
-      <div className="content-wrapper bg-white">
+      <div className="content-wrapper bg-light">
         <div className="row page-title-header">
           <div className="col-12">
             
           </div>
         </div>
         
-        <div className="row align-items-center">
+        <div className="row align-items-center mb-4 ">
         <div className="col-md-4">
   {searchResult?.stackData && searchResult.stackData.length > 0 && (
     <div className="stack-dropdown">
@@ -191,51 +191,79 @@ const QuantityFlow = () => {
                 </div>
             )}
 
-            <div className="row">
-                {!loading && filteredData.length > 0 ? (
-                    filteredData.map((stack, stackIndex) => (
-                        effluentFlowStacks.includes(stack.stackName) && (
-                            <div key={stackIndex} className="col-12 mb-4">
-                                <div className="stack-box">
-                                    <h4 className="text-center">{stack.stackName}</h4>
-                                    <div className="row">
-                                        {effluentFlowParameters.map((item, index) => {
-                                            const value = stack[item.name];
-                                            return value && value !== 'N/A' ? (
-                                                <div className="col-12 col-md-4 grid-margin" key={index}>
-<div className="card"   onClick={() =>
-                                handleCardClick({ title: item.name }, stack.stackName, currentUserName)
-                              }>                                                        <div className="card-body">
-                                                            <h5>{item.parameter}</h5>
-                                                            <p>
-                                                                <strong style={{ color: '#236A80', fontSize:'24px' }}>{value}</strong> {item.value}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ) : null;
-                                        })}
-                                    </div>
-                                </div>
-                            </div>
-                        )
-                    ))
-                ) : (
-                    <div className="col-12">
-                        <h5>Waiting real-time data available</h5>
-                    </div>
-                )}
-            </div>
-
-        {showPopup && selectedCard && (
-          <TotalSewageGraph
+<div className="row">
+  {/* Graph Column */}
+  <div className="col-5">
+    <div className="border  shadow" style={{ height: "70vh"  , backgroundColor:'#ffff'}}>
+      {selectedCard ? (
+        <TotalSewageGraph
           isOpen={showPopup}
           onRequestClose={handleClosePopup}
           parameter={selectedCard.title}
           userName={currentUserName}
           stackName={selectedCard.stackName}
-          />
-        )}
+        />
+      ) : (
+        <h5 className="text-center">Select a parameter to view its graph</h5>
+      )}
+    </div>
+  </div>
+
+  {/* Data Column */}
+  <div className="col-7 overflow-auto border shadow" style={{ height: "70vh"  , backgroundColor:'#ffff' }}>
+    <div className="row">
+      {!loading && filteredData.length > 0 ? (
+        filteredData.map((stack, stackIndex) => (
+          effluentFlowStacks.includes(stack.stackName) && (
+            <div key={stackIndex} className="col-12 mb-4">
+              <div className="stack-box">
+                <h4 className="text-center">{stack.stackName}</h4>
+                <div className="row">
+                  {effluentFlowParameters.map((item, index) => {
+                    const value = stack[item.name];
+                    return value && value !== "N/A" ? (
+                      <div className="col-6 col-md-4 grid-margin" key={index}>
+                        <div
+                          className="card"
+                          onClick={() =>
+                            handleCardClick(
+                              { title: item.name },
+                              stack.stackName,
+                              currentUserName
+                            )
+                          }
+                        >
+                          <div className="card-body">
+                            <h5>{item.parameter}</h5>
+                            <p>
+                              <strong
+                                style={{ color: "#236A80", fontSize: "24px" }}
+                              >
+                                {value}
+                              </strong>{" "}
+                              {item.value}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ) : null;
+                  })}
+                </div>
+              </div>
+            </div>
+          )
+        ))
+      ) : (
+        <div className="col-12 d-flex justify-content-center align-items-center mt-5">
+          <h5>Waiting real-time data available</h5>
+        </div>
+      )}
+    </div>
+  </div>
+</div>
+
+
+       
 
        
       

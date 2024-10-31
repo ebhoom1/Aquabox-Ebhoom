@@ -161,153 +161,173 @@ const EnergyFlow = () => {
 
   return (
     <div className="main-panel">
-      <div className="content-wrapper">
-        <div className="row page-title-header">
-          <div className="col-12">
-            <div className="page-header d-flex justify-content-between">
-              {userType === 'admin' ? (
-                <>
-                  <button className="btn btn-primary" onClick={handlePrevUser} disabled={loading}>Prev</button>
-                  <h4 className="page-title">Energy DASHBOARD</h4>
-                  <button className="btn btn-primary" onClick={handleNextUser} disabled={loading}>Next</button>
-                </>
-              ) : (
-                <div className="mx-auto">
-                  <h4 className="page-title">Energy DASHBOARD</h4>
-                </div>
-              )}
-            </div>
+    <div className="content-wrapper">
+      <div className="row page-title-header">
+        <div className="col-12">
+          <div className="page-header d-flex justify-content-between">
+            {userType === 'admin' ? (
+              <>
+                <button className="btn btn-primary" onClick={handlePrevUser} disabled={loading}>
+                  Prev
+                </button>
+                <h4 className="page-title">Energy DASHBOARD</h4>
+                <button className="btn btn-primary" onClick={handleNextUser} disabled={loading}>
+                  Next
+                </button>
+              </>
+            ) : (
+              <div className="mx-auto">
+                <h4 className="page-title">Energy DASHBOARD</h4>
+              </div>
+            )}
           </div>
         </div>
-        <ul className="quick-links ml-auto">
-                {latestData && (
-                  <>
-                    <h5>Analyser Health: </h5>
-                    {searchResult?.validationStatus ? (
-                      <h5 style={{ color: "green" }}>Good</h5>
-                    ) : (
-                      <h5 style={{ color: "red" }}>Problem</h5>
-                    )}
-                  </>
-                )}
-              </ul>
-        <div className="row align-items-center">
+      </div>
+  
+      <ul className="quick-links ml-auto">
+        {latestData && (
+          <>
+            <h5>Analyser Health:</h5>
+            {searchResult?.validationStatus ? (
+              <h5 style={{ color: "green" }}>Good</h5>
+            ) : (
+              <h5 style={{ color: "red" }}>Problem</h5>
+            )}
+          </>
+        )}
+      </ul>
+  
+      <div className="row align-items-center">
         <div className="col-md-4">
-  {searchResult?.stackData && searchResult.stackData.length > 0 && (
-    <div className="stack-dropdown">
-      <label htmlFor="stackSelect" className="label-select">Select Station:</label>
-      <div className="styled-select-wrapper">
-        <select
-          id="stackSelect"
-          className="form-select styled-select"
-          value={selectedStack}
-          onChange={handleStackChange}
-        >
-          <option value="all">All Stacks</option>
-          {searchResult.stackData
-            .filter(stack => energyStacks.includes(stack.stackName)) // Filter only energy stations
-            .map((stack, index) => (
-              <option key={index} value={stack.stackName}>
-                {stack.stackName}
-              </option>
-            ))}
-        </select>
-      </div>
-    </div>
-  )}
-</div>
-          <div className="col-md-4">
-            <h3 className="text-center">{companyName}</h3>
-          </div>
-
-          <div className="col-md-4 d-flex justify-content-end">
-            <button className="btn btn-primary" onClick={() => setShowHistoryModal(true)}>
-              Daily History
-            </button>
-            {userData?.validUserOne && userData.validUserOne.userType === 'user' && (
-              <button type="submit" onClick={handleOpenCalibrationPopup} className="btn btn-primary ml-2">
-                Calibration
-              </button>
-            )}
-          </div>
-        </div>
-
-        {loading && (
-                <div className="spinner-container">
-                    <Oval
-                        height={60}
-                        width={60}
-                        color="#236A80"
-                        ariaLabel="Fetching details"
-                        secondaryColor="#e0e0e0"
-                        strokeWidth={2}
-                        strokeWidthSecondary={2}
-                    />
-                </div>
-            )}
-
-            <div className="row">
-                {!loading && filteredData.length > 0 ? (
-                    filteredData.map((stack, stackIndex) => (
-                        energyStacks.includes(stack.stackName) && (
-                            <div key={stackIndex} className="col-12 mb-4">
-                                <div className="stack-box">
-                                    <h4 className="text-center">{stack.stackName}</h4>
-                                    <div className="row">
-                                        {energyParameters.map((item, index) => {
-                                            const value = stack[item.name];
-                                            return value && value !== 'N/A' ? (
-                                                <div className="col-12 col-md-4 grid-margin" key={index}>
-<div className="card"   onClick={() =>
-                                handleCardClick({ title: item.name }, stack.stackName, currentUserName)
-                              }>                                                        <div className="card-body">
-                                                            <h5>{item.parameter}</h5>
-                                                            <p>
-                                                                <strong style={{ color: '#236A80', fontSize:'24px' }}>{value}</strong> {item.value}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ) : null;
-                                        })}
-                                    </div>
-                                </div>
-                            </div>
-                        )
-                    ))
-                ) : (
-                    <div className="col-12">
-                        <h5>Waiting real-time data available</h5>
-                    </div>
-                )}
+          {searchResult?.stackData && searchResult.stackData.length > 0 && (
+            <div className="stack-dropdown">
+              <label htmlFor="stackSelect" className="label-select">Select Station:</label>
+              <div className="styled-select-wrapper">
+                <select
+                  id="stackSelect"
+                  className="form-select styled-select"
+                  value={selectedStack}
+                  onChange={handleStackChange}
+                >
+                  <option value="all">All Stacks</option>
+                  {searchResult.stackData
+                    .filter(stack => energyStacks.includes(stack.stackName))
+                    .map((stack, index) => (
+                      <option key={index} value={stack.stackName}>
+                        {stack.stackName}
+                      </option>
+                    ))}
+                </select>
+              </div>
             </div>
-
-        {showPopup && selectedCard && (
-          <EnergyGraphPopup
-          isOpen={showPopup}
-          onRequestClose={handleClosePopup}
-          parameter={selectedCard.title}
-          userName={currentUserName}
-          stackName={selectedCard.stackName}
-          />
-        )}
-
-        {showCalibrationPopup && (
-          <CalibrationPopup
-            userName={userData?.validUserOne?.userName}
-            onClose={handleCloseCalibrationPopup}
-          />
-        )}
-      
-        
-
-        <DailyHistoryModal 
-  isOpen={showHistoryModal} 
-  onRequestClose={() => setShowHistoryModal(false)} 
-/>
-
+          )}
+        </div>
+  
+        <div className="col-md-4">
+          <h3 className="text-center">{companyName}</h3>
+        </div>
+  
+        <div className="col-md-4 d-flex justify-content-end">
+          <button className="btn btn-primary" onClick={() => setShowHistoryModal(true)}>
+            Daily History
+          </button>
+          {userData?.validUserOne && userData.validUserOne.userType === 'user' && (
+            <button type="submit" onClick={handleOpenCalibrationPopup} className="btn btn-primary ml-2">
+              Calibration
+            </button>
+          )}
+        </div>
       </div>
+  
+      {loading && (
+        <div className="spinner-container">
+          <Oval
+            height={60}
+            width={60}
+            color="#236A80"
+            ariaLabel="Fetching details"
+            secondaryColor="#e0e0e0"
+            strokeWidth={2}
+            strokeWidthSecondary={2}
+          />
+        </div>
+      )}
+  
+      <div className="row mt-5">
+        <div className=" col-5 border  shadow" style={{ height: "70vh"  , backgroundColor:'#ffff' ,  marginRight: "10px"}}>
+          {selectedCard ? (
+            <EnergyGraphPopup
+              isOpen={showPopup}
+              onRequestClose={handleClosePopup}
+              parameter={selectedCard?.title || "Unknown Parameter"}
+              userName={currentUserName}
+              stackName={selectedCard?.stackName || "Unknown Stack"}
+            />
+          ) : (
+            <h5>Select a parameter to view its graph</h5>
+          )}
+        </div>
+  
+        <div className="col-6 overflow-auto border shadow" style={{ height: "70vh"  , backgroundColor:'#ffff' , overflowY: 'scroll'}} >
+          {!loading && filteredData.length > 0 ? (
+            filteredData.map((stack, stackIndex) => (
+              energyStacks.includes(stack.stackName) && (
+                <div key={stackIndex} className="stack-box mb-4">
+                  <h4 className="text-center">{stack.stackName}</h4>
+                  <div className="row">
+                    {energyParameters.map((item, index) => {
+                      const value = stack[item.name];
+                      return value && value !== 'N/A' ? (
+                        <div className="col-12 col-md-4 grid-margin" key={index}>
+                          <div
+                            className="card"
+                            onClick={() =>
+                              handleCardClick(
+                                { title: item.name },
+                                stack.stackName,
+                                currentUserName
+                              )
+                            }
+                          >
+                            <div className="card-body">
+                              <h5>{item.parameter}</h5>
+                              <p>
+                                <strong style={{ color: '#236A80', fontSize: '24px' }}>
+                                  {value}
+                                </strong>{' '}
+                                {item.value}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ) : null;
+                    })}
+                  </div>
+                </div>
+              )
+            ))
+          ) : (
+            <div className="col-12">
+              <h5>Waiting real-time data available</h5>
+            </div>
+          )}
+        </div>
+      </div>
+  
+      {showCalibrationPopup && (
+        <CalibrationPopup
+          userName={userData?.validUserOne?.userName}
+          onClose={handleCloseCalibrationPopup}
+        />
+      )}
+  
+      <DailyHistoryModal
+        isOpen={showHistoryModal}
+        onRequestClose={() => setShowHistoryModal(false)}
+      />
     </div>
+  </div>
+  
   );
 };
 
