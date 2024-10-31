@@ -208,7 +208,7 @@ const AmbientAir = () => {
             ))}
           </div>
         ) : (
-          <h5 className="text-center mt-5">Waiting for real-time data available</h5>
+          <h5 className="text-center mt-5">Waiting for real-time data availablegi</h5>
         )}
 
         {showPopup && selectedCard && (

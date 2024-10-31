@@ -1,372 +1,284 @@
-const { Parser } = require('json2csv');
-const PDFDocument = require('pdfkit');
-const moment = require('moment');
-const cron = require('node-cron');
-const IotData = require('../models/iotData');
-const userdb = require('../models/user');
-const IotDataAverage = require(`../models/averageData`);
-const DifferenceData = require(`../models/differeneceData`);
-const { handleExceedValues } = require('./calibrationExceed');
-const { io, server } = require('../app');
-const { calculateTotalUsage } = require('./consumptionController');
-const { saveOrUpdateLastEntryByUserName } = require('./lastIotDataController');
+    const { Parser } = require('json2csv');
+    const PDFDocument = require('pdfkit');
+    const moment = require('moment');
+    const cron = require('node-cron');
+    const IotData = require('../models/iotData');
+    const userdb = require('../models/user');
+    const IotDataAverage = require(`../models/averageData`);
+    const DifferenceData = require(`../models/differeneceData`);
+    const { handleExceedValues } = require('./calibrationExceed');
+    const CalibrationExceedValues = require('../models/calibrationExceedValues');
+    const { io, server } = require('../app');
+    const { calculateTotalUsage } = require('./consumptionController');
+    const { saveOrUpdateLastEntryByUserName } = require('./lastIotDataController');
 
-// Function to check sensor data for zero values
-const checkSensorData = (data) => {
-    // List of Sensor data fields to check
-    const sensorDataFields = [
-        'ph', 'tds', 'turbidity', 'temperature', 'bod', 'cod',
-        'tss', 'orp', 'nitrate', 'ammonicalNitrogen', 'DO', 'chloride'
-    ];
+    // Function to check sensor data for zero values
+    const checkSensorData = (data) => {
+        // List of Sensor data fields to check
+        const sensorDataFields = [
+            'ph', 'tds', 'turbidity', 'temperature', 'bod', 'cod',
+            'tss', 'orp', 'nitrate', 'ammonicalNitrogen', 'DO', 'chloride'
+        ];
+    
+        // Check if any sensor data field is zero
+        for (let field of sensorDataFields) {
+            if (data[field] === "N/A") {
+                return {
+                    success: false,
+                    message: `Problem in data: ${field} value is 0`,
+                    problemField: field
+                };
+            }
+        }
+        return {
+            success: true,
+            message: "All sensor data values are valid"
+        };
+    };
+    
 
-    // Check if any sensor data field is zero
-    for (let field of sensorDataFields) {
-        if (data[field] === "N/A") {
+    
+
+
+    // Function to check if required fields are missing
+    const checkRequiredFields = (data, requiredFields) => {
+        const missingFields = requiredFields.filter(field => !data[field]);
+        if (missingFields.length > 0) {
             return {
                 success: false,
-                message: `Problem in data: ${field} value is 0`,
-                problemField: field
+                message: `Missing required fields: ${missingFields.join(', ')}`,
+                missingFields
+            };
+        }
+        return {
+            success: true,
+            message: "All required fields are present"
+        };
+    };
+// Helper Function to check data exceedance
+const checkExceedance = async (stacks, user) => {
+    const exceedances = [];
+    const industryThresholds = await CalibrationExceedValues.findOne({ industryType: user.industryType });
+
+    if (!industryThresholds) {
+        console.error(`No thresholds found for industry type: ${user.industryType}`);
+        return { success: true, message: 'No thresholds found' };  // Allow save to continue if no thresholds
+    }
+
+    for (const stack of stacks) {
+        for (const parameter of Object.keys(stack)) {
+            const threshold = industryThresholds[parameter];
+            if (threshold && stack[parameter] > threshold) {
+                exceedances.push({
+                    parameter,
+                    value: stack[parameter],
+                    stackName: stack.stackName
+                });
+            }
+        }
+    }
+
+    if (exceedances.length > 0) {
+        // Only set exceedance fields once instead of multiple times.
+        return {
+            success: true,
+            exceedanceDetected: true,
+            exceedanceData: {
+                exceedanceComment: 'Parameter exceedance detected',
+                ExceedanceColor: 'red',
+                exceedances,
+            }
+        };
+    }
+
+    return { success: true, exceedanceDetected: false };
+};
+
+// Helper Function to check time interval
+// Helper Function to check time interval
+const checkTimeInterval = async (data, user) => {
+    const lastEntry = await IotData.findOne({ userName: data.userName }).sort({ timestamp: -1 });
+    const dataInterval = parseInt(user.dataInteval) * 1000; // Convert interval to milliseconds
+    console.log("lastEntry and dataInterval", lastEntry, dataInterval);
+
+    if (lastEntry) {
+        const timeDifference = new Date() - new Date(lastEntry.timestamp);
+
+        // Check if timeDifference is more than both dataInterval and 550ms
+        if (timeDifference > dataInterval && timeDifference > 550) {
+            return {
+                success: true,
+                intervalExceeded: true,
+                intervalData: {
+                    timeIntervalComment: 'Time interval exceeded',
+                    timeIntervalColor: 'purple'
+                }
             };
         }
     }
-    return {
-        success: true,
-        message: "All sensor data values are valid"
-    };
-};
 
-// Function to check if required fields are missing
-const checkRequiredFields = (data, requiredFields) => {
-    const missingFields = requiredFields.filter(field => !data[field]);
-    if (missingFields.length > 0) {
-        return {
-            success: false,
-            message: `Missing required fields: ${missingFields.join(', ')}`,
-            missingFields
-        };
-    }
+    // If time difference is within the allowed interval or less than 550ms, keep default color
     return {
         success: true,
-        message: "All required fields are present"
+        intervalExceeded: false,
+        intervalData: {
+            timeIntervalComment: 'Within allowed time interval',
+            timeIntervalColor: 'green'
+        }
     };
 };
 
 
-// Function to handle Mqtt Messages and save the data to MongoDB
-// const handleSaveMessage = async (req, res) => {
-//     const data = req.body;
-
-//     try {
-//         // Check required fields
-//         const requiredFields = ['userName', 'companyName', 'industryType', 'mobileNumber', 'email', 'product_id'];
-//         const validationStatus = checkRequiredFields(data, requiredFields);
-//         if (!validationStatus.success) {
-//             console.error(validationStatus.message);
-//             return res.status(400).json(validationStatus);
-//         }
-        
-//         // Check sensor data
-//         const sensorValidationStatus = checkSensorData(data);
-//         if (!sensorValidationStatus.success) {
-//             console.error(sensorValidationStatus.message);
-//             return res.status(400).json(sensorValidationStatus);
-//         }
-
-//         const formattedDate = moment().format('DD/MM/YYYY');
-
-//         // Prepare stack data if provided
-//         let stackData = [];
-
-//         // If the 'stacks' array is provided in the data, use it directly
-//         if (data.stacks && Array.isArray(data.stacks)) {
-//             stackData = data.stacks.map(stack => ({
-//                 stackName: stack.stackName,
-//                 ph: stack.ph !== 'N/A' ? stack.ph : null,
-//                 TDS: stack.TDS !== 'N/A' ? stack.TDS : null,
-//                 turbidity: stack.turbidity !== 'N/A' ? stack.turbidity : null,
-//                 temperature: stack.temperature !== 'N/A' ? stack.temperature : null,
-//                 BOD: stack.BOD !== 'N/A' ? stack.BOD : null,
-//                 COD: stack.COD !== 'N/A' ? stack.COD : null,
-//                 TSS: stack.TSS !== 'N/A' ? stack.TSS : null,
-//                 ORP: stack.ORP !== 'N/A' ? stack.ORP : null,
-//                 nitrate: stack.nitrate !== 'N/A' ? stack.nitrate : null,
-//                 ammonicalNitrogen: stack.ammonicalNitrogen !== 'N/A' ? stack.ammonicalNitrogen : null,
-//                 DO: stack.DO !== 'N/A' ? stack.DO : null,
-//                 chloride: stack.chloride !== 'N/A' ? stack.chloride : null,
-//                 Flow: stack.Flow !== 'N/A' ? stack.Flow : null,
-//                 Totalizer_Flow:stack.Totalizer_Flow !=='N/A' ? stack.Totalizer_Flow : null,
-//                 CO: stack.CO !== 'N/A' ? stack.CO : null,
-//                 NOX: stack.NOX !== 'N/A' ? stack.NOX : null,
-//                 Pressure: stack.Pressure !== 'N/A' ? stack.Pressure : null,
-//                 Flouride: stack.Flouride !== 'N/A' ? stack.Flouride : null,
-//                 PM: stack.PM !== 'N/A' ? stack.PM : null,
-//                 SO2: stack.SO2 !== 'N/A' ? stack.SO2 : null,
-//                 NO2: stack.NO2 !== 'N/A' ? stack.NO2 : null,
-//                 Mercury: stack.Mercury !== 'N/A' ? stack.Mercury : null,
-//                 PM10: stack.PM10 !== 'N/A' ? stack.PM10 : null,
-//                 PM25: stack.PM25 !== 'N/A' ? stack.PM25 : null,
-//                 NOH: stack.NOH !== 'N/A' ? stack.NOH : null,
-//                 NH3: stack.NH3 !== 'N/A' ? stack.NH3 : null,
-//                 WindSpeed: stack.WindSpeed !== 'N/A' ? stack.WindSpeed : null,
-//                 WindDir: stack.WindDir !== 'N/A' ? stack.WindDir : null,
-//                 AirTemperature: stack.AirTemperature !== 'N/A' ? stack.AirTemperature : null,
-//                 Humidity: stack.Humidity !== 'N/A' ? stack.Humidity : null,
-//                 solarRadiation: stack.solarRadiation !== 'N/A' ? stack.solarRadiation : null,
-//                 DB: stack.DB !== 'N/A' ? stack.DB : null,
-//                 inflow: stack.inflow !== 'N/A' ? stack.inflow : null,
-//                 finalflow: stack.finalflow !== 'N/A' ? stack.finalflow : null,
-//                 energy: stack.energy !== 'N/A' ? stack.energy : null,
-//                 voltage: stack.voltage !== 'N/A' ? stack.voltage : null,
-//                 current: stack.current !== 'N/A' ? stack.current : null,
-//                 power: stack.power !== 'N/A' ? stack.power : null,
-//             }));
-//         } else {
-//             // If no stacks array is provided, assume it's for stack_1 and use individual sensor data
-//             stackData.push({
-//                 stackName: "stack_1",
-//                 ph: data.ph !== 'N/A' ? data.ph : null,
-//                 TDS: data.TDS !== 'N/A' ? data.TDS : null,
-//                 turbidity: data.turbidity !== 'N/A' ? data.turbidity : null,
-//                 temperature: data.temperature !== 'N/A' ? data.temperature : null,
-//                 BOD: data.BOD !== 'N/A' ? data.BOD : null,
-//                 COD: data.COD !== 'N/A' ? data.COD : null,
-//                 TSS: data.TSS !== 'N/A' ? data.TSS : null,
-//                 ORP: data.ORP !== 'N/A' ? data.ORP : null,
-//                 nitrate: data.nitrate !== 'N/A' ? data.nitrate : null,
-//                 ammonicalNitrogen: data.ammonicalNitrogen !== 'N/A' ? data.ammonicalNitrogen : null,
-//                 DO: data.DO !== 'N/A' ? data.DO : null,
-//                 chloride: data.chloride !== 'N/A' ? data.chloride : null,
-//                 Flow: data.Flow !== 'N/A' ? data.Flow : null,
-//                 CO: data.CO !== 'N/A' ? data.CO : null,
-//                 NOX: data.NOX !== 'N/A' ? data.NOX : null,
-//                 Pressure: data.Pressure !== 'N/A' ? data.Pressure : null,
-//                 Flouride: data.Flouride !== 'N/A' ? data.Flouride : null,
-//                 PM: data.PM !== 'N/A' ? data.PM : null,
-//                 SO2: data.SO2 !== 'N/A' ? data.SO2 : null,
-//                 NO2: data.NO2 !== 'N/A' ? data.NO2 : null,
-//                 Mercury: data.Mercury !== 'N/A' ? data.Mercury : null,
-//                 PM10: data.PM10 !== 'N/A' ? data.PM10 : null,
-//                 PM25: data.PM25 !== 'N/A' ? data.PM25 : null,
-//                 NOH: data.NOH !== 'N/A' ? data.NOH : null,
-//                 NH3: data.NH3 !== 'N/A' ? data.NH3 : null,
-//                 WindSpeed: data.WindSpeed !== 'N/A' ? data.WindSpeed : null,
-//                 WindDir: data.WindDir !== 'N/A' ? data.WindDir : null,
-//                 AirTemperature: data.AirTemperature !== 'N/A' ? data.AirTemperature : null,
-//                 Humidity: data.Humidity !== 'N/A' ? data.Humidity : null,
-//                 solarRadiation: data.solarRadiation !== 'N/A' ? data.solarRadiation : null,
-//                 DB: data.DB !== 'N/A' ? data.DB : null,
-//                 inflow: data.inflow !== 'N/A' ? data.inflow : null,
-//                 finalflow: data.finalflow !== 'N/A' ? data.finalflow : null,
-//                 energy: data.energy !== 'N/A' ? data.energy : null,
-//                 voltage: data.voltage !== 'N/A' ? data.voltage : null,
-//                 current: data.current !== 'N/A' ? data.current : null,
-//                 power: data.power !== 'N/A' ? data.power : null
-//             });
-//         }
-
-//         const newEntry = new IotData({
-//             product_id: data.product_id,
-//             stackData,
-//             date: formattedDate,
-//             time: data.time !== 'N/A' ? data.time : moment().format('HH:mm:ss'),
-//             topic: data.topic,
-//             companyName: data.companyName,
-//             industryType: data.industryType,
-//             userName: data.userName || 'N/A',
-//             mobileNumber: data.mobileNumber || 'N/A',
-//             email: data.email || 'N/A',
-//             timestamp: new Date(),
-//             validationMessage: data.validationMessage || 'Validated',
-//             validationStatus: data.validationStatus || 'Valid',
-//         });
-
-//         await newEntry.save();
-//         console.log('New Entry:', newEntry);
-
-//         // Update the user's iotLastEnterDate
-//         const userUpdate = await userdb.findOneAndUpdate(
-//             { userName: data.userName },
-//             { iotLastEnterDate: formattedDate }, // Update with the latest incoming date
-//             { new: true } // Return the updated document
-//         );
-
-//         if (!userUpdate) {
-//             console.error('User not found or update failed');
-//             return res.status(404).json({ success: false, message: 'User not found or update failed' });
-//         }
-
-//         console.log('User Updated Successfully:', userUpdate);
-
-//         // Call handleExceedValues after saving the new IoT data entry
-//         await handleExceedValues();
-
-//         res.status(200).json({
-//             success: true,
-//             message: "New Entry data saved successfully",
-//             newEntry
-//         });
-//     } catch (error) {
-//         console.error('Error saving data to MongoDB:', error);
-//         res.status(500).json({
-//             success: false,
-//             message: "Error saving data to MongoDB",
-//             error: error.message
-//         });
-//     }
-// };
-
-// IoT Data Handler to Save Data and Emit Real-Time Updates
-
-
-// const handleSaveMessage = async (req, res) => {
-//     const data = req.body;
-
-//     // Validate required fields
-//     const requiredFields = ['product_id', 'companyName', 'industryType', 'userName', 'mobileNumber', 'email'];
-//     const requiredFieldsCheck = checkRequiredFields(data, requiredFields);
-//     if (!requiredFieldsCheck.success) {
-//         return res.status(400).json(requiredFieldsCheck);
-//     }
-
-//     // Ensure stackData is provided and valid
-//     const stacks = data.stacks || data.stackData;
-//     if (!Array.isArray(stacks) || stacks.length === 0) {
-//         console.error('Stacks data is required but not provided.');
-//         return res.status(400).json({
-//             success: false,
-//             message: 'Stacks data is required and must include stackName.',
-//             missingFields: ['stacks'],
-//         });
-//     }
-
-//     const time = moment().tz('Asia/Kolkata').format('HH:mm:ss');
-//     const timestamp = moment().tz('Asia/Kolkata').toDate();
-
-//     try {
-//         const newEntry = new IotData({
-//             product_id: data.product_id,
-//             stackData: stacks,
-//             date: moment().format('DD/MM/YYYY'),
-//             time: time,
-//             companyName: data.companyName,
-//             industryType: data.industryType,
-//             userName: data.userName,
-//             mobileNumber: data.mobileNumber,
-//             email: data.email,
-//             timestamp: new Date(),
-//             validationMessage: data.validationMessage || 'Validated',
-//             validationStatus: data.validationStatus || 'Valid',
-//         });
-
-//         await newEntry.save();
-//         // console.log('New IoT Data Saved:', newEntry);
-
-//        // Extract and emit all energy stack data
-//        const energyStacks = stacks.filter(stack => stack.stationType === 'energy');
-//        if (energyStacks.length > 0) {
-//            energyStacks.forEach(energyStack => {
-//                req.io.to(data.userName).emit('energyDataUpdate', {
-//                    stackName: energyStack.stackName,
-//                    energy: energyStack.energy,
-//                    voltage: energyStack.voltage,
-//                    current: energyStack.current,
-//                    power: energyStack.power,
-//                    timestamp: new Date(),
-//                });
-//                console.log('Energy Data Emitted:', energyStack);
-//            });
-//        } else {
-//            console.warn('No energy stacks found to emit.');
-//        }
-        
-
-//         // Call any exceed value checks after saving the data
-//         await handleExceedValues();
-
-//         res.status(200).json({
-//             success: true,
-//             message: 'New Entry data saved successfully',
-//             newEntry,
-//         });
-//     } catch (error) {
-//         console.error('Error saving data to MongoDB:', error);
-//         res.status(500).json({
-//             success: false,
-//             message: 'Error saving data to MongoDB',
-//             error: error.message,
-//         });
-//     }
-// };
-
+// Main function to handle message save
 const handleSaveMessage = async (req, res) => {
     const data = req.body;
-
-    // Validate required fields
     const requiredFields = ['product_id', 'companyName', 'industryType', 'userName', 'mobileNumber', 'email'];
+    
     const requiredFieldsCheck = checkRequiredFields(data, requiredFields);
     if (!requiredFieldsCheck.success) {
         return res.status(400).json(requiredFieldsCheck);
     }
 
-    // Ensure stackData is provided and valid
     const stacks = data.stacks || data.stackData;
     if (!Array.isArray(stacks) || stacks.length === 0) {
-        console.error('Stacks data is required but not provided.');
-        return res.status(400).json({
-            success: false,
-            message: 'Stacks data is required and must include stackName.',
-            missingFields: ['stacks'],
-        });
+        return res.status(400).json({ success: false, message: 'Stacks data is required and must include stackName.', missingFields: ['stacks'] });
     }
 
     const time = moment().tz('Asia/Kolkata').format('HH:mm:ss');
-    const timestamp = moment().tz('Asia/Kolkata').toDate();
+    const user = await userdb.findOne({ userName: data.userName });
+
+    // Check for exceedance
+    const exceedanceCheck = await checkExceedance(stacks, user);
+
+    // Check for time interval
+    const timeIntervalCheck = await checkTimeInterval(data, user);
+
+    // Prepare updates based on checks
+    let updateData = {};
+    if (exceedanceCheck.exceedanceDetected) {
+        console.warn('Exceedances detected:', exceedanceCheck.exceedanceData.exceedances);
+        updateData = {
+            ...updateData,
+            ...exceedanceCheck.exceedanceData
+        };
+    }
+    if (timeIntervalCheck.intervalExceeded) {
+        console.warn(timeIntervalCheck.intervalData.timeIntervalComment);
+        updateData = {
+            ...updateData,
+            ...timeIntervalCheck.intervalData
+        };
+    }
 
     try {
         const newEntry = new IotData({
-            product_id: data.product_id,
+            ...data,
             stackData: stacks,
             date: moment().format('DD/MM/YYYY'),
             time: time,
-            companyName: data.companyName,
-            industryType: data.industryType,
-            userName: data.userName,
-            mobileNumber: data.mobileNumber,
-            email: data.email,
             timestamp: new Date(),
             validationMessage: data.validationMessage || 'Validated',
             validationStatus: data.validationStatus || 'Valid',
+            ...updateData // Add any exceedance or interval comments to the new entry
         });
 
         await newEntry.save();
-
-        // Save or update latest data
         await saveOrUpdateLastEntryByUserName(newEntry.toObject());
+        req.io.to(data.userName).emit('stackDataUpdate', { stackData: stacks, timestamp: new Date() });
 
-        // Emit all stack data in real time to the specific user room
-        req.io.to(data.userName).emit('stackDataUpdate', {
-            stackData: stacks, // Send the entire stackData array
-            timestamp: new Date(),
-        });
-        // console.log(`Real-time data emitted to ${data.userName}`, stacks);
-
-        // Call any exceed value checks after saving the data
         await handleExceedValues();
-           
+
         res.status(200).json({
             success: true,
-            message: 'New Entry data saved successfully',
+            message: exceedanceCheck.message || timeIntervalCheck.message || 'New Entry data saved successfully',
             newEntry,
+            exceedances: exceedanceCheck.exceedances || [],
+            timeIntervalExceeded: timeIntervalCheck.intervalExceeded
         });
     } catch (error) {
         console.error('Error saving data to MongoDB:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Error saving data to MongoDB',
-            error: error.message,
-        });
+        res.status(500).json({ success: false, message: 'Error saving data to MongoDB', error: error.message });
     }
 };
+
+
+
+
+    // const handleSaveMessage = async (req, res) => {
+    //     const data = req.body;
+    
+    //     // Validate required fields
+    //     const requiredFields = ['product_id', 'companyName', 'industryType', 'userName', 'mobileNumber', 'email'];
+    //     const requiredFieldsCheck = checkRequiredFields(data, requiredFields);
+    //     if (!requiredFieldsCheck.success) {
+    //         return res.status(400).json(requiredFieldsCheck);
+    //     }
+    
+    //     // Ensure stackData is provided and valid
+    //     const stacks = data.stacks || data.stackData;
+    //     if (!Array.isArray(stacks) || stacks.length === 0) {
+    //         console.error('Stacks data is required but not provided.');
+    //         return res.status(400).json({
+    //             success: false,
+    //             message: 'Stacks data is required and must include stackName.',
+    //             missingFields: ['stacks'],
+    //         });
+    //     }
+    
+    //     const time = moment().tz('Asia/Kolkata').format('HH:mm:ss');
+    //     const timestamp = moment().tz('Asia/Kolkata').toDate();
+    
+    //     try {
+    //         const newEntry = new IotData({
+    //             product_id: data.product_id,
+    //             stackData: stacks,
+    //             date: moment().format('DD/MM/YYYY'),
+    //             time: time,
+    //             companyName: data.companyName,
+    //             industryType: data.industryType,
+    //             userName: data.userName,
+    //             mobileNumber: data.mobileNumber,
+    //             email: data.email,
+    //             timestamp: new Date(),
+    //             validationMessage: data.validationMessage || 'Validated',
+    //             validationStatus: data.validationStatus || 'Valid',
+    //         });
+    
+    //         await newEntry.save();
+    
+    //         // Save or update latest data
+    //         await saveOrUpdateLastEntryByUserName(newEntry.toObject());
+    
+    //         // Emit all stack data in real time to the specific user room
+    //         req.io.to(data.userName).emit('stackDataUpdate', {
+    //             stackData: stacks, // Send the entire stackData array
+    //             timestamp: new Date(),
+    //         });
+    //         // console.log(`Real-time data emitted to ${data.userName}`, stacks);
+    
+    //         // Call any exceed value checks after saving the data
+    //         await handleExceedValues();
+               
+    //         res.status(200).json({
+    //             success: true,
+    //             message: 'New Entry data saved successfully',
+    //             newEntry,
+    //         });
+    //     } catch (error) {
+    //         console.error('Error saving data to MongoDB:', error);
+    //         res.status(500).json({
+    //             success: false,
+    //             message: 'Error saving data to MongoDB',
+    //             error: error.message,
+    //         });
+    //     }
+    // };
+    
+
+
+
+
+
 
 
 

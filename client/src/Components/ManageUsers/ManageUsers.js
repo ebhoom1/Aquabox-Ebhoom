@@ -408,9 +408,9 @@ if (error) {
                                
                               <option value="select">Select</option>
                               <option value="sec">15 sec</option>
-                                <option value="Min">Less than 1 min</option>
-                                <option value="fifteenMin">Less than 15 min</option>
-                                <option value="thirtyMin">Less than 30 min</option>
+                                <option value="60">Less than 1 min</option>
+                                <option value="900">Less than 15 min</option>
+                                <option value="1800">Less than 30 min</option>
 
 
                               </select>

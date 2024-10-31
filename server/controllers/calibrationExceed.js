@@ -382,7 +382,7 @@ const handleExceedValues = async () => {
          // Save exceedances and send notifications + chat messages
          for (const exceed of exceedances) {
              await saveExceedValue(exceed.parameter, exceed.value, user, exceed.stackName);
-             await sendNotification(exceed.parameter, exceed.value, user, exceed.stackName);
+             //await sendNotification(exceed.parameter, exceed.value, user, exceed.stackName);
 
              // Send chat message about the exceedance
              const messageContent = `Exceedance detected for ${exceed.parameter} with value ${exceed.value} in ${exceed.stackName}.`;

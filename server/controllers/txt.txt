@@ -336,3 +336,83 @@ const findFirstAndLastDataPerDay = async () => {
     }
 };
 
+
+
+
+//  const handleSaveMessage = async (req, res) => {
+//     const data = req.body;
+
+//     // Validate required fields
+//     const requiredFields = ['product_id', 'companyName', 'industryType', 'userName', 'mobileNumber', 'email'];
+//     const requiredFieldsCheck = checkRequiredFields(data, requiredFields);
+//     if (!requiredFieldsCheck.success) {
+//         return res.status(400).json(requiredFieldsCheck);
+//     }
+
+//     // Ensure stackData is provided and valid
+//     const stacks = data.stacks || data.stackData;
+//     if (!Array.isArray(stacks) || stacks.length === 0) {
+//         console.error('Stacks data is required but not provided.');
+//         return res.status(400).json({
+//             success: false,
+//             message: 'Stacks data is required and must include stackName.',
+//             missingFields: ['stacks'],
+//         });
+//     }
+
+//     const time = moment().tz('Asia/Kolkata').format('HH:mm:ss');
+//     const timestamp = moment().tz('Asia/Kolkata').toDate();
+
+//     try {
+//         const lastEntry = await saveOrUpdateLastEntryByUserName(data.userName);
+//         const user = await userdb.findOne({ userName: data.userName });
+//         const thresholds = await CalibrationExceedValues.findOne({ industryType: user.industryType });
+//         if (!thresholds) return res.status(404).json({ success: false, message: 'Industry thresholds not found' });
+
+//         const intervalCheckResults = stacks.map(stack => checkSensorData(stack, lastEntry, data.dataInteval, thresholds));
+//         const highestAlert = intervalCheckResults.reduce((acc, curr) => (curr.color === 'red' ? curr : curr.color === 'orange' && acc.color !== 'red' ? curr : acc), { color: 'green', comment: 'All sensor data values are valid' });
+
+//         const newEntry = new IotData({
+//             product_id: data.product_id,
+//             stackData: stacks,
+//             date: moment().format('DD/MM/YYYY'),
+//             time: time,
+//             companyName: data.companyName,
+//             industryType: data.industryType,
+//             userName: data.userName,
+//             mobileNumber: data.mobileNumber,
+//             email: data.email,
+//             timestamp: new Date(),
+//             validationMessage: data.validationMessage || 'Validated',
+//             validationStatus: data.validationStatus || 'Valid',
+//         });
+
+//         await newEntry.save();
+
+//         // Save or update latest data
+//         await saveOrUpdateLastEntryByUserName(newEntry.toObject());
+
+//         // Emit all stack data in real time to the specific user room
+//         req.io.to(data.userName).emit('stackDataUpdate', {
+//             stackData: stacks, // Send the entire stackData array
+//             timestamp: new Date(),
+//         });
+//         // console.log(`Real-time data emitted to ${data.userName}`, stacks);
+
+//         // Call any exceed value checks after saving the data
+//         await handleExceedValues();
+           
+//         res.status(200).json({
+//             success: true,
+//             message: 'New Entry data saved successfully',
+//             newEntry,
+//         });
+//     } catch (error) {
+//         console.error('Error saving data to MongoDB:', error);
+//         res.status(500).json({
+//             success: false,
+//             message: 'Error saving data to MongoDB',
+//             error: error.message,
+//         });
+//     }
+// };

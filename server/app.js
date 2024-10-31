@@ -37,6 +37,7 @@ const {scheduleTotalConsumptionCalculation} = require('./controllers/consumption
 const {scheduleTotalConsumptionSummaryCalculation} =require('./controllers/TotalConsumptionSummaryController');
 const {scheduleTotalPredictionSummaryCalculation} = require('./controllers/TotalPredictionSummaryController');
 const totalPredictionSummaryController = require('./controllers/TotalPredictionSummaryController');
+const {scheduleExceedanceAveragesCalculation} = require('./controllers/averageExceedanceController');
 
 const app = express();
 const port = process.env.PORT || 5555;
@@ -169,7 +170,8 @@ scheduleTotalConsumptionSummaryCalculation();
 // Start the TotalPredictionSummary Calculation
 totalPredictionSummaryController.scheduleTotalPredictionSummaryCalculation();
 
-
+//Start the Average of exceedence
+scheduleExceedanceAveragesCalculation();
 
 // Schedule the task to delete old notifications every day at midnight
 cron.schedule('0 0 * * *', () => {
