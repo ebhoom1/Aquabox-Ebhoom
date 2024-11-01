@@ -416,3 +416,109 @@ const findFirstAndLastDataPerDay = async () => {
 //         });
 //     }
 // };
+
+
+
+// Helper Function to check data exceedance
+const checkExceedance = async (stacks, user) => {
+    const exceedances = [];
+    const industryThresholds = await CalibrationExceedValues.findOne({ industryType: user.industryType });
+
+    if (!industryThresholds) {
+        console.error(`No thresholds found for industry type: ${user.industryType}`);
+        return { success: true, message: 'No thresholds found' };  // Allow save to continue if no thresholds
+    }
+
+    for (const stack of stacks) {
+        for (const parameter of Object.keys(stack)) {
+            const threshold = industryThresholds[parameter];
+            if (threshold && stack[parameter] > threshold) {
+                exceedances.push({
+                    parameter,
+                    value: stack[parameter],
+                    stackName: stack.stackName
+                });
+            }
+        }
+    }
+
+    if (exceedances.length > 0) {
+        return {
+            success: true,
+            exceedanceDetected: true,
+            exceedanceData: {
+                exceedanceComment: 'Parameter exceedance detected',
+                ExceedanceColor: 'red',
+                exceedances,
+            }
+        };
+    }
+
+    return { success: true, exceedanceDetected: false };
+};
+
+// Helper Function to check time interval
+const checkTimeInterval = async (data, user) => {
+    const lastEntry = await IotData.findOne({ userName: data.userName }).sort({ timestamp: -1 });
+
+    if (lastEntry) {
+        const lastEntryTimestamp = new Date(lastEntry.timestamp).getTime(); // Convert to milliseconds
+        const currentTimestamp = Date.now(); // Current time in milliseconds
+        const dataInterval = parseInt(user.dataInteval) * 1000; // Convert interval to milliseconds
+
+        const timeDifference = currentTimestamp - lastEntryTimestamp;
+
+
+        console.log('lastEntryTimestamp:', lastEntryTimestamp);
+        console.log('currentTimestamp:', currentTimestamp);
+        console.log('dataInterval:', dataInterval);
+        console.log('timeDifference:', timeDifference);
+        
+        
+        
+        
+        if (timeDifference > dataInterval) {
+            return {
+                success: true,
+                intervalExceeded: true,
+                intervalData: {
+                    timeIntervalComment: 'Time interval exceeded',
+                    timeIntervalColor: 'purple'
+                }
+            };
+        }
+    }
+
+    return {
+        success: true,
+        intervalExceeded: false,
+        intervalData: {
+            timeIntervalComment: 'Within allowed time interval',
+            timeIntervalColor: 'green'
+        }
+    };
+};
+
+  const checkSensorData = (data) => {
+        // List of Sensor data fields to check
+        const sensorDataFields = [
+            'ph', 'tds', 'turbidity', 'temperature', 'bod', 'cod',
+            'tss', 'orp', 'nitrate', 'ammonicalNitrogen', 'DO', 'chloride'
+        ];
+    
+        // Check if any sensor data field is zero
+        for (let field of sensorDataFields) {
+            if (data[field] === "N/A") {
+                return {
+                    success: false,
+                    message: `Problem in data: ${field} value is 0`,
+                    problemField: field
+                };
+            }
+        }
+        return {
+            success: true,
+            message: "All sensor data values are valid"
+        };
+    };
+    

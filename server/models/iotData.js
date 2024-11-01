@@ -1,3 +1,4 @@
+const { required } = require('joi');
 const mongoose = require('mongoose');
 
 // Stack Schema to store sensor data
@@ -69,10 +70,10 @@ const IotDataSchema = new mongoose.Schema({
     timestamp: { type: Date, default: Date.now },
     validationMessage: { type: String, default: 'Validated' },
     validationStatus: { type: String, default: 'Valid' },
-    ExceedanceColor: { type: String, default: 'green' },
-    timeIntervalColor: { type: String, default: 'green' },
-    exceedanceComment: { type: String, default: 'No exceedance' },
-    timeIntervalComment: { type: String, default: 'No interval delay' }
+    ExceedanceColor: { type: String, required:true },
+    timeIntervalColor: { type: String,  required:true},
+    exceedanceComment: { type: String, required:true },
+    timeIntervalComment: { type: String, required:true }
 });
 
 // Export the models
