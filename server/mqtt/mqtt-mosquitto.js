@@ -96,13 +96,13 @@ const setupMqttClient = (io) => {
                         ...Object.fromEntries(Object.entries(stack).filter(([key, value]) => key !== 'stackName' && value !== 'N/A'))
                     })),
                     date: moment().format('DD/MM/YYYY'),
-                    time: moment().format('HH:mm'),
+                    time: moment().format('HH:mm:ss'),
                     timestamp: new Date(),
-                //     ExceedanceColor: '', // Default value
-                // exceedanceComment: '' // Default value
+                    //ExceedanceColor: '', // Default value
+                 //exceedanceComment: '' // Default value
                 };
 
-                await axios.post('https://api.ocems.ebhoom.com/api/handleSaveMessage', payload);
+                await axios.post('http://localhost:5555/api/handleSaveMessage', payload);
                 io.to(product_id.toString()).emit('data', payload);
                 
                 console.log('Data successfully sent:', payload);

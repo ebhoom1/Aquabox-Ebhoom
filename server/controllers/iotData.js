@@ -124,7 +124,7 @@ const checkTimeInterval = async (data, user) => {
     
         // Format the date and time (without milliseconds)
         const date = moment().format('DD/MM/YYYY');
-        const time = moment().tz('Asia/Kolkata').format('HH:mm'); // Format to HH:MM
+        const time = moment().tz('Asia/Kolkata').format('HH:mm:ss'); // Format to HH:MM
     
         const uniqueIdentifier = `${data.product_id}-${data.userName}-${date}-${time}`;
         console.log('Unique Identifier:', uniqueIdentifier);
@@ -170,15 +170,14 @@ const checkTimeInterval = async (data, user) => {
                 validationStatus: data.validationStatus || 'Valid',
                 exceedanceComment: exceedanceCheck.exceedanceDetected ,
                 ExceedanceColor: exceedanceCheck.exceedanceDetected ,
-                timeIntervalComment: timeIntervalCheck.intervalExceeded ,
-                timeIntervalColor: timeIntervalCheck.intervalExceeded 
+                timeIntervalComment: timeIntervalCheck.intervalExceeded ? 'Time interval exceeded' : 'Within allowed time interval',
+                timeIntervalColor: timeIntervalCheck.intervalExceeded ? 'purple' : 'green'
             };
     
             try {
                 const newEntry = new IotData(newEntryData);
                 await newEntry.save();
-                console.log("New Entered Data is : ", newEntry);
-                
+    
                 await saveOrUpdateLastEntryByUserName(newEntry.toObject());
                 req.io.to(data.userName).emit('stackDataUpdate', { stackData: stacks, timestamp: new Date() });
                 await handleExceedValues();
