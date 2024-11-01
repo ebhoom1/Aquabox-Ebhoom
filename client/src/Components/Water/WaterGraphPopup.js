@@ -165,7 +165,13 @@ const WaterGraphPopup = ({ isOpen, onRequestClose, parameter, userName, stackNam
     };
 
     return (
-       <div>
+        <Modal
+            isOpen={isOpen}
+            onRequestClose={onRequestClose}
+            contentLabel="Graph Popup"
+            style={customStyles}
+            ariaHideApp={false}
+        >
             <h3 className="popup-title">{parameter} - {stackName}</h3>
 
             <div className="interval-buttons">
@@ -203,7 +209,7 @@ const WaterGraphPopup = ({ isOpen, onRequestClose, parameter, userName, stackNam
                     <Line data={chartData} options={chartOptions} />
                 </div>
             )}
-       </div>
+        </Modal>
     );
 };
 

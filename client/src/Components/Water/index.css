@@ -112,9 +112,3 @@
     font-size: 14px;
   }
 }
-.card-fixed {
-  height: 110px; /* Adjust height as needed */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}

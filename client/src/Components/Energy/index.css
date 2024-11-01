@@ -9,6 +9,7 @@
 }
 
 .stack-box {
+  border: 1px solid #ddd;
   padding: 15px;
   margin-top: 10px;
 }

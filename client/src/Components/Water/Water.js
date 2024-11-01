@@ -270,72 +270,54 @@ const Water = () => {
                 </div>
             )}
 
-            <div className="row mt-5">
-            <div className="col-5  ">
-      <div className="border bg-light shadow "  style={{ height: "70vh" }} >
-      {selectedCard ? (
-          <WaterGraphPopup
-            parameter={selectedCard.title}
-            userName={currentUserName}
-            stackName={selectedCard.stackName}
-          />
-        ) : (
-          <h5 className="text-center mt-5">Select a parameter to view its graph</h5>
-        )}
-      </div>
-      </div>   
-
-     
-{!loading && filteredData.length > 0 ? (
-
-  <div 
-    className="col-6 border overflow-auto bg-light shadow" 
-    style={{ height: "70vh", overflowY: "scroll" }}
-  >
-    {filteredData.map((stack, stackIndex) =>
-      effluentStacks.includes(stack.stackName) ? (
-        <div key={stackIndex} className="stack-box mb-4">
-          <h4 className="text-center">{stack.stackName}</h4>
-          <div className="row">
-            {waterParameters.map((item, index) => {
-              const value = stack[item.name];
-              return value && value !== 'N/A' ? (
-                <div className="col-6 col-md-4 grid-margin" key={index}>
-                  <div
-                    className="card card-fixed"
-                    onClick={() =>
-                      handleCardClick(
-                        { title: item.name },
-                        stack.stackName,
-                        currentUserName
-                      )
-                    }
-                  >
-                    <div className="card-body">
-                      <h5>{item.parameter}</h5>
-                      <p>
-                        <strong style={{ color: '#236A80', fontSize: '24px' }}>
-                          {value}
-                        </strong>{' '}
-                        {item.value}
-                      </p>
-                    </div>
-                  </div>
+            <div className="row">
+                {!loading && filteredData.length > 0 ? (
+                    filteredData.map((stack, stackIndex) => (
+                        effluentStacks.includes(stack.stackName) && (
+                            <div key={stackIndex} className="col-12 mb-4">
+                                <div className="stack-box">
+                                    <h4 className="text-center">{stack.stackName}</h4>
+                                    <div className="row">
+                                        {waterParameters.map((item, index) => {
+                                            const value = stack[item.name];
+                                            return value && value !== 'N/A' ? (
+                                                <div className="col-12 col-md-4 grid-margin" key={index}>
+                                                    <div className="card"   onClick={() =>
+                            handleCardClick({ title: item.name }, stack.stackName, currentUserName)
+                          }>
+                                                        <div className="card-body">
+                                                            <h5>{item.parameter}</h5>
+                                                            <p>
+                                                                <strong style={{ color: '#236A80', fontSize:'24px' }}>{value}</strong> {item.value}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ) : null;
+                                        })}
+                                    </div>
+                                </div>
+                            </div>
+                        )
+                    ))
+                ) : (
+                  <div class="col-12 d-flex justify-content-center align-items-center mt-5">
+                  <h5>Waiting real-time data available</h5>
                 </div>
-              ) : null;
-            })}
-          </div>
-        </div>
-      ) : null
-    )}
-  </div>
+                )}
+            </div>
 
-) : (
-<div className="col-6 d-flex justify-content-center align-items-center mt-5">
-  <h5>Waiting for real-time data to be available</h5>
-</div>
+
+
+            {showPopup && selectedCard && (
+<WaterGraphPopup
+    isOpen={showPopup}
+    onRequestClose={handleClosePopup}
+    parameter={selectedCard.title}
+    userName={currentUserName}
+    stackName={selectedCard.stackName} // Pass stackName
+/>
 )}
-</div>
         {showCalibrationPopup && (
           <CalibrationPopup
             userName={userData?.validUserOne?.userName}
