@@ -98,8 +98,8 @@ const setupMqttClient = (io) => {
                     date: moment().format('DD/MM/YYYY'),
                     time: moment().format('HH:mm'),
                     timestamp: new Date(),
-                    ExceedanceColor: 'green', // Default value
-                exceedanceComment: 'No exceedance detected' // Default value
+                //     ExceedanceColor: '', // Default value
+                // exceedanceComment: '' // Default value
                 };
 
                 await axios.post('https://api.ocems.ebhoom.com/api/handleSaveMessage', payload);
