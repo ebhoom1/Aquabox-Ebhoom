@@ -215,6 +215,7 @@ const AmbientAir = () => {
           <AirGraphPopup 
           isOpen={showPopup} 
           onRequestClose={() => setShowPopup(false)} 
+
     parameter={selectedCard.title}
     userName={currentUserName}
     stackName={selectedCard.stackName}
