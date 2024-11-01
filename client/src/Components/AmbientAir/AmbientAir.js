@@ -34,6 +34,7 @@ const AmbientAir = () => {
   const [selectedStack, setSelectedStack] = useState("all");
   const [emissionStacks, setEmissionStacks] = useState([]);
   const [realTimeData, setRealTimeData] = useState({});
+  const [initialData, setInitialData] = useState({}); // State for initial data
 
   const airParameters = [
     { parameter: "Flow", value: 'm3/hr', name: "Flow" },
@@ -81,6 +82,7 @@ const AmbientAir = () => {
     try {
       const result = await dispatch(fetchUserLatestByUserName(userName)).unwrap();
       setCompanyName(result?.companyName || "Unknown Company");
+      setInitialData(result.stackData || {}); // Store initial data from fetch
     } catch (error) {
       console.error('Error fetching user data:', error);
       setCompanyName("Unknown Company");
@@ -117,9 +119,11 @@ const AmbientAir = () => {
     };
   }, [searchTerm, currentUserName]);
 
+  const displayData = Object.keys(realTimeData).length > 0 ? realTimeData : initialData;
+
   const filteredData = selectedStack === "all"
-    ? Object.values(realTimeData).filter(stack => emissionStacks.includes(stack.stackName))
-    : Object.values(realTimeData).filter(stack => stack.stackName === selectedStack);
+    ? Object.values(displayData).filter(stack => emissionStacks.includes(stack.stackName))
+    : Object.values(displayData).filter(stack => stack.stackName === selectedStack);
 
   const handleCardClick = (param, stackName) => {
     setSelectedCard({ title: param.name, stackName, userName: currentUserName });
@@ -208,18 +212,17 @@ const AmbientAir = () => {
             ))}
           </div>
         ) : (
-          <h5 className="text-center mt-5">Waiting for real-time data available...</h5>
+          <h5 className="text-center mt-5">Waiting for real-time updates...</h5>
         )}
 
         {showPopup && selectedCard && (
           <AirGraphPopup 
-          isOpen={showPopup} 
-          onRequestClose={() => setShowPopup(false)} 
-
-    parameter={selectedCard.title}
-    userName={currentUserName}
-    stackName={selectedCard.stackName}
-          {...selectedCard} 
+            isOpen={showPopup} 
+            onRequestClose={() => setShowPopup(false)} 
+            parameter={selectedCard.title}
+            userName={currentUserName}
+            stackName={selectedCard.stackName}
+            {...selectedCard} 
           />
         )}
 
