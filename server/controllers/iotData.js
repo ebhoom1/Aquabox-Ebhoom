@@ -168,8 +168,8 @@ const checkTimeInterval = async (data, user) => {
                 timestamp: new Date(),
                 validationMessage: data.validationMessage || 'Validated',
                 validationStatus: data.validationStatus || 'Valid',
-                exceedanceComment: exceedanceCheck.exceedanceDetected ,
-                ExceedanceColor: exceedanceCheck.exceedanceDetected ,
+                exceedanceComment: exceedanceCheck.exceedanceDetected ? 'Parameter exceedance detected' : 'Within limits',
+                ExceedanceColor: exceedanceCheck.exceedanceDetected ? 'red' : 'green',
                 timeIntervalComment: timeIntervalCheck.intervalExceeded ? 'Time interval exceeded' : 'Within allowed time interval',
                 timeIntervalColor: timeIntervalCheck.intervalExceeded ? 'purple' : 'green'
             };
