@@ -70,10 +70,10 @@ const IotDataSchema = new mongoose.Schema({
     timestamp: { type: Date, default: Date.now },
     validationMessage: { type: String, default: 'Validated' },
     validationStatus: { type: String, default: 'Valid' },
-    ExceedanceColor: { type: String,},
+    ExceedanceColor: { type: String},
     timeIntervalColor: { type: String},
-    exceedanceComment: { type: String,},
-    timeIntervalComment: { type: String,}
+    exceedanceComment: { type: String},
+    timeIntervalComment: { type: String},
 });
 
 // Export the models
