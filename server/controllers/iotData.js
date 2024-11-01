@@ -177,7 +177,8 @@ const checkTimeInterval = async (data, user) => {
             try {
                 const newEntry = new IotData(newEntryData);
                 await newEntry.save();
-    
+                console.log("New Entered Data is : ", newEntry);
+                
                 await saveOrUpdateLastEntryByUserName(newEntry.toObject());
                 req.io.to(data.userName).emit('stackDataUpdate', { stackData: stacks, timestamp: new Date() });
                 await handleExceedValues();

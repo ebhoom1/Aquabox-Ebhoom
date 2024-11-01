@@ -130,7 +130,7 @@ function App() {
                 <Route path="/chat" element={<ChatApp />} />
                 <Route path="/view-data" element={<ViewComponent />} />
                 <Route path = '/view-difference' element={<ViewDifference/>}/>
-                {/* <Route path = "/*" element={<Error/>}/> */}
+                 <Route path = "/*" element={<Error/>}/> 
               </>
             )}
             {userType === "user" && (
@@ -152,7 +152,7 @@ function App() {
                 <Route path="/view-data" element={<ViewComponent />} />
                 <Route path = '/view-difference' element={<ViewDifference/>}/>
 
-                {/* <Route path = "/*" element={<Error/>}/> */}
+                <Route path = "/*" element={<Error/>}/> 
               </>
             )}
           </Route>

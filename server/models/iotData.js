@@ -8,7 +8,7 @@ const StackSchema = new mongoose.Schema({
     ph: { type: String },
     TDS: { type: String },
     turbidity: { type: String },
-    temperature: { type: String },
+    Temp: { type: String },
     BOD: { type: String },
     COD: { type: String },
     TSS: { type: String },

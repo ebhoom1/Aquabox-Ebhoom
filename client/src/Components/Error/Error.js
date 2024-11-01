@@ -17,7 +17,7 @@ const Error = () => {
                 </svg>
                 
                 <h2 className="mb-3">PAGE IS LOADING</h2>
-                <NavLink to="/" className="btn btn-primary" style={{ fontSize: 18 }}> Back To Home Page </NavLink>
+                <NavLink to="/" className="btn btn-primary" style={{ fontSize: 18 }}> Back To Login Page </NavLink>
             </div>
         </div>
     );
