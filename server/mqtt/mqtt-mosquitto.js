@@ -1,7 +1,7 @@
 const mqtt = require('mqtt');
 const axios = require('axios');
-const moment = require('moment-timezone'); // Use moment-timezone for accurate timezones
-const userdb = require('../models/user'); // Import user schema
+const moment = require('moment-timezone');
+const userdb = require('../models/user');
 
 const RETRY_DELAY = 5000; // 5 seconds
 
@@ -9,7 +9,7 @@ const RETRY_DELAY = 5000; // 5 seconds
 const options = {
     host: '3.110.40.48',
     port: 1883,
-    clientId:`EbhoomSubscriber-${Math.random().toString(16).substring(2, 10)}`,
+    clientId: `EbhoomSubscriber-${Math.random().toString(16).substr(2, 8)}`,
     protocol: 'mqtt',
     keepalive: 300,
     reconnectPeriod: RETRY_DELAY,
@@ -17,6 +17,9 @@ const options = {
     connectTimeout: 60000,
     pingTimeout: 120000,
 };
+
+// Cache to store unique identifiers and their expiration times
+const processedMessages = new Map();
 
 // Setup MQTT Client
 const setupMqttClient = (io) => {
@@ -38,21 +41,16 @@ const setupMqttClient = (io) => {
     // Handle Incoming Messages
     client.on('message', async (topic, message) => {
         try {
-            // console.log(Received message on topic: ${topic});
             const messageString = message.toString();
-            // console.log('Message:', messageString);
-
             let data;
+
             try {
-                data = JSON.parse(messageString); // Try parsing JSON
-                data = Array.isArray(data) ? data : [data]; // Ensure it's an array
+                data = JSON.parse(messageString);
+                data = Array.isArray(data) ? data : [data];
             } catch (parseError) {
                 console.log('Invalid JSON. Treating message as plain string.');
                 data = [{ message: messageString }];
             }
-
-            const time = moment().tz('Asia/Kolkata').format('HH:mm:ss');
-            const timestamp = moment().tz('Asia/Kolkata').toDate();
 
             for (const item of data) {
                 const { product_id, userName, stacks } = item;
@@ -67,9 +65,7 @@ const setupMqttClient = (io) => {
                 const userDetails = await userdb.findOne({
                     productID: product_id,
                     userName,
-                    stackName: { 
-                        $elemMatch: { name: { $in: stackNames } } 
-                    },
+                    stackName: { $elemMatch: { name: { $in: stackNames } } },
                 });
 
                 if (!userDetails) {
@@ -77,6 +73,17 @@ const setupMqttClient = (io) => {
                     continue;
                 }
 
+                // Set user-specific expiration time for processing duplicate messages
+                const MESSAGE_EXPIRATION_TIME = userDetails.dataInteval * 1000;
+                const uniqueIdentifier = `${product_id}-${userName}-${moment().format('DD/MM/YYYY')}-${moment().format('HH:mm')}`;
+
+                // Check if the message was already processed
+                if (processedMessages.has(uniqueIdentifier)) {
+                    console.log(`Duplicate message ignored: ${uniqueIdentifier}`);
+                    continue;
+                }
+
+                // Process the message
                 const payload = {
                     product_id,
                     userName: userDetails.userName,
@@ -86,20 +93,23 @@ const setupMqttClient = (io) => {
                     industryType: userDetails.industryType,
                     stackData: stacks.map(stack => ({
                         stackName: stack.stackName,
-                        ...Object.fromEntries(
-                            Object.entries(stack).filter(([key, value]) => key !== 'stackName' && value !== 'N/A')
-                        ),
+                        ...Object.fromEntries(Object.entries(stack).filter(([key, value]) => key !== 'stackName' && value !== 'N/A'))
                     })),
                     date: moment().format('DD/MM/YYYY'),
-                    time:moment().format('HH:mm'),
-                    timestamp: new Date(),    
+                    time: moment().format('HH:mm'),
+                    timestamp: new Date(),
                 };
 
                 await axios.post('https://api.ocems.ebhoom.com/api/handleSaveMessage', payload);
                 io.to(product_id.toString()).emit('data', payload);
-               
-                //console.log('MQTT message received:', message);
-                 console.log('Data successfully sent:', payload);
+                
+                console.log('Data successfully sent:', payload);
+
+                // Add the unique identifier to the cache
+                processedMessages.set(uniqueIdentifier, Date.now());
+
+                // Set a timeout to remove the identifier after expiration time
+                setTimeout(() => processedMessages.delete(uniqueIdentifier), MESSAGE_EXPIRATION_TIME);
             }
         } catch (error) {
             console.error('Error handling MQTT message:', error);
