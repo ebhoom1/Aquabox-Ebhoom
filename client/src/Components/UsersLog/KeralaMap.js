@@ -4,11 +4,13 @@ import { fetchUserLatestByUserName } from "../../redux/features/userLog/userLogS
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { Spinner } from "react-bootstrap"; // Import a spinner component
 
 const KeralaMap = ({ users }) => {
   const dispatch = useDispatch();
   const latestUser = useSelector((state) => state.userLog.latestUser);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [loading, setLoading] = useState(false); // Add loading state
 
   const defaultPosition = [10.8505, 76.2711]; // Center position of Kerala
 
@@ -32,11 +34,14 @@ const KeralaMap = ({ users }) => {
 
   const handleMarkerClick = (user) => {
     setSelectedUser(user.userName);
-    dispatch(fetchUserLatestByUserName(user.userName));
+    setLoading(true); // Start loading state
+    dispatch(fetchUserLatestByUserName(user.userName)).then(() => {
+      setLoading(false); // Stop loading state once data is fetched
+    });
   };
 
   return (
-    <MapContainer center={defaultPosition} zoom={7} style={{ height: "500px", width: "100%" }}>
+    <MapContainer center={defaultPosition} zoom={7} style={{ height: "600px", width: "100%" }}>
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.ebhoom.com/">Ebhoom Solutions</a> contributors'
@@ -45,7 +50,7 @@ const KeralaMap = ({ users }) => {
         users
           .filter((user) => user.userType === "user")
           .map((user) => {
-            const userIoT = selectedUser === user.userName && latestUser ? latestUser : null;
+            const userIoT = selectedUser === user.userName && !loading ? latestUser : null; // Only show data if not loading
             const isHealthy = userIoT && userIoT.validationStatus === "Valid";
             const analyzerHealth = userIoT?.validationMessage || (isHealthy ? "Good" : "Problem");
 
@@ -60,26 +65,34 @@ const KeralaMap = ({ users }) => {
               >
                 <Popup maxWidth={500} minWidth={300}>
                   <div style={styles.popupContainer}>
-                    <h5>User ID: {user.userName}</h5>
-                    <p>Company Name: <strong>{user.companyName}</strong></p>
-                    <p>Analyzer Health: <strong>{analyzerHealth}</strong></p>
-                    {userIoT && (
-                      <div style={styles.scrollContainer}>
-                        <div style={styles.cardContainer}>
-                          {userIoT.stackData.map((stack) => (
-                            <div key={stack._id} style={styles.stackContainer}>
-                              <h6 className="text-center">{stack.stackName}</h6>
-                              {Object.entries(stack).map(([key, value]) => (
-  key !== "_id" && key !== "stackName" && ( // Exclude "_id" and "stackName"
-    <div key={key} style={styles.valueCard}>
-      <strong>{key}:</strong> {value !== null ? value : "N/A"}
-    </div>
-  )
-))}
-                            </div>
-                          ))}
-                        </div>
+                    {loading ? (
+                      <div style={styles.spinnerContainer}>
+                        <Spinner animation="border" variant="primary" />
                       </div>
+                    ) : (
+                      <>
+                        <h5>User ID: {user.userName}</h5>
+                        <p>Company Name: <strong>{user.companyName}</strong></p>
+                        <p>Analyzer Health: <strong>{analyzerHealth}</strong></p>
+                        {userIoT && (
+                          <div style={styles.scrollContainer}>
+                            <div style={styles.cardContainer}>
+                              {userIoT.stackData.map((stack) => (
+                                <div key={stack._id} style={styles.stackContainer}>
+                                  <h6 className="text-center">{stack.stackName}</h6>
+                                  {Object.entries(stack).map(([key, value]) => (
+                                    key !== "_id" && key !== "stackName" && ( // Exclude "_id" and "stackName"
+                                      <div key={key} style={styles.valueCard}>
+                                        <strong>{key}:</strong> {value !== null ? value : "N/A"}
+                                      </div>
+                                    )
+                                  ))}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 </Popup>
@@ -94,6 +107,12 @@ const styles = {
   popupContainer: {
     maxWidth: "100%", // Adjust popup width
     overflow: "auto",
+  },
+  spinnerContainer: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100px",
   },
   scrollContainer: {
     maxHeight: "400px", // Increase the height of the scrollable area
