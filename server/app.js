@@ -32,8 +32,6 @@ const { getAllDeviceCredentials } = require('./controllers/user');
 const {initializeMqttClients} = require('./mqtt/mqtt-mosquitto');
 const http = require('http');
 const socketIO = require('socket.io');
-const WebSocket = require('ws');
-
 
 const cron = require('node-cron');
 const { deleteOldNotifications } = require('./controllers/notification');
@@ -52,34 +50,14 @@ const app = express();
 const port = process.env.PORT || 5555;
 const server = http.createServer(app);
 
-// Initialize WebSocket server after HTTP server is created
-const wss = new WebSocket.Server({ server });
 
-// WebSocket connection handling
-wss.on('connection', (ws) => {
-    console.log('New WebSocket connection');
-
-    ws.on('message', (message) => {
-        console.log('Received message:', message);
-        ws.send(`Server received: ${message}`);
-    });
-
-    ws.on('close', () => {
-        console.log('WebSocket connection closed');
-    });
-
-    ws.on('error', (error) => {
-        console.error('WebSocket error:', error);
-    });
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', req.headers.origin);
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Access-Control-Allow-Credentials');
+    next();
 });
-
-// app.use((req, res, next) => {
-//     res.header('Access-Control-Allow-Origin', req.headers.origin);
-//     res.header('Access-Control-Allow-Credentials', 'true');
-//     res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
-//     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Access-Control-Allow-Credentials');
-//     next();
-// });
 
 
 const io = socketIO(server, {
