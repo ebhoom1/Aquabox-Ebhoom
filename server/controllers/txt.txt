@@ -522,3 +522,247 @@ const checkTimeInterval = async (data, user) => {
         };
     };
     
+
+
+
+    // handle Save message 3-11-2024 
+
+    
+    // const handleSaveMessage = async (req, res) => {
+    //     const data = req.body;
+    
+    //     // Validate required fields
+    //     const requiredFields = ['product_id', 'companyName', 'industryType', 'userName', 'mobileNumber', 'email'];
+    //     const requiredFieldsCheck = checkRequiredFields(data, requiredFields);
+    //     if (!requiredFieldsCheck.success) {
+    //         return res.status(400).json(requiredFieldsCheck);
+    //     }
+    
+    //     // Ensure stackData is provided and valid
+    //     const stacks = data.stacks || data.stackData;
+    //     if (!Array.isArray(stacks) || stacks.length === 0) {
+    //         console.error('Stacks data is required but not provided.');
+    //         return res.status(400).json({
+    //             success: false,
+    //             message: 'Stacks data is required and must include stackName.',
+    //             missingFields: ['stacks'],
+    //         });
+    //     }
+    
+    //     const time = moment().tz('Asia/Kolkata').format('HH:mm:ss');
+    //     const timestamp = moment().tz('Asia/Kolkata').toDate();
+    
+    //     try {
+    //         const newEntry = new IotData({
+    //             product_id: data.product_id,
+    //             stackData: stacks,
+    //             date: moment().format('DD/MM/YYYY'),
+    //             time: time,
+    //             companyName: data.companyName,
+    //             industryType: data.industryType,
+    //             userName: data.userName,
+    //             mobileNumber: data.mobileNumber,
+    //             email: data.email,
+    //             timestamp: new Date(),
+    //             validationMessage: data.validationMessage || 'Validated',
+    //             validationStatus: data.validationStatus || 'Valid',
+    //         });
+    
+    //         await newEntry.save();
+    
+    //         // Save or update latest data
+    //         await saveOrUpdateLastEntryByUserName(newEntry.toObject());
+    
+    //         // Emit all stack data in real time to the specific user room
+    //         req.io.to(data.userName).emit('stackDataUpdate', {
+    //             stackData: stacks, // Send the entire stackData array
+    //             timestamp: new Date(),
+    //         });
+    //         // console.log(`Real-time data emitted to ${data.userName}`, stacks);
+    
+    //         // Call any exceed value checks after saving the data
+    //         await handleExceedValues();
+               
+    //         res.status(200).json({
+    //             success: true,
+    //             message: 'New Entry data saved successfully',
+    //             newEntry,
+    //         });
+    //     } catch (error) {
+    //         console.error('Error saving data to MongoDB:', error);
+    //         res.status(500).json({
+    //             success: false,
+    //             message: 'Error saving data to MongoDB',
+    //             error: error.message,
+    //         });
+    //     }
+    // };
+    
+
+
+handleSaveMessage 04/11/2024
+
+   const handleSaveMessage = async (req, res) => {
+        const data = req.body;
+        const requiredFields = ['product_id', 'companyName', 'industryType', 'userName', 'mobileNumber', 'email'];
+    
+        // Format the date and time (without milliseconds)
+        const date = moment().format('DD/MM/YYYY');
+        const time = moment().tz('Asia/Kolkata').format('HH:mm:ss'); // Format to HH:MM
+    
+        const uniqueIdentifier = `${data.product_id}-${data.userName}-${date}-${time}`;
+        console.log('Unique Identifier:', uniqueIdentifier);
+    
+        // Acquire mutex to ensure only one process can execute the code below at a time
+        await entryMutex.runExclusive(async () => {
+            // Check if an entry with this unique identifier (excluding milliseconds) already exists
+            const existingEntry = await IotData.findOne({
+                product_id: data.product_id,
+                userName: data.userName,
+                date: date,
+                time: time
+            });
+    
+            if (existingEntry) {
+                console.log('Duplicate entry detected, ignoring save.');
+                return res.status(200).json({ success: true, message: 'Duplicate data ignored' });
+            }
+    
+            // Check required fields and stack data
+            const requiredFieldsCheck = checkRequiredFields(data, requiredFields);
+            if (!requiredFieldsCheck.success) {
+                return res.status(400).json(requiredFieldsCheck);
+            }
+            
+            const stacks = data.stacks || data.stackData;
+            if (!Array.isArray(stacks) || stacks.length === 0) {
+                return res.status(400).json({ success: false, message: 'Stacks data is required.', missingFields: ['stacks'] });
+            }
+    
+            const user = await userdb.findOne({ userName: data.userName });
+            const exceedanceCheck = await checkExceedance(stacks, user);
+            const timeIntervalCheck = await checkTimeInterval(data, user);
+    
+            // Construct the data to save, ensuring all required fields are populated initially
+            const newEntryData = {
+                ...data,
+                stackData: stacks,
+                date: date,
+                time: time,
+                timestamp: new Date(),
+                validationMessage: data.validationMessage || 'Validated',
+                validationStatus: data.validationStatus || 'Valid',
+                exceedanceComment: exceedanceCheck.exceedanceDetected ? 'Parameter exceedance detected' : 'Within limits',
+                ExceedanceColor: exceedanceCheck.exceedanceDetected ? 'red' : 'green',
+                timeIntervalComment: timeIntervalCheck.intervalExceeded ? 'Time interval exceeded' : 'Within allowed time interval',
+                timeIntervalColor: timeIntervalCheck.intervalExceeded ? 'purple' : 'green'
+            };
+    
+            try {
+                const newEntry = new IotData(newEntryData);
+                await newEntry.save();
+    
+                await saveOrUpdateLastEntryByUserName(newEntry.toObject());
+                // req.io.to(data.userName).emit('stackDataUpdate', {
+                //      stackData: stacks,
+
+                //      timestamp: new Date() 
+                //     });
+
+                req.io.to(data.userName).emit('stackDataUpdate', {
+                    stackData: stacks.map(stack => ({
+                        ...stack,
+                        ExceedanceColor: newEntryData.ExceedanceColor,
+                        timeIntervalColor: newEntryData.timeIntervalColor,
+                        exceedanceComment: newEntryData.exceedanceComment,
+                        timeIntervalComment: newEntryData.timeIntervalComment
+                    })),
+                    timestamp: new Date(),
+                });
+                await handleExceedValues();
+    
+                res.status(200).json({
+                    success: true,
+                    message: 'New Entry data saved successfully',
+                    newEntry,
+                    exceedances: exceedanceCheck.exceedances || [],
+                    timeIntervalExceeded: timeIntervalCheck.intervalExceeded
+                });
+            } catch (error) {
+                console.error('Error saving data to MongoDB:', error);
+                res.status(500).json({ success: false, message: 'Error saving data to MongoDB', error: error.message });
+            }
+        });
+    };
+
+// removing the voltage,current,power,and flowRate code of handleSaveMessage 04/11/2024
+
+ const handleSaveMessage = async (req, res) => {
+        const data = req.body;
+    
+        // Perform validations
+        const requiredFieldsCheck = checkRequiredFields(data, ['product_id', 'companyName', 'industryType', 'userName', 'mobileNumber', 'email']);
+        if (!requiredFieldsCheck.success) {
+            return res.status(400).json(requiredFieldsCheck);
+        }
+    
+        const stacks = data.stacks || data.stackData;
+        if (!Array.isArray(stacks) || stacks.length === 0) {
+            return res.status(400).json({ success: false, message: 'Stacks data is required.', missingFields: ['stacks'] });
+        }
+    
+        const user = await userdb.findOne({ userName: data.userName });
+        const exceedanceCheck = await checkExceedance(stacks, user);
+        const timeIntervalCheck = await checkTimeInterval(data, user);
+    
+        // Format date and time
+        const date = moment().format('DD/MM/YYYY');
+        const time = moment().tz('Asia/Kolkata').format('HH:mm:ss');
+    
+        // Emit real-time data before saving
+        req.io.to(data.userName).emit('stackDataUpdate', {
+            stackData: stacks.map(stack => ({
+                ...stack,
+                ExceedanceColor: exceedanceCheck.exceedanceDetected ? 'red' : 'green',
+                timeIntervalColor: timeIntervalCheck.intervalExceeded ? 'purple' : 'green',
+                exceedanceComment: exceedanceCheck.exceedanceDetected ? 'Parameter exceedance detected' : 'Within limits',
+                timeIntervalComment: timeIntervalCheck.intervalExceeded ? 'Time interval exceeded' : 'Within allowed time interval'
+            })),
+            timestamp: new Date(),
+        });
+    
+        // Remove power and current before saving to database
+        const sanitizedStackData = stacks.map(stack => {
+            const { power, current,voltage,flowRate, ...restOfStack } = stack;
+            return restOfStack;
+        });
+    
+        const newEntryData = {
+            ...data,
+            stackData: sanitizedStackData,
+            date,
+            time,
+            timestamp: new Date(),
+            exceedanceComment: exceedanceCheck.exceedanceDetected ? 'Parameter exceedance detected' : 'Within limits',
+            ExceedanceColor: exceedanceCheck.exceedanceDetected ? 'red' : 'green',
+            timeIntervalComment: timeIntervalCheck.intervalExceeded ? 'Time interval exceeded' : 'Within allowed time interval',
+            timeIntervalColor: timeIntervalCheck.intervalExceeded ? 'purple' : 'green',
+            validationMessage: data.validationMessage || 'Validated',
+            validationStatus: data.validationStatus || 'Valid',
+        };
+    
+        // Save to database
+        try {
+            const newEntry = new IotData(newEntryData);
+            await newEntry.save();
+            res.status(200).json({
+                success: true,
+                message: 'New Entry data saved successfully',
+                newEntry,
+            });
+        } catch (error) {
+            console.error('Error saving data:', error);
+            res.status(500).json({ success: false, message: 'Error saving data', error: error.message });
+        }
+    };
+    

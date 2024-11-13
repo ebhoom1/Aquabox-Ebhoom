@@ -172,11 +172,22 @@ const editComments = async (req, res) => {
 
 const getAllExceedData = async (req, res) => {
     try {
-        const allComments = await CalibrationExceed.find();
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;  // Default to 10 records per page
+        const skipIndex = (page - 1) * limit;
+
+        const allComments = await CalibrationExceed.find()
+            .sort({ timestamp: -1 })  // Ensuring the latest data is fetched first
+            .limit(limit)
+            .skip(skipIndex)
+            .exec();
+
         res.status(200).json({
             success: true,
             message: 'All comments are found',
-            userExceedData: allComments
+            data: allComments,
+            page,
+            limit
         });
     } catch (error) {
         res.status(500).json({
@@ -187,44 +198,38 @@ const getAllExceedData = async (req, res) => {
     }
 }
 
+
 const getAUserExceedData = async (req, res) => {
     try {
         const { userName, industryType, companyName, fromDate, toDate, stackName } = req.query;
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;  // Default to 10 records per page
+        const skipIndex = (page - 1) * limit;
 
-        // Construct the query object
         let query = {};
 
         if (userName) query.userName = decodeURIComponent(userName.trim());
         if (industryType) query.industryType = industryType;
         if (companyName) query.companyName = companyName;
-
-        // Corrected: Querying 'stackName' directly since it's not inside 'stackData'
         if (stackName) query.stackName = decodeURIComponent(stackName.trim());
 
-        // Parse the dates correctly to ensure proper querying
-        const parsedFromDate = moment(fromDate, 'DD-MM-YYYY').startOf('day').utc().toDate();
-        const parsedToDate = moment(toDate, 'DD-MM-YYYY').endOf('day').utc().toDate();
-
-        // Validate the parsed dates
-        if (!parsedFromDate || !parsedToDate) {
-            return res.status(400).json({
-                success: false,
-                message: 'Invalid date format. Use DD-MM-YYYY format.'
-            });
+        if (fromDate && toDate) {
+            const parsedFromDate = moment(fromDate, 'DD-MM-YYYY').startOf('day').utc().toDate();
+            const parsedToDate = moment(toDate, 'DD-MM-YYYY').endOf('day').utc().toDate();
+            if (!parsedFromDate || !parsedToDate) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid date format. Use DD-MM-YYYY format.'
+                });
+            }
+            query.timestamp = { $gte: parsedFromDate, $lte: parsedToDate };
         }
 
-        // Add the date range to the query
-        query.timestamp = {
-            $gte: parsedFromDate,
-            $lte: parsedToDate
-        };
-
-        console.log('Query:', query); // Debugging query object
-
-        // Fetch and sort the data
         const comments = await CalibrationExceed.find(query)
             .sort({ timestamp: -1 })
-            .allowDiskUse(true);
+            .limit(limit)
+            .skip(skipIndex)
+            .exec();
 
         if (!comments || comments.length === 0) {
             return res.status(404).json({
@@ -236,7 +241,9 @@ const getAUserExceedData = async (req, res) => {
         res.status(200).json({
             success: true,
             message: 'Comments retrieved successfully',
-            comments: comments
+            data: comments,
+            page,
+            limit
         });
     } catch (error) {
         console.error('Error retrieving data:', error);
@@ -250,30 +257,65 @@ const getAUserExceedData = async (req, res) => {
 
 
 
+
   
-const getExceedDataByUserName = async(req,res)=>{
+const getExceedDataByUserName = async(req, res) => {
     try {
-        const {userName}=req.params;
-        
-        //Retrive Exceed Data using UserName
-        const userExceedData= await CalibrationExceed.find({userName});
+        const { userName } = req.params;
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit);
+
+        // Check if limit is provided and is a positive integer
+        if (!limit || limit <= 0) {
+            return res.status(400).json({
+                status: 400,
+                success: false,
+                message: "A positive 'limit' query parameter is required."
+            });
+        }
+
+        const skipIndex = (page - 1) * limit;
+
+        // Retrieve the total number of records to manage pagination
+        const totalCount = await CalibrationExceed.countDocuments({ userName: userName });
+
+        // Retrieve Exceed Data using UserName with pagination
+        const userExceedData = await CalibrationExceed.find({ userName: userName })
+            .sort({ timestamp: -1 })  // Ensuring the latest data is fetched first
+            .limit(limit)
+            .skip(skipIndex)
+            .exec();
+
+        // Check if there's any data to fetch for the requested page
+        if (userExceedData.length === 0) {
+            return res.status(404).json({
+                status: 404,
+                success: false,
+                message: "No data found for this page.",
+            });
+        }
 
         res.status(200).json({
-            status:200,
-            success:true,
-            message:`Calibration Exceed data of User ${userName} fetched successfully`,
-            userExceedData
-        })
+            status: 200,
+            success: true,
+            message: `Calibration Exceed data of user ${userName} fetched successfully`,
+            data: userExceedData,
+            currentPage: page,
+            totalPages: Math.ceil(totalCount / limit),
+            limit
+        });
 
     } catch (error) {
         res.status(500).json({
             status: 500,
             success: false,
-            message: `Error in Fetching User Exceed Data`,
+            message: `Error in fetching User Exceed Data`,
             error: error.message,
-          });
+        });
     }
-} 
+};
+
+
   
 
 
@@ -438,7 +480,7 @@ const sendNotification = async (parameter, value, user,stackName) => {
  
 const saveExceedValue = async (parameter, value, user,stackName) => {
     try {
-        console.log(`Saving exceed value for parameter: ${parameter}, value: ${value}, user:`, user);
+       // console.log(`Saving exceed value for parameter: ${parameter}, value: ${value}, user:`, user);
 
         const currentDate = moment().format('DD/MM/YYYY');
         const currentTime = moment().format('HH:mm:ss');
@@ -463,7 +505,7 @@ const saveExceedValue = async (parameter, value, user,stackName) => {
         });    
 
         await newEntry.save();
-        console.log(`Exceed value saved successfully`);
+        //console.log(`Exceed value saved successfully`);
 
         return {
             success: true,

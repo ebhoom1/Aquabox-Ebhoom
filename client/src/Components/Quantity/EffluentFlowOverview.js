@@ -90,63 +90,10 @@ const EffluentFlowOverview = () => {
   return (
     <div className="container-fluid">
       <div className="row mt-4">
-        {/* Left Section */}
-        <div className="col-md-6">
-          <h3 className="text-center">Total Inflow and Outflow</h3>
-          <div className="row">
-            <div className="col-md-6 mb-4">
-              <div className="card">
-                <small>{currentDate}</small>
-                <div className="card-body">
-                  <h5 className="card-title text-center">Inflow</h5>
-                  <p className="text-center display-4">
-                    {summaryData.totalInflow.toLocaleString()} m³
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-6 mb-4">
-              <div className="card">
-                <small>{currentDate}</small>
-                <div className="card-body">
-                  <h5 className="card-title text-center">Final Flow</h5>
-                  <p className="text-center display-4">
-                    {summaryData.totalFinalflow.toLocaleString()} m³
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <h3 className="text-center">Prediction for Next Month</h3>
-          <div className="row">
-            <div className="col-md-6 mb-4">
-              <div className="card">
-                <small>{currentDate}</small>
-                <div className="card-body">
-                  <h5 className="card-title text-center">Predicted Inflow</h5>
-                  <p className="text-center display-4">
-                    {predictionData.predictedInflow.toLocaleString()} m³
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-6 mb-4">
-              <div className="card">
-                <small>{currentDate}</small>
-                <div className="card-body">
-                  <h5 className="card-title text-center">Predicted Outflow</h5>
-                  <p className="text-center display-4">
-                    {predictionData.predictedFinalflow.toLocaleString()} m³
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+       
 
         {/* Right Section */}
-        <div className="col-md-6">
+        <div className="col-md-12">
           <div className="card" style={{ height: '100%' }}>
             <ConsumptionPredictionGraph />
           </div>

@@ -139,7 +139,7 @@ const PDFDocument = require('pdfkit');
 
 // Adjust calculation to use IST (Indian Standard Time)
 const calculateAverages = async (userName, product_id, startTime, endTime, interval, intervalType) => {
-    console.log(`Calculating averages for ${userName} - ${intervalType}: ${startTime} to ${endTime}`);
+    //console.log(`Calculating averages for ${userName} - ${intervalType}: ${startTime} to ${endTime}`);
 
     const nowIST = moment().tz('Asia/Kolkata');
 
@@ -174,7 +174,7 @@ const calculateAverages = async (userName, product_id, startTime, endTime, inter
         },
     ]);
 
-    console.log(`Extracted ${data.length} entries for ${userName} - ${intervalType}`);
+    //console.log(`Extracted ${data.length} entries for ${userName} - ${intervalType}`);
     if (data.length === 0) return;
 
     // Grouping and calculating averages
@@ -204,7 +204,7 @@ const calculateAverages = async (userName, product_id, startTime, endTime, inter
         };
     });
 
-    console.log(`Averages for ${userName}:`, stackData);
+    //console.log(`Averages for ${userName}:`, stackData);
 
     // Prepare and save the new average entry
     const averageEntry = new IotDataAverage({
@@ -219,7 +219,7 @@ const calculateAverages = async (userName, product_id, startTime, endTime, inter
 
     try {
         await averageEntry.save();
-        console.log(`Average entry saved for ${userName} - ${intervalType}`);
+        //console.log(`Average entry saved for ${userName} - ${intervalType}`);
     } catch (error) {
         console.error(`Error saving average entry for ${userName} - ${intervalType}:`, error);
     }
@@ -240,7 +240,7 @@ const scheduleAveragesCalculation = () => {
 
     intervals.forEach(({ cronTime, interval, duration }) => {
         cron.schedule(cronTime, async () => {
-            console.log(`Running ${interval} average calculation...`);
+           // console.log(`Running ${interval} average calculation...`);
 
             const now = moment().tz('Asia/Kolkata');
             const startTime = new Date(now.clone().subtract(duration, 'milliseconds').toDate());

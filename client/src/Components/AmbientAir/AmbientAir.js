@@ -35,6 +35,7 @@ const AmbientAir = () => {
   const [emissionStacks, setEmissionStacks] = useState([]);
   const [realTimeData, setRealTimeData] = useState({});
   const [initialData, setInitialData] = useState({}); // State for initial data
+  
 
   const airParameters = [
     { parameter: "Flow", value: 'm3/hr', name: "Flow" },
@@ -121,9 +122,9 @@ const AmbientAir = () => {
 
   const displayData = Object.keys(realTimeData).length > 0 ? realTimeData : initialData;
 
-  const filteredData = selectedStack === "all"
-    ? Object.values(displayData).filter(stack => emissionStacks.includes(stack.stackName))
-    : Object.values(displayData).filter(stack => stack.stackName === selectedStack);
+    const filteredData = selectedStack === "all"
+      ? Object.values(displayData).filter(stack => emissionStacks.includes(stack.stackName))
+      : Object.values(displayData).filter(stack => stack.stackName === selectedStack);
 
   const handleCardClick = (param, stackName) => {
     setSelectedCard({ title: param.name, stackName, userName: currentUserName });

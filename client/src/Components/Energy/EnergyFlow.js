@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchIotDataByUserName } from "../../redux/features/iotData/iotDataSlice";
 import { fetchUserLatestByUserName } from "../../redux/features/userLog/userLogSlice";
-import EnergyGraphPopup from '../Water/WaterGraphPopup';
+import EnergyGraph from './EnergyGraph';
 import CalibrationPopup from '../Calibration/CalibrationPopup';
 import CalibrationExceeded from '../Calibration/CalibrationExceeded';
 import { useOutletContext } from 'react-router-dom';
@@ -10,6 +10,11 @@ import { Oval } from 'react-loader-spinner';
 import DailyHistoryModal from "../Water/DailyHistoryModal"; 
 import { API_URL } from "../../utils/apiConfig";
 import { io } from 'socket.io-client';
+import axios from "axios";
+// At the top of the file, import the new component
+import EnergyConsumptionCards from './EnergyConsumptionCards';
+import PieChartEnergy from "./PieChartEnergy";
+import PrimaryStationSelector from "./PrimaryStationSelector";
 
 // Initialize Socket.IO
 const socket = io(API_URL, { 
@@ -38,8 +43,8 @@ const EnergyFlow = () => {
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [selectedStack, setSelectedStack] = useState("all");
   const [energyStacks, setEnergyStacks] = useState([]); // New state to store energy stacks
-  const [realTimeData, setRealTimeData] = useState({});
-
+  const [realTimeData, setRealTimeData] = useState({})
+  
   // Fetch stack names and filter energy stationType stacks
   const fetchEnergyStacks = async (userName) => {
     try {
@@ -76,6 +81,7 @@ const EnergyFlow = () => {
     fetchData(userName);
     setCurrentUserName(userName); 
     fetchEnergyStacks(userName);
+    fetchPrimaryStation(userName);
   }, [searchTerm, currentUserName]);
 
   useEffect(() => {
@@ -158,7 +164,42 @@ const EnergyFlow = () => {
       { parameter: "Voltage", value: "V", name: "voltage" },
       { parameter: "Current", value: "A", name: "current" },
     ];
+    const [primaryStation, setPrimaryStation] = useState(""); // State to hold the primary station name
+    
 
+    useEffect(() => {
+      fetchPrimaryStation(currentUserName); // Fetch primary station on component mount and userName change
+    }, [currentUserName]);
+  
+    const fetchPrimaryStation = async (userName) => {
+      try {
+        const response = await axios.get(`${API_URL}/api/primary-station/${userName}`);
+        setPrimaryStation(response.data?.data?.stackName || 'No primary station selected');
+      } catch (error) {
+        console.error('Failed to fetch primary station:', error);
+        setPrimaryStation('No primary station selected');
+      }
+    };
+    const handleSetPrimaryStation = (stationName) => {
+      setPrimaryStation(stationName); // Immediately update local state
+      const postData = {
+        userName: currentUserName,
+        stationType: 'energy', // Assuming 'energy' is always the type for now
+        stackName: stationName
+      };
+      axios.post(`${API_URL}/api/set-primary-station`, postData)
+        .then(response => {
+          console.log('Primary station set:', response.data);
+          // You might want to fetch new data here or ensure the child component reacts to the change
+        })
+        .catch(error => {
+          console.error('Error setting primary station:', error);
+        });
+    };
+    
+  
+    
+   
   return (
     <div className="main-panel">
       <div className="content-wrapper">
@@ -213,11 +254,27 @@ const EnergyFlow = () => {
             ))}
         </select>
       </div>
+        {/* Primary station dropdown component */}
+        <PrimaryStationSelector
+                stations={searchResult.stackData.filter(stack => energyStacks.includes(stack.stackName)).map(stack => stack.stackName)}
+                userName={currentUserName}
+                setPrimaryStation={setPrimaryStation}
+                primaryStation={primaryStation}
+
+              />
     </div>
   )}
 </div>
           <div className="col-md-4">
-            <h3 className="text-center">{companyName}</h3>
+        <div className="col-md-4">
+          {/* Pass userName and primaryStation as props */}
+          <EnergyConsumptionCards
+          userName={currentUserName}
+          primaryStation={primaryStation}
+        />
+        </div>
+            <h3 className="text-center card-title">{companyName}</h3>
+            
           </div>
 
           <div className="col-md-4 d-flex justify-content-end">
@@ -283,7 +340,7 @@ const EnergyFlow = () => {
             </div>
 
         {showPopup && selectedCard && (
-          <EnergyGraphPopup
+          <EnergyGraph
           isOpen={showPopup}
           onRequestClose={handleClosePopup}
           parameter={selectedCard.title}
@@ -299,7 +356,7 @@ const EnergyFlow = () => {
           />
         )}
       
-        
+      <PieChartEnergy primaryStation={primaryStation} userName={currentUserName} />
 
         <DailyHistoryModal 
   isOpen={showHistoryModal} 

@@ -137,7 +137,7 @@ const ConsumptionPredictionGraph = () => {
         labels,
         datasets: [
             {
-                label: dataType === 'consumption' ? 'Inflow' : 'Predicted Inflow',
+                label: dataType === 'consumption' ? 'Cumulating Flow' : 'Predicted Inflow',
                 data: inflowValues,
                 borderColor: '#3498db',
                 backgroundColor: '#3498db',
@@ -148,7 +148,7 @@ const ConsumptionPredictionGraph = () => {
                 pointHoverBorderWidth: 3, // Border width on hover
             },
             {
-                label: dataType === 'consumption' ? 'Final Flow' : 'Predicted Final Flow',
+                label: dataType === 'consumption' ? 'Flow Rate' : 'Predicted Final Flow',
                 data: finalFlowValues,
                 borderColor: '#2ecc71',
                 backgroundColor: '#2ecc71',

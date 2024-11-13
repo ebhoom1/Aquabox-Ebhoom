@@ -26,7 +26,8 @@ const ChatApp = () => {
         if (response.data && response.data.users && currentUser) {
           setChats(response.data.users.map(user => ({
             id: user._id,
-            name: user.fname || 'No Name', // Provide a fallback value
+            name: user.companyName || 'No Name', // Provide a fallback value
+            userName:user.userName || 'No userName',
             avatar: user.avatar || 'assets/images/admin.png', // Provide a default avatar if not available
             lastMessage: user.lastMessage || 'No messages yet', // Provide a default message
             userId: currentUser._id // Use the actual current user ID from Redux state
@@ -60,7 +61,8 @@ const ChatApp = () => {
   }, []);
 
   const filteredChats = chats.filter(chat =>
-    chat.name.toLowerCase().includes(searchTerm.toLowerCase())
+    chat.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    chat.userName.toLowerCase().includes(searchTerm.toLocaleLowerCase())
   );
 
   return (

@@ -134,8 +134,8 @@ const QuantityFlow = () => {
     ? Object.values(realTimeData)
     : Object.values(realTimeData).filter(data => data.stackName === selectedStack);
     const effluentFlowParameters = [
-      { parameter: "inFlow", value: "m³", name: "inflow" },
-      { parameter: "Out Flow", value: "m³", name: "finalflow" },
+      { parameter: "Cumulating Flow", value: "m³", name: "cumulatingFlow" },
+      { parameter: "Flow Rate", value: "m³", name: "flowRate" },
      
     ];
 

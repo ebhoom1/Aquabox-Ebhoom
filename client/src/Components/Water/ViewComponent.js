@@ -41,7 +41,9 @@ const ViewComponent = () => {
     const { _id, ...filteredData } = stack;
     return filteredData;
   };
-
+  const handlePrint = () => {
+    window.print();
+  };
   return (
     <div className="container-fluid">
       <h4>From Date: {fromDate}</h4>
@@ -93,6 +95,9 @@ const ViewComponent = () => {
           breakClassName={'break-me'}
         />
       )}
+      <button className="btn btn-primary" onClick={handlePrint} style={{ marginTop: '20px' }}>
+        Print This Page
+      </button>
     </div>
   );
 };

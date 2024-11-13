@@ -18,7 +18,10 @@ const options = {
     pingTimeout: 120000,
 };
 
-// Setup MQTT Client
+
+
+const lastProcessedTime = {}; // Cache to store the last processed time for each user
+
 const setupMqttClient = (io) => {
     const client = mqtt.connect(options);
 
@@ -38,21 +41,16 @@ const setupMqttClient = (io) => {
     // Handle Incoming Messages
     client.on('message', async (topic, message) => {
         try {
-            // console.log(Received message on topic: ${topic});
             const messageString = message.toString();
-            // console.log('Message:', messageString);
 
             let data;
             try {
-                data = JSON.parse(messageString); // Try parsing JSON
-                data = Array.isArray(data) ? data : [data]; // Ensure it's an array
+                data = JSON.parse(messageString);
+                data = Array.isArray(data) ? data : [data];
             } catch (parseError) {
                 console.log('Invalid JSON. Treating message as plain string.');
                 data = [{ message: messageString }];
             }
-
-            const time = moment().tz('Asia/Kolkata').format('HH:mm:ss');
-            const timestamp = moment().tz('Asia/Kolkata').toDate();
 
             for (const item of data) {
                 const { product_id, userName, stacks } = item;
@@ -62,13 +60,31 @@ const setupMqttClient = (io) => {
                     continue;
                 }
 
-                const stackNames = stacks.map(stack => stack.stackName);
+                const currentTime = moment().tz('Asia/Kolkata').toDate();
+                const timeKey = `${product_id}_${userName}`; // Create a unique key based on product_id and userName
+
+                // Check if this user has a recorded last processed time
+                if (lastProcessedTime[timeKey]) {
+                    const lastTime = lastProcessedTime[timeKey];
+
+                    // Check if the current message is too close in time to the last one processed
+                    const timeDifference = currentTime - lastTime;
+                    const timeThreshold = 1000; // 1000 ms = 1 second
+
+                    if (timeDifference < timeThreshold) {
+                        console.log('Ignoring duplicate message:', item);
+                        continue; // Skip saving as it's considered a duplicate
+                    }
+                }
+
+                // Update the last processed time for this user
+                lastProcessedTime[timeKey] = currentTime;
 
                 const userDetails = await userdb.findOne({
                     productID: product_id,
                     userName,
-                    stackName: { 
-                        $elemMatch: { name: { $in: stackNames } } 
+                    stackName: {
+                        $elemMatch: { name: { $in: stacks.map(stack => stack.stackName) } }
                     },
                 });
 
@@ -91,40 +107,19 @@ const setupMqttClient = (io) => {
                         ),
                     })),
                     date: moment().format('DD/MM/YYYY'),
-                    time:moment().format('HH:mm'),
-                    timestamp: new Date(),    
+                    time: moment().format('HH:mm'),
+                    timestamp: new Date(),
                 };
 
-                await axios.post('https://api.ocems.ebhoom.com/api/handleSaveMessage', payload);
+                await axios.post('http://localhost:5555/api/handleSaveMessage', payload); //https://api.ocems.ebhoom.com
                 io.to(product_id.toString()).emit('data', payload);
-               
-                //console.log('MQTT message received:', message);
-                 console.log('Data successfully sent:', payload);
+                //console.log('Data successfully sent:', payload);
             }
         } catch (error) {
             console.error('Error handling MQTT message:', error);
         }
     });
-
-    // Handle MQTT Errors
-    client.on('error', (err) => {
-        console.error('MQTT error:', err);
-        console.log('Attempting to reconnect...');
-    });
-
-    // Handle Disconnections
-    client.on('close', () => {
-        console.warn(`Disconnected from broker at ${new Date().toLocaleString()}`);
-    });
-
-    // Reconnection Logic
-    client.on('reconnect', () => {
-        console.log('Reconnecting to MQTT broker...');
-    });
-
-    return client;
-};
-
+}
 // Initialize MQTT Clients at Server Startup
 const initializeMqttClients = async (io) => {
     try {

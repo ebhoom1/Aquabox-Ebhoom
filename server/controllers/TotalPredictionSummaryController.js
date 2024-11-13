@@ -1,114 +1,92 @@
-const PredictionData = require('../models/PredictionData');
+
+const Prediction = require('../models/PredictionOfConsumption');
 const TotalPredictionSummary = require('../models/TotalPredictionSummary');
+const User = require('../models/user');
 const moment = require('moment-timezone');
 const cron = require('node-cron');
 
-// Helper function to get start and end time
-const getStartAndEndTime = (intervalType) => {
-    const endTime = moment().utc();
-    const startTime = {
-        'hourly': endTime.clone().subtract(1, 'hour'),
-        'daily': endTime.clone().subtract(1, 'day'),
-        'monthly': endTime.clone().subtract(1, 'month'),
-    }[intervalType];
-
-    console.log(`Start Time: ${startTime}, End Time: ${endTime}`); // Debugging log
-    if (!startTime) throw new Error(`Unsupported interval type: ${intervalType}`);
-    return { startTime: startTime.toDate(), endTime: endTime.toDate() };
+// Function to fetch user details
+const fetchUserDetails = async (userName) => {
+    return await User.findOne({ userName }).lean();
 };
 
-// Calculate prediction summary
-const calculateTotalPredictionSummary = async (userName, product_id, startTime, endTime, intervalType) => {
-    try {
-        console.log(`Fetching prediction data for ${userName}, product: ${product_id}, interval: ${intervalType}`);
-        const predictions = await PredictionData.find({
-            userName,
-            product_id,
-            timestamp: { $gte: startTime, $lt: endTime },
-        });
+// Function to calculate and save total prediction summary from the last hourly data
+const calculateTotalPredictionSummary = async () => {
+    const currentTime = moment().startOf('hour');
+    const previousHourTime = currentTime.clone().subtract(1, 'hour');
 
-        console.log(`Fetched Predictions: ${JSON.stringify(predictions)}`); // Debugging log
+    const users = await Prediction.distinct("userName");
+    console.log(`Processing predictions for the following users: ${users.join(", ")}`);
 
-        if (!predictions || predictions.length === 0) {
-            console.log(`No prediction data found for ${userName} - ${intervalType}`);
-            return;
+    for (const userName of users) {
+        console.log(`Fetching user details for ${userName}`);
+        const userDetails = await fetchUserDetails(userName);
+        if (!userDetails) {
+            console.log(`User details not found for ${userName}`);
+            continue;
         }
 
-        let predictedEnergy = 0;
-        let predictedInflow = 0;
-        let predictedFinalflow = 0;
+        console.log(`Fetching predictions for ${userName} on ${previousHourTime.format('DD/MM/YYYY')} at hour ${previousHourTime.format('HH')}`);
+        const latestPredictions = await Prediction.find({
+            userName,
+            date: previousHourTime.format('DD/MM/YYYY'),
+            hour: previousHourTime.format('HH')
+        }).lean();
 
-        // Aggregate the prediction data
-        predictions.forEach(entry => {
-            entry.predictionData.forEach(stack => {
-                predictedEnergy += stack.predictedEnergy || 0;
-                predictedInflow += stack.predictedInflow || 0;
-                predictedFinalflow += stack.predictedFinalflow || 0;
+        if (latestPredictions.length === 0) {
+            console.log(`No predictions found for user ${userName} for hour ${previousHourTime.format('HH:mm')}`);
+            continue;
+        }
+
+        let totalEnergy = 0;
+        let totalFlow = 0;
+        latestPredictions.forEach(prediction => {
+            prediction.stacks.forEach(stack => {
+                console.log(`Adding ${stack.energyHourlyPrediction} energy and ${stack.flowHourlyPrediction} flow from ${stack.stackName}`);
+                totalEnergy += stack.energyHourlyPrediction || 0;
+                totalFlow += stack.flowHourlyPrediction || 0;
             });
         });
 
-        const userRecord = predictions[0]; // Use first matching record for user details
-
-        const intervalIST = moment().tz('Asia/Kolkata').format('ddd MMM DD YYYY HH:mm:ss [GMT+0530]');
+        console.log(`Total energy for ${userName}: ${totalEnergy}, Total flow: ${totalFlow}`);
 
         const summaryEntry = new TotalPredictionSummary({
-            userName: userRecord.userName,
-            product_id: userRecord.product_id,
-            companyName: userRecord.companyName,
-            email: userRecord.email,
-            mobileNumber: userRecord.mobileNumber,
-            interval: intervalIST,
-            intervalType,
-            predictedEnergy,
-            predictedInflow,
-            predictedFinalflow,
+            userName,
+            product_id: userDetails.product_id,
+            companyName: userDetails.companyName,
+            email: userDetails.email,
+            mobileNumber: userDetails.mobileNumber,
+            date: previousHourTime.format('DD/MM/YYYY'),
+            hour: previousHourTime.format('HH'),
+            totalEnergyPrediction: totalEnergy,
+            totalFlowPrediction: totalFlow,
+            interval: `${previousHourTime.format('DD/MM/YYYY HH:mm:ss')} - ${currentTime.format('DD/MM/YYYY HH:mm:ss')}`,
+            intervalType: 'hourly'
         });
 
         await summaryEntry.save();
-        console.log(`Saved total prediction summary for ${userName} - ${intervalType}`);
-    } catch (error) {
-        console.error(`Error in calculating prediction summary: ${error.message}`);
+        console.log(`Total prediction summary saved for ${userName} for hour ${previousHourTime.format('HH:mm')}`);
     }
 };
 
-// Run prediction summary calculation
-const runTotalPredictionSummaryCalculation = async (intervalType) => {
-    try {
-        const users = await PredictionData.distinct('userName');
-        console.log(`Found Users: ${users}`); // Debugging log
+// Immediate function call to test
+calculateTotalPredictionSummary();
 
-        for (const userName of users) {
-            const productIds = await PredictionData.distinct('product_id', { userName });
-            console.log(`Product IDs for ${userName}: ${productIds}`); // Debugging log
+// Schedule to run every hour   
+cron.schedule('0 * * * *', () => {
+    console.log('Running hourly total prediction summary calculation...');
+    calculateTotalPredictionSummary();
+});
 
-            for (const product_id of productIds) {
-                const { startTime, endTime } = getStartAndEndTime(intervalType);
-                await calculateTotalPredictionSummary(userName, product_id, startTime, endTime, intervalType);
-            }
-        }
-    } catch (error) {
-        console.error(`Error in running ${intervalType} prediction summary calculation:`, error);
-    }
-};
 
-// Schedule prediction summary calculations
-const scheduleTotalPredictionSummaryCalculation = () => {
-    const intervals = [
-        { cronTime: '*/15 * * * *', intervalType: '15Minutes' },
-        { cronTime: '*/30 * * * *', intervalType: '30Minutes' },
-        { cronTime: '0 * * * *', intervalType: 'hourly' },
-        { cronTime: '0 0 * * *', intervalType: 'daily' },
-        { cronTime: '0 0 1 * *', intervalType: 'monthly' },
-    ];
-
-    intervals.forEach(({ cronTime, intervalType }) => {
-        cron.schedule(cronTime, async () => {
-            console.log(`Running ${intervalType} prediction summary calculation...`);
-            await runTotalPredictionSummaryCalculation(intervalType);
-        });
-    });
-};
-// Function to get all prediction summary data
+const setupCronJobPredictionSummary= () => {
+ // Schedule to run every hour
+cron.schedule('0 * * * *', () => {
+    console.log('Running hourly total prediction summary calculation...');
+    calculateTotalPredictionSummary();
+});
+ };
+// Function to get all prediction summary data  
 const getAllPredictionSummaryData = async (req, res) => {
     try {
         const data = await TotalPredictionSummary.find({});
@@ -154,9 +132,8 @@ const getPredictionSummaryByUserNameAndInterval = async (req, res) => {
     }
 };
 module.exports = { 
-    runTotalPredictionSummaryCalculation, 
     calculateTotalPredictionSummary,
-    scheduleTotalPredictionSummaryCalculation,
+    setupCronJobPredictionSummary,
     getAllPredictionSummaryData,
     getPredictionSummaryByUserName,
     getPredictionSummaryByUserNameAndInterval,

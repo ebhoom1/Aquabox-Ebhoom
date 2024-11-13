@@ -11,6 +11,7 @@ import DailyHistoryModal from './DailyHistoryModal';
 import { API_URL } from "../../utils/apiConfig";
 import { io } from 'socket.io-client';
 import Quantity from "../Quantity/Quantity";
+import './index.css'
 
 // Initialize Socket.IO
 const socket = io(API_URL, { 
@@ -40,6 +41,8 @@ const Water = () => {
   const [selectedStack, setSelectedStack] = useState("all");
   const [effluentStacks, setEffluentStacks] = useState([]); // New state to store effluent stacks
   const [realTimeData, setRealTimeData] = useState({});
+  const [exceedanceColor, setExceedanceColor] = useState('green'); // Default color
+const [timeIntervalColor, setTimeIntervalColor] = useState('green'); // Default color
 
   // Fetch stack names and filter effluent stationType stacks
   const fetchEffluentStacks = async (userName) => {
@@ -93,7 +96,8 @@ const Water = () => {
   
     socket.on('stackDataUpdate', (data) => {
       console.log(`Real-time data for ${userName}:`, data);
-  
+      setExceedanceColor(data.ExceedanceColor || 'green');
+      setTimeIntervalColor(data.timeIntervalColor || 'green');
       if (data?.stackData?.length > 0) {
         setRealTimeData((prevData) => ({
           ...prevData,
@@ -242,6 +246,18 @@ const Water = () => {
 </div>
           <div className="col-md-4">
             <h3 className="text-center">{companyName}</h3>
+            <div className="color-indicators">
+            <div className="color-indicators d-flex justify-content-center mt-2">
+    <div className="color-indicator">
+      <div className="color-circle" style={{ backgroundColor: exceedanceColor }}></div>
+      <span className="color-label">Parameter Exceed</span>
+    </div>
+    <div className="color-indicator ml-4">
+      <div className="color-circle" style={{ backgroundColor: timeIntervalColor }}></div>
+      <span className="color-label">Data Interval</span>
+    </div>
+  </div>
+  </div>
           </div>
 
           <div className="col-md-4 d-flex justify-content-end">

@@ -44,46 +44,59 @@ const ChatWindow = ({ currentChat, socket }) => {
     };
   }, [currentChat, socket]);
 
-  const sendMessage = () => {
-    if (newMessage.trim()) {
-      // Emit the message to the server
-      socket.emit('chatMessage', {
-        from: currentChat.userId,
-        to: currentChat.id,
-        message: newMessage
-      });
-
-      setNewMessage(""); // Clear the input after sending the message
-    }
-
-    if (selectedFiles.length > 0) {
-      // Upload selected files with descriptions
-      selectedFiles.forEach(file => {
+  const sendMessage = async () => {
+    if (newMessage.trim() || selectedFiles.length > 0) {
         const formData = new FormData();
-        formData.append('file', file);
-        formData.append('description', fileDescriptions[file.name] || '');
+        formData.append('from', currentChat.userId);
+        formData.append('to', currentChat.id);
+        formData.append('message', newMessage);
 
-        axios.post(`${API_URL}/api/uploadFile`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        })
-          .then(response => {
-            // Emit the file message to the server
-            socket.emit('chatMessage', {
-              from: currentChat.userId,
-              to: currentChat.id,
-              message: `File: ${response.data.fileUrl}, Description: ${fileDescriptions[file.name] || 'No description'}`
+        // Check if there are files to upload
+        if (selectedFiles.length > 0) {
+            selectedFiles.forEach(file => {
+                formData.append('files', file);
             });
-          })
-          .catch(error => {
-            console.error('File upload error:', error);
-          });
-      });
 
-      // Clear file selection after sending
-      setSelectedFiles([]);
-      setFileDescriptions({});
+            try {
+                // Send files and message to the server
+                const response = await axios.post(`${API_URL}/api/uploadFiles`, formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+                // Emit the complete message with files and text
+                socket.emit('chatMessage', {
+                    from: currentChat.userId,
+                    to: currentChat.id,
+                    message: response.data.chat.message,
+                    files: response.data.chat.files
+                });
+            } catch (error) {
+                console.error('Error uploading files:', error);
+            }
+        } else {
+            try {
+                // Send just the text message to the server
+                const response = await axios.post(`${API_URL}/api/send`, {
+                    from: currentChat.userId,
+                    to: currentChat.id,
+                    message: newMessage
+                });
+                // Emit the text-only message
+                socket.emit('chatMessage', {
+                    from: currentChat.userId,
+                    to: currentChat.id,
+                    message: newMessage
+                });
+            } catch (error) {
+                console.error('Error sending message:', error);
+            }
+        }
+
+        // Clear the message and selected files after sending
+        setNewMessage("");
+        setSelectedFiles([]);
     }
-  };
+};
+
   const sendFiles = () => {
     // Similar implementation to send files as described before.
   };

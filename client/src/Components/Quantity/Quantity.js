@@ -24,9 +24,9 @@ const EnergyDashboard = () => {
         <div className="row">
           <EffluentFlowOverview />
         </div>
-        <div className="row">
+        {/* <div className="row">
           <WaterFlow searchTerm={searchTerm} userData={userData} userType={userType} />
-        </div>
+        </div> */}
         {/* <div className="row col-lg-12">
           <TotalSewageGraph searchTerm={searchTerm} userData={userData} userType={userType} />
         </div> */}

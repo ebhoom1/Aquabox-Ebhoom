@@ -16,7 +16,7 @@ const ChatSidebar = ({ chats, selectChat, searchTerm, setSearchTerm }) => {
         <div key={chat.id} className="chat-contact" onClick={() => selectChat(chat)}>
           <img src={chat.avatar} alt="Avatar" className="chat-avatar" />
           <div className="chat-info">
-            <h5 className="chat-name">{chat.name}/{chat.companyName}</h5>
+            <h5 className="chat-name">{chat.name}/{chat.userName}</h5>
             <p className="chat-last-message">{chat.lastMessage}</p>
           </div>
         </div>

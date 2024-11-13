@@ -9,7 +9,6 @@
     const { handleExceedValues } = require('./calibrationExceed');
     const CalibrationExceedValues = require('../models/calibrationExceedValues');
     const { io, server } = require('../app');
-    const { calculateTotalUsage } = require('./consumptionController');
     const { saveOrUpdateLastEntryByUserName } = require('./lastIotDataController');
     const { Mutex } = require('async-mutex'); // Import async-mutex to ensure atomicity
     const entryMutex = new Mutex(); // Create a mutex for handling unique save operations
@@ -62,28 +61,27 @@ const checkTimeInterval = async (data, user) => {
     if (lastEntry) {
         const lastEntryTimestamp = new Date(lastEntry.timestamp).getTime(); // Convert to milliseconds
         const currentTimestamp = Date.now(); // Current time in milliseconds
-        const dataInterval = parseInt(user.dataInteval) * 1000; // Convert interval to milliseconds
 
         const timeDifference = currentTimestamp - lastEntryTimestamp;
 
+        // console.log('lastEntryTimestamp:', lastEntryTimestamp);
+        // console.log('currentTimestamp:', currentTimestamp);
+        // console.log('timeDifference:', timeDifference);
 
-        console.log('lastEntryTimestamp:', lastEntryTimestamp);
-        console.log('currentTimestamp:', currentTimestamp);
-        console.log('dataInterval:', dataInterval);
-        console.log('timeDifference:', timeDifference);
+        // Check if the time difference exceeds 15 minutes (15 * 60 * 1000 milliseconds)
+        const fifteenMinutes = 15 * 60 * 1000; // 15 minutes in milliseconds
+        if (timeDifference > fifteenMinutes) {
+            // Only check the interval if the last data entry is older than 15 minutes
+           
+                return {
+                    success: true,
+                    intervalExceeded: true,
+                    intervalData: {
+                        timeIntervalComment: 'Time interval exceeded',
+                        timeIntervalColor: 'purple'
+                    }
+                };
         
-        
-        
-        
-        if (timeDifference > dataInterval) {
-            return {
-                success: true,
-                intervalExceeded: true,
-                intervalData: {
-                    timeIntervalComment: 'Time interval exceeded',
-                    timeIntervalColor: 'purple'
-                }
-            };
         }
     }
 
@@ -96,6 +94,7 @@ const checkTimeInterval = async (data, user) => {
         }
     };
 };
+
 
 
 
@@ -117,175 +116,85 @@ const checkTimeInterval = async (data, user) => {
 
 
 
-
     const handleSaveMessage = async (req, res) => {
         const data = req.body;
-        const requiredFields = ['product_id', 'companyName', 'industryType', 'userName', 'mobileNumber', 'email'];
     
-        // Format the date and time (without milliseconds)
+        // Perform validations
+        const requiredFieldsCheck = checkRequiredFields(data, ['product_id', 'companyName', 'industryType', 'userName', 'mobileNumber', 'email']);
+        if (!requiredFieldsCheck.success) {
+            return res.status(400).json(requiredFieldsCheck);
+        }
+    
+        const stacks = data.stacks || data.stackData;
+        if (!Array.isArray(stacks) || stacks.length === 0) {
+            return res.status(400).json({ success: false, message: 'Stacks data is required.', missingFields: ['stacks'] });
+        }
+    
+        const user = await userdb.findOne({ userName: data.userName });
+        const exceedanceCheck = await checkExceedance(stacks, user);
+        const timeIntervalCheck = await checkTimeInterval(data, user);
+    
+        // Format date and time
         const date = moment().format('DD/MM/YYYY');
-        const time = moment().tz('Asia/Kolkata').format('HH:mm:ss'); // Format to HH:MM
+        const time = moment().tz('Asia/Kolkata').format('HH:mm:ss');
     
-        const uniqueIdentifier = `${data.product_id}-${data.userName}-${date}-${time}`;
-        console.log('Unique Identifier:', uniqueIdentifier);
+        // Emit real-time data before saving
+req.io.to(data.userName).emit('stackDataUpdate', {
+    userName: data.userName, // Send userName at top level
+    // date: date,             // Send date at top level
+    // time: time,             // Send time at top level
+    exceedanceComment: exceedanceCheck.exceedanceDetected ? 'Parameter exceedance detected' : 'Within limits', // General exceedance comment
+    ExceedanceColor: exceedanceCheck.exceedanceDetected ? 'red' : 'green', // General color coding for exceedance
+    timeIntervalComment: timeIntervalCheck.intervalExceeded ? 'Time interval exceeded' : 'Within allowed time interval', // General time interval comment
+    timeIntervalColor: timeIntervalCheck.intervalExceeded ? 'purple' : 'green', // General color coding for time interval
+    // validationMessage: data.validationMessage || 'Validated',
+    // validationStatus: data.validationStatus || 'Valid',
+    stackData: stacks.map(stack => ({
+        ...stack,
+    })),
+    timestamp: new Date(),
+});
+
     
-        // Acquire mutex to ensure only one process can execute the code below at a time
-        await entryMutex.runExclusive(async () => {
-            // Check if an entry with this unique identifier (excluding milliseconds) already exists
-            const existingEntry = await IotData.findOne({
-                product_id: data.product_id,
-                userName: data.userName,
-                date: date,
-                time: time
-            });
-    
-            if (existingEntry) {
-                console.log('Duplicate entry detected, ignoring save.');
-                return res.status(200).json({ success: true, message: 'Duplicate data ignored' });
-            }
-    
-            // Check required fields and stack data
-            const requiredFieldsCheck = checkRequiredFields(data, requiredFields);
-            if (!requiredFieldsCheck.success) {
-                return res.status(400).json(requiredFieldsCheck);
-            }
-            
-            const stacks = data.stacks || data.stackData;
-            if (!Array.isArray(stacks) || stacks.length === 0) {
-                return res.status(400).json({ success: false, message: 'Stacks data is required.', missingFields: ['stacks'] });
-            }
-    
-            const user = await userdb.findOne({ userName: data.userName });
-            const exceedanceCheck = await checkExceedance(stacks, user);
-            const timeIntervalCheck = await checkTimeInterval(data, user);
-    
-            // Construct the data to save, ensuring all required fields are populated initially
-            const newEntryData = {
-                ...data,
-                stackData: stacks,
-                date: date,
-                time: time,
-                timestamp: new Date(),
-                validationMessage: data.validationMessage || 'Validated',
-                validationStatus: data.validationStatus || 'Valid',
-                exceedanceComment: exceedanceCheck.exceedanceDetected ? 'Parameter exceedance detected' : 'Within limits',
-                ExceedanceColor: exceedanceCheck.exceedanceDetected ? 'red' : 'green',
-                timeIntervalComment: timeIntervalCheck.intervalExceeded ? 'Time interval exceeded' : 'Within allowed time interval',
-                timeIntervalColor: timeIntervalCheck.intervalExceeded ? 'purple' : 'green'
-            };
-    
-            try {
-                const newEntry = new IotData(newEntryData);
-                await newEntry.save();
-    
-                await saveOrUpdateLastEntryByUserName(newEntry.toObject());
-                req.io.to(data.userName).emit('stackDataUpdate', { stackData: stacks, timestamp: new Date() });
-                await handleExceedValues();
-    
-                res.status(200).json({
-                    success: true,
-                    message: 'New Entry data saved successfully',
-                    newEntry,
-                    exceedances: exceedanceCheck.exceedances || [],
-                    timeIntervalExceeded: timeIntervalCheck.intervalExceeded
-                });
-            } catch (error) {
-                console.error('Error saving data to MongoDB:', error);
-                res.status(500).json({ success: false, message: 'Error saving data to MongoDB', error: error.message });
-            }
+        // Remove power and current before saving to database
+        const sanitizedStackData = stacks.map(stack => {
+            const { power, current,voltage,flowRate, ...restOfStack } = stack;
+            return restOfStack;
         });
+    
+        const newEntryData = {
+            ...data,
+            stackData: sanitizedStackData,
+            date,
+            time,  
+            timestamp: new Date(),
+            exceedanceComment: exceedanceCheck.exceedanceDetected ? 'Parameter exceedance detected' : 'Within limits',
+            ExceedanceColor: exceedanceCheck.exceedanceDetected ? 'red' : 'green',
+            timeIntervalComment: timeIntervalCheck.intervalExceeded ? 'Time interval exceeded' : 'Within allowed time interval',
+            timeIntervalColor: timeIntervalCheck.intervalExceeded ? 'purple' : 'green',
+            validationMessage: data.validationMessage || 'Validated',
+            validationStatus: data.validationStatus || 'Valid',
+        };
+    
+        // Save to database
+        try {
+            const newEntry = new IotData(newEntryData);
+            await newEntry.save();
+            res.status(200).json({
+                success: true,
+                message: 'New Entry data saved successfully',
+                newEntry,
+            });
+            handleExceedValues()
+            // saveOrUpdateLastEntryByUserName()
+        } catch (error) {
+            console.error('Error saving data:', error);
+            res.status(500).json({ success: false, message: 'Error saving data', error: error.message });
+        }
     };
     
     
-    
-
-
-
-
-
-
-
-
-
-    // const handleSaveMessage = async (req, res) => {
-    //     const data = req.body;
-    
-    //     // Validate required fields
-    //     const requiredFields = ['product_id', 'companyName', 'industryType', 'userName', 'mobileNumber', 'email'];
-    //     const requiredFieldsCheck = checkRequiredFields(data, requiredFields);
-    //     if (!requiredFieldsCheck.success) {
-    //         return res.status(400).json(requiredFieldsCheck);
-    //     }
-    
-    //     // Ensure stackData is provided and valid
-    //     const stacks = data.stacks || data.stackData;
-    //     if (!Array.isArray(stacks) || stacks.length === 0) {
-    //         console.error('Stacks data is required but not provided.');
-    //         return res.status(400).json({
-    //             success: false,
-    //             message: 'Stacks data is required and must include stackName.',
-    //             missingFields: ['stacks'],
-    //         });
-    //     }
-    
-    //     const time = moment().tz('Asia/Kolkata').format('HH:mm:ss');
-    //     const timestamp = moment().tz('Asia/Kolkata').toDate();
-    
-    //     try {
-    //         const newEntry = new IotData({
-    //             product_id: data.product_id,
-    //             stackData: stacks,
-    //             date: moment().format('DD/MM/YYYY'),
-    //             time: time,
-    //             companyName: data.companyName,
-    //             industryType: data.industryType,
-    //             userName: data.userName,
-    //             mobileNumber: data.mobileNumber,
-    //             email: data.email,
-    //             timestamp: new Date(),
-    //             validationMessage: data.validationMessage || 'Validated',
-    //             validationStatus: data.validationStatus || 'Valid',
-    //         });
-    
-    //         await newEntry.save();
-    
-    //         // Save or update latest data
-    //         await saveOrUpdateLastEntryByUserName(newEntry.toObject());
-    
-    //         // Emit all stack data in real time to the specific user room
-    //         req.io.to(data.userName).emit('stackDataUpdate', {
-    //             stackData: stacks, // Send the entire stackData array
-    //             timestamp: new Date(),
-    //         });
-    //         // console.log(`Real-time data emitted to ${data.userName}`, stacks);
-    
-    //         // Call any exceed value checks after saving the data
-    //         await handleExceedValues();
-               
-    //         res.status(200).json({
-    //             success: true,
-    //             message: 'New Entry data saved successfully',
-    //             newEntry,
-    //         });
-    //     } catch (error) {
-    //         console.error('Error saving data to MongoDB:', error);
-    //         res.status(500).json({
-    //             success: false,
-    //             message: 'Error saving data to MongoDB',
-    //             error: error.message,
-    //         });
-    //     }
-    // };
-    
-
-
-
-
-
-
-
-
-
+ 
 
 const getIotDataByUserNameAndStackName = async (req, res) => {
     const { userName, stackName } = req.params;
