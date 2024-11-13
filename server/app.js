@@ -32,6 +32,26 @@ const { getAllDeviceCredentials } = require('./controllers/user');
 const {initializeMqttClients} = require('./mqtt/mqtt-mosquitto');
 const http = require('http');
 const socketIO = require('socket.io');
+const WebSocket = require('ws');
+const wss = new WebSocket.Server({ server });
+
+wss.on('connection', (ws) => {
+    console.log('New WebSocket connection');
+
+    ws.on('message', (message) => {
+        console.log('Received message:', message);
+        // Echo the message back to the client
+        ws.send(`Server received: ${message}`);
+    });
+
+    ws.on('close', () => {
+        console.log('WebSocket connection closed');
+    });
+
+    ws.on('error', (error) => {
+        console.error('WebSocket error:', error);
+    });
+});
 
 const cron = require('node-cron');
 const { deleteOldNotifications } = require('./controllers/notification');
