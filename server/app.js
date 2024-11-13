@@ -80,7 +80,6 @@ app.use(cors({
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Access-Control-Allow-Credentials'],
-    exposedHeaders: ['Access-Control-Allow-Credentials']
 }));
 
 app.use(cookieParser());
