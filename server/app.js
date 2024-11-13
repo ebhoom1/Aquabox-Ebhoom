@@ -50,12 +50,24 @@ const app = express();
 const port = process.env.PORT || 5555;
 const server = http.createServer(app);
 
+
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', req.headers.origin);
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Access-Control-Allow-Credentials');
+    next();
+});
+
+
 const io = socketIO(server, {
     cors: {
-        origin: ['https://ocems.ebhoom.com','https://api.ocems.ebhoom.com','https://ems.ebhoom.com','http://localhost:3000','http://localhost:3002','http://localhost:3001'], // Include other origins as needed
-        methods: ["GET", "POST","PUT","PATCH","DELETE"],
+        origin: ['https://ocems.ebhoom.com', 'https://api.ocems.ebhoom.com', 'https://ems.ebhoom.com', 'http://localhost:3000', 'http://localhost:3002', 'http://localhost:3001'],
+        methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+        credentials: true
     }
 });
+
 // Export io and server instances
 module.exports = { io, server };
 
@@ -64,11 +76,13 @@ DB();
 
 // Middleware
 app.use(cors({
-    origin: ['http://localhost:3000',  'http://localhost:3002','https://ems.ebhoom.com','https://ocems.ebhoom.com','https://api.ocems.ebhoom.com','http://localhost:3001'],
+    origin: ['http://localhost:3000', 'http://localhost:3002', 'https://ems.ebhoom.com', 'https://ocems.ebhoom.com', 'https://api.ocems.ebhoom.com', 'http://localhost:3001'],
     credentials: true,
-    methods: ['GET', 'POST', 'PUT','PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Access-Control-Allow-Credentials'],
+    exposedHeaders: ['Access-Control-Allow-Credentials']
 }));
+
 app.use(cookieParser());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
