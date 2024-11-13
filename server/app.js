@@ -51,46 +51,47 @@ const {scheduleDifferenceCalculation} = require('./controllers/differenceData')
 const app = express();
 const port = process.env.PORT || 5555;
 const server = http.createServer(app);
-const wss = new WebSocket.Server({ server, path: '/ws' });
-
-wss.on('connection', (ws) => {
-    console.log('New WebSocket connection');
-
-    ws.on('message', (message) => {
-        console.log('Received message:', message);
-        ws.send(`Server received: ${message}`);
-    });
-
-    ws.on('close', () => {
-        console.log('WebSocket connection closed');
-    });
-
-    ws.on('error', (error) => {
-        console.error('WebSocket error:', error);
-    });
-});
 
 
+
+// CORS middleware for Express
+app.use(cors({
+    origin: [
+        'https://ocems.ebhoom.com',
+        'https://api.ocems.ebhoom.com',
+        'https://ems.ebhoom.com',
+        'http://localhost:3000',
+        'http://localhost:3001',
+        'http://localhost:3002'
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Socket.IO configuration
 const io = socketIO(server, {
     cors: {
-        origin: ['https://ocems.ebhoom.com','https://api.ocems.ebhoom.com','https://ems.ebhoom.com','http://localhost:3000','http://localhost:3002','http://localhost:3001'], // Include other origins as needed
-        methods: ["GET", "POST","PUT","PATCH","DELETE"],
+        origin: [
+            'https://ocems.ebhoom.com',
+            'https://api.ocems.ebhoom.com',
+            'https://ems.ebhoom.com',
+            'http://localhost:3000',
+            'http://localhost:3001',
+            'http://localhost:3002'
+        ],
+        methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
         credentials: true,
+        allowedHeaders: ['Content-Type', 'Authorization']
     }
 });
+
 // Export io and server instances
 module.exports = { io, server };
 
 // Database connection
 DB();
 
-// Middleware
-app.use(cors({
-    origin: ['http://localhost:3000',  'http://localhost:3002','https://ems.ebhoom.com','https://ocems.ebhoom.com','https://api.ocems.ebhoom.com','http://localhost:3001'],
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT','PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
 app.use(cookieParser());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
