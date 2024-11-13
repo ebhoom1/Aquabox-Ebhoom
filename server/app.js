@@ -64,6 +64,7 @@ const io = socketIO(server, {
     cors: {
         origin: ['https://ocems.ebhoom.com', 'https://api.ocems.ebhoom.com', 'https://ems.ebhoom.com', 'http://localhost:3000', 'http://localhost:3002', 'http://localhost:3001'],
         methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+        credentials: true
     }
 });
 
