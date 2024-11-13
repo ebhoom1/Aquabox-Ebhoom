@@ -32,6 +32,8 @@ const { getAllDeviceCredentials } = require('./controllers/user');
 const {initializeMqttClients} = require('./mqtt/mqtt-mosquitto');
 const http = require('http');
 const socketIO = require('socket.io');
+const WebSocket = require('ws');
+
 
 const cron = require('node-cron');
 const { deleteOldNotifications } = require('./controllers/notification');
