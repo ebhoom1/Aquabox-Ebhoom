@@ -33,6 +33,24 @@ const {initializeMqttClients} = require('./mqtt/mqtt-mosquitto');
 const http = require('http');
 const socketIO = require('socket.io');
 const WebSocket = require('ws');
+
+
+const cron = require('node-cron');
+const { deleteOldNotifications } = require('./controllers/notification');
+const { scheduleAveragesCalculation } = require('./controllers/iotDataAverages');
+const {setupCronJobTotalSummary} =require('./controllers/TotalConsumptionSummaryController');
+const {setupCronJobPredictionSummary} = require('./controllers/TotalPredictionSummaryController');
+const {scheduleExceedanceAveragesCalculation} = require('./controllers/averageExceedanceController');
+const {  scheduleIotDataEmails,sendDataDaily } = require('./controllers/DataSend');
+const {setupCronJob} = require('./controllers/saveHourlyData');
+const {setupCronJobConsumption}= require('./controllers/consumption');
+const {setupCronJobPrediction} = require('./controllers/PredictionOfConsumption');
+const {scheduleDifferenceCalculation} = require('./controllers/differenceData')
+
+
+const app = express();
+const port = process.env.PORT || 5555;
+const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
 wss.on('connection', (ws) => {
@@ -52,24 +70,6 @@ wss.on('connection', (ws) => {
         console.error('WebSocket error:', error);
     });
 });
-
-const cron = require('node-cron');
-const { deleteOldNotifications } = require('./controllers/notification');
-const { scheduleAveragesCalculation } = require('./controllers/iotDataAverages');
-const {setupCronJobTotalSummary} =require('./controllers/TotalConsumptionSummaryController');
-const {setupCronJobPredictionSummary} = require('./controllers/TotalPredictionSummaryController');
-const {scheduleExceedanceAveragesCalculation} = require('./controllers/averageExceedanceController');
-const {  scheduleIotDataEmails,sendDataDaily } = require('./controllers/DataSend');
-const {setupCronJob} = require('./controllers/saveHourlyData');
-const {setupCronJobConsumption}= require('./controllers/consumption');
-const {setupCronJobPrediction} = require('./controllers/PredictionOfConsumption');
-const {scheduleDifferenceCalculation} = require('./controllers/differenceData')
-
-
-const app = express();
-const port = process.env.PORT || 5555;
-const server = http.createServer(app);
-
 
 // app.use((req, res, next) => {
 //     res.header('Access-Control-Allow-Origin', req.headers.origin);
