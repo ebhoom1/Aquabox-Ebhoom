@@ -51,20 +51,19 @@ const port = process.env.PORT || 5555;
 const server = http.createServer(app);
 
 
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', req.headers.origin);
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Access-Control-Allow-Credentials');
-    next();
-});
+// app.use((req, res, next) => {
+//     res.header('Access-Control-Allow-Origin', req.headers.origin);
+//     res.header('Access-Control-Allow-Credentials', 'true');
+//     res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+//     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Access-Control-Allow-Credentials');
+//     next();
+// });
 
 
 const io = socketIO(server, {
     cors: {
         origin: ['https://ocems.ebhoom.com', 'https://api.ocems.ebhoom.com', 'https://ems.ebhoom.com', 'http://localhost:3000', 'http://localhost:3002', 'http://localhost:3001'],
         methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-        credentials: true
     }
 });
 
