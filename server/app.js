@@ -51,14 +51,16 @@ const {scheduleDifferenceCalculation} = require('./controllers/differenceData')
 const app = express();
 const port = process.env.PORT || 5555;
 const server = http.createServer(app);
+
+// Initialize WebSocket server after HTTP server is created
 const wss = new WebSocket.Server({ server });
 
+// WebSocket connection handling
 wss.on('connection', (ws) => {
     console.log('New WebSocket connection');
 
     ws.on('message', (message) => {
         console.log('Received message:', message);
-        // Echo the message back to the client
         ws.send(`Server received: ${message}`);
     });
 
