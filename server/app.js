@@ -49,6 +49,25 @@ const {scheduleDifferenceCalculation} = require('./controllers/differenceData')
 const app = express();
 const port = process.env.PORT || 5555;
 const server = http.createServer(app);
+const wss = new WebSocket.Server({ server, path: '/ws' });
+
+wss.on('connection', (ws) => {
+    console.log('New WebSocket connection');
+
+    ws.on('message', (message) => {
+        console.log('Received message:', message);
+        ws.send(`Server received: ${message}`);
+    });
+
+    ws.on('close', () => {
+        console.log('WebSocket connection closed');
+    });
+
+    ws.on('error', (error) => {
+        console.error('WebSocket error:', error);
+    });
+});
+
 
 const io = socketIO(server, {
     cors: {
