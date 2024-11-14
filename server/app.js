@@ -51,14 +51,14 @@ const port = process.env.PORT || 5555;
 const server = http.createServer(app);
 
 
-const allowedOrigins = ['http://localhost:3000',
-    'http://localhost:3001',
-    'http://localhost:3002',
-    'https://ems.ebhoom.com',
-    'https://ocems.ebhoom.com',
+const allowedOrigins = [
     'https://api.ocems.ebhoom.com'
 ]
-
+//'http://localhost:3000',
+// 'http://localhost:3001',
+// 'http://localhost:3002',
+// 'https://ems.ebhoom.com',
+// 'https://ocems.ebhoom.com',
 const io = socketIO(server, {
     cors: {
         origin: (origin, callback) => {
@@ -70,10 +70,13 @@ const io = socketIO(server, {
             }
         },
         credentials: true,
-        methods: ["GET", "POST"]
+        methods: ["GET", "POST"],
+        allowedHeaders: ["Origin", "X-Requested-With", "Content-Type", "Accept", "Authorization"],
     },
-    transports: ['websocket', 'polling']
+    transports: ['websocket'], // Enforce WebSocket transport
+    allowEIO3: true, // Allow Engine.IO v3 for compatibility
 });
+
 
 // Export io and server instances
 module.exports = { io, server };
