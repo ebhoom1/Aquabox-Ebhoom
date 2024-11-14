@@ -82,16 +82,12 @@ module.exports = { io, server };
 DB();
 
 // Middleware
+
 app.use(cors({
-    origin: (origin, callback) => {
-        if (allowedOrigins.includes(origin) || !origin) {
-            callback(null, origin);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
+    origin: allowedOrigins,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
 }));
 
 app.use(cookieParser());
@@ -261,7 +257,7 @@ cron.schedule('59 23 * * *', async () => {
 //     }
 // });
 // Initialize all MQTT clients at server startup
-server.listen(port, async () => {
+server.listen(port, '0.0.0.0', async () => {
     console.log(`Server running on port ${port}`);
 
     // Initialize the MQTT client when the server starts
