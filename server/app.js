@@ -52,8 +52,26 @@ const server = http.createServer(app);
 
 
 const allowedOrigins = [
+    'https://ems.ebhoom.com',
     'https://api.ocems.ebhoom.com'
-]
+];
+
+app.use((req, res, next) => {
+    const origin = req.headers.origin;
+    if (allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+    }
+    // Handle preflight request
+    if (req.method === 'OPTIONS') {
+        res.status(204).end();
+        return;
+    }
+    next();
+});
+
 //'http://localhost:3000',
 // 'http://localhost:3001',
 // 'http://localhost:3002',
