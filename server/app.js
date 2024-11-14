@@ -52,10 +52,19 @@ const server = http.createServer(app);
 
 const io = socketIO(server, {
     cors: {
-        origin: ['https://ocems.ebhoom.com','https://api.ocems.ebhoom.com','https://ems.ebhoom.com','http://localhost:3000','http://localhost:3002','http://localhost:3001'], // Include other origins as needed
-        methods: ["GET", "POST","PUT","PATCH","DELETE"],
+        origin: [
+            'http://localhost:3000',
+            'http://localhost:3001',
+            'http://localhost:3002',
+            'https://ems.ebhoom.com',
+            'https://ocems.ebhoom.com',
+            'https://api.ocems.ebhoom.com'
+        ],
+        credentials: true,
+        methods: ["GET", "POST"]
     }
 });
+
 // Export io and server instances
 module.exports = { io, server };
 
@@ -64,11 +73,20 @@ DB();
 
 // Middleware
 app.use(cors({
-    origin: ['http://localhost:3000',  'http://localhost:3002','https://ems.ebhoom.com','https://ocems.ebhoom.com','https://api.ocems.ebhoom.com','http://localhost:3001'],
+    origin: [
+        'http://localhost:3000',
+        'http://localhost:3001',
+        'http://localhost:3002',
+        'https://ems.ebhoom.com',
+        'https://ocems.ebhoom.com',
+        'https://api.ocems.ebhoom.com'
+    ],
     credentials: true,
-    methods: ['GET', 'POST', 'PUT','PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Access-Control-Allow-Credentials'],
+    exposedHeaders: ['Access-Control-Allow-Origin', 'Access-Control-Allow-Credentials']
 }));
+
 app.use(cookieParser());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
