@@ -50,19 +50,29 @@ const app = express();
 const port = process.env.PORT || 5555;
 const server = http.createServer(app);
 
+
+const allowedOrigins = ['http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:3002',
+    'https://ems.ebhoom.com',
+    'https://ocems.ebhoom.com',
+    'https://api.ocems.ebhoom.com'
+]
+
 const io = socketIO(server, {
     cors: {
-        origin: [
-            'http://localhost:3000',
-            'http://localhost:3001',
-            'http://localhost:3002',
-            'https://ems.ebhoom.com',
-            'https://ocems.ebhoom.com',
-            'https://api.ocems.ebhoom.com'
-        ],
+        origin: (origin, callback) => {
+            // Allow requests with no origin (e.g., mobile apps or Postman)
+            if (!origin || allowedOrigins.includes(origin)) {
+                callback(null, true);
+            } else {
+                callback(new Error('CORS policy: This origin is not allowed'));
+            }
+        },
         credentials: true,
         methods: ["GET", "POST"]
-    }
+    },
+    transports: ['websocket', 'polling']
 });
 
 // Export io and server instances
@@ -73,18 +83,15 @@ DB();
 
 // Middleware
 app.use(cors({
-    origin: [
-        'http://localhost:3000',
-        'http://localhost:3001',
-        'http://localhost:3002',
-        'https://ems.ebhoom.com',
-        'https://ocems.ebhoom.com',
-        'https://api.ocems.ebhoom.com'
-    ],
+    origin: (origin, callback) => {
+        if (allowedOrigins.includes(origin) || !origin) {
+            callback(null, origin);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Access-Control-Allow-Credentials'],
-    exposedHeaders: ['Access-Control-Allow-Origin', 'Access-Control-Allow-Credentials']
 }));
 
 app.use(cookieParser());
