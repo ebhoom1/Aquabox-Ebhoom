@@ -12,7 +12,8 @@ const {
         getIotDataByUserNameAndStackName,
         getIotDataByCompanyNameAndStackName,
         getIotDataByCompanyName,
-        viewDataByDateUserAndStackName
+        viewDataByDateUserAndStackName,
+        getFilteredIotData
         
 } = require('../controllers/iotData');
 const { getLatestDataByUserName } = require('../controllers/lastIotDataController');
@@ -54,6 +55,9 @@ router.delete('/delete-by-date',deleteIotDataByDateAndUser)
 
 router.get('/get-IoT-Data-by-userName-and-stackName/:userName/:stackName', getIotDataByUserNameAndStackName);
 router.get('/get-IoT-Data-by-companyName-and-stackName/:companyName/:stackName',getIotDataByCompanyNameAndStackName);
+
+//Route to get filterData using IndustryType and more filter proccess
+router.get('/get-filter-data',getFilteredIotData);
 
 
 module.exports = router;

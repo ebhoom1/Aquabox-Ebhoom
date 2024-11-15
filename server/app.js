@@ -53,7 +53,9 @@ const server = http.createServer(app);
 
 const allowedOrigins = [
     'https://ems.ebhoom.com',
-    'https://api.ocems.ebhoom.com'
+    'https://api.ocems.ebhoom.com',
+    'http://localhost:5555',
+    'http://localhost:3000'
 ];
 
 app.use((req, res, next) => {
