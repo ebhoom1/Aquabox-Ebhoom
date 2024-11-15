@@ -787,7 +787,6 @@ const deleteIotDataByDateAndUser = async (req, res) => {
 
 // get filteredIotData using IndustryType in advanced way
 
-
 const getFilteredIotData = async (req, res) => {
     const { industryType, companyNames, stackNames, fromDate, toDate, limit = 10, page = 1, download = false } = req.body;
 
