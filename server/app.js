@@ -329,5 +329,5 @@ app.use((err, req, res, next) => {
 
 // Serve React app for all other routes
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
+    res.sendFile(path.join(__dirname, '../New_Ocems_App/build', 'index.html'));
 });
