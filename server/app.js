@@ -327,7 +327,7 @@ app.use((err, req, res, next) => {
     res.status(500).send('Something broke!');
 });
 
-// Serve React app for all other routes
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
-});
+// // Serve React app for all other routes
+// app.get('*', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
+// });
