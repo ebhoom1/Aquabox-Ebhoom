@@ -25,14 +25,14 @@ const client = new twilio(accountsid, authtoken);
 //             from: "+14423428965",
 //             to: to
 //         });
-//         console.log(`SMS sent successfully`);
+//         console.log(SMS sent successfully);
 //     } catch (error) {
-//         console.error(`Error sending SMS:`, error);
+//         console.error(Error sending SMS:, error);
 
 //         if (error.code === 20003) {
-//             console.error(`Authentication error: Check your Twilio credentials.`);
+//             console.error(Authentication error: Check your Twilio credentials.);
 //         } else {
-//             console.error(`Twilio error:`, error.message);
+//             console.error(Twilio error:, error.message);
 //         }
 //     }
 // }
@@ -58,8 +58,7 @@ const sendSMS = async (to, message) => {
             console.error(`Error sending SMS: ${response.data.message}`);
         }
     } catch (error) {
-        console.error(`Error sending SMS:`, error.response ? error.response.data : error.message);
-    }
+        console.error(`Error sending SMS:`, error.response ? error.response.data : error.message);    }
 };
 
 
@@ -86,10 +85,9 @@ const sendEmail = async (to, subject, text) => {
             subject: subject,
             text: text
         });
-        console.log(`Email sent successfully`);
+        console.log('Email sent successfully');
     } catch (error) {
-        console.error(`Error sending email:`, error);
-    }
+        console.error('Error sending email:', error);    }
 }
 
 const addComment = async (req, res) => {
@@ -263,21 +261,8 @@ const getExceedDataByUserName = async(req, res) => {
     try {
         const { userName } = req.params;
         const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit);
-
-        // Check if limit is provided and is a positive integer
-        if (!limit || limit <= 0) {
-            return res.status(400).json({
-                status: 400,
-                success: false,
-                message: "A positive 'limit' query parameter is required."
-            });
-        }
-
+        const limit = parseInt(req.query.limit) || 10;  // Default to 10 records per page
         const skipIndex = (page - 1) * limit;
-
-        // Retrieve the total number of records to manage pagination
-        const totalCount = await CalibrationExceed.countDocuments({ userName: userName });
 
         // Retrieve Exceed Data using UserName with pagination
         const userExceedData = await CalibrationExceed.find({ userName: userName })
@@ -286,22 +271,12 @@ const getExceedDataByUserName = async(req, res) => {
             .skip(skipIndex)
             .exec();
 
-        // Check if there's any data to fetch for the requested page
-        if (userExceedData.length === 0) {
-            return res.status(404).json({
-                status: 404,
-                success: false,
-                message: "No data found for this page.",
-            });
-        }
-
         res.status(200).json({
             status: 200,
             success: true,
             message: `Calibration Exceed data of user ${userName} fetched successfully`,
             data: userExceedData,
-            currentPage: page,
-            totalPages: Math.ceil(totalCount / limit),
+            page,
             limit
         });
 
@@ -309,16 +284,15 @@ const getExceedDataByUserName = async(req, res) => {
         res.status(500).json({
             status: 500,
             success: false,
-            message: `Error in fetching User Exceed Data`,
+            message: "Error in fetching User Exceed Data",
             error: error.message,
         });
     }
 };
 
-
   
 
-
+/* try */
 const handleExceedValues = async () => {
     try {
         // Fetch the latest IoT data entry
@@ -344,6 +318,8 @@ const handleExceedValues = async () => {
                 console.error(`User with ID ${user.userName} has no industry type specified.`);
                 return;
             }
+        }
+        
 
             // Fetch the industry thresholds
             const industryThresholds = await CalibrationExceedValues.findOne({ industryType: user.industryType });
@@ -353,6 +329,7 @@ const handleExceedValues = async () => {
                 console.error(`No thresholds found for industry type: ${user.industryType}`);
                 return;
             }
+            
 
             const exceedances = [];
 
@@ -408,6 +385,7 @@ const handleExceedValues = async () => {
                         console.log(`Exceed detected for ${parameter}: ${value} in ${stack.stackName}`);
                         exceedances.push({ parameter, value, stackName: stack.stackName });
                     }
+                    
                 }
             }
 
@@ -427,7 +405,7 @@ const handleExceedValues = async () => {
              //await sendNotification(exceed.parameter, exceed.value, user, exceed.stackName);
 
              // Send chat message about the exceedance
-             const messageContent = `Exceedance detected for ${exceed.parameter} with value ${exceed.value} in ${exceed.stackName}.`;
+             const messageContent =` Exceedance detected for ${exceed.parameter} with value ${exceed.value} in ${exceed.stackName}.`;
 
              const chatMessage = new Chat({
                  from: adminUser._id, // Use admin user's ObjectId
@@ -438,15 +416,17 @@ const handleExceedValues = async () => {
              await chatMessage.save();
              console.log(`Chat message sent: ${messageContent}`);
          }
+     } catch(err){
+        console.log('Error handling exceed values',err);
+        
      }
 
-     console.log('Exceed values handled successfully');
+    /*  console.log('Exceed values handled successfully');
 
-        console.log('Exceed values handled successfully');
-    } catch (error) {
-        console.error('Error handling exceed values:', error);
-    }
+        console.log('Exceed values handled successfully'); */
+   
 };
+
 
 
    
@@ -474,13 +454,13 @@ const sendNotification = async (parameter, value, user,stackName) => {
         // Add notification to the database
          await createNotification(message, user._id, user.userName, currentDate, currentTime);
     } catch (error) {
-        console.error(`Error sending notification:`, error);
+        console.error('Error sending notification:', error);
     }
 };
  
 const saveExceedValue = async (parameter, value, user,stackName) => {
     try {
-       // console.log(`Saving exceed value for parameter: ${parameter}, value: ${value}, user:`, user);
+        console.log(`Saving exceed value for parameter: ${parameter}, value: ${value}, user:, user`);
 
         const currentDate = moment().format('DD/MM/YYYY');
         const currentTime = moment().format('HH:mm:ss');
@@ -495,7 +475,7 @@ const saveExceedValue = async (parameter, value, user,stackName) => {
             timestamp: moment().toDate(),
             formattedDate: currentDate,
             formattedTime: currentTime,
-            message: `Value Exceed in ${parameter} of ${value} for userId ${user.userName}`,
+            message:` Value Exceed in ${parameter} of ${value} for userId ${user.userName}`,
             userName: user.userName,
             stackName,
             industryType: user.industryType,
@@ -505,7 +485,7 @@ const saveExceedValue = async (parameter, value, user,stackName) => {
         });    
 
         await newEntry.save();
-        //console.log(`Exceed value saved successfully`);
+        console.log('Exceed value saved successfully');
 
         return {
             success: true,
@@ -513,7 +493,7 @@ const saveExceedValue = async (parameter, value, user,stackName) => {
             newEntry
         };
     } catch (error) {
-        console.error(`Error saving exceed value:`, error);
+        console.error('Error saving exceed value:', error);
 
         return {
             success: false,

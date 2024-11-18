@@ -1,0 +1,184 @@
+.FloatRight{
+    float: right;
+}
+.FloatRight a {
+    padding-left: 5px;
+    cursor: pointer;
+    text-decoration: underline !important;
+    color: blue !important;
+}
+
+.popup-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .popup {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    width:85vh;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Box shadow for the popup */
+  }
+  
+  .close-btn {
+    position: static;
+    top: 10px;
+    right: 10px;
+    background: red;
+    border: 2px solid black;
+    cursor: pointer;
+    margin-right: 15px;
+    font-weight: bolder;
+    margin-bottom: 20px;
+    
+
+  }
+  .location-display{
+
+    margin-top: 20px;
+  }
+
+  /* index.css */
+
+.user-list-container {
+  max-height: 300px;
+  overflow-y: auto;
+}
+.FloatRight{
+  float: right;
+}
+.FloatRight a {
+  padding-left: 5px;
+  cursor: pointer;
+  text-decoration: underline !important;
+  color: blue !important;
+}
+
+.popup-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  width:85vh;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Box shadow for the popup */
+}
+
+.close-btn {
+  position: static;
+  top: 10px;
+  right: 10px;
+  background: red;
+  border: 2px solid black;
+  cursor: pointer;
+  margin-right: 15px;
+  font-weight: bolder;
+  margin-bottom: 20px;
+  
+
+}
+.location-display{
+
+  margin-top: 20px;
+}
+
+/* index.css */
+
+.user-list-container {
+max-height: 300px;
+overflow-y: auto;
+}
+
+/* table */
+
+
+.userlog-table {
+width: 100%;
+border-collapse: collapse;
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow */
+border-radius: 8px; /* Rounded corners */
+overflow: hidden; /* Ensures the border radius applies to the whole table */
+}
+
+.userlog-head {
+border: 1px solid #ddd; /* Border around cells */
+padding: 12px; /* Adds spacing inside cells */
+text-align: left;
+}
+
+th {
+background-color: #f2f2f2; /* Light background for header */
+color: #333;
+font-weight: bold;
+}
+
+tr:hover {
+background-color: #f9f9f9; /* Row hover effect */
+}
+
+td {
+background-color: #ffffff; /* Background color for table cells */
+}
+
+table, th, td {
+border-radius: 2px; /* Consistent rounding */
+}
+
+.user-list-container {
+max-width: 100%;
+margin: 0 auto; /* Centers the table within the container */
+}
+
+.sort-dropdown {
+display: flex;
+align-items: center;
+margin-bottom: 20px;
+padding: 10px;
+border-radius: 8px;
+box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+background-color: #f9f9f9;
+}
+
+.sort-dropdown label {
+font-size: 16px;
+font-weight: 500;
+color: #333;
+margin-right: 10px;
+}
+
+.sort-dropdown select {
+margin-left: 10px;
+padding: 8px;
+font-size: 14px;
+border-radius: 5px;
+border: 1px solid #ccc;
+box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+transition: border-color 0.2s ease;
+}
+
+.sort-dropdown select:focus {
+border-color: #007bff;
+outline: none;
+}
+
+.sort-dropdown select option {
+padding: 8px;
+}

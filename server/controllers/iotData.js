@@ -9,6 +9,7 @@
     const { handleExceedValues } = require('./calibrationExceed');
     const CalibrationExceedValues = require('../models/calibrationExceedValues');
     const { io, server } = require('../app');
+    const { calculateTotalUsage } = require('./consumptionController');
     const { saveOrUpdateLastEntryByUserName } = require('./lastIotDataController');
     const { Mutex } = require('async-mutex'); // Import async-mutex to ensure atomicity
     const entryMutex = new Mutex(); // Create a mutex for handling unique save operations
@@ -785,114 +786,12 @@ const deleteIotDataByDateAndUser = async (req, res) => {
     }
 };
 
-// get filteredIotData using IndustryType in advanced way
-
-const getFilteredIotData = async (req, res) => {
-    const { industryType, companyNames, stackNames, fromDate, toDate, limit = 10, page = 1, download = false } = req.body;
-
-    try {
-        // Step 1: Validate input
-        if (!industryType || !companyNames || companyNames.length === 0 || !fromDate || !toDate) {
-            return res.status(400).json({
-                success: false,
-                message: 'Missing required fields: industryType, companyNames, fromDate, or toDate',
-            });
-        }
-
-        // Step 2: Fetch user data from userdb based on industryType and companyNames
-        const users = await userdb.find({
-            industryType,
-            companyName: { $in: companyNames },
-        }).lean();
-
-        if (users.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: `No user data found for the provided industryType and companyNames.`,
-            });
-        }
-
-        // Step 3: Extract valid companyNames and stackNames from user data
-        const validCompanyNames = users.map(user => user.companyName);
-        const validStackNames = users.flatMap(user => user.stackName.map(stack => stack.name));
-
-        // Step 4: Validate the provided stackNames
-        const filteredStackNames = stackNames.filter(stackName => validStackNames.includes(stackName));
-        if (filteredStackNames.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: `No matching stackNames found.`,
-            });
-        }
-
-        // Step 5: Parse the date range
-        const parsedFromDate = moment(fromDate, 'DD/MM/YYYY').startOf('day').format('DD/MM/YYYY');
-        const parsedToDate = moment(toDate, 'DD/MM/YYYY').endOf('day').format('DD/MM/YYYY');
-
-        // Step 6: Build the query for filtered IoT data (without stationType filter)
-        const query = {
-            industryType,
-            companyName: { $in: validCompanyNames },
-            date: { $gte: parsedFromDate, $lte: parsedToDate },
-        };
-
-        // Step 7: Fetch the data with pagination or full data for download
-        let iotData;
-        if (download) {
-            iotData = await IotData.find(query).sort({ date: 1, time: 1 }).lean();
-        } else {
-            const skip = (page - 1) * limit;
-            iotData = await IotData.find(query).sort({ date: 1, time: 1 }).skip(skip).limit(parseInt(limit)).lean();
-        }
-
-        if (iotData.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: `No IoT data found for the selected criteria and date range.`,
-            });
-        }
-
-        // Step 8: Filter stackData to include only selected stackNames
-        const filteredData = iotData.map(entry => ({
-            ...entry,
-            stackData: entry.stackData.filter(stack => filteredStackNames.includes(stack.stackName)),
-        }));
-
-        // Step 9: Check for download request and return CSV if requested
-        if (download) {
-            const fields = ['userName', 'industryType', 'companyName', 'date', 'time', 'stackData'];
-            const json2csvParser = new Parser({ fields });
-            const csv = json2csvParser.parse(filteredData);
-
-            res.header('Content-Type', 'text/csv');
-            res.attachment('filtered_data.csv');
-            return res.send(csv);
-        }
-
-        // Step 10: Return paginated data
-        res.status(200).json({
-            success: true,
-            message: 'Filtered IoT data fetched successfully',
-            data: filteredData,
-            currentPage: parseInt(page),
-            totalRecords: filteredData.length,
-        });
-    } catch (error) {
-        console.error('Error fetching filtered IoT data:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Error fetching filtered IoT data',
-            error: error.message,
-        });
-    }
-};
-
 
 
 module.exports ={handleSaveMessage, getAllIotData, getLatestIoTData,getIotDataByUserName,
     downloadIotData,getDifferenceDataByUserName,downloadIotDataByUserName,
     deleteIotDataByDateAndUser,downloadIotDataByUserNameAndStackName,getIotDataByUserNameAndStackName,getIotDataByCompanyNameAndStackName,
-    getIotDataByCompanyName,viewDataByDateUserAndStackName, getFilteredIotData
+    getIotDataByCompanyName,viewDataByDateUserAndStackName
  }
 
 

@@ -1,0 +1,22 @@
+.footer-link {
+    color: rgb(138, 138, 138);
+    font-size: 13px;
+    margin-left: 0px;
+}
+
+.footer-link:hover {
+ 
+    cursor: pointer;
+    color: #000000;
+
+}
+
+.footer-bg {
+    background-color: #f3f3f3;
+}
+
+.copyright {
+    color: rgb(141, 141, 141);
+    font-size: 13px;
+    margin-left: 0px; 
+}

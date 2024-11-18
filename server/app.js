@@ -36,69 +36,28 @@ const socketIO = require('socket.io');
 const cron = require('node-cron');
 const { deleteOldNotifications } = require('./controllers/notification');
 const { scheduleAveragesCalculation } = require('./controllers/iotDataAverages');
+const {schedulePredictionCalculation} = require('./controllers/predictionController')
+const {scheduleTotalConsumptionCalculation} = require('./controllers/consumptionController');
 const {setupCronJobTotalSummary} =require('./controllers/TotalConsumptionSummaryController');
 const {setupCronJobPredictionSummary} = require('./controllers/TotalPredictionSummaryController');
+const totalPredictionSummaryController = require('./controllers/TotalPredictionSummaryController');
 const {scheduleExceedanceAveragesCalculation} = require('./controllers/averageExceedanceController');
 const {  scheduleIotDataEmails,sendDataDaily } = require('./controllers/DataSend');
 const {setupCronJob} = require('./controllers/saveHourlyData');
 const {setupCronJobConsumption}= require('./controllers/consumption');
 const {setupCronJobPrediction} = require('./controllers/PredictionOfConsumption');
-const {scheduleDifferenceCalculation} = require('./controllers/differenceData')
-
+const {scheduleDifferenceCalculation } = require('./controllers/differenceData')
 
 const app = express();
 const port = process.env.PORT || 5555;
 const server = http.createServer(app);
 
-
-const allowedOrigins = [
-    'https://ems.ebhoom.com',
-    'https://api.ocems.ebhoom.com',
-    'http://localhost:5555',
-    'http://localhost:3000',
-    'https://ocems.ebhoom.com'
-];
-
-app.use((req, res, next) => {
-    const origin = req.headers.origin;
-    if (allowedOrigins.includes(origin)) {
-        res.setHeader('Access-Control-Allow-Origin', origin);
-        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-        res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-        res.setHeader('Access-Control-Allow-Credentials', 'true');
-    }
-    // Handle preflight request
-    if (req.method === 'OPTIONS') {
-        res.status(204).end();
-        return;
-    }
-    next();
-});
-
-//'http://localhost:3000',
-// 'http://localhost:3001',
-// 'http://localhost:3002',
-// 'https://ems.ebhoom.com',
-// 'https://ocems.ebhoom.com',
 const io = socketIO(server, {
     cors: {
-        origin: (origin, callback) => {
-            // Allow requests with no origin (e.g., mobile apps or Postman)
-            if (!origin || allowedOrigins.includes(origin)) {
-                callback(null, true);
-            } else {
-                callback(new Error('CORS policy: This origin is not allowed'));
-            }
-        },
-        credentials: true,
-        methods: ["GET", "POST"],
-        allowedHeaders: ["Origin", "X-Requested-With", "Content-Type", "Accept", "Authorization"],
-    },
-    transports: ['websocket'], // Enforce WebSocket transport
-    allowEIO3: true, // Allow Engine.IO v3 for compatibility
+        origin: ['https://ocems.ebhoom.com','https://api.ocems.ebhoom.com','https://new.ocems.ebhoom.com','http://localhost:3000','http://localhost:3002','http://localhost:3001'], // Include other origins as needed
+        methods: ["GET", "POST","PUT","PATCH","DELETE"],
+    }
 });
-
-
 // Export io and server instances
 module.exports = { io, server };
 
@@ -106,38 +65,12 @@ module.exports = { io, server };
 DB();
 
 // Middleware
-
 app.use(cors({
-    origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
+    origin: ['http://localhost:3000',  'http://localhost:3002','https://new.ocems.ebhoom.com','https://ocems.ebhoom.com','https://api.ocems.ebhoom.com','http://localhost:3001'],
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
-    exposedHeaders: ['Authorization'],
+    methods: ['GET', 'POST', 'PUT','PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
-
-app.options('*', cors({
-    origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    credentials: true,
-}));
-
-app.use((req, res, next) => {
-    console.log('Origin:', req.headers.origin);
-    console.log('Method:', req.method);
-    next();
-});
-
 app.use(cookieParser());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -248,10 +181,12 @@ io.on('connection', (socket) => {
 // Start the scheduling function when the server starts
 scheduleAveragesCalculation();
 
+// Start the scheduling function with logging
+console.log("Starting total consumption scheduling...");
+scheduleTotalConsumptionCalculation();
 
-
-// // Start the scheduling
-// schedulePredictionCalculation();
+// Start the scheduling
+schedulePredictionCalculation();
 
 //Start the TotalSummaryOfConsumption
 setupCronJobTotalSummary();
@@ -266,6 +201,11 @@ scheduleExceedanceAveragesCalculation();
 //Send data daily as CSV
 scheduleIotDataEmails()
 
+
+
+// Start the scheduling process
+scheduleDifferenceCalculation();
+
 //Save hourly data of the energy and cumulatingFlow
 setupCronJob()
 
@@ -275,9 +215,6 @@ setupCronJobConsumption()
 
 //start the prediction 
 setupCronJobPrediction()
-
-// Start the scheduling process
-scheduleDifferenceCalculation();
 
 // Schedule the task to delete old notifications every day at midnight
 cron.schedule('0 0 * * *', () => {
@@ -305,7 +242,7 @@ cron.schedule('59 23 * * *', async () => {
 //     }
 // });
 // Initialize all MQTT clients at server startup
-server.listen(port, '0.0.0.0', async () => {
+server.listen(port, async () => {
     console.log(`Server running on port ${port}`);
 
     // Initialize the MQTT client when the server starts
@@ -328,8 +265,6 @@ app.use((err, req, res, next) => {
 });
 
 // Serve React app for all other routes
-app.use(express.static(path.join(__dirname, 'New_Ocems_App/build')));
-
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'New_Ocems_App/build', 'index.html'));
+    res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
 });

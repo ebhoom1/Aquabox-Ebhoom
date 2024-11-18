@@ -1,0 +1,10 @@
+.aqualogo {
+  font-family: 'Sukar Black';
+}
+
+/***** Navbar Active *******/
+.active
+{
+    background-color: #c8d50f;
+}
+/***** End of Navbar Active *******/

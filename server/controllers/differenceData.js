@@ -112,7 +112,8 @@ const scheduleDifferenceCalculation = () => {
     });
 };
 
-
+// Start the scheduling process
+scheduleDifferenceCalculation();
 
 // Controller to fetch difference data by userName and interval
 // Controller to fetch difference data by userName and interval with pagination
